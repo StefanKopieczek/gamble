@@ -82,69 +82,59 @@ public class MemoryManagementUnit {
         }
     }
 
-    public int readByte(int address) {
-        if (address < ROM_1_START) {
-            if (shouldReadBios && address < BIOS_START + BIOS_SIZE) {
-                return bios.readByte(address - BIOS_START);
-            } else {
-                return rom0.readByte(address - ROM_0_START);
-            }
-        } else if (address < VRAM_START){
-            return rom1.readByte(address - ROM_1_START);
-        } else if (address < EXT_RAM_START) {
-            return gpuVram.readByte(address - VRAM_START);
-        } else if (address < RAM_START){
-            return extRam.readByte(address - EXT_RAM_START);
-        } else if (address < SHADOW_RAM_START) {
-            return ram.readByte(address - RAM_START);
-        } else if (address < SPRITES_START) {
-            return ram.readByte(address - SHADOW_RAM_START);
-        } else if (address < DEAD_AREA_START) {
-            return sprites.readByte(address - SPRITES_START);
-        } else if (address < IO_AREA_START) {
-            throw new IllegalArgumentException("Cannot read from address " + address +
-                    ": memory in range " + Integer.toHexString(DEAD_AREA_START) +
-                    "-" + Integer.toHexString(IO_AREA_START - 1) +
-                    " is inaccessible");
-        } else if (address < ZRAM_START) {
-            return io.readByte(address - IO_AREA_START);
-        } else {
-            return zram.readByte(address - ZRAM_START);
-        }
-    }
-
     public void setBiosEnabled(boolean isEnabled) {
         shouldReadBios = isEnabled;
     }
 
+    public int readByte(int address) {
+        MemoryModule module = getModuleForAddress(address);
+        int localAddress = getLocalAddress(address, module);
+        return module.readByte(localAddress);
+    }
+
     public void setByte(int address, int value) {
-        if (address < ROM_1_START) {
-            if (shouldReadBios && address < BIOS_START + BIOS_SIZE) {
-                bios.setByte(address - BIOS_START, value);
+        MemoryModule module = getModuleForAddress(address);
+        int localAddress = getLocalAddress(address, module);
+        module.setByte(localAddress, value);
+    }
+
+    private static int getLocalAddress(int globalAddress, MemoryModule module) {
+        if ((module.getSizeInBytes() & 0xff) != 0 && globalAddress < ZRAM_START) {
+            // Hack to handle the weirdly-located sprite area.
+            return globalAddress & 0xff;
+        } else {
+            return globalAddress % module.getSizeInBytes();
+        }
+    }
+
+    public MemoryModule getModuleForAddress(int globalAddress) {
+        if (globalAddress < ROM_1_START) {
+            if (shouldReadBios && globalAddress < BIOS_START + BIOS_SIZE) {
+                return bios;
             } else {
-                rom0.setByte(address - ROM_0_START, value);
+                return rom0;
             }
-        } else if (address < VRAM_START){
-            rom1.setByte(address - ROM_1_START, value);
-        } else if (address < EXT_RAM_START) {
-            gpuVram.setByte(address - VRAM_START, value);
-        } else if (address < RAM_START){
-            extRam.setByte(address - EXT_RAM_START, value);
-        } else if (address < SHADOW_RAM_START) {
-            ram.setByte(address - RAM_START, value);
-        } else if (address < SPRITES_START) {
-            ram.setByte(address - SHADOW_RAM_START, value);
-        } else if (address < DEAD_AREA_START) {
-            sprites.setByte(address - SPRITES_START, value);
-        } else if (address < IO_AREA_START) {
-            throw new IllegalArgumentException("Cannot write to address " + address +
+        } else if (globalAddress < VRAM_START){
+            return rom1;
+        } else if (globalAddress < EXT_RAM_START) {
+            return gpuVram;
+        } else if (globalAddress < RAM_START){
+            return extRam;
+        } else if (globalAddress < SHADOW_RAM_START) {
+            return ram;
+        } else if (globalAddress < SPRITES_START) {
+            return ram;
+        } else if (globalAddress < DEAD_AREA_START) {
+            return sprites;
+        } else if (globalAddress < IO_AREA_START) {
+            throw new IllegalArgumentException("Cannot access address " + globalAddress +
                     ": memory in range " + Integer.toHexString(DEAD_AREA_START) +
                     "-" + Integer.toHexString(IO_AREA_START - 1) +
                     " is inaccessible");
-        } else if (address < ZRAM_START) {
-            io.setByte(address - IO_AREA_START, value);
+        } else if (globalAddress < ZRAM_START) {
+            return io;
         } else {
-            zram.setByte(address - ZRAM_START, value);
+            return zram;
         }
     }
 }
