@@ -92,4 +92,16 @@ public class TestSimpleMemoryModule {
         MemoryModule mm = new SimpleMemoryModule();
         mm.setByte(0x0, 0x100);
     }
+
+    @Test
+    public void test_default_size() {
+        MemoryModule mm = new SimpleMemoryModule();
+        assertEquals(0xffff, mm.getSizeInBytes());
+    }
+
+    @Test
+    public void test_custom_size() {
+        MemoryModule mm = new SimpleMemoryModule(0x1234);
+        assertEquals(0x1234, mm.getSizeInBytes());
+    }
 }

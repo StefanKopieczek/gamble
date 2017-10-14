@@ -35,4 +35,9 @@ public class SimpleMemoryModule implements MemoryModule {
             throw new IllegalArgumentException("Invalid memory address: " + address, e);
         }
     }
+
+    @Override
+    public int getSizeInBytes() {
+        return memory.length;
+    }
 }
