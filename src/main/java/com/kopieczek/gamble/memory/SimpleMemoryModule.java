@@ -1,15 +1,15 @@
 package com.kopieczek.gamble.memory;
 
 public class SimpleMemoryModule implements MemoryModule {
-    private int value = 0x0;
+    private int[] memory = new int[0xffff];
 
     @Override
     public int readByte(int address) {
-        return value;
+        return memory[address];
     }
 
     @Override
-    public void setByte(int i, int i1) {
-        value = 0xff;
+    public void setByte(int address, int i1) {
+        memory[address] = 0xff;
     }
 }
