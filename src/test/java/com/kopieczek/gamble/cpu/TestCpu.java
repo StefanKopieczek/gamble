@@ -38,7 +38,7 @@ public class TestCpu {
     }
 
     @Test
-    public void test_initial_cycles() {
+    public void test_initial_state() {
         Cpu cpu = new Cpu(buildMmu());
         assertEquals(0, cpu.getCycles());
     }
@@ -53,6 +53,12 @@ public class TestCpu {
     public void test_multiple_nops() {
         Cpu cpu = runProgram(0x00, 0x00, 0x00);
         assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_increment_a() {
+        Cpu cpu = runProgram(0x3c);
+        assertEquals(0x01, cpu.readRegister(Register.A));
     }
 
     private static Cpu runProgram(int... program) {
