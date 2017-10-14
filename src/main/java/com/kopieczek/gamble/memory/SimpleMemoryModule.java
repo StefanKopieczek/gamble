@@ -5,11 +5,19 @@ public class SimpleMemoryModule implements MemoryModule {
 
     @Override
     public int readByte(int address) {
-        return memory[address];
+        try {
+            return memory[address];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("Invalid memory address: " + address, e);
+        }
     }
 
     @Override
     public void setByte(int address, int value) {
-        memory[address] = value;
+        try {
+            memory[address] = value;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("Invalid memory address: " + address, e);
+        }
     }
 }

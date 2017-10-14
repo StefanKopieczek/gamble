@@ -31,4 +31,16 @@ public class TestSimpleMemoryModule {
         mm.setByte(0, 0xab);
         assertEquals(0xab, mm.readByte(0x0));
     }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_cannot_read_negative_memory() {
+        MemoryModule mm = new SimpleMemoryModule();
+        mm.readByte(-0x01);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_cannot_write_negative_memory() {
+        MemoryModule mm = new SimpleMemoryModule();
+        mm.setByte(-0x01, 0xff);
+    }
 }
