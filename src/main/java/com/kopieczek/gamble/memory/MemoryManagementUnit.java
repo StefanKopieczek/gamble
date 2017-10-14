@@ -33,7 +33,15 @@ public class MemoryManagementUnit {
     }
 
     private void validateMemoryModuleSizes() throws IllegalArgumentException {
-        assertModuleSize("BIOS", bios, 0x100);
+        assertModuleSize("BIOS", bios,0x100);
+        assertModuleSize("ROM0", rom0,0x4000);
+        assertModuleSize("ROM1", rom1,0x4000);
+        assertModuleSize("GPU VRAM", gpuVram,0x2000);
+        assertModuleSize("External RAM", extRam,0x2000);
+        assertModuleSize("Working RAM", ram,0x2000);
+        assertModuleSize("Sprite Space", sprites,0xa0);
+        assertModuleSize("Memory-mapped IO", io,0x80);
+        assertModuleSize("High-page RAM", zram,0x80);
     }
 
     private static void assertModuleSize(String moduleName, MemoryModule module, int expectedSize)
