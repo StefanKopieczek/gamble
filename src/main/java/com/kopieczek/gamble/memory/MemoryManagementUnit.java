@@ -56,4 +56,8 @@ public class MemoryManagementUnit {
                     " bytes)");
         }
     }
+
+    public int readByte(int address) {
+        return bios.readByte(address);
+    }
 }
