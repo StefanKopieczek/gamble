@@ -86,4 +86,10 @@ public class TestSimpleMemoryModule {
         MemoryModule mm = new SimpleMemoryModule();
         mm.setByte(0x0, -0x01);
     }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_cannot_write_larger_than_one_byte() {
+        MemoryModule mm = new SimpleMemoryModule();
+        mm.setByte(0x0, 0x100);
+    }
 }
