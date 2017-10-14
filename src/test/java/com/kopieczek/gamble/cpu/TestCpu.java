@@ -38,25 +38,20 @@ public class TestCpu {
     }
 
     @Test
-    public void test_single_nop_executes() {
-        runProgram(0x00);
-    }
-
-    @Test
-    public void test_multiple_nops() {
-        runProgram(0x00, 0x00, 0x00);
-    }
-
-    @Test
     public void test_initial_cycles() {
         Cpu cpu = new Cpu(buildMmu());
         assertEquals(0, cpu.getCycles());
     }
 
     @Test
-    public void test_cycles_after_single_nop() {
+    public void test_single_nop() {
         Cpu cpu = runProgram(0x00);
         assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_multiple_nops() {
+        Cpu cpu = runProgram(0x00, 0x00, 0x00);
     }
 
     private static Cpu runProgram(int... program) {
