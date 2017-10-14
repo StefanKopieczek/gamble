@@ -29,5 +29,10 @@ public class MemoryManagementUnit {
         this.sprites = sprites;
         this.io = io;
         this.zram = zram;
+        validateMemoryModuleSizes();
+    }
+
+    private void validateMemoryModuleSizes() throws IllegalArgumentException {
+        throw new IllegalArgumentException();
     }
 }
