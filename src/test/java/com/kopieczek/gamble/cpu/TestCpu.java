@@ -48,6 +48,12 @@ public class TestCpu {
     }
 
     @Test
+    public void test_initial_cycles() {
+        Cpu cpu = new Cpu(buildMmu());
+        assertEquals(0, cpu.getCycles());
+    }
+
+    @Test
     public void test_cycles_after_single_nop() {
         Cpu cpu = runProgram(0x00);
         assertEquals(4, cpu.getCycles());

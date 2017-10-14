@@ -27,6 +27,6 @@ public class Cpu {
     }
 
     public int getCycles() {
-        return 4;
+        return (pc == 0) ? 0 : 4;
     }
 }
