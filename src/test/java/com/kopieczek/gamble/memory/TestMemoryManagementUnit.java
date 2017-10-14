@@ -449,6 +449,281 @@ public class TestMemoryManagementUnit {
         testMmuRead(mmu, zram, ZRAM_START);
     }
 
+    @Test
+    public void test_write_to_bios() {
+        SimpleMemoryModule bios = new SimpleMemoryModule(BIOS_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                bios,
+                new SimpleMemoryModule(ROM_0_SIZE),
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        testMmuWrite(mmu, bios, BIOS_START);
+    }
+
+    @Test
+    public void test_write_to_rom1() {
+        SimpleMemoryModule rom1 = new SimpleMemoryModule(ROM_1_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                rom1,
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        testMmuWrite(mmu, rom1, ROM_1_START);
+    }
+
+    @Test
+    public void test_write_with_bios_switch() {
+        SimpleMemoryModule bios = new SimpleMemoryModule(BIOS_SIZE);
+        SimpleMemoryModule rom0 = new SimpleMemoryModule(ROM_0_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                bios,
+                rom0,
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        // BIOS is initially enabled.
+        mmu.setByte(0x00, 0x10);
+        mmu.setByte(BIOS_SIZE - 1, 0x20);
+        assertEquals(0x10, bios.readByte(0x00));
+        assertEquals(0x20, bios.readByte(BIOS_SIZE - 1));
+
+        mmu.setBiosEnabled(false);
+        mmu.setByte(0x00, 0x30);
+        mmu.setByte(BIOS_SIZE - 1, 0x40);
+        assertEquals(0x30, rom0.readByte(0x00));
+        assertEquals(0x40, rom0.readByte(BIOS_SIZE - 1));
+
+        // Check that the BIOS page isn't modified by switching.
+        mmu.setBiosEnabled(true);
+        assertEquals(0x10, bios.readByte(0x00));
+        assertEquals(0x20, bios.readByte(BIOS_SIZE - 1));
+
+        // Check that the ROM0 page isn't modified by switching.
+        mmu.setBiosEnabled(false);
+        assertEquals(0x30, rom0.readByte(0x00));
+        assertEquals(0x40, rom0.readByte(BIOS_SIZE - 1));
+    }
+
+    @Test
+    public void test_write_to_rom0() {
+        SimpleMemoryModule rom0 = new SimpleMemoryModule(ROM_0_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                rom0,
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        mmu.setBiosEnabled(false);
+        testMmuWrite(mmu, rom0, ROM_0_START);
+    }
+
+//    @Test
+//    public void test_write_to_rom0_with_bios_enabled() {
+//        SimpleMemoryModule rom0 = new SimpleMemoryModule(ROM_0_SIZE);
+//        MemoryManagementUnit mmu = new MemoryManagementUnit(
+//                new SimpleMemoryModule(BIOS_SIZE),
+//                rom0,
+//                new SimpleMemoryModule(ROM_1_SIZE),
+//                new SimpleMemoryModule(VRAM_SIZE),
+//                new SimpleMemoryModule(EXTRAM_SIZE),
+//                new SimpleMemoryModule(RAM_SIZE),
+//                new SimpleMemoryModule(SPRITES_SIZE),
+//                new SimpleMemoryModule(IO_SIZE),
+//                new SimpleMemoryModule(ZRAM_SIZE)
+//        );
+//
+//        rom0.setByte(BIOS_SIZE + 1, 0xff);
+//        rom0.setByte(ROM_1_START - 1, 0x20);
+//        assertEquals(0xff, mmu.readByte(BIOS_SIZE + 1));
+//        assertEquals(0x20, mmu.readByte(ROM_1_START - 1));
+//    }
+
+    @Test
+    public void test_write_to_gpu_vram() {
+        SimpleMemoryModule vram = new SimpleMemoryModule(VRAM_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                new SimpleMemoryModule(ROM_1_SIZE),
+                vram,
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        testMmuWrite(mmu, vram, VRAM_START);
+    }
+
+    @Test
+    public void test_write_to_extram() {
+        SimpleMemoryModule extram = new SimpleMemoryModule(EXTRAM_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                extram,
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        testMmuWrite(mmu, extram, EXTRAM_START);
+    }
+
+    @Test
+    public void test_write_to_ram() {
+        SimpleMemoryModule ram = new SimpleMemoryModule(RAM_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                ram,
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        testMmuWrite(mmu, ram, RAM_START);
+    }
+
+    @Test
+    public void test_write_to_shadow_ram() {
+        SimpleMemoryModule ram = new SimpleMemoryModule(RAM_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                ram,
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        testMmuWrite(mmu, ram, SHADOW_RAM_START, SHADOW_RAM_SIZE);
+    }
+
+    @Test
+    public void test_write_to_sprite_area() {
+        SimpleMemoryModule sprites = new SimpleMemoryModule(SPRITES_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                sprites,
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        testMmuWrite(mmu, sprites, SPRITES_START);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_write_to_unused_area_start() {
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        mmu.setByte(DEAD_AREA_START, 0xff);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_write_to_unused_area_end() {
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        mmu.setByte(DEAD_AREA_START + DEAD_AREA_SIZE - 1, 0xff);
+    }
+
+    @Test
+    public void test_write_to_io_area() {
+        SimpleMemoryModule io = new SimpleMemoryModule(IO_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                io,
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        testMmuWrite(mmu, io, IO_START);
+    }
+
+    @Test
+    public void test_write_to_zram() {
+        SimpleMemoryModule zram = new SimpleMemoryModule(ZRAM_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE),
+                zram
+        );
+
+        testMmuWrite(mmu, zram, ZRAM_START);
+    }
+
     private void testMmuRead(MemoryManagementUnit mmu, MemoryModule module, int addressOffset, int maxSize) {
         int start = 0;
         int mid = module.getSizeInBytes() / 2;
@@ -466,5 +741,24 @@ public class TestMemoryManagementUnit {
 
     private void testMmuRead(MemoryManagementUnit mmu, MemoryModule module, int addressOffset) {
         testMmuRead(mmu, module, addressOffset, module.getSizeInBytes());
+    }
+
+    private void testMmuWrite(MemoryManagementUnit mmu, MemoryModule module, int addressOffset, int maxSize) {
+        int start = 0;
+        int mid = module.getSizeInBytes() / 2;
+        int end = maxSize - 1;
+        int startVal = 0x01;
+        int midVal = 0xa0;
+        int endVal = 0xff;
+        mmu.setByte(addressOffset + start, startVal);
+        mmu.setByte(addressOffset + mid, midVal);
+        mmu.setByte(addressOffset + end, endVal);
+        assertEquals(startVal, module.readByte(start));
+        assertEquals(midVal, module.readByte(mid));
+        assertEquals(endVal, module.readByte(end));
+    }
+
+    private void testMmuWrite(MemoryManagementUnit mmu, MemoryModule module, int addressOffset) {
+        testMmuWrite(mmu, module, addressOffset, module.getSizeInBytes());
     }
 }

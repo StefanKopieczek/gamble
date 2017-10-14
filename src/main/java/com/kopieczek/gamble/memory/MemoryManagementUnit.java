@@ -116,4 +116,35 @@ public class MemoryManagementUnit {
     public void setBiosEnabled(boolean isEnabled) {
         shouldReadBios = isEnabled;
     }
+
+    public void setByte(int address, int value) {
+        if (address < ROM_1_START) {
+            if (shouldReadBios && address < BIOS_START + BIOS_SIZE) {
+                bios.setByte(address - BIOS_START, value);
+            } else {
+                rom0.setByte(address - ROM_0_START, value);
+            }
+        } else if (address < VRAM_START){
+            rom1.setByte(address - ROM_1_START, value);
+        } else if (address < EXT_RAM_START) {
+            gpuVram.setByte(address - VRAM_START, value);
+        } else if (address < RAM_START){
+            extRam.setByte(address - EXT_RAM_START, value);
+        } else if (address < SHADOW_RAM_START) {
+            ram.setByte(address - RAM_START, value);
+        } else if (address < SPRITES_START) {
+            ram.setByte(address - SHADOW_RAM_START, value);
+        } else if (address < DEAD_AREA_START) {
+            sprites.setByte(address - SPRITES_START, value);
+        } else if (address < IO_AREA_START) {
+            throw new IllegalArgumentException("Cannot write to address " + address +
+                    ": memory in range " + Integer.toHexString(DEAD_AREA_START) +
+                    "-" + Integer.toHexString(IO_AREA_START - 1) +
+                    " is inaccessible");
+        } else if (address < ZRAM_START) {
+            io.setByte(address - IO_AREA_START, value);
+        } else {
+            zram.setByte(address - ZRAM_START, value);
+        }
+    }
 }
