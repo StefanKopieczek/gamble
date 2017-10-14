@@ -269,6 +269,27 @@ public class TestMemoryManagementUnit {
     }
 
     @Test
+    public void test_read_from_rom0_with_bios_enabled() {
+        SimpleMemoryModule rom0 = new SimpleMemoryModule(ROM_0_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                rom0,
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        rom0.setByte(BIOS_SIZE + 1, 0xff);
+        rom0.setByte(ROM_1_START - 1, 0x20);
+        assertEquals(0xff, mmu.readByte(BIOS_SIZE + 1));
+        assertEquals(0x20, mmu.readByte(ROM_1_START - 1));
+    }
+
+    @Test
     public void test_read_from_gpu_vram() {
         SimpleMemoryModule vram = new SimpleMemoryModule(VRAM_SIZE);
         MemoryManagementUnit mmu = new MemoryManagementUnit(
