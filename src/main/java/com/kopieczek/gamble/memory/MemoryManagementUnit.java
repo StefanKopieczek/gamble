@@ -33,6 +33,8 @@ public class MemoryManagementUnit {
     private final MemoryModule io;
     private final MemoryModule zram;
 
+    private boolean shouldReadBios;
+
     public MemoryManagementUnit(MemoryModule bios,
                                 MemoryModule rom0,
                                 MemoryModule rom1,
@@ -51,6 +53,7 @@ public class MemoryManagementUnit {
         this.sprites = sprites;
         this.io = io;
         this.zram = zram;
+        shouldReadBios = true;
         validateMemoryModuleSizes();
     }
 
@@ -81,7 +84,11 @@ public class MemoryManagementUnit {
 
     public int readByte(int address) {
         if (address < ROM_1_START) {
-            return bios.readByte(address - BIOS_START);
+            if (shouldReadBios && address < BIOS_START + BIOS_SIZE) {
+                return bios.readByte(address - BIOS_START);
+            } else {
+                return rom0.readByte(address - ROM_0_START);
+            }
         } else if (address < VRAM_START){
             return rom1.readByte(address - ROM_1_START);
         } else if (address < EXT_RAM_START) {
@@ -104,5 +111,9 @@ public class MemoryManagementUnit {
         } else {
             return zram.readByte(address - ZRAM_START);
         }
+    }
+
+    public void setBiosEnabled(boolean isEnabled) {
+        shouldReadBios = isEnabled;
     }
 }

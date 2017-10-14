@@ -216,6 +216,59 @@ public class TestMemoryManagementUnit {
     }
 
     @Test
+    public void test_read_with_bios_switch() {
+        SimpleMemoryModule bios = new SimpleMemoryModule(BIOS_SIZE);
+        SimpleMemoryModule rom0 = new SimpleMemoryModule(ROM_0_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                bios,
+                rom0,
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        bios.setByte(0x00, 0x10);
+        bios.setByte(BIOS_SIZE - 1, 0x20);
+        rom0.setByte(0x00, 0x30);
+        rom0.setByte(BIOS_SIZE - 1, 0x40);
+
+        // BIOS is initially enabled.
+        assertEquals(0x10, mmu.readByte(0x00));
+        assertEquals(0x20, mmu.readByte(BIOS_SIZE - 1));
+
+        mmu.setBiosEnabled(false);
+        assertEquals(0x30, mmu.readByte(0x00));
+        assertEquals(0x40, mmu.readByte(BIOS_SIZE - 1));
+
+        mmu.setBiosEnabled(true);
+        assertEquals(0x10, mmu.readByte(0x00));
+        assertEquals(0x20, mmu.readByte(BIOS_SIZE - 1));
+    }
+
+    @Test
+    public void test_read_from_rom0() {
+        SimpleMemoryModule rom0 = new SimpleMemoryModule(ROM_0_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                rom0,
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        mmu.setBiosEnabled(false);
+        testMmuRead(mmu, rom0, ROM_0_START);
+    }
+
+    @Test
     public void test_read_from_gpu_vram() {
         SimpleMemoryModule vram = new SimpleMemoryModule(VRAM_SIZE);
         MemoryManagementUnit mmu = new MemoryManagementUnit(
