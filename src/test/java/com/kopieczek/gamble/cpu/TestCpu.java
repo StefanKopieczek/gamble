@@ -52,6 +52,7 @@ public class TestCpu {
     @Test
     public void test_multiple_nops() {
         Cpu cpu = runProgram(0x00, 0x00, 0x00);
+        assertEquals(12, cpu.getCycles());
     }
 
     private static Cpu runProgram(int... program) {

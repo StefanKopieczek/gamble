@@ -5,6 +5,7 @@ import com.kopieczek.gamble.memory.MemoryManagementUnit;
 public class Cpu {
     private final MemoryManagementUnit mmu;
     private int pc = 0;
+    private int cycles = 0;
 
     public Cpu(MemoryManagementUnit mmu) {
         this.mmu = mmu;
@@ -20,6 +21,7 @@ public class Cpu {
 
     public void tick() {
         pc += 1;
+        cycles += 4;
     }
 
     public int getProgramCounter() {
@@ -27,6 +29,6 @@ public class Cpu {
     }
 
     public int getCycles() {
-        return (pc == 0) ? 0 : 4;
+        return cycles;
     }
 }
