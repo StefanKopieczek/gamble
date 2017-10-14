@@ -1,8 +1,17 @@
+# Filetype ignores
 *.jar
-*.*.jar
 *.class
 *.sw[po]
+
+# Ignore gradle build folder
 .gradle/
+
+# Ignore IntelliJ IDEA project files
 *.ipr
 *.iws
 *.iml
+
+# Ignore eclipse project files
+.classpath
+.project
+.settings
