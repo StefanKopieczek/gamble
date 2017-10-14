@@ -9,7 +9,7 @@ public class SimpleMemoryModule implements MemoryModule {
     }
 
     @Override
-    public void setByte(int address, int i1) {
-        memory[address] = 0xff;
+    public void setByte(int address, int value) {
+        memory[address] = value;
     }
 }

@@ -24,4 +24,11 @@ public class TestSimpleMemoryModule {
         mm.setByte(0x0, 0xff);
         assertEquals(0x0, mm.readByte(0x1));
     }
+
+    @Test
+    public void test_set_arbitrary_byte_values() {
+        MemoryModule mm = new SimpleMemoryModule();
+        mm.setByte(0, 0xab);
+        assertEquals(0xab, mm.readByte(0x0));
+    }
 }
