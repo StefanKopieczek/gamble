@@ -47,6 +47,12 @@ public class TestCpu {
         runProgram(0x00, 0x00, 0x00);
     }
 
+    @Test
+    public void test_cycles_after_single_nop() {
+        Cpu cpu = runProgram(0x00);
+        assertEquals(4, cpu.getCycles());
+    }
+
     private static Cpu runProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

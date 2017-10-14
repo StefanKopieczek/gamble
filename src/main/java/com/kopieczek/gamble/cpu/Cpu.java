@@ -25,4 +25,8 @@ public class Cpu {
     public int getProgramCounter() {
         return pc;
     }
+
+    public int getCycles() {
+        return 4;
+    }
 }
