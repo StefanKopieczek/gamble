@@ -1,22 +1,20 @@
 package com.kopieczek.gamble.memory;
 
 public class SimpleMemoryModule implements MemoryModule {
-    private int[] memory = new int[0xffff];
-    private boolean fail;
-
-    public SimpleMemoryModule(int size) {
-        fail = true;
-    }
+    public static final int DEFAULT_SIZE = 0xffff;
+    private int[] memory;
 
     public SimpleMemoryModule() {
-        fail = false;
+        this(DEFAULT_SIZE);
+    }
+
+    public SimpleMemoryModule(int size) {
+        memory = new int[size];
     }
 
     @Override
     public int readByte(int address) {
         try {
-            if (fail)
-                throw new ArrayIndexOutOfBoundsException();
             return memory[address];
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Invalid memory address: " + address, e);
@@ -26,8 +24,6 @@ public class SimpleMemoryModule implements MemoryModule {
     @Override
     public void setByte(int address, int value) {
         try {
-            if (fail)
-                throw new ArrayIndexOutOfBoundsException();
             memory[address] = value;
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Invalid memory address: " + address, e);

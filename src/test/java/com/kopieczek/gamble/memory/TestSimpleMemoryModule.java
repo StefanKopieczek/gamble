@@ -67,4 +67,17 @@ public class TestSimpleMemoryModule {
         MemoryModule mm = new SimpleMemoryModule(0x2);
         mm.setByte(0x3, 0xff);
     }
+
+    @Test()
+    public void test_can_read_maximum_addressable_memory() {
+        MemoryModule mm = new SimpleMemoryModule(0x2);
+        assertEquals(0x0, mm.readByte(0x1));
+    }
+
+    @Test()
+    public void test_can_write_maximum_addressable_memory() {
+        MemoryModule mm = new SimpleMemoryModule(0x2);
+        mm.setByte(0x1, 0xfe);
+        assertEquals(0xfe, mm.readByte(0x1));
+    }
 }
