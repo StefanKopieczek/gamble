@@ -11,6 +11,9 @@
 *.iws
 *.iml
 
+# Ignore IntelliJ output folder
+out
+
 # Ignore eclipse project files
 .classpath
 .project
