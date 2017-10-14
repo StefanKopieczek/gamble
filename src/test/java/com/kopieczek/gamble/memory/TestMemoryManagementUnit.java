@@ -27,4 +27,19 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
     }
+
+    @Test
+    public void test_valid_memory_modules_accepted() {
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+    }
 }

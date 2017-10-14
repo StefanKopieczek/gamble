@@ -33,6 +33,19 @@ public class MemoryManagementUnit {
     }
 
     private void validateMemoryModuleSizes() throws IllegalArgumentException {
-        throw new IllegalArgumentException();
+        assertModuleSize("BIOS", bios, 0x100);
+    }
+
+    private static void assertModuleSize(String moduleName, MemoryModule module, int expectedSize)
+            throws IllegalArgumentException {
+        if (module.getSizeInBytes() != expectedSize) {
+            throw new IllegalArgumentException("Wrongly-sized " +
+                    moduleName +
+                    " module (was " +
+                    module.getSizeInBytes() +
+                    " bytes), expected " +
+                    expectedSize +
+                    " bytes)");
+        }
     }
 }
