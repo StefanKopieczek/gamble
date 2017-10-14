@@ -1,0 +1,8 @@
+*.jar
+*.*.jar
+*.class
+*.sw[po]
+.gradle/
+*.ipr
+*.iws
+*.iml
