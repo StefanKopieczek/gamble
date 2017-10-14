@@ -23,6 +23,10 @@ public class SimpleMemoryModule implements MemoryModule {
 
     @Override
     public void setByte(int address, int value) {
+        if (value < 0) {
+            throw new IllegalArgumentException("Cannot write negative value to memory: " + value);
+        }
+
         try {
             memory[address] = value;
         } catch (ArrayIndexOutOfBoundsException e) {

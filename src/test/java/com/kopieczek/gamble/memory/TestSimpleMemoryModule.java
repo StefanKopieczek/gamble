@@ -80,4 +80,10 @@ public class TestSimpleMemoryModule {
         mm.setByte(0x1, 0xfe);
         assertEquals(0xfe, mm.readByte(0x1));
     }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_cannot_write_negative_value() {
+        MemoryModule mm = new SimpleMemoryModule();
+        mm.setByte(0x0, -0x01);
+    }
 }
