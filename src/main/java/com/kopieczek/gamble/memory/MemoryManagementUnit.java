@@ -58,6 +58,10 @@ public class MemoryManagementUnit {
     }
 
     public int readByte(int address) {
-        return bios.readByte(address);
+        if (address < 0x4000) {
+            return bios.readByte(address);
+        } else {
+            return rom1.readByte(address - 0x4000);
+        }
     }
 }

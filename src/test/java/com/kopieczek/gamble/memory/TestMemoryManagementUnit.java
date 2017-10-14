@@ -17,6 +17,7 @@ public class TestMemoryManagementUnit {
 
     private static final int BIOS_START = 0x0;
     private static final int ROM_0_START = 0x0;
+    private static final int ROM_1_START = ROM_0_START + ROM_0_SIZE;
 
     @Test
     public void test_valid_memory_modules_accepted() {
@@ -184,6 +185,24 @@ public class TestMemoryManagementUnit {
         );
 
         testMmuRead(mmu, bios, ROM_0_START);
+    }
+
+    @Test
+    public void test_read_from_rom1() {
+        SimpleMemoryModule rom1 = new SimpleMemoryModule(ROM_1_SIZE);
+        MemoryManagementUnit mmu = new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                rom1,
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXTRAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+
+        testMmuRead(mmu, rom1, ROM_1_START);
     }
 
     private void testMmuRead(MemoryManagementUnit mmu, MemoryModule module, int addressOffset) {
