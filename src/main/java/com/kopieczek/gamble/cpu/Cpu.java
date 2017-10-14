@@ -24,7 +24,7 @@ public class Cpu {
         int opcode = mmu.readByte(pc);
 
         if (opcode == 0x3c) {
-            register = 1;
+            register++;
         }
 
         pc += 1;

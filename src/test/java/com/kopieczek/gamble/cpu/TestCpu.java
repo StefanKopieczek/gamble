@@ -61,6 +61,12 @@ public class TestCpu {
         assertEquals(0x01, cpu.readRegister(Register.A));
     }
 
+    @Test
+    public void test_increment_a_twice() {
+        Cpu cpu = runProgram(0x3c, 0x3c);
+        assertEquals(0x02, cpu.readRegister(Register.A));
+    }
+
     private static Cpu runProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
