@@ -43,4 +43,28 @@ public class TestSimpleMemoryModule {
         MemoryModule mm = new SimpleMemoryModule();
         mm.setByte(-0x01, 0xff);
     }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_cannot_read_beyond_max_address() {
+        MemoryModule mm = new SimpleMemoryModule(0x2);
+        mm.readByte(0x2);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_cannot_read_beyond_max_address_2() {
+        MemoryModule mm = new SimpleMemoryModule(0x2);
+        mm.readByte(0x3);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_cannot_write_beyond_max_address() {
+        MemoryModule mm = new SimpleMemoryModule(0x2);
+        mm.setByte(0x2, 0xff);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_cannot_write_beyond_max_address_2() {
+        MemoryModule mm = new SimpleMemoryModule(0x2);
+        mm.setByte(0x3, 0xff);
+    }
 }
