@@ -19,7 +19,7 @@ public class Cpu {
     }
 
     public void tick() {
-        pc = 2;
+        pc += 1;
     }
 
     public int getProgramCounter() {

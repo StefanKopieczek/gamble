@@ -39,7 +39,12 @@ public class TestCpu {
 
     @Test
     public void test_single_nop_executes() {
-        Cpu cpu = runProgram(0x00);
+        runProgram(0x00);
+    }
+
+    @Test
+    public void test_multiple_nops() {
+        runProgram(0x00, 0x00, 0x00);
     }
 
     private static Cpu runProgram(int... program) {
