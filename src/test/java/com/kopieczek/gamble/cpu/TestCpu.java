@@ -36,4 +36,29 @@ public class TestCpu {
                 new SimpleMemoryModule(MemoryManagementUnit.ZRAM_SIZE)
         );
     }
+
+    @Test
+    public void test_single_nop_executes() {
+        Cpu cpu = runProgram(0x00);
+    }
+
+    private static Cpu runProgram(int... program) {
+        MemoryManagementUnit mmu = buildMmu();
+        mmu.setBiosEnabled(false);
+        for (int idx = 0; idx < program.length; idx++) {
+            mmu.setByte(idx, program[idx]);
+        }
+
+        Cpu cpu = new Cpu(mmu);
+        int ticks = 0;
+        while (cpu.getProgramCounter() < program.length) {
+            cpu.tick();
+            ticks++;
+            if (ticks > 1000) {
+                throw new RuntimeException("Program failed to terminate");
+            }
+        }
+
+        return cpu;
+    }
 }
