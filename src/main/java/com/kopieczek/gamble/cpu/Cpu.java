@@ -3,11 +3,11 @@ package com.kopieczek.gamble.cpu;
 import com.kopieczek.gamble.memory.MemoryManagementUnit;
 
 public class Cpu {
-    private final MemoryManagementUnit mmu;
-    private int pc = 0;
-    private int cycles = 0;
-    private int[] registers;
-    private boolean[] flags;
+    final MemoryManagementUnit mmu;
+    int pc = 0;
+    int cycles = 0;
+    int[] registers;
+    boolean[] flags;
 
     public Cpu(MemoryManagementUnit mmu) {
         this.mmu = mmu;
@@ -26,58 +26,19 @@ public class Cpu {
     public void tick() {
         int opcode = mmu.readByte(pc);
 
-        switch (opcode) {
-            case 0x00: // NOP
-                flags[Flag.ZERO.ordinal()] = false;
-                cycles += 4;
-                break;
-            case 0x3c: // INC A
-                increment(Register.A);
-                cycles += 4;
-                break;
-            case 0x04: // INC B
-                increment(Register.B);
-                cycles += 4;
-                break;
-            case 0x0c: // INC C
-                increment(Register.C);
-                cycles += 4;
-                break;
-            case 0x14: // INC D
-                increment(Register.D);
-                cycles += 4;
-                break;
-            case 0x1c: // INC E
-                increment(Register.E);
-                cycles += 4;
-                break;
-            case 0x24: // INC H
-                increment(Register.H);
-                cycles += 4;
-                break;
-            case 0x2c: // INC L
-                increment(Register.L);
-                cycles += 4;
-                break;
-            case 0x34: // INC HL
-                increment(Register.L);
-                cycles += 12;
-                if (isSet(Flag.ZERO)) {
-                    increment(Register.H);
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown opcode 0x" + Integer.toHexString(opcode));
+        Operation op = Operation.map.get(opcode);
+        if (op != null) {
+            op.execute(this);
+        } else {
+            throw new IllegalArgumentException("Unknown opcode 0x" + Integer.toHexString(opcode));
         }
 
         pc += 1;
     }
 
-    private void increment(Register r) {
+    void increment(Register r) {
         registers[r.ordinal()]++;
         registers[r.ordinal()] &= 0xff;
-
-        flags[Flag.ZERO.ordinal()] = (registers[r.ordinal()] == 0);
     }
 
     public int getProgramCounter() {

@@ -145,7 +145,7 @@ public class TestCpu {
     }
 
     @Test
-    public void test_nop_unsets_zero_flag() {
+    public void test_nop_doesnt_clear_zero_flag() {
         int[] program = new int[257];
         for (int idx = 0; idx < 256; idx++) {
             program[idx] = 0x04;
@@ -153,7 +153,7 @@ public class TestCpu {
         program[256] = 0x00;
 
         Cpu cpu = runProgram(program);
-        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.ZERO));
     }
 
     @Test
