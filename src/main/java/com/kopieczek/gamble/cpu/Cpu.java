@@ -28,25 +28,25 @@ public class Cpu {
             case 0x00: // NOP
                 break;
             case 0x3c: // INC A
-                registers[Register.A.ordinal()]++;
+                increment(Register.A);
                 break;
             case 0x04: // INC B
-                registers[Register.B.ordinal()]++;
+                increment(Register.B);
                 break;
             case 0x0c: // INC C
-                registers[Register.C.ordinal()]++;
+                increment(Register.C);
                 break;
             case 0x14: // INC D
-                registers[Register.D.ordinal()]++;
+                increment(Register.D);
                 break;
             case 0x1c: // INC E
-                registers[Register.E.ordinal()]++;
+                increment(Register.E);
                 break;
             case 0x24: // INC H
-                registers[Register.H.ordinal()]++;
+                increment(Register.H);
                 break;
             case 0x2c: // INC L
-                registers[Register.L.ordinal()]++;
+                increment(Register.L);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown opcode " + Integer.toHexString(opcode));
@@ -54,6 +54,11 @@ public class Cpu {
 
         pc += 1;
         cycles += 4;
+    }
+
+    private void increment(Register r) {
+        registers[r.ordinal()]++;
+        registers[r.ordinal()] &= 0xff;
     }
 
     public int getProgramCounter() {

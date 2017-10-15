@@ -103,6 +103,20 @@ public class TestCpu {
         assertEquals(0x04, cpu.readRegister(Register.L));
     }
 
+    @Test
+    public void test_rollover() {
+        int[] program = new int[257];
+        for (int idx = 0; idx < program.length; idx++) {
+            program[idx] = 0x04;
+
+        }
+
+        // One-byte registers should overflow to 0 when they reach 0x100.
+        Cpu cpu = runProgram(program);
+        assertEquals(0x01, cpu.readRegister(Register.B));
+    }
+
+
     private static Cpu runProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
