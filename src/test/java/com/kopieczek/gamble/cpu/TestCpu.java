@@ -8,6 +8,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * Note the tests below intentionally don't use the Operation enum, and instead specify opcodes manually.
+ * This gives us additional confidence that the Operation codes are correct.
+ */
 public class TestCpu {
     @Test
     public void test_simple_read() {
@@ -44,6 +48,7 @@ public class TestCpu {
         Cpu cpu = new Cpu(buildMmu());
         assertEquals(0, cpu.getCycles());
         assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.OPERATION));
     }
 
     @Test
@@ -200,23 +205,46 @@ public class TestCpu {
         assertEquals(12, cpu.getCycles());
     }
 
-    private static Cpu runProgram(int... program) {
+    @Test
+    public void test_byte_inc_clears_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x1c);
+        cpu.flags[Flag.OPERATION.ordinal()] = true;
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_word_inc_clears_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x34);
+        cpu.flags[Flag.OPERATION.ordinal()] = true;
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
         for (int idx = 0; idx < program.length; idx++) {
             mmu.setByte(idx, program[idx]);
         }
 
-        Cpu cpu = new Cpu(mmu);
+        return new Cpu(mmu);
+    }
+
+    private static Cpu runProgram(int... program) {
+        Cpu cpu = cpuWithProgram(program);
+        runProgram(cpu, program.length);
+        return cpu;
+    }
+
+    private static void runProgram(Cpu cpu, int programLength) {
         int ticks = 0;
-        while (cpu.getProgramCounter() < program.length) {
+        while (cpu.getProgramCounter() < programLength) {
             cpu.tick();
             ticks++;
             if (ticks > 1000) {
                 throw new RuntimeException("Program failed to terminate");
             }
         }
-
-        return cpu;
     }
 }
