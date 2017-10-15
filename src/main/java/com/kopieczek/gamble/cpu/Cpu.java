@@ -28,7 +28,7 @@ public class Cpu {
 
         switch (opcode) {
             case 0x00: // NOP
-                break;
+                flags[Flag.ZERO.ordinal()] = false;
             case 0x3c: // INC A
                 increment(Register.A);
                 break;

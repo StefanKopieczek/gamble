@@ -123,7 +123,6 @@ public class TestCpu {
         int[] program = new int[256];
         for (int idx = 0; idx < program.length; idx++) {
             program[idx] = 0x04;
-
         }
 
         // One-byte registers should overflow to 0 when they reach 0x100.
@@ -140,6 +139,18 @@ public class TestCpu {
         for (int idx = 0; idx < program.length; idx++) {
             program[idx] = 0x04;
         }
+
+        Cpu cpu = runProgram(program);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_nop_unsets_zero_flag() {
+        int[] program = new int[257];
+        for (int idx = 0; idx < 256; idx++) {
+            program[idx] = 0x04;
+        }
+        program[256] = 0x00;
 
         Cpu cpu = runProgram(program);
         assertFalse(cpu.isSet(Flag.ZERO));
