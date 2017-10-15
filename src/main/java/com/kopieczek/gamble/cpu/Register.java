@@ -1,5 +1,5 @@
 package com.kopieczek.gamble.cpu;
 
 public enum Register {
-    A, B
+    A, B, C, D, E, H, L;
 }

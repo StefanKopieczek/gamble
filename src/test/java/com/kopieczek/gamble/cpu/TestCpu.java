@@ -73,6 +73,36 @@ public class TestCpu {
         assertEquals(0x03, cpu.readRegister(Register.B));
     }
 
+    @Test
+    public void test_increment_c() {
+        Cpu cpu = runProgram(0x0c, 0x0c);
+        assertEquals(0x02, cpu.readRegister(Register.C));
+    }
+
+    @Test
+    public void test_increment_d() {
+        Cpu cpu = runProgram(0x14, 0x14, 0x14, 0x14, 0x14);
+        assertEquals(0x05, cpu.readRegister(Register.D));
+    }
+
+    @Test
+    public void test_increment_e() {
+        Cpu cpu = runProgram(0x1c, 0x1c);
+        assertEquals(0x02, cpu.readRegister(Register.E));
+    }
+
+    @Test
+    public void test_increment_h() {
+        Cpu cpu = runProgram(0x24, 0x24, 0x24);
+        assertEquals(0x03, cpu.readRegister(Register.H));
+    }
+
+    @Test
+    public void test_increment_l() {
+        Cpu cpu = runProgram(0x2c, 0x2c, 0x2c, 0x2c);
+        assertEquals(0x04, cpu.readRegister(Register.L));
+    }
+
     private static Cpu runProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
