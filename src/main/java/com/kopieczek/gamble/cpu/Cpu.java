@@ -29,29 +29,39 @@ public class Cpu {
         switch (opcode) {
             case 0x00: // NOP
                 flags[Flag.ZERO.ordinal()] = false;
+                cycles += 4;
+                break;
             case 0x3c: // INC A
                 increment(Register.A);
+                cycles += 4;
                 break;
             case 0x04: // INC B
                 increment(Register.B);
+                cycles += 4;
                 break;
             case 0x0c: // INC C
                 increment(Register.C);
+                cycles += 4;
                 break;
             case 0x14: // INC D
                 increment(Register.D);
+                cycles += 4;
                 break;
             case 0x1c: // INC E
                 increment(Register.E);
+                cycles += 4;
                 break;
             case 0x24: // INC H
                 increment(Register.H);
+                cycles += 4;
                 break;
             case 0x2c: // INC L
                 increment(Register.L);
+                cycles += 4;
                 break;
             case 0x34: // INC HL
                 increment(Register.L);
+                cycles += 12;
                 if (isSet(Flag.ZERO)) {
                     increment(Register.H);
                 }
@@ -61,7 +71,6 @@ public class Cpu {
         }
 
         pc += 1;
-        cycles += 4;
     }
 
     private void increment(Register r) {

@@ -194,6 +194,12 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.ZERO));
     }
 
+    @Test
+    public void test_inc_hl_uses_12_cycles() {
+        Cpu cpu = runProgram(0x34);
+        assertEquals(12, cpu.getCycles());
+    }
+
     private static Cpu runProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
