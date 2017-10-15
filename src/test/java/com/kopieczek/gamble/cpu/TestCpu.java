@@ -5,6 +5,8 @@ import com.kopieczek.gamble.memory.SimpleMemoryModule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class TestCpu {
     @Test
@@ -41,12 +43,19 @@ public class TestCpu {
     public void test_initial_state() {
         Cpu cpu = new Cpu(buildMmu());
         assertEquals(0, cpu.getCycles());
+        assertFalse(cpu.checkFlag(Flag.ZERO));
     }
 
     @Test
     public void test_single_nop() {
         Cpu cpu = runProgram(0x00);
         assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_nop_doesnt_set_zero_flag() {
+        Cpu cpu = runProgram(0x00);
+        assertFalse(cpu.checkFlag(Flag.ZERO));
     }
 
     @Test
@@ -59,6 +68,12 @@ public class TestCpu {
     public void test_increment_a() {
         Cpu cpu = runProgram(0x3c);
         assertEquals(0x01, cpu.readRegister(Register.A));
+    }
+
+    @Test
+    public void test_single_increment_doesnt_set_zero_flag() {
+        Cpu cpu = runProgram(0x3c);
+        assertFalse(cpu.checkFlag(Flag.ZERO));
     }
 
     @Test
@@ -105,7 +120,7 @@ public class TestCpu {
 
     @Test
     public void test_rollover() {
-        int[] program = new int[257];
+        int[] program = new int[256];
         for (int idx = 0; idx < program.length; idx++) {
             program[idx] = 0x04;
 
@@ -113,9 +128,11 @@ public class TestCpu {
 
         // One-byte registers should overflow to 0 when they reach 0x100.
         Cpu cpu = runProgram(program);
-        assertEquals(0x01, cpu.readRegister(Register.B));
-    }
+        assertEquals(0x00, cpu.readRegister(Register.B));
 
+        // The result of the operation was 0, so the zero flag should be set.
+        assertTrue(cpu.checkFlag(Flag.ZERO));
+    }
 
     private static Cpu runProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();

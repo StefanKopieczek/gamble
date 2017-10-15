@@ -7,10 +7,12 @@ public class Cpu {
     private int pc = 0;
     private int cycles = 0;
     private int[] registers;
+    private boolean[] flags;
 
     public Cpu(MemoryManagementUnit mmu) {
         this.mmu = mmu;
         this.registers = new int[Register.values().length];
+        this.flags = new boolean[Flag.values().length];
     }
 
     int readByte(int address) {
@@ -59,6 +61,8 @@ public class Cpu {
     private void increment(Register r) {
         registers[r.ordinal()]++;
         registers[r.ordinal()] &= 0xff;
+
+        flags[Flag.ZERO.ordinal()] = (registers[r.ordinal()] == 0);
     }
 
     public int getProgramCounter() {
@@ -71,5 +75,9 @@ public class Cpu {
 
     public int readRegister(Register r) {
         return registers[r.ordinal()];
+    }
+
+    public boolean checkFlag(Flag flag) {
+        return (flags[flag.ordinal()]);
     }
 }
