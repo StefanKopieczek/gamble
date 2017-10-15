@@ -67,7 +67,7 @@ public class TestCpu {
     @Test
     public void test_increment_a() {
         Cpu cpu = runProgram(0x3c);
-        assertEquals(0x01, cpu.readRegister(Register.A));
+        assertEquals(0x01, cpu.readByte(Register.A));
     }
 
     @Test
@@ -79,43 +79,43 @@ public class TestCpu {
     @Test
     public void test_increment_a_twice() {
         Cpu cpu = runProgram(0x3c, 0x3c);
-        assertEquals(0x02, cpu.readRegister(Register.A));
+        assertEquals(0x02, cpu.readByte(Register.A));
     }
 
     @Test
     public void test_increment_b() {
         Cpu cpu = runProgram(0x04, 0x04, 0x04);
-        assertEquals(0x03, cpu.readRegister(Register.B));
+        assertEquals(0x03, cpu.readByte(Register.B));
     }
 
     @Test
     public void test_increment_c() {
         Cpu cpu = runProgram(0x0c, 0x0c);
-        assertEquals(0x02, cpu.readRegister(Register.C));
+        assertEquals(0x02, cpu.readByte(Register.C));
     }
 
     @Test
     public void test_increment_d() {
         Cpu cpu = runProgram(0x14, 0x14, 0x14, 0x14, 0x14);
-        assertEquals(0x05, cpu.readRegister(Register.D));
+        assertEquals(0x05, cpu.readByte(Register.D));
     }
 
     @Test
     public void test_increment_e() {
         Cpu cpu = runProgram(0x1c, 0x1c);
-        assertEquals(0x02, cpu.readRegister(Register.E));
+        assertEquals(0x02, cpu.readByte(Register.E));
     }
 
     @Test
     public void test_increment_h() {
         Cpu cpu = runProgram(0x24, 0x24, 0x24);
-        assertEquals(0x03, cpu.readRegister(Register.H));
+        assertEquals(0x03, cpu.readByte(Register.H));
     }
 
     @Test
     public void test_increment_l() {
         Cpu cpu = runProgram(0x2c, 0x2c, 0x2c, 0x2c);
-        assertEquals(0x04, cpu.readRegister(Register.L));
+        assertEquals(0x04, cpu.readByte(Register.L));
     }
 
     @Test
@@ -127,7 +127,7 @@ public class TestCpu {
 
         // One-byte registers should overflow to 0 when they reach 0x100.
         Cpu cpu = runProgram(program);
-        assertEquals(0x00, cpu.readRegister(Register.B));
+        assertEquals(0x00, cpu.readByte(Register.B));
 
         // The result of the operation was 0, so the zero flag should be set.
         assertTrue(cpu.isSet(Flag.ZERO));
@@ -159,7 +159,7 @@ public class TestCpu {
     @Test
     public void test_single_inc_hl() {
         Cpu cpu = runProgram(0x34);
-        assertEquals(0x01, cpu.readRegister(Register.L));
+        assertEquals(0x01, cpu.readByte(Register.L));
     }
 
     @Test
@@ -171,8 +171,27 @@ public class TestCpu {
         program[255] = 0x34; // INC HL
 
         Cpu cpu = runProgram(program);
-        assertEquals(0x00, cpu.readRegister(Register.L));
-        assertEquals(0x01, cpu.readRegister(Register.H));
+        assertEquals(0x00, cpu.readByte(Register.L));
+        assertEquals(0x01, cpu.readByte(Register.H));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_inc_hl_rollover_at_0x10000() {
+        int[] program = new int[2 * 0xff + 1];
+        for (int idx = 0; idx < 0xff; idx++) {
+            program[idx] = 0x2c; // INC L
+            program[0xff + idx] = 0x24; // INC H
+        }
+
+        // After running the program so far, HF=0xffff.
+        // Now do one more INC HL to trigger rollover.
+        program[2 * 0xff] = 0x34; // INC HL
+
+        Cpu cpu = runProgram(program);
+        assertEquals(0x00, cpu.readByte(Register.L));
+        assertEquals(0x00, cpu.readByte(Register.H));
+        assertTrue(cpu.isSet(Flag.ZERO));
     }
 
     private static Cpu runProgram(int... program) {

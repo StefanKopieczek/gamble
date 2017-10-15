@@ -79,7 +79,7 @@ public class Cpu {
         return cycles;
     }
 
-    public int readRegister(Register r) {
+    public int readByte(Register r) {
         return registers[r.ordinal()];
     }
 
