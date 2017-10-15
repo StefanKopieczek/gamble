@@ -6,7 +6,8 @@ public class Cpu {
     private final MemoryManagementUnit mmu;
     private int pc = 0;
     private int cycles = 0;
-    private int register = 0;
+    private int registerA = 0;
+    private int registerB = 0;
 
     public Cpu(MemoryManagementUnit mmu) {
         this.mmu = mmu;
@@ -24,7 +25,9 @@ public class Cpu {
         int opcode = mmu.readByte(pc);
 
         if (opcode == 0x3c) {
-            register++;
+            registerA++;
+        } else if (opcode == 0x04) {
+            registerB++;
         }
 
         pc += 1;
@@ -40,6 +43,13 @@ public class Cpu {
     }
 
     public int readRegister(Register r) {
-        return register;
+        switch (r) {
+            case A:
+                return registerA;
+            case B:
+                return registerB;
+            default:
+                throw new IllegalArgumentException("Unknown register " + r);
+        }
     }
 }
