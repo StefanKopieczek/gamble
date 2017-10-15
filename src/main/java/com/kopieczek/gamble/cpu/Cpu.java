@@ -50,8 +50,14 @@ public class Cpu {
             case 0x2c: // INC L
                 increment(Register.L);
                 break;
+            case 0x34: // INC HL
+                increment(Register.L);
+                if (isSet(Flag.ZERO)) {
+                    increment(Register.H);
+                }
+                break;
             default:
-                throw new IllegalArgumentException("Unknown opcode " + Integer.toHexString(opcode));
+                throw new IllegalArgumentException("Unknown opcode 0x" + Integer.toHexString(opcode));
         }
 
         pc += 1;

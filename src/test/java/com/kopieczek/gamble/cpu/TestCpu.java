@@ -156,6 +156,25 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.ZERO));
     }
 
+    @Test
+    public void test_single_inc_hl() {
+        Cpu cpu = runProgram(0x34);
+        assertEquals(0x01, cpu.readRegister(Register.L));
+    }
+
+    @Test
+    public void test_inc_hl_when_register_l_is_full() {
+        int[] program = new int[256];
+        for (int idx = 0; idx < 255; idx++) {
+            program[idx] = 0x2c; // INC L
+        }
+        program[255] = 0x34; // INC HL
+
+        Cpu cpu = runProgram(program);
+        assertEquals(0x00, cpu.readRegister(Register.L));
+        assertEquals(0x01, cpu.readRegister(Register.H));
+    }
+
     private static Cpu runProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
