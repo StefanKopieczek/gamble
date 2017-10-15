@@ -43,7 +43,7 @@ public class TestCpu {
     public void test_initial_state() {
         Cpu cpu = new Cpu(buildMmu());
         assertEquals(0, cpu.getCycles());
-        assertFalse(cpu.checkFlag(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.ZERO));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class TestCpu {
     @Test
     public void test_nop_doesnt_set_zero_flag() {
         Cpu cpu = runProgram(0x00);
-        assertFalse(cpu.checkFlag(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.ZERO));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class TestCpu {
     @Test
     public void test_single_increment_doesnt_set_zero_flag() {
         Cpu cpu = runProgram(0x3c);
-        assertFalse(cpu.checkFlag(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.ZERO));
     }
 
     @Test
@@ -131,7 +131,18 @@ public class TestCpu {
         assertEquals(0x00, cpu.readRegister(Register.B));
 
         // The result of the operation was 0, so the zero flag should be set.
-        assertTrue(cpu.checkFlag(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rollover_followed_by_increment_unsets_zero_flag() {
+        int[] program = new int[257];
+        for (int idx = 0; idx < program.length; idx++) {
+            program[idx] = 0x04;
+        }
+
+        Cpu cpu = runProgram(program);
+        assertFalse(cpu.isSet(Flag.ZERO));
     }
 
     private static Cpu runProgram(int... program) {

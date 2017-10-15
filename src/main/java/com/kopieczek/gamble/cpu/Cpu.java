@@ -77,7 +77,7 @@ public class Cpu {
         return registers[r.ordinal()];
     }
 
-    public boolean checkFlag(Flag flag) {
+    public boolean isSet(Flag flag) {
         return (flags[flag.ordinal()]);
     }
 }
