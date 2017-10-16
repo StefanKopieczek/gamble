@@ -5,36 +5,36 @@ import java.util.Map;
 import java.util.function.Function;
 
 enum Operation {
-    NOP(0x00, null, FlagStrategy.NONE, 4, (cpu) -> null),
-    INC_A(0x3c, Register.A, FlagStrategy.RESET, 4, (cpu) -> {
+    NOP(0x00, 4, FlagHandler.none(), (cpu) -> null),
+    INC_A(0x3c, 4, new FlagHandler().setZeroFlagFrom(Register.A).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
         cpu.increment(Register.A);
         return null;
     }),
-    INC_B(0x04, Register.B, FlagStrategy.RESET, 4, (cpu) -> {
+    INC_B(0x04, 4, new FlagHandler().setZeroFlagFrom(Register.B).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
         cpu.increment(Register.B);
         return null;
     }),
-    INC_C(0x0c, Register.C, FlagStrategy.RESET, 4, (cpu) -> {
+    INC_C(0x0c, 4, new FlagHandler().setZeroFlagFrom(Register.C).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
         cpu.increment(Register.C);
         return null;
     }),
-    INC_D(0x14, Register.D, FlagStrategy.RESET, 4, (cpu) -> {
+    INC_D(0x14, 4, new FlagHandler().setZeroFlagFrom(Register.D).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
         cpu.increment(Register.D);
         return null;
     }),
-    INC_E(0x1c, Register.E, FlagStrategy.RESET, 4, (cpu) -> {
+    INC_E(0x1c, 4, new FlagHandler().setZeroFlagFrom(Register.E).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
         cpu.increment(Register.E);
         return null;
     }),
-    INC_H(0x24, Register.H, FlagStrategy.RESET, 4, (cpu) -> {
+    INC_H(0x24, 4, new FlagHandler().setZeroFlagFrom(Register.H).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
         cpu.increment(Register.H);
         return null;
     }),
-    INC_L(0x2c, Register.L, FlagStrategy.RESET, 4, (cpu) -> {
+    INC_L(0x2c, 4, new FlagHandler().setZeroFlagFrom(Register.L).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
         cpu.increment(Register.L);
         return null;
     }),
-    INC_HL(0x34, Register.H, FlagStrategy.RESET, 12, (cpu) -> {
+    INC_HL(0x34, 12, new FlagHandler().setZeroFlagFrom(Register.H).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
         cpu.increment(Register.L);
         if (cpu.readByte(Register.L) == 0x00) {
             cpu.increment(Register.H);
@@ -50,16 +50,13 @@ enum Operation {
     }
 
     private int opcode;
-    private Register maybeZeroRegister;
-    private FlagStrategy opFlagStrategy;
+    private FlagHandler flagHandler;
     int cycleCount;
     Function<Cpu, Void> action;
 
-    Operation(int opcode, Register maybeZeroRegister, FlagStrategy opFlagStrategy, int cycleCount,
-              Function<Cpu, Void> action) {
+    Operation(int opcode, int cycleCount, FlagHandler flagHandler, Function<Cpu, Void> action) {
         this.opcode = opcode;
-        this.maybeZeroRegister = maybeZeroRegister;
-        this.opFlagStrategy = opFlagStrategy;
+        this.flagHandler = flagHandler;
         this.cycleCount = cycleCount;
         this.action = action;
     }
@@ -67,11 +64,11 @@ enum Operation {
     public void execute(Cpu cpu) {
         cpu.cycles += cycleCount;
         action.apply(cpu);
-        if (maybeZeroRegister != null) {
-            cpu.flags[Flag.ZERO.ordinal()] = (cpu.readByte(maybeZeroRegister) == 0x00);
+        if (flagHandler.getZeroFlagRegister() != null) {
+            cpu.flags[Flag.ZERO.ordinal()] = (cpu.readByte(flagHandler.getZeroFlagRegister()) == 0x00);
         }
 
-        switch (opFlagStrategy) {
+        switch (flagHandler.getOpFlagStrategy()) {
             case SET:
                 cpu.flags[Flag.OPERATION.ordinal()] = true;
                 break;
@@ -83,9 +80,36 @@ enum Operation {
         }
     }
 
-    private enum FlagStrategy {
-        SET,
-        RESET,
-        NONE;
+    private static class FlagHandler {
+        private Register zeroFlagRegister = null;
+        private Strategy strategy = Strategy.NONE;
+
+        static FlagHandler none() {
+            return new FlagHandler();
+        }
+
+        FlagHandler setZeroFlagFrom(Register r) {
+            zeroFlagRegister = r;
+            return this;
+        }
+
+        FlagHandler opFlag(Strategy strategy) {
+            this.strategy = strategy;
+            return this;
+        }
+
+        public Strategy getOpFlagStrategy() {
+            return strategy;
+        }
+
+        public Register getZeroFlagRegister() {
+            return zeroFlagRegister;
+        }
+
+        public static enum Strategy {
+            SET,
+            RESET,
+            NONE
+        }
     }
 }
