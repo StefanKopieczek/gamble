@@ -6,41 +6,81 @@ import java.util.function.Function;
 
 enum Operation {
     NOP(0x00, 4, FlagHandler.none(), (cpu) -> null),
-    INC_A(0x3c, 4, new FlagHandler().setZeroFlagFrom(Register.A).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
-        cpu.increment(Register.A);
-        return null;
-    }),
-    INC_B(0x04, 4, new FlagHandler().setZeroFlagFrom(Register.B).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
-        cpu.increment(Register.B);
-        return null;
-    }),
-    INC_C(0x0c, 4, new FlagHandler().setZeroFlagFrom(Register.C).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
-        cpu.increment(Register.C);
-        return null;
-    }),
-    INC_D(0x14, 4, new FlagHandler().setZeroFlagFrom(Register.D).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
-        cpu.increment(Register.D);
-        return null;
-    }),
-    INC_E(0x1c, 4, new FlagHandler().setZeroFlagFrom(Register.E).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
-        cpu.increment(Register.E);
-        return null;
-    }),
-    INC_H(0x24, 4, new FlagHandler().setZeroFlagFrom(Register.H).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
-        cpu.increment(Register.H);
-        return null;
-    }),
-    INC_L(0x2c, 4, new FlagHandler().setZeroFlagFrom(Register.L).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
-        cpu.increment(Register.L);
-        return null;
-    }),
-    INC_HL(0x34, 12, new FlagHandler().setZeroFlagFrom(Register.H).opFlag(FlagHandler.Strategy.RESET), (cpu) -> {
-        cpu.increment(Register.L);
-        if (cpu.readByte(Register.L) == 0x00) {
-            cpu.increment(Register.H);
-        }
-        return null;
-    });
+    INC_A(0x3c, 4,
+          new FlagHandler().setZeroFlagFrom(Register.A)
+                           .setNibbleFlagFrom(Register.A)
+                           .opFlag(FlagHandler.Strategy.RESET),
+          (cpu) -> {
+              cpu.increment(Register.A);
+              return null;
+          }
+    ),
+    INC_B(0x04, 4,
+          new FlagHandler().setZeroFlagFrom(Register.B)
+                           .setNibbleFlagFrom(Register.B)
+                           .opFlag(FlagHandler.Strategy.RESET),
+          (cpu) -> {
+              cpu.increment(Register.B);
+              return null;
+          }
+    ),
+    INC_C(0x0c, 4,
+          new FlagHandler().setZeroFlagFrom(Register.C)
+                           .setNibbleFlagFrom(Register.C)
+                           .opFlag(FlagHandler.Strategy.RESET),
+          (cpu) -> {
+              cpu.increment(Register.C);
+              return null;
+          }
+    ),
+    INC_D(0x14, 4,
+          new FlagHandler().setZeroFlagFrom(Register.D)
+                           .setNibbleFlagFrom(Register.D)
+                           .opFlag(FlagHandler.Strategy.RESET),
+          (cpu) -> {
+              cpu.increment(Register.D);
+              return null;
+          }
+    ),
+    INC_E(0x1c, 4,
+          new FlagHandler().setZeroFlagFrom(Register.E)
+                           .setNibbleFlagFrom(Register.E)
+                           .opFlag(FlagHandler.Strategy.RESET),
+          (cpu) -> {
+              cpu.increment(Register.E);
+              return null;
+          }
+    ),
+    INC_H(0x24, 4,
+          new FlagHandler().setZeroFlagFrom(Register.H)
+                           .setNibbleFlagFrom(Register.H)
+                           .opFlag(FlagHandler.Strategy.RESET),
+          (cpu) -> {
+              cpu.increment(Register.H);
+              return null;
+          }
+    ),
+    INC_L(0x2c, 4,
+          new FlagHandler().setZeroFlagFrom(Register.L)
+                           .setNibbleFlagFrom(Register.L)
+                           .opFlag(FlagHandler.Strategy.RESET),
+          (cpu) -> {
+              cpu.increment(Register.L);
+              return null;
+          }
+    ),
+    INC_HL(0x34, 12,
+            new FlagHandler().setZeroFlagFrom(Register.H)
+                    .setNibbleFlagFrom(Register.L)
+                    .opFlag(FlagHandler.Strategy.RESET),
+            (cpu) -> {
+                cpu.increment(Register.L);
+                if (cpu.readByte(Register.L) == 0) {
+                    cpu.increment(Register.H);
+                }
+                return null;
+            }
+    );
 
     static final Map<Integer, Operation> map = new HashMap<>();
     static {
@@ -63,7 +103,20 @@ enum Operation {
 
     public void execute(Cpu cpu) {
         cpu.cycles += cycleCount;
+
+        Register nibbleRegister = flagHandler.getNibbleFlagRegister();
+        Integer nibbleRegisterBefore = null;
+        if (nibbleRegister != null) {
+            nibbleRegisterBefore = cpu.readByte(nibbleRegister);
+        }
+
         action.apply(cpu);
+
+        if (nibbleRegister != null) {
+            int nibbleRegisterAfter = cpu.readByte(nibbleRegister);
+            cpu.flags[Flag.NIBBLE.ordinal()] = (nibbleRegisterAfter != nibbleRegisterBefore);
+        }
+
         if (flagHandler.getZeroFlagRegister() != null) {
             cpu.flags[Flag.ZERO.ordinal()] = (cpu.readByte(flagHandler.getZeroFlagRegister()) == 0x00);
         }
@@ -82,6 +135,7 @@ enum Operation {
 
     private static class FlagHandler {
         private Register zeroFlagRegister = null;
+        private Register nibbleFlagRegister = null;
         private Strategy strategy = Strategy.NONE;
 
         static FlagHandler none() {
@@ -90,6 +144,11 @@ enum Operation {
 
         FlagHandler setZeroFlagFrom(Register r) {
             zeroFlagRegister = r;
+            return this;
+        }
+
+        FlagHandler setNibbleFlagFrom(Register r) {
+            nibbleFlagRegister = r;
             return this;
         }
 
@@ -104,6 +163,10 @@ enum Operation {
 
         public Register getZeroFlagRegister() {
             return zeroFlagRegister;
+        }
+
+        public Register getNibbleFlagRegister() {
+            return nibbleFlagRegister;
         }
 
         public static enum Strategy {

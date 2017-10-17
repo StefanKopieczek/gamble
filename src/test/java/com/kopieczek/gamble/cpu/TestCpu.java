@@ -49,6 +49,7 @@ public class TestCpu {
         assertEquals(0, cpu.getCycles());
         assertFalse(cpu.isSet(Flag.ZERO));
         assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -139,6 +140,17 @@ public class TestCpu {
     }
 
     @Test
+    // All incs should set nibble flag but we'll use INC C as representative
+    // for all 8 bit INCs.
+    public void test_inc_c_sets_nibble_flag_after_16_incs() {
+        Cpu cpu = runProgram(0x0c, 0x0c, 0x0c, 0x0c,
+                             0x0c, 0x0c, 0x0c, 0x0c,
+                             0x0c, 0x0c, 0x0c, 0x0c,
+                             0x0c, 0x0c, 0x0c, 0x0c);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
     public void test_rollover_followed_by_increment_unsets_zero_flag() {
         int[] program = new int[257];
         for (int idx = 0; idx < program.length; idx++) {
@@ -203,6 +215,15 @@ public class TestCpu {
     public void test_inc_hl_uses_12_cycles() {
         Cpu cpu = runProgram(0x34);
         assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_inc_hl_sets_nibble_flag_after_16_incs() {
+        Cpu cpu = runProgram(0x34, 0x34, 0x34, 0x34,
+                             0x34, 0x34, 0x34, 0x34,
+                             0x34, 0x34, 0x34, 0x34,
+                             0x34, 0x34, 0x34, 0x34);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
