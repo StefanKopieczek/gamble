@@ -9,7 +9,7 @@ enum Operation {
     LD_B(0x06, FlagHandler.none(), (cpu) -> {
         cpu.pc += 1;
         cpu.registers[Register.B.ordinal()] = cpu.readByte(cpu.pc);
-        return 0x00;
+        return 8;
     }),
     INC_A(0x3c,
           new FlagHandler().setZeroFlagFrom(Register.A)

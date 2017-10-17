@@ -254,9 +254,15 @@ public class TestCpu {
     }
 
     @Test
-    public void test_direct_load_0xff_to_b_() {
+    public void test_direct_load_0xff_to_b() {
         Cpu cpu = runProgram(0x06, 0xff);
         assertEquals(0xff, cpu.readByte(Register.B));
+    }
+
+    @Test
+    public void test_direct_load_to_b_uses_8_cycles() {
+        Cpu cpu = runProgram(0x06, 0x80);
+        assertEquals(8, cpu.getCycles());
     }
 
     private static Cpu cpuWithProgram(int... program) {
