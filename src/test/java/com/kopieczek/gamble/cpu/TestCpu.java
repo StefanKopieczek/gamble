@@ -313,6 +313,26 @@ public class TestCpu {
         assertEquals(0x37, cpu.readByte(Register.L));
     }
 
+    @Test
+    public void test_direct_load_leaves_empty_flags_alone() {
+        Cpu cpu = runProgram(0x2e, 0x00);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_direct_load_leaves_set_flags_alone() {
+        Cpu cpu = cpuWithProgram(0x2e, 0x01);
+        cpu.flags = new boolean[]{true, true, true, true};
+        runProgram(cpu, 2);
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertTrue(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
