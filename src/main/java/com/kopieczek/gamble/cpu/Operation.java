@@ -8,7 +8,7 @@ enum Operation {
     NOP(0x00, FlagHandler.none(), (cpu) -> 4),
     LD_B(0x06, FlagHandler.none(), (cpu) -> {
         cpu.pc += 1;
-        cpu.registers[Register.B.ordinal()] = 0x01;
+        cpu.registers[Register.B.ordinal()] = cpu.readByte(cpu.pc);
         return 0x00;
     }),
     INC_A(0x3c,
