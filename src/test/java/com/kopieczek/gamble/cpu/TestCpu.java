@@ -260,9 +260,57 @@ public class TestCpu {
     }
 
     @Test
+    public void test_direct_load_is_idempotent() {
+        Cpu cpu = runProgram(0x06, 0x1f, 0x06, 0x1f);
+        assertEquals(0x1f, cpu.readByte(Register.B));
+    }
+
+    @Test
     public void test_direct_load_to_b_uses_8_cycles() {
         Cpu cpu = runProgram(0x06, 0x80);
         assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_direct_load_to_c() {
+        Cpu cpu = runProgram(0x0e, 0xab);
+        assertEquals(0xab, cpu.readByte(Register.C));
+    }
+
+    @Test
+    public void test_direct_load_doesnt_affect_other_registers() {
+        Cpu cpu = runProgram(0x0e, 0x1f);
+        assertEquals(0x1f, cpu.readByte(Register.C));
+        assertEquals(0x00, cpu.readByte(Register.A));
+        assertEquals(0x00, cpu.readByte(Register.B));
+        assertEquals(0x00, cpu.readByte(Register.D));
+        assertEquals(0x00, cpu.readByte(Register.E));
+        assertEquals(0x00, cpu.readByte(Register.H));
+        assertEquals(0x00, cpu.readByte(Register.L));
+    }
+
+    @Test
+    public void test_direct_load_to_d() {
+        Cpu cpu = runProgram(0x16, 0x10);
+        assertEquals(0x10, cpu.readByte(Register.D));
+    }
+
+    @Test
+    public void test_direct_load_to_e() {
+        Cpu cpu = runProgram(0x1e, 0x17);
+        assertEquals(0x17, cpu.readByte(Register.E));
+    }
+
+    @Test
+    public void test_direct_load_to_h() {
+        Cpu cpu = runProgram(0x26, 0x44);
+        assertEquals(0x44, cpu.readByte(Register.H));
+    }
+
+    @Test
+    public void test_direct_load_to_l() {
+        Cpu cpu = runProgram(0x2e, 0x37);
+        assertEquals(0x37, cpu.readByte(Register.L));
     }
 
     private static Cpu cpuWithProgram(int... program) {
