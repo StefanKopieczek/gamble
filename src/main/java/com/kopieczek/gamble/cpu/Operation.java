@@ -6,6 +6,11 @@ import java.util.function.Function;
 
 enum Operation {
     NOP(0x00, FlagHandler.none(), (cpu) -> 4),
+    LD_B(0x06, FlagHandler.none(), (cpu) -> {
+        cpu.pc += 1;
+        cpu.registers[Register.B.ordinal()] = 0x01;
+        return 0x00;
+    }),
     INC_A(0x3c,
           new FlagHandler().setZeroFlagFrom(Register.A)
                            .setNibbleFlagFrom(Register.A)
