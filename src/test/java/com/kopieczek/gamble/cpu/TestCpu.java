@@ -50,6 +50,7 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.ZERO));
         assertFalse(cpu.isSet(Flag.OPERATION));
         assertFalse(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
@@ -137,6 +138,9 @@ public class TestCpu {
 
         // The result of the operation was 0, so the zero flag should be set.
         assertTrue(cpu.isSet(Flag.ZERO));
+
+        // Apparently INC rollover never sets carry.
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
@@ -209,6 +213,7 @@ public class TestCpu {
         assertEquals(0x00, cpu.readByte(Register.L));
         assertEquals(0x00, cpu.readByte(Register.H));
         assertTrue(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.CARRY)); // INC HL rollover apparently shouldn't set carry.
     }
 
     @Test
