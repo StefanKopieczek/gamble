@@ -156,25 +156,19 @@ public class TestCpu {
 
     @Test
     public void test_rollover_followed_by_increment_unsets_zero_flag() {
-        int[] program = new int[257];
-        for (int idx = 0; idx < program.length; idx++) {
-            program[idx] = 0x04;
-        }
-
-        Cpu cpu = runProgram(program);
+        Cpu cpu = runProgram(0x06, 0xff, 0x04, 0x04);
         assertFalse(cpu.isSet(Flag.ZERO));
     }
 
     @Test
-    public void test_nop_doesnt_clear_zero_flag() {
-        int[] program = new int[257];
-        for (int idx = 0; idx < 256; idx++) {
-            program[idx] = 0x04;
-        }
-        program[256] = 0x00;
-
-        Cpu cpu = runProgram(program);
+    public void test_nop_doesnt_clear_flags() {
+        Cpu cpu = cpuWithProgram(0x00);
+        cpu.flags = new boolean[] {true, true, true, true};
+        runProgram(cpu, 1);
         assertTrue(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertTrue(cpu.isSet(Flag.OPERATION));
     }
 
     @Test
@@ -185,13 +179,7 @@ public class TestCpu {
 
     @Test
     public void test_inc_hl_when_register_l_is_full() {
-        int[] program = new int[256];
-        for (int idx = 0; idx < 255; idx++) {
-            program[idx] = 0x2c; // INC L
-        }
-        program[255] = 0x34; // INC HL
-
-        Cpu cpu = runProgram(program);
+        Cpu cpu = runProgram(0x2e, 0xff, 0x34);
         assertEquals(0x00, cpu.readByte(Register.L));
         assertEquals(0x01, cpu.readByte(Register.H));
         assertFalse(cpu.isSet(Flag.ZERO));
@@ -199,17 +187,9 @@ public class TestCpu {
 
     @Test
     public void test_inc_hl_rollover_at_0x10000() {
-        int[] program = new int[2 * 0xff + 1];
-        for (int idx = 0; idx < 0xff; idx++) {
-            program[idx] = 0x2c; // INC L
-            program[0xff + idx] = 0x24; // INC H
-        }
+        Cpu cpu = runProgram(0x2e, 0xff, 0x26, 0xff, // Set HL=0xffff,
+                             0x34);                  // INC HL.
 
-        // After running the program so far, HF=0xffff.
-        // Now do one more INC HL to trigger rollover.
-        program[2 * 0xff] = 0x34; // INC HL
-
-        Cpu cpu = runProgram(program);
         assertEquals(0x00, cpu.readByte(Register.L));
         assertEquals(0x00, cpu.readByte(Register.H));
         assertTrue(cpu.isSet(Flag.ZERO));
