@@ -172,28 +172,38 @@ public class TestCpu {
     }
 
     @Test
-    public void test_single_inc_hl() {
+    public void test_single_inc_hl_at_00() {
         Cpu cpu = runProgram(0x34);
-        assertEquals(0x01, cpu.readByte(Register.L));
+
+        // 0x0000 held the 0x34 instruction initially, which should now
+        // have been incremented to 0x35.
+        assertEquals(0x35, cpu.readByte(0x0000));
     }
 
     @Test
-    public void test_inc_hl_when_register_l_is_full() {
-        Cpu cpu = runProgram(0x2e, 0xff, 0x34);
-        assertEquals(0x00, cpu.readByte(Register.L));
-        assertEquals(0x01, cpu.readByte(Register.H));
-        assertFalse(cpu.isSet(Flag.ZERO));
+    public void test_single_inc_hl_at_0xcafe() {
+        Cpu cpu = runProgram(0x26, 0xca, 0x2e, 0xfe, 0x34);
+        assertEquals(0x01, cpu.readByte(0xcafe));
     }
 
     @Test
-    public void test_inc_hl_rollover_at_0x10000() {
-        Cpu cpu = runProgram(0x2e, 0xff, 0x26, 0xff, // Set HL=0xffff,
-                             0x34);                  // INC HL.
+    public void test_inc_hl_rollover() {
+        int[] program = new int[260];
 
-        assertEquals(0x00, cpu.readByte(Register.L));
-        assertEquals(0x00, cpu.readByte(Register.H));
+        // Set HL=0xeeee.
+        program[0] = 0x26;
+        program[1] = 0xee;
+        program[2] = 0x2e;
+        program[3] = 0xee;
+
+        // 256x INC HL to trigger rollover.
+        for (int i=4; i<260; i++) {
+            program[i] = 0x34;
+        }
+
+        Cpu cpu = runProgram(program);
+        assertEquals(0x00, cpu.readByte(0xeeee));
         assertTrue(cpu.isSet(Flag.ZERO));
-        assertFalse(cpu.isSet(Flag.CARRY)); // INC HL rollover apparently shouldn't set carry.
     }
 
     @Test
@@ -204,7 +214,8 @@ public class TestCpu {
 
     @Test
     public void test_inc_hl_sets_nibble_flag_after_16_incs() {
-        Cpu cpu = runProgram(0x34, 0x34, 0x34, 0x34,
+        Cpu cpu = runProgram(0x26, 0x12, 0x2e, 0x34, // HL=0x1234
+                             0x34, 0x34, 0x34, 0x34,
                              0x34, 0x34, 0x34, 0x34,
                              0x34, 0x34, 0x34, 0x34,
                              0x34, 0x34, 0x34, 0x34);

@@ -1,5 +1,7 @@
 package com.kopieczek.gamble.cpu;
 
+import com.kopieczek.gamble.memory.IndirectAddress;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -100,14 +102,12 @@ enum Operation {
           }
     ),
     INC_HL(0x34,
-            new FlagHandler().setZeroFlagFrom(Register.H)
-                    .setNibbleFlagFrom(Register.L)
+            new FlagHandler().setZeroFlagIndirectlyFrom(Register.H, Register.L)
+                    .setNibbleFlagIndirectlyFrom(Register.H, Register.L)
                     .opFlag(FlagHandler.Strategy.RESET),
             (cpu) -> {
-                cpu.increment(Register.L);
-                if (cpu.readByte(Register.L) == 0) {
-                    cpu.increment(Register.H);
-                }
+                IndirectAddress address = IndirectAddress.from(Register.H, Register.L);
+                cpu.increment(address);
                 return 12;
             }
     );
@@ -130,39 +130,15 @@ enum Operation {
     }
 
     public void execute(Cpu cpu) {
-        Register nibbleRegister = flagHandler.getNibbleFlagRegister();
-        Integer nibbleRegisterBefore = null;
-        if (nibbleRegister != null) {
-            nibbleRegisterBefore = cpu.readByte(nibbleRegister);
-        }
-
-        cpu.cycles += action.apply(cpu);
-
-        if (nibbleRegister != null) {
-            int nibbleRegisterAfter = cpu.readByte(nibbleRegister);
-            cpu.flags[Flag.NIBBLE.ordinal()] = (nibbleRegisterAfter != nibbleRegisterBefore);
-        }
-
-        if (flagHandler.getZeroFlagRegister() != null) {
-            cpu.flags[Flag.ZERO.ordinal()] = (cpu.readByte(flagHandler.getZeroFlagRegister()) == 0x00);
-        }
-
-        switch (flagHandler.getOpFlagStrategy()) {
-            case SET:
-                cpu.flags[Flag.OPERATION.ordinal()] = true;
-                break;
-            case RESET:
-                cpu.flags[Flag.OPERATION.ordinal()] = false;
-                break;
-            case NONE:
-                break;
-        }
+        cpu.cycles += flagHandler.runWithFlagHandling(action, cpu);
     }
 
     private static class FlagHandler {
         private Register zeroFlagRegister = null;
         private Register nibbleFlagRegister = null;
-        private Strategy strategy = Strategy.NONE;
+        private IndirectAddress zeroFlagAddress = null;
+        private IndirectAddress nibbleFlagAddress = null;
+        private Strategy opFlagStrategy = Strategy.NONE;
 
         static FlagHandler none() {
             return new FlagHandler();
@@ -173,29 +149,65 @@ enum Operation {
             return this;
         }
 
+        FlagHandler setZeroFlagIndirectlyFrom(Register left, Register right) {
+            zeroFlagAddress = IndirectAddress.from(left, right);
+            return this;
+        }
+
         FlagHandler setNibbleFlagFrom(Register r) {
             nibbleFlagRegister = r;
             return this;
         }
 
-        FlagHandler opFlag(Strategy strategy) {
-            this.strategy = strategy;
+        FlagHandler setNibbleFlagIndirectlyFrom(Register left, Register right) {
+            nibbleFlagAddress = IndirectAddress.from(left, right);
             return this;
         }
 
-        public Strategy getOpFlagStrategy() {
-            return strategy;
+        FlagHandler opFlag(Strategy strategy) {
+            this.opFlagStrategy = strategy;
+            return this;
         }
 
-        public Register getZeroFlagRegister() {
-            return zeroFlagRegister;
+        public int runWithFlagHandling(Function<Cpu, Integer> action, Cpu cpu) {
+            Integer before = null;
+            if (nibbleFlagRegister != null) {
+                before = cpu.readByte(nibbleFlagRegister) & 0x10;
+            } else if (nibbleFlagAddress != null) {
+                before = nibbleFlagAddress.getValueAt(cpu) & 0x10;
+            }
+
+            int cyclesUsed = action.apply(cpu);
+
+            if (nibbleFlagRegister != null) {
+                int after = cpu.readByte(nibbleFlagRegister) & 0x10;
+                cpu.flags[Flag.NIBBLE.ordinal()] = (before < after);
+            } else if (nibbleFlagAddress != null) {
+                int after = nibbleFlagAddress.getValueAt(cpu) & 0x10;
+                cpu.flags[Flag.NIBBLE.ordinal()] = (before < after);
+            }
+
+            if (zeroFlagRegister != null) {
+                cpu.flags[Flag.ZERO.ordinal()] = (cpu.readByte(zeroFlagRegister) == 0x00);
+            } else if (zeroFlagAddress != null) {
+                cpu.flags[Flag.ZERO.ordinal()] = (zeroFlagAddress.getValueAt(cpu) == 0x00);
+            }
+
+            switch (opFlagStrategy) {
+                case SET:
+                    cpu.flags[Flag.OPERATION.ordinal()] = true;
+                    break;
+                case RESET:
+                    cpu.flags[Flag.OPERATION.ordinal()] = false;
+                    break;
+                case NONE:
+                    break;
+            }
+
+            return cyclesUsed;
         }
 
-        public Register getNibbleFlagRegister() {
-            return nibbleFlagRegister;
-        }
-
-        public static enum Strategy {
+        public enum Strategy {
             SET,
             RESET,
             NONE

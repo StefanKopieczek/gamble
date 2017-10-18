@@ -1,5 +1,6 @@
 package com.kopieczek.gamble.cpu;
 
+import com.kopieczek.gamble.memory.IndirectAddress;
 import com.kopieczek.gamble.memory.MemoryManagementUnit;
 
 public class Cpu {
@@ -15,11 +16,11 @@ public class Cpu {
         this.flags = new boolean[Flag.values().length];
     }
 
-    int readByte(int address) {
+    public int readByte(int address) {
         return mmu.readByte(address);
     }
 
-    void setByte(int address, int value) {
+    public void setByte(int address, int value) {
         mmu.setByte(address, value);
     }
 
@@ -39,6 +40,11 @@ public class Cpu {
     void increment(Register r) {
         registers[r.ordinal()]++;
         registers[r.ordinal()] &= 0xff;
+    }
+
+    void increment(IndirectAddress address) {
+        int toStore = (address.getValueAt(this) + 1) & 0xff;
+        address.setValueAt(this, toStore);
     }
 
     public int getProgramCounter() {
