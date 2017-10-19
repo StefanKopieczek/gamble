@@ -4,9 +4,7 @@ import com.kopieczek.gamble.memory.MemoryManagementUnit;
 import com.kopieczek.gamble.memory.SimpleMemoryModule;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Note the tests below intentionally don't use the Operation enum, and instead specify opcodes manually.
@@ -332,6 +330,14 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.OPERATION));
         assertTrue(cpu.isSet(Flag.ZERO));
         assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_load_a_to_a() {
+        Cpu cpu = runProgram(0x3c, 0x7f); // INC A; LD A, A
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(8, cpu.getCycles()); // 4 for the INC A, 4 for the LD A, A
+        assertEquals(0x01, cpu.readByte(Register.A));
     }
 
     private static Cpu cpuWithProgram(int... program) {

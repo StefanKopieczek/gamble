@@ -38,6 +38,7 @@ enum Operation {
         cpu.registers[Register.L.ordinal()] = cpu.readByte(cpu.pc);
         return 8;
     }),
+    LD_A_A(0x7f, FlagHandler.none(), (cpu) -> 4),
     INC_A(0x3c,
           new FlagHandler().setZeroFlagFrom(Register.A)
                            .setNibbleFlagFrom(Register.A)
