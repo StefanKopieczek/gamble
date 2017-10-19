@@ -155,6 +155,16 @@ public class TestCpu {
     }
 
     @Test
+    public void test_inc_c_unsets_nibble_flag_after_17_incs() {
+        Cpu cpu = runProgram(0x0c, 0x0c, 0x0c, 0x0c,
+                             0x0c, 0x0c, 0x0c, 0x0c,
+                             0x0c, 0x0c, 0x0c, 0x0c,
+                             0x0c, 0x0c, 0x0c, 0x0c,
+                             0x0c);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
     public void test_rollover_followed_by_increment_unsets_zero_flag() {
         Cpu cpu = runProgram(0x06, 0xff, 0x04, 0x04);
         assertFalse(cpu.isSet(Flag.ZERO));
