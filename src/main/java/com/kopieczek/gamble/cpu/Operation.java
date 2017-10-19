@@ -39,6 +39,30 @@ enum Operation {
         return 8;
     }),
     LD_A_A(0x7f, FlagHandler.none(), (cpu) -> 4),
+    LD_A_B(0x78, FlagHandler.none(), (cpu) -> {
+        cpu.registers[Register.A.ordinal()] = cpu.readByte(Register.B);
+        return 4;
+    }),
+    LD_A_C(0x79, FlagHandler.none(), (cpu) -> {
+        cpu.registers[Register.A.ordinal()] = cpu.readByte(Register.C);
+        return 4;
+    }),
+    LD_A_D(0x7a, FlagHandler.none(), (cpu) -> {
+        cpu.registers[Register.A.ordinal()] = cpu.readByte(Register.D);
+        return 4;
+    }),
+    LD_A_E(0x7b, FlagHandler.none(), (cpu) -> {
+        cpu.registers[Register.A.ordinal()] = cpu.readByte(Register.E);
+        return 4;
+    }),
+    LD_A_H(0x7c, FlagHandler.none(), (cpu) -> {
+        cpu.registers[Register.A.ordinal()] = cpu.readByte(Register.H);
+        return 4;
+    }),
+    LD_A_L(0x7d, FlagHandler.none(), (cpu) -> {
+        cpu.registers[Register.A.ordinal()] = cpu.readByte(Register.L);
+        return 4;
+    }),
     INC_A(0x3c,
           new FlagHandler().setZeroFlagFrom(Register.A)
                            .setNibbleFlagFrom(Register.A)

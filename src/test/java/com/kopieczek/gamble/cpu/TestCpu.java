@@ -340,6 +340,67 @@ public class TestCpu {
         assertEquals(0x01, cpu.readByte(Register.A));
     }
 
+    @Test
+    public void test_load_b_to_a() {
+        Cpu cpu = runProgram(0x06, 0xaa, // LD B, 0xaa
+                             0x78);      // LD A, B
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD A, C
+        assertEquals(0xaa, cpu.readByte(Register.A));
+        assertEquals(0xaa, cpu.readByte(Register.B));
+    }
+
+    @Test
+    public void test_load_c_to_a() {
+        Cpu cpu = runProgram(0x0e, 0x10, // LD C, 0x10
+                             0x79);      // LD A, C
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD C, 4 for the LD A, C
+        assertEquals(0x10, cpu.readByte(Register.A));
+        assertEquals(0x10, cpu.readByte(Register.C));
+    }
+
+    @Test
+    public void test_load_d_to_a() {
+        Cpu cpu = runProgram(0x16, 0xff, // LD D, 0xff
+                             0x7a);      // LD A, D
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD D, 4 for the LD A, D
+        assertEquals(0xff, cpu.readByte(Register.A));
+        assertEquals(0xff, cpu.readByte(Register.D));
+    }
+
+    @Test
+    public void test_load_e_to_a_when_e_is_nonzero() {
+        Cpu cpu = runProgram(0x1c,       // INC E
+                             0x1e, 0x00, // LD E, 0x00
+                             0x7b);      // LD A, E
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(4 + 8 + 4, cpu.getCycles());
+        assertEquals(0x00, cpu.readByte(Register.A));
+        assertEquals(0x00, cpu.readByte(Register.E));
+    }
+
+    @Test
+    public void test_load_h_to_a() {
+        Cpu cpu = runProgram(0x26, 0xca, // LD H, 0xca
+                             0x7c);      // LD A, H
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD A, H
+        assertEquals(0xca, cpu.readByte(Register.A));
+        assertEquals(0xca, cpu.readByte(Register.H));
+    }
+
+    @Test
+    public void test_load_l_to_a() {
+        Cpu cpu = runProgram(0x2e, 0xfe, // LD L, 0xfe
+                             0x7d);      // LD A, L
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD L, 4 for the LD A, L
+        assertEquals(0xfe, cpu.readByte(Register.A));
+        assertEquals(0xfe, cpu.readByte(Register.L));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
