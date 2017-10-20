@@ -14,6 +14,13 @@ public class Operations {
         };
     }
 
+    public static Operation copyValue(IndirectAddress from, Register to) {
+        return cpu -> {
+            cpu.set(to, from.getValueAt(cpu));
+            return 8;
+        };
+    }
+
     public static Operation loadValueTo(Register r) {
         return cpu -> {
             cpu.pc += 1;
@@ -35,7 +42,7 @@ public class Operations {
         );
     }
 
-    public static Operation incrementIndirect(IndirectAddress address) {
+    public static Operation increment(IndirectAddress address) {
         return withZeroFlagHandler(address,
             withNibbleFlagHandler(address,
                 withOpFlagSetTo(false,

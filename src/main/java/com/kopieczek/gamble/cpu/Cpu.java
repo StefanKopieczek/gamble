@@ -80,6 +80,7 @@ public class Cpu {
         m.put(0x7b, Operations.copyValue(Register.E, Register.A));
         m.put(0x7c, Operations.copyValue(Register.H, Register.A));
         m.put(0x7d, Operations.copyValue(Register.L, Register.A));
+        m.put(0x7e, Operations.copyValue(IndirectAddress.from(Register.H, Register.L), Register.A));
         m.put(0x3c, Operations.increment(Register.A));
         m.put(0x04, Operations.increment(Register.B));
         m.put(0x0c, Operations.increment(Register.C));
@@ -87,7 +88,7 @@ public class Cpu {
         m.put(0x1c, Operations.increment(Register.E));
         m.put(0x24, Operations.increment(Register.H));
         m.put(0x2c, Operations.increment(Register.L));
-        m.put(0x34, Operations.incrementIndirect(IndirectAddress.from(Register.H, Register.L)));
+        m.put(0x34, Operations.increment(IndirectAddress.from(Register.H, Register.L)));
         return m.build();
     }
 }

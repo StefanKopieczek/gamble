@@ -401,6 +401,25 @@ public class TestCpu {
         assertEquals(0xfe, cpu.readByte(Register.L));
     }
 
+    @Test
+    public void test_load_indirect_hl_to_a() {
+        Cpu cpu = runProgram(
+                0x26, 0xca,              // Set H = 0xca
+                0x2e, 0xfe,              // Set L = 0xfe
+                0x34, 0x34, 0x34, 0x34,  // INC_HLx4, so (0xcafe) holds 0x04.
+                0x7e                     // LD A, (HL).
+        );
+
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(0x04, cpu.readByte(Register.A));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0x7e);
+        assertEquals(8, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
