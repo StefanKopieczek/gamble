@@ -36,6 +36,14 @@ public class Operations {
         };
     }
 
+    public static Operation loadValueTo(IndirectAddress address) {
+        return cpu -> {
+            cpu.pc += 1;
+            cpu.setByte(address, cpu.readByte(cpu.pc));
+            return 12;
+        };
+    }
+
     public static Operation increment(Register r) {
         return withZeroFlagHandler(r,
             withNibbleFlagHandler(r,

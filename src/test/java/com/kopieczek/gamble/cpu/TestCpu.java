@@ -894,6 +894,81 @@ public class TestCpu {
         assertEquals(8, cpu.getCycles());
     }
 
+    @Test
+    public void test_load_c_to_indirect_hl() {
+        Cpu cpu = runProgram(
+                0x0e, 0xaa, // LD C, 0xaa
+                0x26, 0x4f, // LD H, 0x4f
+                0x2e, 0xfe, // LD L, 0xfe (now HL=0x4ffe).
+                0x71        // LD (HL), C
+        );
+
+        assertEquals(0xaa, cpu.readByte(0x4ffe));
+    }
+
+    @Test
+    public void test_load_d_to_indirect_hl() {
+        Cpu cpu = runProgram(
+                0x16, 0x14, // LD D, 0x14
+                0x26, 0x20, // LD H, 0x20
+                0x2e, 0xf3, // LD L, 0xf3 (now HL=0x20f3).
+                0x72        // LD (HL), D
+        );
+
+        assertEquals(0x14, cpu.readByte(0x20f3));
+    }
+
+    @Test
+    public void test_load_e_to_indirect_hl() {
+        Cpu cpu = runProgram(
+                0x1e, 0x77, // LD E, 0x77
+                0x26, 0x00, // LD H, 0x00
+                0x2e, 0x01, // LD L, 0x01 (now HL=0x0001).
+                0x73        // LD (HL), E
+        );
+
+        assertEquals(0x77, cpu.readByte(0x0001));
+    }
+
+    @Test
+    public void test_load_h_to_indirect_hl() {
+        Cpu cpu = runProgram(
+                0x26, 0x19, // LD H, 0x19
+                0x2e, 0x91, // LD L, 0x01 (now HL=0x1991).
+                0x74        // LD (HL), H
+        );
+
+        assertEquals(0x19, cpu.readByte(0x1991));
+    }
+
+    @Test
+    public void test_load_l_to_indirect_hl() {
+        Cpu cpu = runProgram(
+                0x26, 0x10, // LD H, 0x10
+                0x2e, 0x66, // LD L, 0x66 (now HL=0x1066).
+                0x75        // LD (HL), L
+        );
+
+        assertEquals(0x66, cpu.readByte(0x1066));
+    }
+
+    @Test
+    public void test_load_value_to_indirect_hl() {
+        Cpu cpu = runProgram(
+                0x26, 0x5f, // LD H, 0x5f
+                0x2e, 0x6c, // LD L, 0x6c (now HL=0x5f6c).
+                0x36, 0xbc  // LD (HL), 0xbc
+        );
+
+        assertEquals(0xbc, cpu.readByte(0x5f6c));
+    }
+
+    @Test
+    public void test_load_value_to_indirect_hl_uses_12_cycles() {
+        Cpu cpu = runProgram(0x36, 0xff);
+        assertEquals(12, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

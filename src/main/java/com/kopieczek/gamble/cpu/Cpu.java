@@ -136,6 +136,12 @@ public class Cpu {
         m.put(0x6d, Operations.copyValue(Register.L, Register.L));
         m.put(0x6e, Operations.copyValue(Register.HL, Register.L));
         m.put(0x70, Operations.copyValue(Register.B, Register.HL));
+        m.put(0x71, Operations.copyValue(Register.C, Register.HL));
+        m.put(0x72, Operations.copyValue(Register.D, Register.HL));
+        m.put(0x73, Operations.copyValue(Register.E, Register.HL));
+        m.put(0x74, Operations.copyValue(Register.H, Register.HL));
+        m.put(0x75, Operations.copyValue(Register.L, Register.HL));
+        m.put(0x36, Operations.loadValueTo(Register.HL));
         m.put(0x3c, Operations.increment(Register.A));
         m.put(0x04, Operations.increment(Register.B));
         m.put(0x0c, Operations.increment(Register.C));
