@@ -876,6 +876,24 @@ public class TestCpu {
         assertEquals(8, cpu.getCycles());
     }
 
+    @Test
+    public void test_load_b_to_indirect_hl() {
+        Cpu cpu = runProgram(
+            0x06, 0x56, // LD B, 0x56
+            0x26, 0x10, // LD H, 0x10
+            0x2e, 0xff, // LD L, 0xff (now HL=0x10ff).
+            0x70        // LD (HL), B
+        );
+
+        assertEquals(0x56, cpu.readByte(0x10ff));
+    }
+
+    @Test
+    public void test_load_b_to_indirect_hl_uses_8_cycles() {
+        Cpu cpu = runProgram(0x70);
+        assertEquals(8, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

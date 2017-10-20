@@ -21,6 +21,13 @@ public class Operations {
         };
     }
 
+    public static Operation copyValue(Register from, IndirectAddress to) {
+        return cpu -> {
+            cpu.setByte(to, cpu.readByte(from));
+            return 8;
+        };
+    }
+
     public static Operation loadValueTo(Register r) {
         return cpu -> {
             cpu.pc += 1;
