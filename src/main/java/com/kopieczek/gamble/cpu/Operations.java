@@ -16,7 +16,7 @@ public class Operations {
 
     public static Operation copyValue(IndirectAddress from, Register to) {
         return cpu -> {
-            cpu.set(to, from.getValueAt(cpu));
+            cpu.set(to, cpu.readByte(from));
             return 8;
         };
     }
@@ -47,7 +47,7 @@ public class Operations {
             withNibbleFlagHandler(address,
                 withOpFlagSetTo(false,
                         cpu -> {
-                            cpu.setByte(address.getAddress(cpu), (address.getValueAt(cpu) + 1) & 0xff);
+                            cpu.setByte(cpu.resolveAddress(address), (cpu.readByte(address) + 1) & 0xff);
                             return 12;
                         }
                 )
@@ -66,7 +66,7 @@ public class Operations {
     private static Operation withZeroFlagHandler(IndirectAddress address, Operation inner) {
         return cpu -> {
             int ret = inner.apply(cpu);
-            cpu.set(Flag.ZERO, (address.getValueAt(cpu) == 0x00));
+            cpu.set(Flag.ZERO, (cpu.readByte(address) == 0x00));
             return ret;
         };
     }
@@ -83,9 +83,9 @@ public class Operations {
 
     private static Operation withNibbleFlagHandler(IndirectAddress address, Operation inner) {
         return cpu -> {
-            int before = address.getValueAt(cpu) & 0x10;
+            int before = cpu.readByte(address) & 0x10;
             int ret = inner.apply(cpu);
-            int after = address.getValueAt(cpu) & 0x10;
+            int after = cpu.readByte(address) & 0x10;
             cpu.set(Flag.NIBBLE, (before < after));
             return ret;
         };

@@ -24,8 +24,28 @@ public class Cpu {
         return mmu.readByte(address);
     }
 
+    public int readByte(Register r) {
+        return registers[r.ordinal()];
+    }
+
+    public int readByte(IndirectAddress address) {
+        return readByte((readByte(address.left) << 8) + readByte(address.right));
+    }
+
     public void setByte(int address, int value) {
         mmu.setByte(address, value);
+    }
+
+    public void set(Register r, int value) {
+        registers[r.ordinal()] = value;
+    }
+
+    public void setByte(IndirectAddress address, int value) {
+        setByte((readByte(address.left) << 8) + readByte(address.right), value);
+    }
+
+    public int resolveAddress(IndirectAddress address) {
+        return (readByte(address.left) << 8) + readByte(address.right);
     }
 
     public void tick() {
@@ -46,14 +66,6 @@ public class Cpu {
 
     public int getCycles() {
         return cycles;
-    }
-
-    public int readByte(Register r) {
-        return registers[r.ordinal()];
-    }
-
-    public void set(Register r, int value) {
-        registers[r.ordinal()] = value;
     }
 
     public boolean isSet(Flag flag) {
