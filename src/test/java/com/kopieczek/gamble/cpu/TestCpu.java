@@ -345,7 +345,7 @@ public class TestCpu {
         Cpu cpu = runProgram(0x06, 0xaa, // LD B, 0xaa
                              0x78);      // LD A, B
         assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
-        assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD A, C
+        assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD A, B
         assertEquals(0xaa, cpu.readByte(Register.A));
         assertEquals(0xaa, cpu.readByte(Register.B));
     }
@@ -386,7 +386,7 @@ public class TestCpu {
         Cpu cpu = runProgram(0x26, 0xca, // LD H, 0xca
                              0x7c);      // LD A, H
         assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
-        assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD A, H
+        assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD A, H
         assertEquals(0xca, cpu.readByte(Register.A));
         assertEquals(0xca, cpu.readByte(Register.H));
     }
@@ -415,8 +415,464 @@ public class TestCpu {
     }
 
     @Test
-    public void test_load_indirect_hl_to_a_uses_8_cycles() {
-        Cpu cpu = runProgram(0x7e);
+    public void test_load_b_to_b() {
+        Cpu cpu = runProgram(0x04, 0x40); // INC B; LD B, B
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(8, cpu.getCycles()); // 4 for the INC B, 8 for the LD B, B
+        assertEquals(0x01, cpu.readByte(Register.B));
+    }
+
+    @Test
+    public void test_load_c_to_b() {
+        Cpu cpu = runProgram(0x0e, 0x10, // LD C, 0x10
+                             0x41);      // LD B, C
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD C, 4 for the LD B, C
+        assertEquals(0x10, cpu.readByte(Register.B));
+        assertEquals(0x10, cpu.readByte(Register.C));
+    }
+
+    @Test
+    public void test_load_d_to_b() {
+        Cpu cpu = runProgram(0x16, 0xff, // LD D, 0xff
+                             0x42);      // LD A, D
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD D, 4 for the LD B, D
+        assertEquals(0xff, cpu.readByte(Register.B));
+        assertEquals(0xff, cpu.readByte(Register.D));
+    }
+
+    @Test
+    public void test_load_e_to_b() {
+        Cpu cpu = runProgram(0x1e, 0x01, // LD E, 0x01
+                             0x43);      // LD B, E
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD E, 4 for the LD B, E
+        assertEquals(0x01, cpu.readByte(Register.B));
+        assertEquals(0x01, cpu.readByte(Register.E));
+    }
+
+    @Test
+    public void test_load_h_to_b() {
+        Cpu cpu = runProgram(0x26, 0xca, // LD H, 0xca
+                             0x44);      // LD B, H
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD B, H
+        assertEquals(0xca, cpu.readByte(Register.B));
+        assertEquals(0xca, cpu.readByte(Register.H));
+    }
+
+    @Test
+    public void test_load_l_to_b() {
+        Cpu cpu = runProgram(0x2e, 0xfe, // LD L, 0xfe
+                             0x45);      // LD B, L
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD L, 4 for the LD B, L
+        assertEquals(0xfe, cpu.readByte(Register.B));
+        assertEquals(0xfe, cpu.readByte(Register.L));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_b() {
+        Cpu cpu = runProgram(
+                0x26, 0xaa,              // Set H = 0xaa
+                0x2e, 0xbb,              // Set L = 0xbb
+                0x34, 0x34, 0x34,        // INC_HLx3, so (0xaabb) holds 0x03.
+                0x46                     // LD B, (HL).
+        );
+
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(0x03, cpu.readByte(Register.B));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_b_uses_8_cycles() {
+        Cpu cpu = runProgram(0x46);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_load_b_to_c() {
+        Cpu cpu = runProgram(0x06, 0x10, // LD B, 0x10
+                             0x48);      // LD C, B
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD C, B
+        assertEquals(0x10, cpu.readByte(Register.C));
+        assertEquals(0x10, cpu.readByte(Register.B));
+    }
+
+    @Test
+    public void test_load_c_to_c() {
+        Cpu cpu = runProgram(0x0c, 0x49); // INC C; LD C, C
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(8, cpu.getCycles()); // 4 for the INC C, 8 for the LD C, C
+        assertEquals(0x01, cpu.readByte(Register.C));
+    }
+
+    @Test
+    public void test_load_d_to_c() {
+        Cpu cpu = runProgram(0x16, 0xff, // LD D, 0xff
+                             0x4a);      // LD A, D
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD D, 4 for the LD C, D
+        assertEquals(0xff, cpu.readByte(Register.C));
+        assertEquals(0xff, cpu.readByte(Register.D));
+    }
+
+    @Test
+    public void test_load_e_to_c() {
+        Cpu cpu = runProgram(0x1e, 0x01, // LD E, 0x01
+                             0x4b);      // LD C, E
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD E, 4 for the LD C, E
+        assertEquals(0x01, cpu.readByte(Register.C));
+        assertEquals(0x01, cpu.readByte(Register.E));
+    }
+
+    @Test
+    public void test_load_h_to_c() {
+        Cpu cpu = runProgram(0x26, 0xca, // LD H, 0xca
+                             0x4c);      // LD C, H
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD C, H
+        assertEquals(0xca, cpu.readByte(Register.C));
+        assertEquals(0xca, cpu.readByte(Register.H));
+    }
+
+    @Test
+    public void test_load_l_to_c() {
+        Cpu cpu = runProgram(0x2e, 0xfe, // LD L, 0xfe
+                             0x4d);      // LD C, L
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD L, 4 for the LD B, L
+        assertEquals(0xfe, cpu.readByte(Register.C));
+        assertEquals(0xfe, cpu.readByte(Register.L));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_c() {
+        Cpu cpu = runProgram(
+                0x26, 0xa1,              // Set H = 0xa1
+                0x2e, 0x2b,              // Set L = 0x2b
+                0x34, 0x34,              // INC_HLx2, so (0xa12b) holds 0x02.
+                0x4e                     // LD C, (HL).
+        );
+
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(0x02, cpu.readByte(Register.C));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_c_uses_8_cycles() {
+        Cpu cpu = runProgram(0x4e);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_load_b_to_d() {
+        Cpu cpu = runProgram(0x06, 0x10, // LD B, 0x10
+                             0x50);      // LD D, B
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD D, B
+        assertEquals(0x10, cpu.readByte(Register.D));
+        assertEquals(0x10, cpu.readByte(Register.B));
+    }
+
+    @Test
+    public void test_load_c_to_d() {
+        Cpu cpu = runProgram(0x0e, 0xff, // LD C, 0xff
+                             0x51);      // LD D, C
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD C, 4 for the LD D, C
+        assertEquals(0xff, cpu.readByte(Register.D));
+        assertEquals(0xff, cpu.readByte(Register.C));
+    }
+
+    @Test
+    public void test_load_d_to_d() {
+        Cpu cpu = runProgram(0x14, 0x52); // INC D; LD D, D
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(8, cpu.getCycles()); // 4 for the INC D, 8 for the LD D, D
+        assertEquals(0x01, cpu.readByte(Register.D));
+    }
+
+    @Test
+    public void test_load_e_to_d() {
+        Cpu cpu = runProgram(0x1e, 0x01, // LD E, 0x01
+                             0x53);      // LD D, E
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD E, 4 for the LD D, E
+        assertEquals(0x01, cpu.readByte(Register.D));
+        assertEquals(0x01, cpu.readByte(Register.E));
+    }
+
+    @Test
+    public void test_load_h_to_d() {
+        Cpu cpu = runProgram(0x26, 0xca, // LD H, 0xca
+                             0x54);      // LD D, H
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD D, H
+        assertEquals(0xca, cpu.readByte(Register.D));
+        assertEquals(0xca, cpu.readByte(Register.H));
+    }
+
+    @Test
+    public void test_load_l_to_d() {
+        Cpu cpu = runProgram(0x2e, 0xfe, // LD L, 0xfe
+                             0x55);      // LD D, L
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD L, 4 for the LD D, L
+        assertEquals(0xfe, cpu.readByte(Register.D));
+        assertEquals(0xfe, cpu.readByte(Register.L));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_d() {
+        Cpu cpu = runProgram(
+                0x26, 0xa1,              // Set H = 0xa1
+                0x2e, 0x2b,              // Set L = 0x2b
+                0x34, 0x34,              // INC_HLx2, so (0xa12b) holds 0x02.
+                0x56                     // LD D, (HL).
+        );
+
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(0x02, cpu.readByte(Register.D));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_d_uses_8_cycles() {
+        Cpu cpu = runProgram(0x56);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_load_b_to_e() {
+        Cpu cpu = runProgram(0x06, 0x10, // LD B, 0x10
+                             0x58);      // LD E, B
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD B, E
+        assertEquals(0x10, cpu.readByte(Register.E));
+        assertEquals(0x10, cpu.readByte(Register.B));
+    }
+
+    @Test
+    public void test_load_c_to_e() {
+        Cpu cpu = runProgram(0x0e, 0xff, // LD C, 0xff
+                             0x59);      // LD E, C
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD C, 4 for the LD E, C
+        assertEquals(0xff, cpu.readByte(Register.E));
+        assertEquals(0xff, cpu.readByte(Register.C));
+    }
+
+    @Test
+    public void test_load_d_to_e() {
+        Cpu cpu = runProgram(0x16, 0x01, // LD D, 0x01
+                             0x5a);      // LD E, D
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD D, 4 for the LD E, D
+        assertEquals(0x01, cpu.readByte(Register.E));
+        assertEquals(0x01, cpu.readByte(Register.D));
+    }
+
+    @Test
+    public void test_load_e_to_e() {
+        Cpu cpu = runProgram(0x1c, 0x5b); // INC E; LD E, E
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(8, cpu.getCycles()); // 4 for the INC E, 8 for the LD E, E
+        assertEquals(0x01, cpu.readByte(Register.E));
+    }
+
+    @Test
+    public void test_load_h_to_e() {
+        Cpu cpu = runProgram(0x26, 0xca, // LD H, 0xca
+                             0x5c);      // LD E, H
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD E, H
+        assertEquals(0xca, cpu.readByte(Register.E));
+        assertEquals(0xca, cpu.readByte(Register.H));
+    }
+
+    @Test
+    public void test_load_l_to_e() {
+        Cpu cpu = runProgram(0x2e, 0xfe, // LD L, 0xfe
+                             0x5d);      // LD E, L
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD L, 4 for the LD E, L
+        assertEquals(0xfe, cpu.readByte(Register.E));
+        assertEquals(0xfe, cpu.readByte(Register.L));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_e() {
+        Cpu cpu = runProgram(
+                0x26, 0x1a,              // Set H = 0x1a
+                0x2e, 0xb2,              // Set L = 0xb2
+                0x34, 0x34, 0x34, 0x34,  // INC_HLx4, so (0xa12b) holds 0x04.
+                0x5e                     // LD E, (HL).
+        );
+
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(0x04, cpu.readByte(Register.E));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_e_uses_8_cycles() {
+        Cpu cpu = runProgram(0x5e);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_load_b_to_h() {
+        Cpu cpu = runProgram(0x06, 0x10, // LD B, 0x10
+                             0x60);      // LD H, B
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD H, B
+        assertEquals(0x10, cpu.readByte(Register.H));
+        assertEquals(0x10, cpu.readByte(Register.B));
+    }
+
+    @Test
+    public void test_load_c_to_h() {
+        Cpu cpu = runProgram(0x0e, 0xff, // LD C, 0xff
+                             0x61);      // LD H, C
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD C, 4 for the LD H, C
+        assertEquals(0xff, cpu.readByte(Register.H));
+        assertEquals(0xff, cpu.readByte(Register.C));
+    }
+
+    @Test
+    public void test_load_d_to_h() {
+        Cpu cpu = runProgram(0x16, 0x01, // LD D, 0x01
+                             0x62);      // LD H, D
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD D, 4 for the LD H, D
+        assertEquals(0x01, cpu.readByte(Register.H));
+        assertEquals(0x01, cpu.readByte(Register.D));
+    }
+
+    @Test
+    public void test_load_e_to_h() {
+        Cpu cpu = runProgram(0x1e, 0xca, // LD E, 0xca
+                             0x63);      // LD H, E
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD H, E
+        assertEquals(0xca, cpu.readByte(Register.E));
+        assertEquals(0xca, cpu.readByte(Register.H));
+    }
+
+    @Test
+    public void test_load_h_to_h() {
+        Cpu cpu = runProgram(0x24, 0x64); // INC H; LD H, H
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(8, cpu.getCycles()); // 4 for the INC H, 8 for the LD H, H
+        assertEquals(0x01, cpu.readByte(Register.H));
+    }
+
+    @Test
+    public void test_load_l_to_h() {
+        Cpu cpu = runProgram(0x2e, 0xfe, // LD L, 0xfe
+                             0x65);      // LD H, L
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD L, 4 for the LD H, L
+        assertEquals(0xfe, cpu.readByte(Register.H));
+        assertEquals(0xfe, cpu.readByte(Register.L));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_h() {
+        Cpu cpu = runProgram(
+                0x26, 0x1a,              // Set H = 0x1a
+                0x2e, 0xb2,              // Set L = 0xb2
+                0x34, 0x34, 0x34, 0x34,  // INC_HLx4, so (0xa12b) holds 0x04.
+                0x66                     // LD H, (HL).
+        );
+
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(0x04, cpu.readByte(Register.H));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_h_uses_8_cycles() {
+        Cpu cpu = runProgram(0x66);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_load_b_to_l() {
+        Cpu cpu = runProgram(0x06, 0x10, // LD B, 0x10
+                             0x68);      // LD L, B
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD L, B
+        assertEquals(0x10, cpu.readByte(Register.L));
+        assertEquals(0x10, cpu.readByte(Register.B));
+    }
+
+    @Test
+    public void test_load_c_to_l() {
+        Cpu cpu = runProgram(0x0e, 0xff, // LD C, 0xff
+                             0x69);      // LD L, C
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD C, 4 for the LD L, C
+        assertEquals(0xff, cpu.readByte(Register.L));
+        assertEquals(0xff, cpu.readByte(Register.C));
+    }
+
+    @Test
+    public void test_load_d_to_l() {
+        Cpu cpu = runProgram(0x16, 0x01, // LD D, 0x01
+                             0x6a);      // LD L, D
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD D, 4 for the LD L, D
+        assertEquals(0x01, cpu.readByte(Register.L));
+        assertEquals(0x01, cpu.readByte(Register.D));
+    }
+
+    @Test
+    public void test_load_e_to_l() {
+        Cpu cpu = runProgram(0x1e, 0xca, // LD E, 0xca
+                             0x6b);      // LD L, E
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD E, H
+        assertEquals(0xca, cpu.readByte(Register.L));
+        assertEquals(0xca, cpu.readByte(Register.E));
+    }
+
+    @Test
+    public void test_load_h_to_l() {
+        Cpu cpu = runProgram(0x26, 0xfe, // LD H, 0xfe
+                             0x6c);      // LD L, H
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD L, H
+        assertEquals(0xfe, cpu.readByte(Register.L));
+        assertEquals(0xfe, cpu.readByte(Register.H));
+    }
+
+    @Test
+    public void test_load_l_to_l() {
+        Cpu cpu = runProgram(0x2c, 0x6d); // INC H; LD H, H
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(8, cpu.getCycles()); // 4 for the INC L, 8 for the LD L, L
+        assertEquals(0x01, cpu.readByte(Register.L));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_L() {
+        Cpu cpu = runProgram(
+                0x26, 0xee,              // Set H = 0xee
+                0x2e, 0xff,              // Set L = 0xff
+                0x34, 0x34, 0x34, 0x34,  // INC_HLx4, so (0xeeff) holds 0x04.
+                0x6e                     // LD L, (HL).
+        );
+
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+        assertEquals(0x04, cpu.readByte(Register.L));
+    }
+
+    @Test
+    public void test_load_indirect_hl_to_l_uses_8_cycles() {
+        Cpu cpu = runProgram(0x6e);
         assertEquals(8, cpu.getCycles());
     }
 
