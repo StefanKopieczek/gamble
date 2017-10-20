@@ -1,0 +1,94 @@
+package com.kopieczek.gamble.cpu;
+
+import com.kopieczek.gamble.memory.IndirectAddress;
+
+public class Operations {
+    public static Operation nop() {
+        return cpu -> 4;
+    }
+
+    public static Operation copyValue(Register from, Register to) {
+        return cpu -> {
+            cpu.set(to, cpu.readByte(from));
+            return 4;
+        };
+    }
+
+    public static Operation loadValueTo(Register r) {
+        return cpu -> {
+            cpu.pc += 1;
+            cpu.set(r, cpu.readByte(cpu.pc));
+            return 8;
+        };
+    }
+
+    public static Operation increment(Register r) {
+        return withZeroFlagHandler(r,
+            withNibbleFlagHandler(r,
+                withOpFlagSetTo(false,
+                        cpu -> {
+                            cpu.set(r, (cpu.readByte(r) + 1) & 0xff);
+                            return 4;
+                        }
+                )
+            )
+        );
+    }
+
+    public static Operation incrementIndirect(IndirectAddress address) {
+        return withZeroFlagHandler(address,
+            withNibbleFlagHandler(address,
+                withOpFlagSetTo(false,
+                        cpu -> {
+                            cpu.setByte(address.getAddress(cpu), (address.getValueAt(cpu) + 1) & 0xff);
+                            return 12;
+                        }
+                )
+            )
+        );
+    }
+
+    private static Operation withZeroFlagHandler(Register r, Operation inner) {
+        return cpu -> {
+            int ret = inner.apply(cpu);
+            cpu.set(Flag.ZERO, (cpu.readByte(r) == 0x00));
+            return ret;
+        };
+    }
+
+    private static Operation withZeroFlagHandler(IndirectAddress address, Operation inner) {
+        return cpu -> {
+            int ret = inner.apply(cpu);
+            cpu.set(Flag.ZERO, (address.getValueAt(cpu) == 0x00));
+            return ret;
+        };
+    }
+
+    private static Operation withNibbleFlagHandler(Register r, Operation inner) {
+        return cpu -> {
+            int before = cpu.readByte(r) & 0x10;
+            int ret = inner.apply(cpu);
+            int after = cpu.readByte(r) & 0x10;
+            cpu.set(Flag.NIBBLE, (before < after));
+            return ret;
+        };
+    }
+
+    private static Operation withNibbleFlagHandler(IndirectAddress address, Operation inner) {
+        return cpu -> {
+            int before = address.getValueAt(cpu) & 0x10;
+            int ret = inner.apply(cpu);
+            int after = address.getValueAt(cpu) & 0x10;
+            cpu.set(Flag.NIBBLE, (before < after));
+            return ret;
+        };
+    }
+
+    private static Operation withOpFlagSetTo(boolean flagValue, Operation inner) {
+        return cpu -> {
+            int ret = inner.apply(cpu);
+            cpu.set(Flag.OPERATION, flagValue);
+            return ret;
+        };
+    }
+}

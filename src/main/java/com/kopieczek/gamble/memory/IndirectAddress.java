@@ -12,7 +12,7 @@ public class IndirectAddress {
     }
 
     public int getAddress(Cpu cpu) {
-        return cpu.readByte(left) << 8 + cpu.readByte(right);
+        return (cpu.readByte(left) << 8) + cpu.readByte(right);
     }
 
     public int getValueAt(Cpu cpu) {

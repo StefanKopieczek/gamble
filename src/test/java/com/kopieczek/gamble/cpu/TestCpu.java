@@ -239,7 +239,7 @@ public class TestCpu {
     }
 
     @Test
-    public void test_word_inc_clears_operation_flag() {
+    public void test_inc_hl_clears_operation_flag() {
         Cpu cpu = cpuWithProgram(0x34);
         cpu.flags[Flag.OPERATION.ordinal()] = true;
         runProgram(cpu, 1);
