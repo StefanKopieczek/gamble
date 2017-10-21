@@ -30,26 +30,24 @@ public class Operations {
 
     public static Operation loadValueTo(Register r) {
         return cpu -> {
-            cpu.pc += 1;
-            cpu.set(r, cpu.readByte(cpu.pc));
+            int value = cpu.readNextArg();
+            cpu.set(r, value);
             return 8;
         };
     }
 
     public static Operation loadValueTo(IndirectAddress address) {
         return cpu -> {
-            cpu.pc += 1;
-            cpu.setByte(address, cpu.readByte(cpu.pc));
+            int value = cpu.readNextArg();
+            cpu.setByte(address, value);
             return 12;
         };
     }
 
     public static Operation loadValueIndirectTo(Register r) {
         return cpu -> {
-            cpu.pc += 1;
-            int lsb = cpu.readByte(cpu.pc);
-            cpu.pc += 1;
-            int msb = cpu.readByte(cpu.pc);
+            int lsb = cpu.readNextArg();
+            int msb = cpu.readNextArg();
             int valueAtAddress = cpu.readByte((msb << 8) + lsb);
             cpu.set(Register.A, valueAtAddress);
             return 16;
@@ -60,10 +58,10 @@ public class Operations {
         return withZeroFlagHandler(r,
             withNibbleFlagHandler(r,
                 withOpFlagSetTo(false,
-                        cpu -> {
-                            cpu.set(r, (cpu.readByte(r) + 1) & 0xff);
-                            return 4;
-                        }
+                    cpu -> {
+                        cpu.set(r, (cpu.readByte(r) + 1) & 0xff);
+                        return 4;
+                    }
                 )
             )
         );
@@ -73,10 +71,10 @@ public class Operations {
         return withZeroFlagHandler(address,
             withNibbleFlagHandler(address,
                 withOpFlagSetTo(false,
-                        cpu -> {
-                            cpu.setByte(cpu.resolveAddress(address), (cpu.readByte(address) + 1) & 0xff);
-                            return 12;
-                        }
+                    cpu -> {
+                        cpu.setByte(cpu.resolveAddress(address), (cpu.readByte(address) + 1) & 0xff);
+                        return 12;
+                    }
                 )
             )
         );

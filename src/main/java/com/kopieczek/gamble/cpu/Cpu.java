@@ -48,6 +48,11 @@ public class Cpu {
         return (readByte(address.left) << 8) + readByte(address.right);
     }
 
+    int readNextArg() {
+        pc += 1;
+        return readByte(pc);
+    }
+
     public void tick() {
         int opcode = mmu.readByte(pc);
 
