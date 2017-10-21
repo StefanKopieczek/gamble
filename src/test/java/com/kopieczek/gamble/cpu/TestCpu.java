@@ -964,6 +964,12 @@ public class TestCpu {
     }
 
     @Test
+    public void test_load_value_to_indirect_hl_uses_12_cycles() {
+        Cpu cpu = runProgram(0x36, 0xff);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
     public void test_load_indirect_bc_to_a() {
         Cpu cpu = runProgram(
                 0x26, 0x43,
@@ -1008,9 +1014,19 @@ public class TestCpu {
     }
 
     @Test
-    public void test_load_value_to_indirect_hl_uses_12_cycles() {
-        Cpu cpu = runProgram(0x36, 0xff);
-        assertEquals(12, cpu.getCycles());
+    public void test_load_indirect_de_to_a() {
+        Cpu cpu = runProgram(
+                0x26, 0x99,
+                0x2e, 0xab,
+                0x36, 0xb4,  // Load b4 to (0x99ab)
+                0x54, 0x5d,  // Set (DE) = 0x4377.
+                0x26, 0x00,
+                0x2e, 0x00,  // Clear (HL).
+                0x1a         // LD A, (DE)
+        );
+
+        assertEquals(0xb4, cpu.readByte(Register.A));
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
     }
 
     private static Cpu cpuWithProgram(int... program) {
