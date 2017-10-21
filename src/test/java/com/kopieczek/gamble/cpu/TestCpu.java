@@ -964,6 +964,50 @@ public class TestCpu {
     }
 
     @Test
+    public void test_load_indirect_bc_to_a() {
+        Cpu cpu = runProgram(
+                0x26, 0x43,
+                0x2e, 0x77,
+                0x36, 0x3e,  // Load 3e to (0x4377)
+                0x44, 0x4d,  // Set (BC) = 0x4377.
+                0x26, 0x00,
+                0x2e, 0x00,  // Clear (HL).
+                0x0a         // LD A, (BC)
+        );
+
+        assertEquals(0x3e, cpu.readByte(Register.A));
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+    }
+
+    @Test
+    public void test_load_indirect_bc_to_a_when_a_is_nonzero() {
+        Cpu cpu = runProgram(
+                0x3c,        // INC A
+                0x26, 0x43,
+                0x2e, 0x77,
+                0x36, 0x3e,  // Load 3e to (0x4377)
+                0x44, 0x4d,  // Set (BC) = 0x4377.
+                0x26, 0x00,
+                0x2e, 0x00,  // Clear (HL).
+                0x0a         // LD A, (BC)
+        );
+
+        assertEquals(0x3e, cpu.readByte(Register.A));
+    }
+
+    @Test
+    public void test_load_indirect_bc_to_a_with_0_overwrites_a() {
+        Cpu cpu = runProgram(0x06, 0xff, 0x78, 0x0a);
+        assertEquals(0x00, cpu.readByte(Register.A));
+    }
+
+    @Test
+    public void test_load_indirect_bc_to_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0x0a);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
     public void test_load_value_to_indirect_hl_uses_12_cycles() {
         Cpu cpu = runProgram(0x36, 0xff);
         assertEquals(12, cpu.getCycles());
