@@ -140,4 +140,24 @@ public class Operations {
             return 8;
         };
     }
+
+    public static Operation loadDecFromIndirect(Register to, IndirectAddress from) {
+        return cpu -> {
+            cpu.set(to, from);
+
+            int newLeft = cpu.readByte(from.left);
+            if (cpu.readByte(from.right) == 0x00) {
+                // Right-hand byte rolled back to 0xff,
+                // so decrement left-hand byte and roll up to 0xff if needed.
+                newLeft = (newLeft - 1) & 0xff;
+            }
+
+            // Decrement, and roll back up to 0xff if needed.
+            int newRight = (cpu.readByte(from.right) - 1) & 0xff;
+
+            cpu.set(from.left, newLeft);
+            cpu.set(from.right, newRight);
+            return 8;
+        };
+    }
 }

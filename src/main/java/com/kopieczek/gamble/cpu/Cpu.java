@@ -40,6 +40,11 @@ public class Cpu {
         registers[r.ordinal()] = value;
     }
 
+    public void set(Register to, IndirectAddress from) {
+        int value = readByte(from);
+        set(to, value);
+    }
+
     public void setByte(IndirectAddress address, int value) {
         setByte((readByte(address.left) << 8) + readByte(address.right), value);
     }
@@ -161,6 +166,8 @@ public class Cpu {
         m.put(0x34, Operations.increment(Register.HL));
         m.put(0xf2, Operations.copyFromIndirect(Register.C, Register.A));
         m.put(0xe2, Operations.copyToIndirect(Register.A, Register.C));
+        m.put(0x3a, Operations.loadDecFromIndirect(Register.A, Register.HL));
         return m.build();
     }
+
 }
