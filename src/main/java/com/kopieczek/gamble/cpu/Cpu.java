@@ -160,6 +160,7 @@ public class Cpu {
         m.put(0x2c, Operations.increment(Register.L));
         m.put(0x34, Operations.increment(Register.HL));
         m.put(0xf2, Operations.copyFromIndirect(Register.C, Register.A));
+        m.put(0xe2, Operations.copyToIndirect(Register.A, Register.C));
         return m.build();
     }
 }

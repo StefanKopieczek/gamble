@@ -1059,13 +1059,13 @@ public class TestCpu {
     @Test
     public void test_indirect_load_c_to_a() {
         Cpu cpu = runProgram(
-                0x26, 0xff,
-                0x2e, 0x54,
-                0x36, 0xcd,       // Load 0xcd to (0xff54)
-                0x26, 0x00,
-                0x2e, 0x00,       // Clear (HL)
-                0x0e, 0x54,       // LD C, 0x54
-                0xf2              // LD A, 0xff(C)
+            0x26, 0xff,
+            0x2e, 0x54,
+            0x36, 0xcd,       // Load 0xcd to (0xff54)
+            0x26, 0x00,
+            0x2e, 0x00,       // Clear (HL)
+            0x0e, 0x54,       // LD C, 0x54
+            0xf2              // LD A, 0xff(C)
         );
         assertEquals(0xcd, cpu.readByte(Register.A));
     }
@@ -1075,6 +1075,23 @@ public class TestCpu {
         Cpu cpu = runProgram(0xf2);
         assertEquals(8, cpu.getCycles());
     }
+
+    @Test
+    public void test_load_c_to_a_indirect() {
+        Cpu cpu = runProgram(
+            0x3e, 0x3b, // LD A, 0x3b
+            0x0e, 0xab, // LD C, 0xab
+            0xe2        // LD 0xff(C), A
+        );
+        assertEquals(0x3b, cpu.readByte(0xff0ab));
+    }
+
+    @Test
+    public void test_load_c_to_a_indirect_uses_8_cycles() {
+        Cpu cpu = runProgram(0xe2);
+        assertEquals(8, cpu.getCycles());
+    }
+
 
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();

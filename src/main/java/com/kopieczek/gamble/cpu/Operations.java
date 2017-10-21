@@ -131,4 +131,13 @@ public class Operations {
             return 8;
         };
     }
+
+    public static Operation copyToIndirect(Register from, Register toLsb) {
+        return cpu -> {
+            int toSet = cpu.readByte(from);
+            int targetAddr = 0xff00 + cpu.readByte(toLsb);
+            cpu.setByte(targetAddr, toSet);
+            return 8;
+        };
+    }
 }
