@@ -1029,6 +1029,27 @@ public class TestCpu {
         assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
     }
 
+    @Test
+    public void test_load_indirect_address_to_a() {
+        Cpu cpu = runProgram(
+                0x26, 0x99,
+                0x2e, 0xab,
+                0x36, 0xb4,       // Load b4 to (0x99ab)
+                0x26, 0x00,
+                0x2e, 0x00,       // Clear (HL)
+                0xfa, 0xab, 0x99  // LD A (0x99ab) - note the arguments are little endian.
+        );
+
+        assertEquals(0xb4, cpu.readByte(Register.A));
+        assertArrayEquals(cpu.flags, new boolean[]{false, false, false, false});
+    }
+
+    @Test
+    public void test_load_indirect_address_to_a_uses_16_cycles() {
+        Cpu cpu = runProgram(0xfa, 0x00, 0x00);
+        assertEquals(16, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

@@ -44,6 +44,18 @@ public class Operations {
         };
     }
 
+    public static Operation loadValueIndirectTo(Register r) {
+        return cpu -> {
+            cpu.pc += 1;
+            int lsb = cpu.readByte(cpu.pc);
+            cpu.pc += 1;
+            int msb = cpu.readByte(cpu.pc);
+            int valueAtAddress = cpu.readByte((msb << 8) + lsb);
+            cpu.set(Register.A, valueAtAddress);
+            return 16;
+        };
+    }
+
     public static Operation increment(Register r) {
         return withZeroFlagHandler(r,
             withNibbleFlagHandler(r,

@@ -144,6 +144,7 @@ public class Cpu {
         m.put(0x36, Operations.loadValueTo(Register.HL));
         m.put(0x0a, Operations.copyValue(Register.BC, Register.A));
         m.put(0x1a, Operations.copyValue(Register.DE, Register.A));
+        m.put(0xfa, Operations.loadValueIndirectTo(Register.A));
         m.put(0x3c, Operations.increment(Register.A));
         m.put(0x04, Operations.increment(Register.B));
         m.put(0x0c, Operations.increment(Register.C));
