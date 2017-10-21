@@ -313,6 +313,12 @@ public class TestCpu {
     }
 
     @Test
+    public void test_direct_load_to_a() {
+        Cpu cpu = runProgram(0x3e, 0x91);
+        assertEquals(0x91, cpu.readByte(Register.A));
+    }
+
+    @Test
     public void test_direct_load_leaves_empty_flags_alone() {
         Cpu cpu = runProgram(0x2e, 0x00);
         assertFalse(cpu.isSet(Flag.CARRY));
@@ -1048,6 +1054,26 @@ public class TestCpu {
     public void test_load_indirect_address_to_a_uses_16_cycles() {
         Cpu cpu = runProgram(0xfa, 0x00, 0x00);
         assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_indirect_load_c_to_a() {
+        Cpu cpu = runProgram(
+                0x26, 0xff,
+                0x2e, 0x54,
+                0x36, 0xcd,       // Load 0xcd to (0xff54)
+                0x26, 0x00,
+                0x2e, 0x00,       // Clear (HL)
+                0x0e, 0x54,       // LD C, 0x54
+                0xf2              // LD A, 0xff(C)
+        );
+        assertEquals(0xcd, cpu.readByte(Register.A));
+    }
+
+    @Test
+    public void test_indirect_load_c_to_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0xf2);
+        assertEquals(8, cpu.getCycles());
     }
 
     private static Cpu cpuWithProgram(int... program) {

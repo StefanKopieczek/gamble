@@ -84,6 +84,7 @@ public class Cpu {
     private static Map<Integer, Operation> loadOperations() {
         ImmutableMap.Builder<Integer, Operation> m = ImmutableMap.builder();
         m.put(0x00, Operations.nop());
+        m.put(0x3e, Operations.loadValueTo(Register.A));
         m.put(0x06, Operations.loadValueTo(Register.B));
         m.put(0x0e, Operations.loadValueTo(Register.C));
         m.put(0x16, Operations.loadValueTo(Register.D));
@@ -158,6 +159,7 @@ public class Cpu {
         m.put(0x24, Operations.increment(Register.H));
         m.put(0x2c, Operations.increment(Register.L));
         m.put(0x34, Operations.increment(Register.HL));
+        m.put(0xf2, Operations.copyFromIndirect(Register.C, Register.A));
         return m.build();
     }
 }

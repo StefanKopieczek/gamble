@@ -123,4 +123,12 @@ public class Operations {
             return ret;
         };
     }
+
+    public static Operation copyFromIndirect(Register fromLsb, Register to) {
+        return cpu -> {
+            int address = 0xff00 + cpu.readByte(fromLsb);
+            cpu.set(to, cpu.readByte(address));
+            return 8;
+        };
+    }
 }
