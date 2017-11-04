@@ -1297,6 +1297,40 @@ public class TestCpu {
         assertArrayEquals(new boolean[]{false, false, false, false}, cpu.flags);
     }
 
+    @Test
+    public void test_load_a_to_address() {
+        Cpu cpu = runProgram(
+                0x3e, 0x64, // LD A, 0x64
+                0xe0, 0x34  // LD (0xff34), 0x64
+        );
+        assertEquals(0x64, cpu.readByte(0xff34));
+    }
+
+    @Test
+    public void test_load_a_to_address_uses_12_cycles() {
+        Cpu cpu = runProgram(0xe0, 0xff);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_load_address_to_a() {
+        Cpu cpu = runProgram(
+                0x0e, 0x46, // LD C, 0x46
+                0x26, 0xff, // LD H, 0xff
+                0x2e, 0x34, // LD L, 0x34
+                0x71,       // LD (HL), C
+                0xf0, 0x34  // LD A, (0xff34)
+        );
+
+        assertEquals(0x46, cpu.readByte(Register.A));
+    }
+
+    @Test
+    public void test_load_address_to_a_uses_12_cycles() {
+        Cpu cpu = runProgram(0xf0, 0x01);
+        assertEquals(12, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

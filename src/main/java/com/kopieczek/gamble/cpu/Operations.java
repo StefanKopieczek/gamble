@@ -173,6 +173,24 @@ public class Operations {
         };
     }
 
+    public static Operation loadRegisterToAddress(Register r) {
+        return cpu -> {
+            int value = cpu.readByte(r);
+            int address = 0xff00 + cpu.readNextArg();
+            cpu.setByte(address, value);
+            return 12;
+        };
+    }
+
+    public static Operation loadAddressToRegister(Register r) {
+        return cpu -> {
+            int address = 0xff00 + cpu.readNextArg();
+            int value = cpu.readByte(address);
+            cpu.set(r, value);
+            return 12;
+        };
+    }
+
     private static void decrementPointer(IndirectAddress address, Cpu cpu) {
         int newLeft = cpu.readByte(address.left);
         if (cpu.readByte(address.right) == 0x00) {
