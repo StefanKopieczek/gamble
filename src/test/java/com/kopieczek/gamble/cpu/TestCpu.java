@@ -1245,6 +1245,58 @@ public class TestCpu {
         assertEquals(0x00, cpu.readByte(Register.L));
     }
 
+    @Test
+    public void test_ldi_hl_a() {
+        Cpu cpu = runProgram(
+                0x3c,       // INC A
+                0x26, 0xab, // LD H, 0xab
+                0x2e, 0xcd, // LD L, 0xcd
+                0x22        // LDI (HL), A
+        );
+
+        assertEquals(0x01, cpu.readByte(0xabcd));
+        assertEquals(0xab, cpu.readByte(Register.H));
+        assertEquals(0xce, cpu.readByte(Register.L));
+    }
+
+    @Test
+    public void test_ldi_hl_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0x22);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_ldi_hl_a_byte_rollover() {
+        Cpu cpu = runProgram(
+                0x26, 0x00,
+                0x2e, 0xff,       // Set HL = 0x00ff.
+                0x22              // LDI (HL), A
+        );
+        assertEquals(0x01, cpu.readByte(Register.H));
+        assertEquals(0x00, cpu.readByte(Register.L));
+    }
+
+    @Test
+    public void test_ldi_hl_a_word_rollover() {
+        Cpu cpu = runProgram(
+                0x26, 0xff,
+                0x2e, 0xff,       // Set HL = 0xffff.
+                0x22              // LDI (HL), A
+        );
+        assertEquals(0x00, cpu.readByte(Register.H));
+        assertEquals(0x00, cpu.readByte(Register.L));
+    }
+
+    @Test
+    public void test_ldi_hl_a_doesnt_set_flags() {
+        Cpu cpu = runProgram(
+                0x26, 0xff,
+                0x2e, 0xff,       // Set HL = 0xffff.
+                0x22              // LDI A, (HL)
+        );
+        assertArrayEquals(new boolean[]{false, false, false, false}, cpu.flags);
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

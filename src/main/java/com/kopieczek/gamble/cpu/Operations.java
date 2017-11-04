@@ -165,6 +165,14 @@ public class Operations {
         };
     }
 
+    public static Operation loadIncToIndirect(IndirectAddress to, Register from) {
+        return cpu -> {
+            cpu.setByte(to, from);
+            incrementPointer(to, cpu);
+            return 8;
+        };
+    }
+
     private static void decrementPointer(IndirectAddress address, Cpu cpu) {
         int newLeft = cpu.readByte(address.left);
         if (cpu.readByte(address.right) == 0x00) {
