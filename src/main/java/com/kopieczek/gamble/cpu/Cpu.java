@@ -176,6 +176,7 @@ public class Cpu {
         m.put(0x22, Operations.loadIncToIndirect(Register.HL, Register.A));
         m.put(0xe0, Operations.loadRegisterToAddress(Register.A));
         m.put(0xf0, Operations.loadAddressToRegister(Register.A));
+        m.put(0x01, Operations.directLoadWord(Register.BC));
         return m.build();
     }
 }

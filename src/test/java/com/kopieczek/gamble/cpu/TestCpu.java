@@ -1331,6 +1331,14 @@ public class TestCpu {
         assertEquals(12, cpu.getCycles());
     }
 
+    @Test
+    public void test_direct_load_to_bc() {
+        Cpu cpu = runProgram(0x01, 0x34, 0x56);
+        assertEquals(0x34, cpu.readByte(Register.B));
+        assertEquals(0x56, cpu.readByte(Register.C));
+        assertEquals(12, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

@@ -191,6 +191,16 @@ public class Operations {
         };
     }
 
+    public static Operation directLoadWord(IndirectAddress bc) {
+        return cpu -> {
+            int leftByte = cpu.readNextArg();
+            int rightByte = cpu.readNextArg();
+            cpu.set(bc.left, leftByte);
+            cpu.set(bc.right, rightByte);
+            return 12;
+        };
+    }
+
     private static void decrementPointer(IndirectAddress address, Cpu cpu) {
         int newLeft = cpu.readByte(address.left);
         if (cpu.readByte(address.right) == 0x00) {
