@@ -149,6 +149,14 @@ public class Operations {
         };
     }
 
+    public static Operation loadIncFromIndirect(Register to, IndirectAddress from) {
+        return cpu -> {
+            cpu.set(to, from);
+            incrementPointer(from, cpu);
+            return 8;
+        };
+    }
+
     public static Operation loadDecToIndirect(IndirectAddress to, Register from) {
         return cpu -> {
             cpu.setByte(to, from);
@@ -167,6 +175,21 @@ public class Operations {
 
         // Decrement, and roll back up to 0xff if needed.
         int newRight = (cpu.readByte(address.right) - 1) & 0xff;
+
+        cpu.set(address.left, newLeft);
+        cpu.set(address.right, newRight);
+    }
+
+    private static void incrementPointer(IndirectAddress address, Cpu cpu) {
+        int newLeft = cpu.readByte(address.left);
+        if (cpu.readByte(address.right) == 0xff) {
+            // Right-hand byte rolled over to 0x00,
+            // so increment left-hand byte and roll over to 0xff if needed.
+            newLeft = (newLeft + 1) & 0xff;
+        }
+
+        // Increment, and roll over to 0x00 if needed.
+        int newRight = (cpu.readByte(address.right) + 1) & 0xff;
 
         cpu.set(address.left, newLeft);
         cpu.set(address.right, newRight);

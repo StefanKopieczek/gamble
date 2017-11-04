@@ -172,6 +172,7 @@ public class Cpu {
         m.put(0xe2, Operations.copyToIndirect(Register.A, Register.C));
         m.put(0x3a, Operations.loadDecFromIndirect(Register.A, Register.HL));
         m.put(0x32, Operations.loadDecToIndirect(Register.HL, Register.A));
+        m.put(0x2a, Operations.loadIncFromIndirect(Register.A, Register.HL));
         return m.build();
     }
 }
