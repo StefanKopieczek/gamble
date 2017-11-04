@@ -144,20 +144,31 @@ public class Operations {
     public static Operation loadDecFromIndirect(Register to, IndirectAddress from) {
         return cpu -> {
             cpu.set(to, from);
-
-            int newLeft = cpu.readByte(from.left);
-            if (cpu.readByte(from.right) == 0x00) {
-                // Right-hand byte rolled back to 0xff,
-                // so decrement left-hand byte and roll up to 0xff if needed.
-                newLeft = (newLeft - 1) & 0xff;
-            }
-
-            // Decrement, and roll back up to 0xff if needed.
-            int newRight = (cpu.readByte(from.right) - 1) & 0xff;
-
-            cpu.set(from.left, newLeft);
-            cpu.set(from.right, newRight);
+            decrementPointer(from, cpu);
             return 8;
         };
+    }
+
+    public static Operation loadDecToIndirect(IndirectAddress to, Register from) {
+        return cpu -> {
+            cpu.setByte(to, from);
+            decrementPointer(to, cpu);
+            return 8;
+        };
+    }
+
+    private static void decrementPointer(IndirectAddress address, Cpu cpu) {
+        int newLeft = cpu.readByte(address.left);
+        if (cpu.readByte(address.right) == 0x00) {
+            // Right-hand byte rolled back to 0xff,
+            // so decrement left-hand byte and roll up to 0xff if needed.
+            newLeft = (newLeft - 1) & 0xff;
+        }
+
+        // Decrement, and roll back up to 0xff if needed.
+        int newRight = (cpu.readByte(address.right) - 1) & 0xff;
+
+        cpu.set(address.left, newLeft);
+        cpu.set(address.right, newRight);
     }
 }
