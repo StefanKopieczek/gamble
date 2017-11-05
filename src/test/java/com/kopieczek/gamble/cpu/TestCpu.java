@@ -1339,6 +1339,22 @@ public class TestCpu {
         assertEquals(12, cpu.getCycles());
     }
 
+    @Test
+    public void test_direct_load_to_de() {
+        Cpu cpu = runProgram(0x11, 0x10, 0x20);
+        assertEquals(0x10, cpu.read(Byte.Register.D));
+        assertEquals(0x20, cpu.read(Byte.Register.E));
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_direct_load_to_hl() {
+        Cpu cpu = runProgram(0x21, 0x66, 0x77);
+        assertEquals(0x66, cpu.read(Byte.Register.H));
+        assertEquals(0x77, cpu.read(Byte.Register.L));
+        assertEquals(12, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

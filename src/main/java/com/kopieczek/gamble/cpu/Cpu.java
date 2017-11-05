@@ -177,6 +177,8 @@ public class Cpu {
         m.put(0xe0, Operations.writePartial(Byte.argument(), Byte.Register.A));
         m.put(0xf0, Operations.loadPartial(Byte.Register.A, Byte.argument()));
         m.put(0x01, Operations.copy(Word.Register.BC, Word.argument()));
+        m.put(0x11, Operations.copy(Word.Register.DE, Word.argument()));
+        m.put(0x21, Operations.copy(Word.Register.HL, Word.argument()));
         return m.build();
     }
 }
