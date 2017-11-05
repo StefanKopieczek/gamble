@@ -1,7 +1,6 @@
 package com.kopieczek.gamble.cpu;
 
 import com.google.common.collect.ImmutableMap;
-import com.kopieczek.gamble.memory.IndirectAddress;
 import com.kopieczek.gamble.memory.MemoryManagementUnit;
 
 import java.util.Map;
@@ -16,50 +15,51 @@ public class Cpu {
 
     public Cpu(MemoryManagementUnit mmu) {
         this.mmu = mmu;
-        this.registers = new int[Register.values().length];
+        this.registers = new int[Byte.Register.values().length];
         this.flags = new boolean[Flag.values().length];
     }
 
-    public int readByte(int address) {
+    public int read(Byte b) {
+        return b.getValue(this);
+    }
+
+    public int read(Word w) {
+        return w.getValue(this);
+    }
+
+    public int readFrom(Pointer ptr) {
+        return ptr.get(this);
+    }
+
+    public void set(Byte.Register to, Byte from) {
+        registers[to.ordinal()] = from.getValue(this);
+    }
+
+    public void set(Byte.Register to, Pointer from) {
+        set(to, Byte.literal(readFrom(from)));
+    }
+
+    public void set(Word.Register to, Word from) {
+        int fromValue = read(from);
+        set(to.left, Byte.literal(fromValue >> 8));
+        set(to.right, Byte.literal(fromValue & 0xff));
+    }
+
+    public void writeTo(Pointer ptr, Byte from) {
+        ptr.set(read(from), this);
+    }
+
+    int unsafeRead(int address) {
         return mmu.readByte(address);
     }
 
-    public int readByte(Register r) {
-        return registers[r.ordinal()];
-    }
-
-    public int readByte(IndirectAddress address) {
-        return readByte((readByte(address.left) << 8) + readByte(address.right));
-    }
-
-    public void setByte(int address, int value) {
+    void unsafeSet(int address, int value) {
         mmu.setByte(address, value);
-    }
-
-    public void set(Register r, int value) {
-        registers[r.ordinal()] = value;
-    }
-
-    public void set(Register to, IndirectAddress from) {
-        int value = readByte(from);
-        set(to, value);
-    }
-
-    public void setByte(IndirectAddress to, Register from) {
-        setByte(to, readByte(from));
-    }
-
-    public void setByte(IndirectAddress address, int value) {
-        setByte((readByte(address.left) << 8) + readByte(address.right), value);
-    }
-
-    public int resolveAddress(IndirectAddress address) {
-        return (readByte(address.left) << 8) + readByte(address.right);
     }
 
     int readNextArg() {
         pc += 1;
-        return readByte(pc);
+        return unsafeRead(pc);
     }
 
     public void tick() {
@@ -93,90 +93,90 @@ public class Cpu {
     private static Map<Integer, Operation> loadOperations() {
         ImmutableMap.Builder<Integer, Operation> m = ImmutableMap.builder();
         m.put(0x00, Operations.nop());
-        m.put(0x3e, Operations.loadValueTo(Register.A));
-        m.put(0x06, Operations.loadValueTo(Register.B));
-        m.put(0x0e, Operations.loadValueTo(Register.C));
-        m.put(0x16, Operations.loadValueTo(Register.D));
-        m.put(0x1e, Operations.loadValueTo(Register.E));
-        m.put(0x26, Operations.loadValueTo(Register.H));
-        m.put(0x2e, Operations.loadValueTo(Register.L));
+        m.put(0x3e, Operations.copy(Byte.Register.A, Byte.argument()));
+        m.put(0x06, Operations.copy(Byte.Register.B, Byte.argument()));
+        m.put(0x0e, Operations.copy(Byte.Register.C, Byte.argument()));
+        m.put(0x16, Operations.copy(Byte.Register.D, Byte.argument()));
+        m.put(0x1e, Operations.copy(Byte.Register.E, Byte.argument()));
+        m.put(0x26, Operations.copy(Byte.Register.H, Byte.argument()));
+        m.put(0x2e, Operations.copy(Byte.Register.L, Byte.argument()));
         m.put(0x7f, Operations.nop());
-        m.put(0x78, Operations.copyValue(Register.B, Register.A));
-        m.put(0x79, Operations.copyValue(Register.C, Register.A));
-        m.put(0x7a, Operations.copyValue(Register.D, Register.A));
-        m.put(0x7b, Operations.copyValue(Register.E, Register.A));
-        m.put(0x7c, Operations.copyValue(Register.H, Register.A));
-        m.put(0x7d, Operations.copyValue(Register.L, Register.A));
-        m.put(0x7e, Operations.copyValue(Register.HL, Register.A));
-        m.put(0x40, Operations.copyValue(Register.B, Register.B));
-        m.put(0x41, Operations.copyValue(Register.C, Register.B));
-        m.put(0x42, Operations.copyValue(Register.D, Register.B));
-        m.put(0x43, Operations.copyValue(Register.E, Register.B));
-        m.put(0x44, Operations.copyValue(Register.H, Register.B));
-        m.put(0x45, Operations.copyValue(Register.L, Register.B));
-        m.put(0x46, Operations.copyValue(Register.HL, Register.B));
-        m.put(0x48, Operations.copyValue(Register.B, Register.C));
-        m.put(0x49, Operations.copyValue(Register.C, Register.C));
-        m.put(0x4a, Operations.copyValue(Register.D, Register.C));
-        m.put(0x4b, Operations.copyValue(Register.E, Register.C));
-        m.put(0x4c, Operations.copyValue(Register.H, Register.C));
-        m.put(0x4d, Operations.copyValue(Register.L, Register.C));
-        m.put(0x4e, Operations.copyValue(Register.HL, Register.C));
-        m.put(0x50, Operations.copyValue(Register.B, Register.D));
-        m.put(0x51, Operations.copyValue(Register.C, Register.D));
-        m.put(0x52, Operations.copyValue(Register.D, Register.D));
-        m.put(0x53, Operations.copyValue(Register.E, Register.D));
-        m.put(0x54, Operations.copyValue(Register.H, Register.D));
-        m.put(0x55, Operations.copyValue(Register.L, Register.D));
-        m.put(0x56, Operations.copyValue(Register.HL, Register.D));
-        m.put(0x58, Operations.copyValue(Register.B, Register.E));
-        m.put(0x59, Operations.copyValue(Register.C, Register.E));
-        m.put(0x5a, Operations.copyValue(Register.D, Register.E));
-        m.put(0x5b, Operations.copyValue(Register.E, Register.E));
-        m.put(0x5c, Operations.copyValue(Register.H, Register.E));
-        m.put(0x5d, Operations.copyValue(Register.L, Register.E));
-        m.put(0x5e, Operations.copyValue(Register.HL, Register.E));
-        m.put(0x60, Operations.copyValue(Register.B, Register.H));
-        m.put(0x61, Operations.copyValue(Register.C, Register.H));
-        m.put(0x62, Operations.copyValue(Register.D, Register.H));
-        m.put(0x63, Operations.copyValue(Register.E, Register.H));
-        m.put(0x64, Operations.copyValue(Register.H, Register.H));
-        m.put(0x65, Operations.copyValue(Register.L, Register.H));
-        m.put(0x66, Operations.copyValue(Register.HL, Register.H));
-        m.put(0x68, Operations.copyValue(Register.B, Register.L));
-        m.put(0x69, Operations.copyValue(Register.C, Register.L));
-        m.put(0x6a, Operations.copyValue(Register.D, Register.L));
-        m.put(0x6b, Operations.copyValue(Register.E, Register.L));
-        m.put(0x6c, Operations.copyValue(Register.H, Register.L));
-        m.put(0x6d, Operations.copyValue(Register.L, Register.L));
-        m.put(0x6e, Operations.copyValue(Register.HL, Register.L));
-        m.put(0x70, Operations.copyValue(Register.B, Register.HL));
-        m.put(0x71, Operations.copyValue(Register.C, Register.HL));
-        m.put(0x72, Operations.copyValue(Register.D, Register.HL));
-        m.put(0x73, Operations.copyValue(Register.E, Register.HL));
-        m.put(0x74, Operations.copyValue(Register.H, Register.HL));
-        m.put(0x75, Operations.copyValue(Register.L, Register.HL));
-        m.put(0x36, Operations.loadValueTo(Register.HL));
-        m.put(0x0a, Operations.copyValue(Register.BC, Register.A));
-        m.put(0x1a, Operations.copyValue(Register.DE, Register.A));
-        m.put(0xfa, Operations.loadValueIndirectTo(Register.A));
-        m.put(0x3c, Operations.increment(Register.A));
-        m.put(0x04, Operations.increment(Register.B));
-        m.put(0x0c, Operations.increment(Register.C));
-        m.put(0x14, Operations.increment(Register.D));
-        m.put(0x1c, Operations.increment(Register.E));
-        m.put(0x24, Operations.increment(Register.H));
-        m.put(0x2c, Operations.increment(Register.L));
-        m.put(0x34, Operations.increment(Register.HL));
-        m.put(0xf2, Operations.copyFromIndirect(Register.C, Register.A));
-        m.put(0xe2, Operations.copyToIndirect(Register.A, Register.C));
-        m.put(0x3a, Operations.loadDecFromIndirect(Register.A, Register.HL));
-        m.put(0x32, Operations.loadDecToIndirect(Register.HL, Register.A));
-        m.put(0x2a, Operations.loadIncFromIndirect(Register.A, Register.HL));
-        m.put(0x22, Operations.loadIncToIndirect(Register.HL, Register.A));
-        m.put(0xe0, Operations.loadRegisterToAddress(Register.A));
-        m.put(0xf0, Operations.loadAddressToRegister(Register.A));
-        m.put(0x01, Operations.directLoadWord(Register.BC));
+        m.put(0x78, Operations.copy(Byte.Register.A, Byte.Register.B));
+        m.put(0x79, Operations.copy(Byte.Register.A, Byte.Register.C));
+        m.put(0x7a, Operations.copy(Byte.Register.A, Byte.Register.D));
+        m.put(0x7b, Operations.copy(Byte.Register.A, Byte.Register.E));
+        m.put(0x7c, Operations.copy(Byte.Register.A, Byte.Register.H));
+        m.put(0x7d, Operations.copy(Byte.Register.A, Byte.Register.L));
+        m.put(0x7e, Operations.load(Byte.Register.A, Pointer.of(Word.Register.HL)));
+        m.put(0x40, Operations.copy(Byte.Register.B, Byte.Register.B));
+        m.put(0x41, Operations.copy(Byte.Register.B, Byte.Register.C));
+        m.put(0x42, Operations.copy(Byte.Register.B, Byte.Register.D));
+        m.put(0x43, Operations.copy(Byte.Register.B, Byte.Register.E));
+        m.put(0x44, Operations.copy(Byte.Register.B, Byte.Register.H));
+        m.put(0x45, Operations.copy(Byte.Register.B, Byte.Register.L));
+        m.put(0x46, Operations.load(Byte.Register.B, Pointer.of(Word.Register.HL)));
+        m.put(0x48, Operations.copy(Byte.Register.C, Byte.Register.B));
+        m.put(0x49, Operations.copy(Byte.Register.C, Byte.Register.C));
+        m.put(0x4a, Operations.copy(Byte.Register.C, Byte.Register.D));
+        m.put(0x4b, Operations.copy(Byte.Register.C, Byte.Register.E));
+        m.put(0x4c, Operations.copy(Byte.Register.C, Byte.Register.H));
+        m.put(0x4d, Operations.copy(Byte.Register.C, Byte.Register.L));
+        m.put(0x4e, Operations.load(Byte.Register.C, Pointer.of(Word.Register.HL)));
+        m.put(0x50, Operations.copy(Byte.Register.D, Byte.Register.B));
+        m.put(0x51, Operations.copy(Byte.Register.D, Byte.Register.C));
+        m.put(0x52, Operations.copy(Byte.Register.D, Byte.Register.D));
+        m.put(0x53, Operations.copy(Byte.Register.D, Byte.Register.E));
+        m.put(0x54, Operations.copy(Byte.Register.D, Byte.Register.H));
+        m.put(0x55, Operations.copy(Byte.Register.D, Byte.Register.L));
+        m.put(0x56, Operations.load(Byte.Register.D, Pointer.of(Word.Register.HL)));
+        m.put(0x58, Operations.copy(Byte.Register.E, Byte.Register.B));
+        m.put(0x59, Operations.copy(Byte.Register.E, Byte.Register.C));
+        m.put(0x5a, Operations.copy(Byte.Register.E, Byte.Register.D));
+        m.put(0x5b, Operations.copy(Byte.Register.E, Byte.Register.E));
+        m.put(0x5c, Operations.copy(Byte.Register.E, Byte.Register.H));
+        m.put(0x5d, Operations.copy(Byte.Register.E, Byte.Register.L));
+        m.put(0x5e, Operations.load(Byte.Register.E, Pointer.of(Word.Register.HL)));
+        m.put(0x60, Operations.copy(Byte.Register.H, Byte.Register.B));
+        m.put(0x61, Operations.copy(Byte.Register.H, Byte.Register.C));
+        m.put(0x62, Operations.copy(Byte.Register.H, Byte.Register.D));
+        m.put(0x63, Operations.copy(Byte.Register.H, Byte.Register.E));
+        m.put(0x64, Operations.copy(Byte.Register.H, Byte.Register.H));
+        m.put(0x65, Operations.copy(Byte.Register.H, Byte.Register.L));
+        m.put(0x66, Operations.load(Byte.Register.H, Pointer.of(Word.Register.HL)));
+        m.put(0x68, Operations.copy(Byte.Register.L, Byte.Register.B));
+        m.put(0x69, Operations.copy(Byte.Register.L, Byte.Register.C));
+        m.put(0x6a, Operations.copy(Byte.Register.L, Byte.Register.D));
+        m.put(0x6b, Operations.copy(Byte.Register.L, Byte.Register.E));
+        m.put(0x6c, Operations.copy(Byte.Register.L, Byte.Register.H));
+        m.put(0x6d, Operations.copy(Byte.Register.L, Byte.Register.L));
+        m.put(0x6e, Operations.load(Byte.Register.L, Pointer.of(Word.Register.HL)));
+        m.put(0x70, Operations.write(Pointer.of(Word.Register.HL), Byte.Register.B));
+        m.put(0x71, Operations.write(Pointer.of(Word.Register.HL), Byte.Register.C));
+        m.put(0x72, Operations.write(Pointer.of(Word.Register.HL), Byte.Register.D));
+        m.put(0x73, Operations.write(Pointer.of(Word.Register.HL), Byte.Register.E));
+        m.put(0x74, Operations.write(Pointer.of(Word.Register.HL), Byte.Register.H));
+        m.put(0x75, Operations.write(Pointer.of(Word.Register.HL), Byte.Register.L));
+        m.put(0x36, Operations.write(Pointer.of(Word.Register.HL), Byte.argument()));
+        m.put(0x0a, Operations.load(Byte.Register.A, Pointer.of(Word.Register.BC)));
+        m.put(0x1a, Operations.load(Byte.Register.A, Pointer.of(Word.Register.DE)));
+        m.put(0xfa, Operations.load(Byte.Register.A, Byte.argument(), Byte.argument()));
+        m.put(0x3c, Operations.increment(Byte.Register.A));
+        m.put(0x04, Operations.increment(Byte.Register.B));
+        m.put(0x0c, Operations.increment(Byte.Register.C));
+        m.put(0x14, Operations.increment(Byte.Register.D));
+        m.put(0x1c, Operations.increment(Byte.Register.E));
+        m.put(0x24, Operations.increment(Byte.Register.H));
+        m.put(0x2c, Operations.increment(Byte.Register.L));
+        m.put(0x34, Operations.increment(Pointer.of(Word.Register.HL)));
+        m.put(0xf2, Operations.loadPartial(Byte.Register.A, Byte.Register.C));
+        m.put(0xe2, Operations.writePartial(Byte.Register.C, Byte.Register.A));
+        m.put(0x3a, Operations.loadDec(Byte.Register.A, Word.Register.HL));
+        m.put(0x32, Operations.writeDec(Word.Register.HL, Byte.Register.A));
+        m.put(0x2a, Operations.loadInc(Byte.Register.A, Word.Register.HL));
+        m.put(0x22, Operations.writeInc(Word.Register.HL, Byte.Register.A));
+        m.put(0xe0, Operations.writePartial(Byte.argument(), Byte.Register.A));
+        m.put(0xf0, Operations.loadPartial(Byte.Register.A, Byte.argument()));
+        m.put(0x01, Operations.copy(Word.Register.BC, Word.argument()));
         return m.build();
     }
 }

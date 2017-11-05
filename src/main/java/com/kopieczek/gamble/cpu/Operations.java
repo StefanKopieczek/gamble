@@ -1,65 +1,60 @@
 package com.kopieczek.gamble.cpu;
 
-import com.kopieczek.gamble.memory.IndirectAddress;
-
 public class Operations {
     public static Operation nop() {
         return cpu -> 4;
     }
 
-    public static Operation copyValue(Register from, Register to) {
+    public static Operation copy(Byte.Register to, Byte.Register from) {
         return cpu -> {
-            cpu.set(to, cpu.readByte(from));
+            cpu.set(to, from);
             return 4;
         };
     }
 
-    public static Operation copyValue(IndirectAddress from, Register to) {
+    public static Operation copy(Byte.Register to, Byte.Argument from) {
         return cpu -> {
-            cpu.set(to, cpu.readByte(from));
+            cpu.set(to, from);
             return 8;
         };
     }
 
-    public static Operation copyValue(Register from, IndirectAddress to) {
+    public static Operation load(Byte.Register to, Pointer from) {
         return cpu -> {
-            cpu.setByte(to, cpu.readByte(from));
+            cpu.set(to, from);
             return 8;
         };
     }
 
-    public static Operation loadValueTo(Register r) {
+    public static Operation load(Byte.Register to, Byte.Argument arg1, Byte.Argument arg2) {
         return cpu -> {
-            int value = cpu.readNextArg();
-            cpu.set(r, value);
-            return 8;
-        };
-    }
-
-    public static Operation loadValueTo(IndirectAddress address) {
-        return cpu -> {
-            int value = cpu.readNextArg();
-            cpu.setByte(address, value);
-            return 12;
-        };
-    }
-
-    public static Operation loadValueIndirectTo(Register r) {
-        return cpu -> {
-            int lsb = cpu.readNextArg();
-            int msb = cpu.readNextArg();
-            int valueAtAddress = cpu.readByte((msb << 8) + lsb);
-            cpu.set(Register.A, valueAtAddress);
+            Pointer from = Pointer.literal(arg1.getValue(cpu) + (arg2.getValue(cpu) << 8));
+            cpu.set(to, from);
             return 16;
         };
     }
 
-    public static Operation increment(Register r) {
+    public static Operation write(Pointer to, Byte.Register from) {
+        return cpu -> {
+            cpu.writeTo(to, from);
+            return 8;
+        };
+    }
+
+    public static Operation write(Pointer to, Byte.Argument from) {
+        return cpu -> {
+            cpu.writeTo(to, from);
+            return 12;
+        };
+    }
+
+    public static Operation increment(Byte.Register r) {
         return withZeroFlagHandler(r,
             withNibbleFlagHandler(r,
                 withOpFlagSetTo(false,
                     cpu -> {
-                        cpu.set(r, (cpu.readByte(r) + 1) & 0xff);
+                        Byte newValue = Byte.literal((cpu.read(r) + 1) & 0xff);
+                        cpu.set(r, newValue);
                         return 4;
                     }
                 )
@@ -67,12 +62,13 @@ public class Operations {
         );
     }
 
-    public static Operation increment(IndirectAddress address) {
-        return withZeroFlagHandler(address,
-            withNibbleFlagHandler(address,
+    public static Operation increment(Pointer ptr) {
+        return withZeroFlagHandler(ptr,
+            withNibbleFlagHandler(ptr,
                 withOpFlagSetTo(false,
                     cpu -> {
-                        cpu.setByte(cpu.resolveAddress(address), (cpu.readByte(address) + 1) & 0xff);
+                        Byte newValue = Byte.literal((cpu.readFrom(ptr) + 1) & 0xff);
+                        cpu.writeTo(ptr, newValue);
                         return 12;
                     }
                 )
@@ -80,37 +76,112 @@ public class Operations {
         );
     }
 
-    private static Operation withZeroFlagHandler(Register r, Operation inner) {
+    public static Operation loadPartial(Byte.Register to, Byte fromLsb) {
+        return cpu -> {
+            Pointer fromPtr = Pointer.literal(0xff00 + cpu.read(fromLsb));
+            cpu.set(to, fromPtr);
+            return (fromLsb instanceof Byte.Argument) ? 12 : 8;
+        };
+    }
+
+    public static Operation writePartial(Byte.Register toLsb, Byte from) {
+        return cpu -> {
+            Pointer toPtr = Pointer.literal(0xff00 + cpu.read(toLsb));
+            cpu.writeTo(toPtr, from);
+            return (from instanceof Byte.Argument) ? 12 : 8;
+        };
+    }
+
+    public static Operation loadDec(Byte.Register to, Word.Register from) {
+        return cpu -> {
+            cpu.set(to, Pointer.of(from));
+            decrementWord(from, cpu);
+            return 8;
+        };
+    }
+
+    public static Operation loadInc(Byte.Register to, Word.Register from) {
+        return cpu -> {
+            cpu.set(to, Pointer.of(from));
+            incrementWord(from, cpu);
+            return 8;
+        };
+    }
+
+    public static Operation writeDec(Word.Register to, Byte from) {
+        return cpu -> {
+            cpu.writeTo(Pointer.of(to), from);
+            decrementWord(to, cpu);
+            return 8;
+        };
+    }
+
+    public static Operation writeInc(Word.Register to, Byte from) {
+        return cpu -> {
+            cpu.writeTo(Pointer.of(to), from);
+            incrementWord(to, cpu);
+            return 8;
+        };
+    }
+
+    public static Operation writePartial(Byte toLsb, Byte from) {
+        return cpu -> {
+            Pointer to = Pointer.literal(0xff00 + cpu.read(toLsb));
+            cpu.writeTo(to, from);
+            return 12;
+        };
+    }
+
+    public static Operation copy(Word.Register to, Word from) {
+        return cpu -> {
+            cpu.set(to, from);
+            return 12;
+        };
+    }
+
+    private static void decrementWord(Word.Register r, Cpu cpu) {
+        int current = cpu.read(r);
+        Word next = Word.literal((current - 1) & 0xffff);
+        cpu.set(r, next);
+    }
+
+    private static void incrementWord(Word.Register r, Cpu cpu) {
+        int current = cpu.read(r);
+        Word next = Word.literal((current + 1) & 0xffff);
+        cpu.set(r, next);
+    }
+
+    private static Operation withZeroFlagHandler(Byte.Register r, Operation inner) {
         return cpu -> {
             int ret = inner.apply(cpu);
-            cpu.set(Flag.ZERO, (cpu.readByte(r) == 0x00));
+            cpu.set(Flag.ZERO, (cpu.read(r) == 0x00));
             return ret;
         };
     }
 
-    private static Operation withZeroFlagHandler(IndirectAddress address, Operation inner) {
+    private static Operation withZeroFlagHandler(Pointer ptr, Operation inner) {
         return cpu -> {
             int ret = inner.apply(cpu);
-            cpu.set(Flag.ZERO, (cpu.readByte(address) == 0x00));
+            cpu.set(Flag.ZERO, (cpu.readFrom(ptr) == 0x00));
             return ret;
         };
     }
 
-    private static Operation withNibbleFlagHandler(Register r, Operation inner) {
+    private static Operation withNibbleFlagHandler(Byte.Register r, Operation inner) {
         return cpu -> {
-            int before = cpu.readByte(r) & 0x10;
+            int before = cpu.read(r) & 0x10;
             int ret = inner.apply(cpu);
-            int after = cpu.readByte(r) & 0x10;
+            int after = cpu.read(r) & 0x10;
             cpu.set(Flag.NIBBLE, (before < after));
             return ret;
         };
     }
 
-    private static Operation withNibbleFlagHandler(IndirectAddress address, Operation inner) {
+    private static Operation withNibbleFlagHandler(Pointer ptr, Operation inner) {
         return cpu -> {
-            int before = cpu.readByte(address) & 0x10;
+            int before = cpu.readFrom(ptr) & 0x10;
             int ret = inner.apply(cpu);
-            int after = cpu.readByte(address) & 0x10;
+            int after = cpu.readFrom(ptr) & 0x10;
             cpu.set(Flag.NIBBLE, (before < after));
             return ret;
         };
@@ -122,112 +193,5 @@ public class Operations {
             cpu.set(Flag.OPERATION, flagValue);
             return ret;
         };
-    }
-
-    public static Operation copyFromIndirect(Register fromLsb, Register to) {
-        return cpu -> {
-            int address = 0xff00 + cpu.readByte(fromLsb);
-            cpu.set(to, cpu.readByte(address));
-            return 8;
-        };
-    }
-
-    public static Operation copyToIndirect(Register from, Register toLsb) {
-        return cpu -> {
-            int toSet = cpu.readByte(from);
-            int targetAddr = 0xff00 + cpu.readByte(toLsb);
-            cpu.setByte(targetAddr, toSet);
-            return 8;
-        };
-    }
-
-    public static Operation loadDecFromIndirect(Register to, IndirectAddress from) {
-        return cpu -> {
-            cpu.set(to, from);
-            decrementPointer(from, cpu);
-            return 8;
-        };
-    }
-
-    public static Operation loadIncFromIndirect(Register to, IndirectAddress from) {
-        return cpu -> {
-            cpu.set(to, from);
-            incrementPointer(from, cpu);
-            return 8;
-        };
-    }
-
-    public static Operation loadDecToIndirect(IndirectAddress to, Register from) {
-        return cpu -> {
-            cpu.setByte(to, from);
-            decrementPointer(to, cpu);
-            return 8;
-        };
-    }
-
-    public static Operation loadIncToIndirect(IndirectAddress to, Register from) {
-        return cpu -> {
-            cpu.setByte(to, from);
-            incrementPointer(to, cpu);
-            return 8;
-        };
-    }
-
-    public static Operation loadRegisterToAddress(Register r) {
-        return cpu -> {
-            int value = cpu.readByte(r);
-            int address = 0xff00 + cpu.readNextArg();
-            cpu.setByte(address, value);
-            return 12;
-        };
-    }
-
-    public static Operation loadAddressToRegister(Register r) {
-        return cpu -> {
-            int address = 0xff00 + cpu.readNextArg();
-            int value = cpu.readByte(address);
-            cpu.set(r, value);
-            return 12;
-        };
-    }
-
-    public static Operation directLoadWord(IndirectAddress bc) {
-        return cpu -> {
-            int leftByte = cpu.readNextArg();
-            int rightByte = cpu.readNextArg();
-            cpu.set(bc.left, leftByte);
-            cpu.set(bc.right, rightByte);
-            return 12;
-        };
-    }
-
-    private static void decrementPointer(IndirectAddress address, Cpu cpu) {
-        int newLeft = cpu.readByte(address.left);
-        if (cpu.readByte(address.right) == 0x00) {
-            // Right-hand byte rolled back to 0xff,
-            // so decrement left-hand byte and roll up to 0xff if needed.
-            newLeft = (newLeft - 1) & 0xff;
-        }
-
-        // Decrement, and roll back up to 0xff if needed.
-        int newRight = (cpu.readByte(address.right) - 1) & 0xff;
-
-        cpu.set(address.left, newLeft);
-        cpu.set(address.right, newRight);
-    }
-
-    private static void incrementPointer(IndirectAddress address, Cpu cpu) {
-        int newLeft = cpu.readByte(address.left);
-        if (cpu.readByte(address.right) == 0xff) {
-            // Right-hand byte rolled over to 0x00,
-            // so increment left-hand byte and roll over to 0xff if needed.
-            newLeft = (newLeft + 1) & 0xff;
-        }
-
-        // Increment, and roll over to 0x00 if needed.
-        int newRight = (cpu.readByte(address.right) + 1) & 0xff;
-
-        cpu.set(address.left, newLeft);
-        cpu.set(address.right, newRight);
     }
 }

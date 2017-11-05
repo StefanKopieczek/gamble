@@ -24,9 +24,9 @@ public class SimpleMemoryModule implements MemoryModule {
     @Override
     public void setByte(int address, int value) {
         if (value < 0) {
-            throw new IllegalArgumentException("Cannot write negative value to memory: " + value);
+            throw new IllegalArgumentException("Cannot loadPartial negative value to memory: " + value);
         } else if (value > 0xff) {
-            throw new IllegalArgumentException("Cannot write overlarge value " + value + "; must fit in one byte");
+            throw new IllegalArgumentException("Cannot loadPartial overlarge value " + value + "; must fit in one byte");
         }
 
         try {
