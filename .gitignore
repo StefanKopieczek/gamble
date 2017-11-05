@@ -12,7 +12,8 @@
 *.iml
 
 # Ignore IntelliJ output folder
-out
+out/
+build/
 
 # Ignore eclipse project files
 .classpath
