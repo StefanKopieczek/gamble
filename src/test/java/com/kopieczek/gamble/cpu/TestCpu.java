@@ -1355,6 +1355,13 @@ public class TestCpu {
         assertEquals(12, cpu.getCycles());
     }
 
+    @Test
+    public void test_direct_load_to_sp() {
+        Cpu cpu = runProgram(0x31, 0x12, 0x6e);
+        assertEquals(0x126e, cpu.read(Word.Register.SP));
+        assertEquals(12, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

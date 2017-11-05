@@ -4,7 +4,8 @@ public interface Byte {
     int getValue(Cpu cpu);
 
     enum Register implements Byte {
-        A, B, C, D, E, H, L;
+        A, B, C, D, E, H, L, // Standard byte registers.
+        S, P;                // Byte parts of stack pointer.
 
         @Override
         public int getValue(Cpu cpu) {

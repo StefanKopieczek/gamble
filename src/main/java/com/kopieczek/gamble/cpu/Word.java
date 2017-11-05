@@ -6,7 +6,8 @@ public interface Word {
     enum Register implements Word {
         BC(Byte.Register.B, Byte.Register.C),
         DE(Byte.Register.D, Byte.Register.E),
-        HL(Byte.Register.H, Byte.Register.L);
+        HL(Byte.Register.H, Byte.Register.L),
+        SP(Byte.Register.S, Byte.Register.P);
 
         public final Byte.Register left;
         public final Byte.Register right;

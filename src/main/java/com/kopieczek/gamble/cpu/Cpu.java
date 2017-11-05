@@ -179,6 +179,7 @@ public class Cpu {
         m.put(0x01, Operations.copy(Word.Register.BC, Word.argument()));
         m.put(0x11, Operations.copy(Word.Register.DE, Word.argument()));
         m.put(0x21, Operations.copy(Word.Register.HL, Word.argument()));
+        m.put(0x31, Operations.copy(Word.Register.SP, Word.argument()));
         return m.build();
     }
 }
