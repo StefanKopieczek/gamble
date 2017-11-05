@@ -132,10 +132,17 @@ public class Operations {
         };
     }
 
-    public static Operation copy(Word.Register to, Word from) {
+    public static Operation copy(Word.Register to, Word.Argument from) {
         return cpu -> {
             cpu.set(to, from);
             return 12;
+        };
+    }
+
+    public static Operation copy(Word.Register to, Word.Register from) {
+        return cpu -> {
+            cpu.set(to, from);
+            return 8;
         };
     }
 

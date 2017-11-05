@@ -1362,6 +1362,21 @@ public class TestCpu {
         assertEquals(12, cpu.getCycles());
     }
 
+    @Test
+    public void test_copy_hl_to_sp() {
+        Cpu cpu = runProgram(
+                0x21, 0x98, 0x76, // Set HL=0x9876
+                0xf9              // LD SP, HL
+        );
+        assertEquals(0x9876, cpu.read(Word.Register.SP));
+    }
+
+    @Test
+    public void test_copy_hl_to_sp_uses_8_cycles() {
+        Cpu cpu = runProgram(0xf9);
+        assertEquals(8, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
