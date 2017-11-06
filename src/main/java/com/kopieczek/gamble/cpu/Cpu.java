@@ -190,6 +190,9 @@ public class Cpu {
         m.put(0xf8, cpu -> Operations.copyWithOffset(cpu, Word.Register.HL, Word.Register.SP, Byte.argument()));
         m.put(0x08, cpu -> Operations.write(cpu, Pointer.of(Word.argument()), Word.Register.SP));
         m.put(0xf5, cpu -> Operations.push(cpu, Word.Register.AF));
+        m.put(0xc5, cpu -> Operations.push(cpu, Word.Register.BC));
+        m.put(0xd5, cpu -> Operations.push(cpu, Word.Register.DE));
+        m.put(0xe5, cpu -> Operations.push(cpu, Word.Register.HL));
         return m.build();
     }
 }

@@ -1578,6 +1578,60 @@ public class TestCpu {
         assertEquals(16, cpu.getCycles());
     }
 
+    @Test
+    public void test_push_bc() {
+        Cpu cpu = runProgram(
+                0x01, 0x98, 0xa7, // LD BC, 0xa798
+                0x31, 0x17, 0x43, // LD SP, 0x4317
+                0xc5              // PUSH BC
+        );
+        assertEquals(0xa7, cpu.unsafeRead(0x4316));
+        assertEquals(0x98, cpu.unsafeRead(0x4315));
+        assertEquals(0x4315, cpu.read(Word.Register.SP));
+    }
+
+    @Test
+    public void test_push_bc_uses_16_cycles() {
+        Cpu cpu = runProgram(0xc5);
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_push_de() {
+        Cpu cpu = runProgram(
+                0x11, 0x5d, 0x39, // LD DE, 0x395d
+                0x31, 0x3f, 0x78, // LD SP, 0x783f
+                0xd5              // PUSH DE
+        );
+        assertEquals(0x39, cpu.unsafeRead(0x783e));
+        assertEquals(0x5d, cpu.unsafeRead(0x783d));
+        assertEquals(0x783d, cpu.read(Word.Register.SP));
+    }
+
+    @Test
+    public void test_push_de_uses_16_cycles() {
+        Cpu cpu = runProgram(0xd5);
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_push_hl() {
+        Cpu cpu = runProgram(
+                0x21, 0xaf, 0x64, // LD HL, 0x64af
+                0x31, 0x9f, 0xa8, // LD SP, 0xa89f
+                0xe5              // PUSH HL
+        );
+        assertEquals(0x64, cpu.unsafeRead(0xa89e));
+        assertEquals(0xaf, cpu.unsafeRead(0xa89d));
+        assertEquals(0xa89d, cpu.read(Word.Register.SP));
+    }
+
+    @Test
+    public void test_push_hl_uses_16_cycles() {
+        Cpu cpu = runProgram(0xe5);
+        assertEquals(16, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
