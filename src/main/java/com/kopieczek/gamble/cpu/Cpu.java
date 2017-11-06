@@ -159,7 +159,7 @@ public class Cpu {
         m.put(0x36, Operations.write(Pointer.of(Word.Register.HL), Byte.argument()));
         m.put(0x0a, Operations.load(Byte.Register.A, Pointer.of(Word.Register.BC)));
         m.put(0x1a, Operations.load(Byte.Register.A, Pointer.of(Word.Register.DE)));
-        m.put(0xfa, Operations.load(Byte.Register.A, Byte.argument(), Byte.argument()));
+        m.put(0xfa, Operations.load(Byte.Register.A, Word.argument()));
         m.put(0x3c, Operations.increment(Byte.Register.A));
         m.put(0x04, Operations.increment(Byte.Register.B));
         m.put(0x0c, Operations.increment(Byte.Register.C));

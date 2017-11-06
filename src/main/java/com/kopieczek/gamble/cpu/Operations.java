@@ -26,9 +26,9 @@ public class Operations {
         };
     }
 
-    public static Operation load(Byte.Register to, Byte.Argument arg1, Byte.Argument arg2) {
+    public static Operation load(Byte.Register to, Word.Argument fromAddr) {
         return cpu -> {
-            Pointer from = Pointer.literal(arg1.getValue(cpu) + (arg2.getValue(cpu) << 8));
+            Pointer from = Pointer.of(fromAddr);
             cpu.set(to, from);
             return 16;
         };
