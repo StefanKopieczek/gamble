@@ -1798,6 +1798,116 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
+    @Test
+    public void test_add_b_to_a_when_both_empty_gives_0() {
+        Cpu cpu = runProgram(0x80);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_b_to_a_when_a_is_1_and_b_is_2_gives_3() {
+        Cpu cpu = runProgram(0x3e, 0x01, 0x06, 0x02, 0x80);
+        assertEquals(0x03, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_b_to_a_doesnt_change_b() {
+        Cpu cpu = runProgram(0x3e, 0x01, 0x06, 0x02, 0x80);
+        assertEquals(0x02, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_add_b_to_a_when_a_is_0x37_and_b_is_0x42_gives_0x79() {
+        Cpu cpu = runProgram(0x3e, 0x37, 0x06, 0x42, 0x80);
+        assertEquals(0x79, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_b_to_a_uses_4_cycles() {
+        Cpu cpu = runProgram(0x80);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_adding_b_to_a_rolls_over_on_byte_overflow() {
+        Cpu cpu = runProgram(0x3e, 0x81, 0x06, 0x87, 0x80);
+        assertEquals(0x08, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_b_to_a_sets_zero_flag_if_both_are_zero() {
+        Cpu cpu = runProgram(0x80);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_adding_b_to_a_sets_zero_flag_if_result_overflows_to_0x00() {
+        Cpu cpu = runProgram(0x3e, 0xaf, 0x06, 0x51, 0x80);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_adding_b_to_a_doesnt_always_set_zero_flag() {
+        Cpu cpu = runProgram(0x3e, 0x81, 0x06, 0x82, 0x80);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_adding_b_to_a_resets_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x80);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_adding_b_to_a_sets_carry_flag_on_overflow_to_zero() {
+        Cpu cpu = runProgram(0x3e, 0xaf, 0x06, 0x51, 0x80);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_b_to_a_sets_carry_flag_on_overflow_past_zero() {
+        Cpu cpu = runProgram(0x3e, 0xaf, 0x06, 0x52, 0x80);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_b_to_a_doesnt_always_set_carry_flag() {
+        Cpu cpu = runProgram(0x3e, 0x7f, 0x06, 0x7f, 0x80);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_b_to_a_sets_nibble_flag_in_simplest_case() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x06, 0x08, 0x80);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_adding_b_to_a_sets_nibble_flag_on_chained_carry() {
+        Cpu cpu = runProgram(0x3e, 0x0f, 0x06, 0x01, 0x80);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_adding_b_to_a_sets_nibble_flag_on_chained_carry_2() {
+        Cpu cpu = runProgram(0x3e, 0x01, 0x06, 0x0f, 0x80);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_adding_b_to_a_sets_nibble_flag_despite_byte_overflow() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0x06, 0x02, 0x80);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_adding_b_to_a_doesnt_set_nibble_flag_on_every_byte_overflow() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x06, 0x8f, 0x80);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
