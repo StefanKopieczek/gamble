@@ -1632,6 +1632,24 @@ public class TestCpu {
         assertEquals(16, cpu.getCycles());
     }
 
+    @Test
+    public void test_pop_af() {
+        Cpu cpu = runProgram(
+            0x31, 0xc2, 0xb8, // LD SP, 0xb8c2
+            0x08, 0xb4, 0x3d, // LD (0x3db4), SP
+            0x31, 0xb4, 0x3d, // LD SP, 0x3db4
+            0xf1              // POP AF
+        );
+       assertEquals(0xb8, cpu.read(Byte.Register.A));
+       assertEquals(0xc2, cpu.read(Byte.Register.F));
+    }
+
+    @Test
+    public void test_pop_af_uses_12_cycles() {
+        Cpu cpu = runProgram(0xf1);
+        assertEquals(12, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

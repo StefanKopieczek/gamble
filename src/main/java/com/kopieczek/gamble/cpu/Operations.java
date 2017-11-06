@@ -131,13 +131,22 @@ class Operations {
         return 12;
     }
 
-    public static int push(Cpu cpu, Word.Register toPush) {
+    public static int push(Cpu cpu, Word.Register from) {
         Pointer stackPointer = Pointer.of(Word.Register.SP);
         decrementWord(Word.Register.SP, cpu);
-        cpu.writeTo(stackPointer, toPush.left);
+        cpu.writeTo(stackPointer, from.left);
         decrementWord(Word.Register.SP, cpu);
-        cpu.writeTo(stackPointer, toPush.right);
+        cpu.writeTo(stackPointer, from.right);
         return 16;
+    }
+
+    public static Integer pop(Cpu cpu, Word.Register to) {
+        Pointer stackPointer = Pointer.of(Word.Register.SP);
+        cpu.set(to.right, stackPointer);
+        incrementWord(Word.Register.SP, cpu);
+        cpu.set(to.left, stackPointer);
+        incrementWord(Word.Register.SP, cpu);
+        return 12;
     }
 
     private static void decrementWord(Word.Register r, Cpu cpu) {
