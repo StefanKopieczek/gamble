@@ -1471,6 +1471,22 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
+    @Test
+    public void test_write_sp_to_nn() {
+        Cpu cpu = runProgram(
+                0x31, 0xbb, 0xaa, // LD SP, 0xaabb
+                0x08, 0xdd, 0xcc  // LD (0xccdd), SP
+        );
+        assertEquals(0xbb, cpu.unsafeRead(0xccdd));
+        assertEquals(0xaa, cpu.unsafeRead(0xccde));
+    }
+
+    @Test
+    public void test_write_sp_to_nn_uses_20_cycles() {
+        Cpu cpu = runProgram(0x08, 0x00, 0x01);
+        assertEquals(20, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

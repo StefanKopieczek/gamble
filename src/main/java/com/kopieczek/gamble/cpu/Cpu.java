@@ -182,6 +182,7 @@ public class Cpu {
         m.put(0x31, Operations.copy(Word.Register.SP, Word.argument()));
         m.put(0xf9, Operations.copy(Word.Register.SP, Word.Register.HL));
         m.put(0xf8, Operations.copyWithOffset(Word.Register.HL, Word.Register.SP, Byte.argument()));
+        m.put(0x08, Operations.write(Pointer.of(Word.argument()), Word.Register.SP));
         return m.build();
     }
 }

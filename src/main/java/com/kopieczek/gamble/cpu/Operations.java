@@ -40,6 +40,19 @@ class Operations {
         };
     }
 
+    public static Operation write(Pointer to, Word.Register from) {
+        return cpu -> {
+            Pointer lsbTo = Pointer.literal(cpu.read(to.address));  // Ew ew ew ew
+            Pointer msbTo = Pointer.literal(cpu.read(lsbTo.address) + 1); // Ew ew ew ew
+            int fromValue = cpu.read(from);
+            Byte fromLsb = Byte.literal(fromValue & 0xff);
+            Byte fromMsb = Byte.literal(fromValue >> 8);
+            cpu.writeTo(lsbTo, fromLsb);
+            cpu.writeTo(msbTo, fromMsb);
+            return 20;
+        };
+    }
+
     static Operation increment(Byte.Register r) {
         return cpu -> {
             int oldValue = cpu.read(r);
