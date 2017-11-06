@@ -168,4 +168,16 @@ class Operations {
     private static boolean shouldSetNibble(int original, int offset) {
         return (((original & 0x0f) + (offset & 0x0f)) & 0x10) > 0;
     }
+
+    public static Integer add(Cpu cpu, Byte.Register destOperand, Byte otherOperand) {
+        int a = cpu.read(destOperand);
+        int b = cpu.read(otherOperand);
+        int sum = (a + b) & 0xff;
+        cpu.set(destOperand, Byte.literal(sum));
+        cpu.set(Flag.ZERO, (sum == 0x00));
+        cpu.set(Flag.OPERATION, false);
+        cpu.set(Flag.NIBBLE, shouldSetNibble(a, b));
+        cpu.set(Flag.CARRY, shouldSetCarry(a, b));
+        return 4;
+    }
 }
