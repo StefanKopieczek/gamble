@@ -1377,6 +1377,100 @@ public class TestCpu {
         assertEquals(8, cpu.getCycles());
     }
 
+    @Test
+    public void test_ldhl_sp_with_no_offset() {
+        Cpu cpu = runProgram(
+                0x31, 0x34, 0x55, // LD SP, 0x3455
+                0xf8, 0x00        // LD HL, SP + 0x00
+        );
+
+        assertEquals(0x3455, cpu.read(Word.Register.HL));
+    }
+
+    @Test
+    public void test_ldhl_sp_n_uses_12_cycles() {
+        Cpu cpu = runProgram(0xf8);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_ldhl_sp_with_offset() {
+        Cpu cpu = runProgram(
+                0x31, 0x34, 0x55, // LD SP, 0x3455
+                0xf8, 0x77        // LD HL, SP + 0x00
+        );
+        assertEquals(0x34cc, cpu.read(Word.Register.HL));
+    }
+
+    @Test
+    public void test_ldhl_sp_resets_zero() {
+        Cpu cpu = runProgram(
+                0x21, 0xff, 0xff, // LD L, 0xffff
+                0x2c,             // INC L (triggers ZERO flag)
+                0xf8, 0x00        // LD HL, SP+0x00
+        );
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_ldhl_sp_never_sets_zero() {
+        Cpu cpu = runProgram(
+                0xf8, 0x00        // LD HL, SP+0x00
+        );
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_ldhl_sp_sets_carry_flag_on_carry() {
+        Cpu cpu = runProgram(
+                0x31, 0x00, 0xff, // LD SP, 0x00ff
+                0xf8, 0x01        // LD HL, SP + 0x01
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_ldhl_sp_sets_carry_flag_when_bit_8_is_already_high() {
+        Cpu cpu = runProgram(
+                0x31, 0x01, 0xff, // LD SP, 0x01ff
+                0xf8, 0x01        // LD HL, SP + 0x01
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_ldhl_sp_doesnt_set_carry_flag_for_every_nonzero_offset() {
+        Cpu cpu = runProgram(0xf8, 0xff);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_ldhl_sp_doesnt_set_carry_flag_when_change_is_due_to_sp_bits() {
+        Cpu cpu = runProgram(
+                0x31, 0x01, 0x00, // LD SP, 0x0100
+                0xf8, 0x01        // LD HL, SP + 0x01
+        );
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_ldhl_sets_nibble_flag_on_nibble_carry() {
+        Cpu cpu = runProgram(
+                0x31, 0x00, 0x0f, // LD SP, 0x000f
+                0xf8, 0x01        // LD HL, SP + 0x01
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_ldhl_doesnt_just_set_nibble_flag_whenever_bit_4_is_high() {
+        Cpu cpu = runProgram(
+                0x31, 0x00, 0x37, // LD SP, 0x0037
+                0xf8, 0x44        // LD HL, SP + 0x44
+        );
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

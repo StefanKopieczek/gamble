@@ -51,8 +51,7 @@ public class Operations {
     public static Operation increment(Byte.Register r) {
         return withZeroFlagHandler(r,
             withNibbleFlagHandler(r,
-                withOpFlagSetTo(false,
-                    cpu -> {
+                withReset(Flag.OPERATION, cpu -> {
                         Byte newValue = Byte.literal((cpu.read(r) + 1) & 0xff);
                         cpu.set(r, newValue);
                         return 4;
@@ -65,8 +64,7 @@ public class Operations {
     public static Operation increment(Pointer ptr) {
         return withZeroFlagHandler(ptr,
             withNibbleFlagHandler(ptr,
-                withOpFlagSetTo(false,
-                    cpu -> {
+                withReset(Flag.OPERATION, cpu -> {
                         Byte newValue = Byte.literal((cpu.readFrom(ptr) + 1) & 0xff);
                         cpu.writeTo(ptr, newValue);
                         return 12;
@@ -174,6 +172,19 @@ public class Operations {
         };
     }
 
+    private static Operation withCarryFlagHandler(Word.Register before,
+                                                  Word.Register after,
+                                                  Operation inner) {
+        return cpu -> {
+            int beforeVal = cpu.read(before);
+            int cycles = inner.apply(cpu);
+            int afterVal = cpu.read(after);
+            boolean carried = (afterVal & 0x0100) != (beforeVal & 0x0100);
+            cpu.set(Flag.CARRY, carried);
+            return cycles;
+        };
+    }
+
     private static Operation withNibbleFlagHandler(Byte.Register r, Operation inner) {
         return cpu -> {
             int before = cpu.read(r) & 0x10;
@@ -194,11 +205,29 @@ public class Operations {
         };
     }
 
-    private static Operation withOpFlagSetTo(boolean flagValue, Operation inner) {
+    private static Operation withReset(Flag flag, Operation inner) {
         return cpu -> {
             int ret = inner.apply(cpu);
-            cpu.set(Flag.OPERATION, flagValue);
+            cpu.set(flag, false);
             return ret;
         };
+    }
+
+    public static Operation copyWithOffset(Word.Register to, Word.Register from, Byte offset) {
+        return withCarryFlagHandler(from, to,
+                withReset(Flag.ZERO,
+                withReset(Flag.OPERATION,
+                cpu -> {
+                    int fromValue = cpu.read(from);
+                    int offsetValue = cpu.read(offset);
+                    Word newValue = Word.literal((fromValue + offsetValue) & 0xffff);
+                    cpu.set(to, newValue);
+
+                    boolean halfCarry = (((fromValue & 0x0f) + (offsetValue & 0x0f)) & 0x10) > 0;
+                    cpu.set(Flag.NIBBLE, halfCarry);
+
+                    return 12;
+                }
+        )));
     }
 }
