@@ -1454,7 +1454,7 @@ public class TestCpu {
     }
 
     @Test
-    public void test_ldhl_sets_nibble_flag_on_nibble_carry() {
+    public void test_ldhl_sp_sets_nibble_flag_on_nibble_carry() {
         Cpu cpu = runProgram(
                 0x31, 0x0f, 0x00, // LD SP, 0x000f
                 0xf8, 0x01        // LD HL, SP + 0x01
@@ -1463,7 +1463,7 @@ public class TestCpu {
     }
 
     @Test
-    public void test_ldhl_doesnt_just_set_nibble_flag_whenever_bit_4_is_high() {
+    public void test_ldhl_sp_doesnt_just_set_nibble_flag_whenever_bit_4_is_high() {
         Cpu cpu = runProgram(
                 0x31, 0x37, 0x00, // LD SP, 0x0037
                 0xf8, 0x44        // LD HL, SP + 0x44
