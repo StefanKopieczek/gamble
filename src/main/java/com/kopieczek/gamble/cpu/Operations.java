@@ -49,29 +49,27 @@ public class Operations {
     }
 
     public static Operation increment(Byte.Register r) {
-        return withZeroFlagHandler(r,
-            withNibbleFlagHandler(r,
-                withReset(Flag.OPERATION, cpu -> {
-                        Byte newValue = Byte.literal((cpu.read(r) + 1) & 0xff);
-                        cpu.set(r, newValue);
-                        return 4;
-                    }
-                )
-            )
-        );
+        return cpu -> {
+            int oldValue = cpu.read(r);
+            int newValue = (oldValue + 1) & 0xff;
+            cpu.set(r, Byte.literal(newValue));
+            cpu.set(Flag.ZERO, (newValue == 0));
+            cpu.set(Flag.NIBBLE, shouldSetNibble(oldValue, 1));
+            cpu.set(Flag.OPERATION, false);
+            return 4;
+        };
     }
 
     public static Operation increment(Pointer ptr) {
-        return withZeroFlagHandler(ptr,
-            withNibbleFlagHandler(ptr,
-                withReset(Flag.OPERATION, cpu -> {
-                        Byte newValue = Byte.literal((cpu.readFrom(ptr) + 1) & 0xff);
-                        cpu.writeTo(ptr, newValue);
-                        return 12;
-                    }
-                )
-            )
-        );
+        return cpu -> {
+            int oldValue = cpu.readFrom(ptr);
+            int newValue = (oldValue + 1) & 0xff;
+            cpu.writeTo(ptr, Byte.literal(newValue));
+            cpu.set(Flag.ZERO, (newValue == 0));
+            cpu.set(Flag.NIBBLE, shouldSetNibble(oldValue, 1));
+            cpu.set(Flag.OPERATION, false);
+            return 12;
+        };
     }
 
     public static Operation loadPartial(Byte.Register to, Byte fromLsb) {
@@ -156,78 +154,27 @@ public class Operations {
         cpu.set(r, next);
     }
 
-    private static Operation withZeroFlagHandler(Byte.Register r, Operation inner) {
-        return cpu -> {
-            int ret = inner.apply(cpu);
-            cpu.set(Flag.ZERO, (cpu.read(r) == 0x00));
-            return ret;
-        };
+    private static boolean shouldSetCarry(int original, int offset) {
+        return (((original & 0xff) + (offset & 0xff)) & 0x100) > 0;
     }
 
-    private static Operation withZeroFlagHandler(Pointer ptr, Operation inner) {
-        return cpu -> {
-            int ret = inner.apply(cpu);
-            cpu.set(Flag.ZERO, (cpu.readFrom(ptr) == 0x00));
-            return ret;
-        };
-    }
-
-    private static Operation withCarryFlagHandler(Word.Register before,
-                                                  Word.Register after,
-                                                  Operation inner) {
-        return cpu -> {
-            int beforeVal = cpu.read(before);
-            int cycles = inner.apply(cpu);
-            int afterVal = cpu.read(after);
-            boolean carried = (afterVal & 0x0100) != (beforeVal & 0x0100);
-            cpu.set(Flag.CARRY, carried);
-            return cycles;
-        };
-    }
-
-    private static Operation withNibbleFlagHandler(Byte.Register r, Operation inner) {
-        return cpu -> {
-            int before = cpu.read(r) & 0x10;
-            int ret = inner.apply(cpu);
-            int after = cpu.read(r) & 0x10;
-            cpu.set(Flag.NIBBLE, (before < after));
-            return ret;
-        };
-    }
-
-    private static Operation withNibbleFlagHandler(Pointer ptr, Operation inner) {
-        return cpu -> {
-            int before = cpu.readFrom(ptr) & 0x10;
-            int ret = inner.apply(cpu);
-            int after = cpu.readFrom(ptr) & 0x10;
-            cpu.set(Flag.NIBBLE, (before < after));
-            return ret;
-        };
-    }
-
-    private static Operation withReset(Flag flag, Operation inner) {
-        return cpu -> {
-            int ret = inner.apply(cpu);
-            cpu.set(flag, false);
-            return ret;
-        };
+    private static boolean shouldSetNibble(int original, int offset) {
+        return (((original & 0x0f) + (offset & 0x0f)) & 0x10) > 0;
     }
 
     public static Operation copyWithOffset(Word.Register to, Word.Register from, Byte offset) {
-        return withCarryFlagHandler(from, to,
-                withReset(Flag.ZERO,
-                withReset(Flag.OPERATION,
-                cpu -> {
-                    int fromValue = cpu.read(from);
-                    int offsetValue = cpu.read(offset);
-                    Word newValue = Word.literal((fromValue + offsetValue) & 0xffff);
-                    cpu.set(to, newValue);
+        return cpu -> {
+            int fromValue = cpu.read(from);
+            int offsetValue = cpu.read(offset);
+            Word newValue = Word.literal((fromValue + offsetValue) & 0xffff);
+            cpu.set(to, newValue);
 
-                    boolean halfCarry = (((fromValue & 0x0f) + (offsetValue & 0x0f)) & 0x10) > 0;
-                    cpu.set(Flag.NIBBLE, halfCarry);
+            cpu.set(Flag.CARRY, shouldSetCarry(fromValue, offsetValue));
+            cpu.set(Flag.NIBBLE, shouldSetNibble(fromValue, offsetValue));
+            cpu.set(Flag.ZERO, false);
+            cpu.set(Flag.OPERATION, false);
 
-                    return 12;
-                }
-        )));
+            return 12;
+        };
     }
 }
