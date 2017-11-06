@@ -22,15 +22,7 @@ class Operations {
     static Operation load(Byte.Register to, Pointer from) {
         return cpu -> {
             cpu.set(to, from);
-            return 8;
-        };
-    }
-
-    static Operation load(Byte.Register to, Word.Argument fromAddr) {
-        return cpu -> {
-            Pointer from = Pointer.of(fromAddr);
-            cpu.set(to, from);
-            return 16;
+            return (from.address instanceof Word.Argument) ? 16 : 8;
         };
     }
 
@@ -72,19 +64,27 @@ class Operations {
         };
     }
 
-    static Operation loadPartial(Byte.Register to, Byte fromLsb) {
+    static Operation loadPartial(Byte.Register to, Byte.Register fromLsb) {
         return cpu -> {
             Pointer fromPtr = Pointer.literal(0xff00 + cpu.read(fromLsb));
             cpu.set(to, fromPtr);
-            return (fromLsb instanceof Byte.Argument) ? 12 : 8;
+            return 8;
         };
     }
 
-    static Operation writePartial(Byte.Register toLsb, Byte from) {
+    static Operation loadPartial(Byte.Register to, Byte.Argument fromLsb) {
+        return cpu -> {
+            Pointer fromPtr = Pointer.literal(0xff00 + cpu.read(fromLsb));
+            cpu.set(to, fromPtr);
+            return 12;
+        };
+    }
+
+    static Operation writePartial(Byte.Register toLsb, Byte.Register from) {
         return cpu -> {
             Pointer toPtr = Pointer.literal(0xff00 + cpu.read(toLsb));
             cpu.writeTo(toPtr, from);
-            return (from instanceof Byte.Argument) ? 12 : 8;
+            return 8;
         };
     }
 
