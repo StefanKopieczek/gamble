@@ -1938,6 +1938,168 @@ public class TestCpu {
         assertEquals(0x8f, cpu.read(Byte.Register.A));
     }
 
+    @Test
+    public void test_add_indirect_hl_to_a_when_hl_points_to_0x00() {
+        Cpu cpu = runProgram(
+            0x21, 0xcd, 0xab, // LD HL, 0xabcd
+            0x3e, 0xef,       // LD A, 0xef
+            0x86              // ADD A, (HL)
+        );
+        assertEquals(0xef, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_when_hl_points_to_small_value() {
+        Cpu cpu = runProgram(
+                0x21, 0x71, 0x86, // LD HL, 0x9671
+                0x36, 0x19,       // LD (HL), 0x19
+                0x3e, 0xb3,       // LD A, 0xb3
+                0x86              // ADD A, (HL)
+        );
+        assertEquals(0xcc, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_doesnt_change_memory() {
+        Cpu cpu = runProgram(
+                0x21, 0x18, 0x7b, // LD HL, 0x7b18
+                0x36, 0xcc,       // LD (HL), 0xcc
+                0x3e, 0xff,       // LD A, 0xff
+                0x86              // ADD A, (HL)
+        );
+        assertEquals(0xcc, cpu.unsafeRead(0x7b18));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0x86);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_rolls_over_on_byte_overflow() {
+        Cpu cpu = runProgram(
+                0x21, 0x05, 0x63, // LD HL, 0x6305
+                0x36, 0x81,       // LD (HL), 0x81
+                0x3e, 0x87,       // LD A, 0x87
+                0x86              // ADD A, (HL)
+        );
+        assertEquals(0x08, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_sets_zero_flag_if_both_are_zero() {
+        Cpu cpu = runProgram(0x21, 0xab, 0xcd, 0x86);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_sets_zero_flag_if_result_overflows_to_0x00() {
+        Cpu cpu = runProgram(
+                0x21, 0x79, 0xde, // LD HL, 0xde79
+                0x36, 0xaf,       // LD (HL), 0xaf
+                0x3e, 0x51,       // LD A, 0x51
+                0x86              // ADD A, (HL)
+        );
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_doesnt_always_set_zero_flag() {
+        Cpu cpu = runProgram(
+                0x21, 0xbd, 0x33, // LD HL, 0x33bd
+                0x36, 0x81,       // LD (HL), 0x81
+                0x3e, 0x82,       // LD A, 0x82
+                0x86              // ADD A, (HL)
+        );
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_resets_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x86);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_sets_carry_flag_on_overflow_to_zero() {
+        Cpu cpu = runProgram(
+                0x21, 0x57, 0x18, // LD HL, 0x1857
+                0x36, 0xaf,       // LD (HL), 0xaf
+                0x3e, 0x51,       // LD A, 0x51
+                0x86              // ADD A, (HL)
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_sets_carry_flag_on_overflow_past_zero() {
+        Cpu cpu = runProgram(
+                0x21, 0x66, 0xf1, // LD HL, 0xf166
+                0x36, 0xaf,       // LD (HL), 0xaf
+                0x3e, 0x52,       // LD A, 0x52
+                0x86              // ADD A, (HL)
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_doesnt_always_set_carry_flag() {
+        Cpu cpu = runProgram(
+                0x21, 0x87, 0xf9, // LD HL, 0xf987
+                0x36, 0x7f,       // LD (HL), 0x7f
+                0x3e, 0x7f,       // LD A, 0x7f
+                0x86              // ADD A, (HL)
+        );
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_sets_nibble_flag_in_simplest_case() {
+        Cpu cpu = runProgram(
+                0x21, 0x53, 0xfc, // LD HL, 0xfc53
+                0x36, 0x08,       // LD (HL), 0x08
+                0x3e, 0x08,       // LD A, 0x08
+                0x86              // ADD A, (HL)
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_sets_nibble_flag_on_chained_carry() {
+        Cpu cpu = runProgram(
+                0x21, 0xe0, 0x43, // LD HL, 0x43e0
+                0x36, 0x0f,       // LD (HL), 0x0f
+                0x3e, 0x01,       // LD A, 0x01
+                0x86              // ADD A, (HL)
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_sets_nibble_flag_on_chained_carry_2() {
+        Cpu cpu = runProgram(
+                0x21, 0xa9, 0x6e, // LD HL, 0x6ea9
+                0x36, 0x01,       // LD (HL), 0x01
+                0x3e, 0x0f,       // LD A, 0x0f
+                0x86              // ADD A, (HL)
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_adding_indirect_hl_to_a_sets_nibble_flag_despite_byte_overflow() {
+        Cpu cpu = runProgram(
+                0x21, 0xb1, 0x2b, // LD HL, 0x2bb1
+                0x36, 0xff,       // LD (HL), 0xff
+                0x3e, 0x02,       // LD A, 0x02
+                0x86              // ADD A, (HL)
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

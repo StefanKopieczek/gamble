@@ -180,4 +180,16 @@ class Operations {
         cpu.set(Flag.CARRY, shouldSetCarry(a, b));
         return 4;
     }
+
+    public static Integer add(Cpu cpu, Byte.Register destOperand, Pointer ptrToOtherOperand) {
+        int a = cpu.read(destOperand);
+        int b = cpu.readFrom(ptrToOtherOperand);
+        int sum = (a + b) & 0xff;
+        cpu.set(destOperand, Byte.literal(sum));
+        cpu.set(Flag.ZERO, (sum == 0x00));
+        cpu.set(Flag.OPERATION, false);
+        cpu.set(Flag.NIBBLE, shouldSetNibble(a, b));
+        cpu.set(Flag.CARRY, shouldSetCarry(a, b));
+        return 8;
+    }
 }
