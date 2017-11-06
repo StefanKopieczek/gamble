@@ -1,32 +1,32 @@
 package com.kopieczek.gamble.cpu;
 
-public class Operations {
-    public static Operation nop() {
+class Operations {
+    static Operation nop() {
         return cpu -> 4;
     }
 
-    public static Operation copy(Byte.Register to, Byte.Register from) {
+    static Operation copy(Byte.Register to, Byte.Register from) {
         return cpu -> {
             cpu.set(to, from);
             return 4;
         };
     }
 
-    public static Operation copy(Byte.Register to, Byte.Argument from) {
+    static Operation copy(Byte.Register to, Byte.Argument from) {
         return cpu -> {
             cpu.set(to, from);
             return 8;
         };
     }
 
-    public static Operation load(Byte.Register to, Pointer from) {
+    static Operation load(Byte.Register to, Pointer from) {
         return cpu -> {
             cpu.set(to, from);
             return 8;
         };
     }
 
-    public static Operation load(Byte.Register to, Word.Argument fromAddr) {
+    static Operation load(Byte.Register to, Word.Argument fromAddr) {
         return cpu -> {
             Pointer from = Pointer.of(fromAddr);
             cpu.set(to, from);
@@ -34,21 +34,21 @@ public class Operations {
         };
     }
 
-    public static Operation write(Pointer to, Byte.Register from) {
+    static Operation write(Pointer to, Byte.Register from) {
         return cpu -> {
             cpu.writeTo(to, from);
             return 8;
         };
     }
 
-    public static Operation write(Pointer to, Byte.Argument from) {
+    static Operation write(Pointer to, Byte.Argument from) {
         return cpu -> {
             cpu.writeTo(to, from);
             return 12;
         };
     }
 
-    public static Operation increment(Byte.Register r) {
+    static Operation increment(Byte.Register r) {
         return cpu -> {
             int oldValue = cpu.read(r);
             int newValue = (oldValue + 1) & 0xff;
@@ -60,7 +60,7 @@ public class Operations {
         };
     }
 
-    public static Operation increment(Pointer ptr) {
+    static Operation increment(Pointer ptr) {
         return cpu -> {
             int oldValue = cpu.readFrom(ptr);
             int newValue = (oldValue + 1) & 0xff;
@@ -72,7 +72,7 @@ public class Operations {
         };
     }
 
-    public static Operation loadPartial(Byte.Register to, Byte fromLsb) {
+    static Operation loadPartial(Byte.Register to, Byte fromLsb) {
         return cpu -> {
             Pointer fromPtr = Pointer.literal(0xff00 + cpu.read(fromLsb));
             cpu.set(to, fromPtr);
@@ -80,7 +80,7 @@ public class Operations {
         };
     }
 
-    public static Operation writePartial(Byte.Register toLsb, Byte from) {
+    static Operation writePartial(Byte.Register toLsb, Byte from) {
         return cpu -> {
             Pointer toPtr = Pointer.literal(0xff00 + cpu.read(toLsb));
             cpu.writeTo(toPtr, from);
@@ -88,7 +88,7 @@ public class Operations {
         };
     }
 
-    public static Operation loadDec(Byte.Register to, Word.Register from) {
+    static Operation loadDec(Byte.Register to, Word.Register from) {
         return cpu -> {
             cpu.set(to, Pointer.of(from));
             decrementWord(from, cpu);
@@ -96,7 +96,7 @@ public class Operations {
         };
     }
 
-    public static Operation loadInc(Byte.Register to, Word.Register from) {
+    static Operation loadInc(Byte.Register to, Word.Register from) {
         return cpu -> {
             cpu.set(to, Pointer.of(from));
             incrementWord(from, cpu);
@@ -104,7 +104,7 @@ public class Operations {
         };
     }
 
-    public static Operation writeDec(Word.Register to, Byte from) {
+    static Operation writeDec(Word.Register to, Byte from) {
         return cpu -> {
             cpu.writeTo(Pointer.of(to), from);
             decrementWord(to, cpu);
@@ -112,7 +112,7 @@ public class Operations {
         };
     }
 
-    public static Operation writeInc(Word.Register to, Byte from) {
+    static Operation writeInc(Word.Register to, Byte from) {
         return cpu -> {
             cpu.writeTo(Pointer.of(to), from);
             incrementWord(to, cpu);
@@ -120,7 +120,7 @@ public class Operations {
         };
     }
 
-    public static Operation writePartial(Byte toLsb, Byte from) {
+    static Operation writePartial(Byte toLsb, Byte from) {
         return cpu -> {
             Pointer to = Pointer.literal(0xff00 + cpu.read(toLsb));
             cpu.writeTo(to, from);
@@ -128,14 +128,14 @@ public class Operations {
         };
     }
 
-    public static Operation copy(Word.Register to, Word.Argument from) {
+    static Operation copy(Word.Register to, Word.Argument from) {
         return cpu -> {
             cpu.set(to, from);
             return 12;
         };
     }
 
-    public static Operation copy(Word.Register to, Word.Register from) {
+    static Operation copy(Word.Register to, Word.Register from) {
         return cpu -> {
             cpu.set(to, from);
             return 8;
@@ -162,7 +162,7 @@ public class Operations {
         return (((original & 0x0f) + (offset & 0x0f)) & 0x10) > 0;
     }
 
-    public static Operation copyWithOffset(Word.Register to, Word.Register from, Byte offset) {
+    static Operation copyWithOffset(Word.Register to, Word.Register from, Byte offset) {
         return cpu -> {
             int fromValue = cpu.read(from);
             int offsetValue = cpu.read(offset);
