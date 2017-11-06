@@ -199,6 +199,11 @@ public class Cpu {
         m.put(0xe1, cpu -> Operations.pop(cpu, Word.Register.HL));
         m.put(0x87, cpu -> Operations.add(cpu, Byte.Register.A, Byte.Register.A));
         m.put(0x80, cpu -> Operations.add(cpu, Byte.Register.A, Byte.Register.B));
+        m.put(0x81, cpu -> Operations.add(cpu, Byte.Register.A, Byte.Register.C));
+        m.put(0x82, cpu -> Operations.add(cpu, Byte.Register.A, Byte.Register.D));
+        m.put(0x83, cpu -> Operations.add(cpu, Byte.Register.A, Byte.Register.E));
+        m.put(0x84, cpu -> Operations.add(cpu, Byte.Register.A, Byte.Register.H));
+        m.put(0x85, cpu -> Operations.add(cpu, Byte.Register.A, Byte.Register.L));
         return m.build();
     }
 }

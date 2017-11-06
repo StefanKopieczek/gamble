@@ -1908,6 +1908,36 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
+    @Test
+    public void test_add_c_to_a() {
+        Cpu cpu = runProgram(0x3e, 0x62, 0x0e, 0xc0, 0x81);
+        assertEquals(0x22, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_d_to_a() {
+        Cpu cpu = runProgram(0x3e, 0x2b, 0x16, 0xe3, 0x82);
+        assertEquals(0x0e, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_e_to_a() {
+        Cpu cpu = runProgram(0x3e, 0x78, 0x1e, 0xfb, 0x83);
+        assertEquals(0x73, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_h_to_a() {
+        Cpu cpu = runProgram(0x3e, 0x8d, 0x26, 0x64, 0x84);
+        assertEquals(0xf1, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_l_to_a() {
+        Cpu cpu = runProgram(0x3e, 0x22, 0x2e, 0x6d, 0x85);
+        assertEquals(0x8f, cpu.read(Byte.Register.A));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
