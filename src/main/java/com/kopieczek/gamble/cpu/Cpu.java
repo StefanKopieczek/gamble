@@ -12,12 +12,10 @@ public class Cpu {
     int pc = 0;
     int cycles = 0;
     int[] registers;
-    boolean[] flags;
 
     public Cpu(MemoryManagementUnit mmu) {
         this.mmu = mmu;
         this.registers = new int[Byte.Register.values().length];
-        this.flags = new boolean[Flag.values().length];
     }
 
     public int read(Byte b) {
@@ -84,11 +82,18 @@ public class Cpu {
     }
 
     public boolean isSet(Flag flag) {
-        return (flags[flag.ordinal()]);
+        return (read(Byte.Register.F) & (1 << (flag.ordinal() + 4))) > 0;
     }
 
-    void set(Flag flag, boolean state) {
-        flags[flag.ordinal()] = state;
+    void set(Flag flag, boolean shouldEnable) {
+        int flagRegister = read(Byte.Register.F);
+        int flagMask = (1 << (flag.ordinal() + 4));
+        if (shouldEnable) {
+            flagRegister |= flagMask;
+        } else {
+            flagRegister &= ~flagMask;
+        }
+        set(Byte.Register.F, Byte.literal(flagRegister));
     }
 
     private static Map<Integer, Function<Cpu, Integer>> loadOperations() {
@@ -184,6 +189,7 @@ public class Cpu {
         m.put(0xf9, cpu -> Operations.copy(cpu, Word.Register.SP, Word.Register.HL));
         m.put(0xf8, cpu -> Operations.copyWithOffset(cpu, Word.Register.HL, Word.Register.SP, Byte.argument()));
         m.put(0x08, cpu -> Operations.write(cpu, Pointer.of(Word.argument()), Word.Register.SP));
+        m.put(0xf5, cpu -> Operations.push(cpu, Word.Register.AF));
         return m.build();
     }
 }

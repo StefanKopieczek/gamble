@@ -1,8 +1,9 @@
 package com.kopieczek.gamble.cpu;
 
 public enum Flag {
-    ZERO,      // Set if the last operation produced a zero result.
-    OPERATION, // Set if the last operation was a subtraction.
+    // Note that the CPU relies on the order of these flags to build the F register.
+    CARRY,     // Set if the last operation caused byte rollover (except for INC).
     NIBBLE,    // Set if the last operation induced a carry of the less-significant nibble to the greater.
-    CARRY;     // Set if the last operation caused byte rollover (except for INC).
+    OPERATION, // Set if the last operation was a subtraction.
+    ZERO,      // Set if the last operation produced a zero result.
 }

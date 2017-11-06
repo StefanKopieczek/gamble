@@ -131,6 +131,15 @@ class Operations {
         return 12;
     }
 
+    public static int push(Cpu cpu, Word.Register toPush) {
+        Pointer stackPointer = Pointer.of(Word.Register.SP);
+        decrementWord(Word.Register.SP, cpu);
+        cpu.writeTo(stackPointer, toPush.left);
+        decrementWord(Word.Register.SP, cpu);
+        cpu.writeTo(stackPointer, toPush.right);
+        return 16;
+    }
+
     private static void decrementWord(Word.Register r, Cpu cpu) {
         int current = cpu.read(r);
         Word next = Word.literal((current - 1) & 0xffff);

@@ -4,6 +4,7 @@ public interface Word {
     int getValue(Cpu cpu);
 
     enum Register implements Word {
+        AF(Byte.Register.A, Byte.Register.F),
         BC(Byte.Register.B, Byte.Register.C),
         DE(Byte.Register.D, Byte.Register.E),
         HL(Byte.Register.H, Byte.Register.L),
