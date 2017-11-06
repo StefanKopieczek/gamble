@@ -1650,6 +1650,60 @@ public class TestCpu {
         assertEquals(12, cpu.getCycles());
     }
 
+    @Test
+    public void test_pop_bc() {
+        Cpu cpu = runProgram(
+                0x31, 0x38, 0xdc, // LD SP, 0xdc38
+                0x08, 0x80, 0x18, // LD (0x1880), SP
+                0x31, 0x80, 0x18, // LD SP, 0x1880
+                0xc1              // POP BC
+        );
+        assertEquals(0xdc, cpu.read(Byte.Register.B));
+        assertEquals(0x38, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_pop_bc_uses_12_cycles() {
+        Cpu cpu = runProgram(0xc1);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_pop_de() {
+        Cpu cpu = runProgram(
+                0x31, 0xd8, 0x8a, // LD SP, 0x8ad8
+                0x08, 0xac, 0x5f, // LD (0x5fac), SP
+                0x31, 0xac, 0x5f, // LD SP, 0x5fac
+                0xd1              // POP DE
+        );
+        assertEquals(0x8a, cpu.read(Byte.Register.D));
+        assertEquals(0xd8, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_pop_de_uses_12_cycles() {
+        Cpu cpu = runProgram(0xd1);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_pop_hl() {
+        Cpu cpu = runProgram(
+                0x31, 0x91, 0x45, // LD SP, 0x4591
+                0x08, 0x1b, 0x73, // LD (0x731b), SP
+                0x31, 0x1b, 0x73, // LD SP, 0x731b
+                0xe1              // POP HL
+        );
+        assertEquals(0x45, cpu.read(Byte.Register.H));
+        assertEquals(0x91, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_pop_hl_uses_12_cycles() {
+        Cpu cpu = runProgram(0xe1);
+        assertEquals(12, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
