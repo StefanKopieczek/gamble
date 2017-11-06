@@ -24,9 +24,14 @@ public interface Word {
     }
 
     class Argument implements Word {
-                @Override
+        private Integer value;
+
+        @Override
         public int getValue(Cpu cpu) {
-            return Byte.argument().getValue(cpu) + (Byte.argument().getValue(cpu) << 8);
+            if (value == null) {
+                value = Byte.argument().getValue(cpu) + (Byte.argument().getValue(cpu) << 8);
+            }
+            return value;
         }
     }
 

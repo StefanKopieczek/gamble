@@ -14,9 +14,14 @@ public interface Byte {
     }
 
     class Argument implements Byte {
+        private Integer value;
+
         @Override
         public int getValue(Cpu cpu) {
-            return cpu.readNextArg();
+            if (value == null) {
+                value = cpu.readNextArg();
+            }
+            return value;
         }
     }
 

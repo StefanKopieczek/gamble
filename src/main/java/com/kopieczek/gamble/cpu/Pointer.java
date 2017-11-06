@@ -23,4 +23,15 @@ public class Pointer {
     int get(Cpu cpu) {
         return cpu.unsafeRead(address.getValue(cpu));
     }
+
+    public Pointer withOffset(final int offset) {
+        final Word oldAddress = this.address;
+        Word offsetted = new Word() {
+            @Override
+            public int getValue(Cpu cpu) {
+                return (cpu.read(oldAddress) + offset) & 0xffff;
+            }
+        };
+        return new Pointer(offsetted);
+    }
 }
