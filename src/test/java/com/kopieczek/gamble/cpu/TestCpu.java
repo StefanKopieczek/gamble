@@ -2100,6 +2100,116 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.NIBBLE));
     }
 
+    @Test
+    public void test_adding_argument_to_a() {
+        Cpu cpu = runProgram(
+                0x3e, 0x69,
+                0xc6, 0xd2
+        );
+        assertEquals(0x3b, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_argument_to_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0xc6);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_adding_argument_a_sets_zero_flag_if_both_are_zero() {
+        Cpu cpu = runProgram(0xc6, 0x00);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_adding_argument_to_a_sets_zero_flag_if_result_overflows_to_0x00() {
+        Cpu cpu = runProgram(
+                0x3e, 0xd1,
+                0xc6, 0x2f
+        );
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_adding_argument_to_a_doesnt_always_set_zero_flag() {
+        Cpu cpu = runProgram(
+                0x3e, 0x81,
+                0xc6, 0x82
+        );
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_adding_argument_to_a_resets_operation_flag() {
+        Cpu cpu = cpuWithProgram(0xc6, 0x00);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_adding_argument_to_a_sets_carry_flag_on_overflow_to_zero() {
+        Cpu cpu = runProgram(
+                0x3e, 0x6e,
+                0xc6, 0x92
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_argument_to_a_sets_carry_flag_on_overflow_past_zero() {
+        Cpu cpu = runProgram(
+               0x3e, 0x6e,
+               0xc6, 0x93
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_argument_to_a_doesnt_always_set_carry_flag() {
+        Cpu cpu = runProgram(
+                0x3e, 0x7f,
+                0xc6, 0x7f
+        );
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_argument_to_a_sets_nibble_flag_in_simplest_case() {
+        Cpu cpu = runProgram(
+                0x3e, 0x08,
+                0xc6, 0x08
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_adding_argument_to_a_sets_nibble_flag_on_chained_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x01,
+                0xc6, 0x0f
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_adding_argument_to_a_sets_nibble_flag_on_chained_carry_2() {
+        Cpu cpu = runProgram(
+                0x3e, 0x0f,
+                0xc6, 0x01
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_adding_argument_to_a_sets_nibble_flag_despite_byte_overflow() {
+        Cpu cpu = runProgram(
+                0x3e, 0xff,
+                0xc6, 0x02
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

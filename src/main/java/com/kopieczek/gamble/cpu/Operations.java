@@ -169,27 +169,33 @@ class Operations {
         return (((original & 0x0f) + (offset & 0x0f)) & 0x10) > 0;
     }
 
-    public static Integer add(Cpu cpu, Byte.Register destOperand, Byte otherOperand) {
+    public static Integer add(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
         int a = cpu.read(destOperand);
         int b = cpu.read(otherOperand);
-        int sum = (a + b) & 0xff;
-        cpu.set(destOperand, Byte.literal(sum));
-        cpu.set(Flag.ZERO, (sum == 0x00));
-        cpu.set(Flag.OPERATION, false);
-        cpu.set(Flag.NIBBLE, shouldSetNibble(a, b));
-        cpu.set(Flag.CARRY, shouldSetCarry(a, b));
+        doAdd(cpu, destOperand, a, b);
         return 4;
+    }
+
+    public static Integer add(Cpu cpu, Byte.Register destOperand, Byte.Argument otherOperand) {
+        int a = cpu.read(destOperand);
+        int b = cpu.read(otherOperand);
+        doAdd(cpu, destOperand, a, b);
+        return 8;
     }
 
     public static Integer add(Cpu cpu, Byte.Register destOperand, Pointer ptrToOtherOperand) {
         int a = cpu.read(destOperand);
         int b = cpu.readFrom(ptrToOtherOperand);
+        doAdd(cpu, destOperand, a, b);
+        return 8;
+    }
+
+    private static void doAdd(Cpu cpu, Byte.Register dest, int a, int b) {
         int sum = (a + b) & 0xff;
-        cpu.set(destOperand, Byte.literal(sum));
+        cpu.set(dest, Byte.literal(sum));
         cpu.set(Flag.ZERO, (sum == 0x00));
         cpu.set(Flag.OPERATION, false);
         cpu.set(Flag.NIBBLE, shouldSetNibble(a, b));
         cpu.set(Flag.CARRY, shouldSetCarry(a, b));
-        return 8;
     }
 }
