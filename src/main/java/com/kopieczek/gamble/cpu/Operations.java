@@ -205,4 +205,11 @@ class Operations {
         doAdd(cpu, destOperand, a, b);
         return 4;
     }
+
+    public static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Pointer otherOperandPtr) {
+        int a = cpu.read(destOperand);
+        int b = cpu.readFrom(otherOperandPtr) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
+        doAdd(cpu, destOperand, a, b);
+        return 8;
+    }
 }

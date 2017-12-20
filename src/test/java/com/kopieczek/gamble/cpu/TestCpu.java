@@ -2471,6 +2471,116 @@ public class TestCpu {
         assertEquals(4, cpu.getCycles());
     }
 
+    @Test
+    public void test_add_indirect_hl_to_a_with_carry_when_everything_is_zero() {
+        Cpu cpu = runProgram(
+                0x24, // INC H so that it's not pointing at any program instructions
+                0x8e
+        );
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_with_carry_when_a_and_carry_are_zero() {
+        Cpu cpu = runProgram(0x8e); // NB: We're using 0x8e as an instruction and value here.
+        assertEquals(0x8e, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_with_carry_when_a_is_zero_and_carry_is_set() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x8e              // ADC A, 0x3e
+        );
+        assertEquals(0x3f, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_with_carry_when_a_is_nonzero_and_carry_is_set() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0x27,       // LD  A, 0x4f
+                0x8e              // ADC A, 0x3e
+        );
+        assertEquals(0x66, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_with_carry_when_hl_points_somewhere_other_than_0x00() {
+        Cpu cpu = runProgram(
+                0x26, 0xab, 0x2e, 0xbc, // Set HL to 0xabcd
+                0x36, 0xd1,             // Set (HL) to 0xd1
+                0x3e, 0x12,             // Set A to 0x12
+                0x8e                    // ADC A, (HL)
+        );
+        assertEquals(0xe3, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_with_carry_can_set_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0xc2,       // LD  A, 0xc2
+                0x8e              // ADC A, 0x3e
+        );
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_with_carry_sets_nibble_on_bit_3_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87,       // (Set carry)
+                0x3e, 0x01,             // Set A to 0x01
+                0x8e                    // ADC A, (HL)
+        );
+        assertEquals(0x40, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_with_carry_unsets_nibble_if_no_bit_3_carry_occurs() {
+        Cpu cpu = cpuWithProgram(0x8e);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_with_carry_unsets_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x8e);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_sets_zero_flag_when_all_values_zero() {
+        Cpu cpu = runProgram(0x36, 0x00, 0x8e);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_sets_zero_flag_on_rollover_to_zero() {
+        Cpu cpu = runProgram(0x36, 0x90, 0x3e, 0x70, 0x8e);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_unsets_zero_flag_when_result_nonzero() {
+        Cpu cpu = cpuWithProgram(0x36, 0x90, 0x3e, 0x71, 0x8e);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_add_indirect_hl_to_a_with_carry_uses_8_cycles() {
+        Cpu cpu = runProgram(0x8e);
+        assertEquals(8, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
