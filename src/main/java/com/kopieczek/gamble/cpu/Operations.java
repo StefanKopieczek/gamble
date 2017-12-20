@@ -212,4 +212,11 @@ class Operations {
         doAdd(cpu, destOperand, a, b);
         return 8;
     }
+
+    public static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Argument arg) {
+        int a = cpu.read(destOperand);
+        int b = cpu.read(arg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
+        doAdd(cpu, destOperand, a, b);
+        return 8;
+    }
 }

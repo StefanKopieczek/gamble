@@ -2581,6 +2581,117 @@ public class TestCpu {
         assertEquals(8, cpu.getCycles());
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Test
+    public void test_add_argument_to_a_with_carry_when_everything_is_zero() {
+        Cpu cpu = runProgram(0xce, 0x00);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_argument_to_a_with_carry_when_a_and_carry_are_zero() {
+        Cpu cpu = runProgram(0xce, 0x54);
+        assertEquals(0x54, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_argument_to_a_with_carry_when_a_is_zero_and_carry_is_set() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0xce, 0xfd        // ADC A, 0xfd
+        );
+        assertEquals(0xfe, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_argument_to_a_with_carry_when_a_is_nonzero_and_carry_is_set() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0x3d,       // LD  A, 0x3d
+                0xce, 0x91        // ADC A, 0x91
+        );
+        assertEquals(0xcf, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_argument_to_a_with_carry_can_set_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0xd9,       // LD  A, 0xd9
+                0xce, 0x27        // ADC A, 0x27
+        );
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_add_argument_to_a_with_carry_sets_nibble_on_bit_3_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87,       // (Set carry)
+                0x3e, 0x0d,             // Set A to 0x0f
+                0xce, 0x02              // ADC A, 0x02
+        );
+        assertEquals(0x10, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_add_argument_to_a_with_carry_unsets_nibble_if_no_bit_3_carry_occurs() {
+        Cpu cpu = cpuWithProgram(0xce, 0x00);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_add_argument_to_a_with_carry_unsets_operation_flag() {
+        Cpu cpu = cpuWithProgram(0xce);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_add_argument_to_a_sets_zero_flag_when_all_values_zero() {
+        Cpu cpu = runProgram(0xce, 0x00);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_add_argument_to_a_sets_zero_flag_on_rollover_to_zero() {
+        Cpu cpu = runProgram(0x3e, 0x60, 0xce, 0xa0);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_add_argument_to_a_unsets_zero_flag_when_result_nonzero() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x60, 0xce, 0x91);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_add_argument_to_a_with_carry_uses_8_cycles() {
+        Cpu cpu = runProgram(0xce, 0x00);
+        assertEquals(8, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
