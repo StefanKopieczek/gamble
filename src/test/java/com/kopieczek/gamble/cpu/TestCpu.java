@@ -2581,21 +2581,6 @@ public class TestCpu {
         assertEquals(8, cpu.getCycles());
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Test
     public void test_add_argument_to_a_with_carry_when_everything_is_zero() {
         Cpu cpu = runProgram(0xce, 0x00);
@@ -2690,6 +2675,62 @@ public class TestCpu {
     public void test_add_argument_to_a_with_carry_uses_8_cycles() {
         Cpu cpu = runProgram(0xce, 0x00);
         assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_subtract_a_from_a_gives_zero_when_a_is_zero() {
+        Cpu cpu = runProgram(0x97);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_gives_zero_when_a_is_nonzero() {
+        Cpu cpu = runProgram(0x3e, 0x94, 0x97);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_uses_4_cycles() {
+        Cpu cpu = runProgram(0x97);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_subtract_a_from_a_sets_operation_flag_when_a_is_zero() {
+        Cpu cpu = runProgram(0x97);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_sets_operation_flag_when_a_is_nonzero() {
+        Cpu cpu = runProgram(0x3e, 0x8f, 0x97);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_sets_zero_flag_when_a_is_zero() {
+        Cpu cpu = runProgram(0x97);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_sets_zero_flag_when_a_is_nonzero() {
+        Cpu cpu = runProgram(0x3e, 0xae, 0x97);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_sets_carry_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xb5, 0x97);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_sets_nibble_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x34, 0x97);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
     }
 
     private static Cpu cpuWithProgram(int... program) {

@@ -219,4 +219,13 @@ class Operations {
         doAdd(cpu, destOperand, a, b);
         return 8;
     }
+
+    public static Integer subtract(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
+        cpu.set(leftArg, Byte.literal(0x00));
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.ZERO, true);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        return 4;
+    }
 }
