@@ -208,6 +208,12 @@ public class Cpu {
         m.put(0xc6, cpu -> Operations.add(cpu, Byte.Register.A, Byte.argument()));
         m.put(0x8f, cpu -> Operations.addWithCarry(cpu, Byte.Register.A, Byte.Register.A));
         m.put(0x88, cpu -> Operations.addWithCarry(cpu, Byte.Register.A, Byte.Register.B));
+        m.put(0x89, cpu -> Operations.addWithCarry(cpu, Byte.Register.A, Byte.Register.C));
+        m.put(0x8a, cpu -> Operations.addWithCarry(cpu, Byte.Register.A, Byte.Register.D));
+        m.put(0x8b, cpu -> Operations.addWithCarry(cpu, Byte.Register.A, Byte.Register.E));
+        m.put(0x8c, cpu -> Operations.addWithCarry(cpu, Byte.Register.A, Byte.Register.H));
+        m.put(0x8d, cpu -> Operations.addWithCarry(cpu, Byte.Register.A, Byte.Register.L));
+
         return m.build();
     }
 }

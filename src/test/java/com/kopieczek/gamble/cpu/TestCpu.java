@@ -2386,6 +2386,91 @@ public class TestCpu {
         assertEquals(4, cpu.getCycles());
     }
 
+    @Test
+    public void test_adding_c_to_a_with_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0x57,       // LD A, 0x57
+                0x0e, 0xb6,       // LD C, 0xb6
+                0x89              // ADC A, C
+        );
+        assertEquals(0x0e, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_c_to_a_with_carry_uses_4_cycles() {
+        Cpu cpu = runProgram(0x89);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_adding_d_to_a_with_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0x2f,       // LD A, 0x2f
+                0x16, 0xeb,       // LD D, 0xeb
+                0x8a              // ADC A, D
+        );
+        assertEquals(0x1b, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_d_to_a_with_carry_uses_4_cycles() {
+        Cpu cpu = runProgram(0x8a);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_adding_e_to_a_with_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0x73,       // LD A, 0x73
+                0x1e, 0x9d,       // LD E, 0x9d
+                0x8b              // ADC A, E
+        );
+        assertEquals(0x11, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_e_to_a_with_carry_uses_4_cycles() {
+        Cpu cpu = runProgram(0x8b);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_adding_h_to_a_with_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0xc3,       // LD A, 0xc3
+                0x26, 0xc1,       // LD H, 0xc1
+                0x8c              // ADC A, H
+        );
+        assertEquals(0x85, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_h_to_a_with_carry_uses_4_cycles() {
+        Cpu cpu = runProgram(0x8c);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_adding_l_to_a_with_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0x39,       // LD A, 0x39
+                0x2e, 0x01,       // LD L, 0x01
+                0x8d              // ADC A, L
+        );
+        assertEquals(0x3b, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_l_to_a_with_carry_uses_4_cycles() {
+        Cpu cpu = runProgram(0x8d);
+        assertEquals(4, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
