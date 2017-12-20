@@ -198,4 +198,11 @@ class Operations {
         cpu.set(Flag.NIBBLE, shouldSetNibble(a, b));
         cpu.set(Flag.CARRY, shouldSetCarry(a, b));
     }
+
+    public static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
+        int a = cpu.read(destOperand);
+        int b = cpu.read(otherOperand) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
+        doAdd(cpu, destOperand, a, b);
+        return 4;
+    }
 }

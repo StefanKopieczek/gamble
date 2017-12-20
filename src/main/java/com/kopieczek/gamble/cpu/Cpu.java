@@ -206,6 +206,7 @@ public class Cpu {
         m.put(0x85, cpu -> Operations.add(cpu, Byte.Register.A, Byte.Register.L));
         m.put(0x86, cpu -> Operations.add(cpu, Byte.Register.A, Pointer.of(Word.Register.HL)));
         m.put(0xc6, cpu -> Operations.add(cpu, Byte.Register.A, Byte.argument()));
+        m.put(0x8f, cpu -> Operations.addWithCarry(cpu, Byte.Register.A, Byte.Register.A));
         return m.build();
     }
 }

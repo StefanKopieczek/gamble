@@ -4,8 +4,6 @@ import com.kopieczek.gamble.memory.MemoryManagementUnit;
 import com.kopieczek.gamble.memory.SimpleMemoryModule;
 import org.junit.Test;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import static org.junit.Assert.*;
 
 /**
@@ -2208,6 +2206,132 @@ public class TestCpu {
                 0xc6, 0x02
         );
         assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_add_a_to_itself_with_carry_when_a_is_0x00_and_carry_is_unset() {
+        Cpu cpu = runProgram(0x8f);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_a_to_itself_with_carry_when_a_is_0x01_and_carry_is_unset() {
+        Cpu cpu = runProgram(0x3c, 0x8f);
+        assertEquals(0x02, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_a_to_itself_with_carry_when_a_is_0x00_and_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0x8f);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 1);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_add_a_to_itself_with_carry_when_a_is_0x01_and_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0x3c, 0x8f);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 2);
+        assertEquals(0x03, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_a_to_itself_with_carry_uses_4_cycles() {
+        Cpu cpu = runProgram(0x8f);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rollover_adding_a_to_itself_with_carry_when_carry_is_not_set() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x8f);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_rollover_adding_a_to_itself_with_carry_when_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x80, 0x8f);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_a_to_itself_with_carry_resets_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x8f);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_adding_a_to_itself_with_carry_when_a_is_zero_and_carry_is_not_set_sets_zero_flag() {
+        Cpu cpu = runProgram(0x8f);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_adding_a_to_itself_with_carry_when_a_is_0x01_and_carry_is_not_set_resets_zero_flag() {
+        Cpu cpu = runProgram(
+                0x8f,       // ADC A, A    (Set zero flag)
+                0x3e, 0x01, // LD  A, 0x01
+                0x8f        // ADC A, A
+        );
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_adding_a_to_itself_with_carry_when_a_is_zero_and_carry_is_set_resets_zero_flag() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry and zero flags)
+                0x3e, 0x01,       // LD  A, 0x01
+                0x8f              // ADC A, A
+        );
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_adding_a_to_itself_with_carry_sets_carry_flag_on_overflow_to_zero() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x8f);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_a_to_itself_with_carry_sets_carry_flag_on_overflow_past_zero_when_carry_is_not_set() {
+        Cpu cpu = runProgram(0x3e, 0x81, 0x8f);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_a_to_itself_with_carry_sets_carry_flag_on_overflow_past_zero_when_carry_is_set() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry flag)
+                0x3e, 0x80,       // LD  A, 0x80
+                0x8f              // LDC A, A
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_a_to_itself_with_carry_resets_carry_flag_if_no_carry_occurs() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry flag)
+                0x3e, 0x4f,       // LD  A, 0x4f
+                0x8f              // LDC A, A
+        );
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_a_to_itself_with_carry_sets_nibble_flag_in_simplest_case() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x8f);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_adding_a_to_itself_with_carry_resets_nibble_flag_when_no_nibble_carry_occurs() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x87, 0x8f);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     private static Cpu cpuWithProgram(int... program) {
