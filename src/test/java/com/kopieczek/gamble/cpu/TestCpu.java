@@ -2334,6 +2334,58 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
+    @Test
+    public void test_adding_b_to_a_with_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0x12,       // LD A, 0x12
+                0x06, 0x34,       // LD B, 0x34
+                0x88              // ADC A, B
+        );
+        assertEquals(0x47, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_adding_b_to_a_with_carry_doesnt_modify_b() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0xab,       // LD A, 0xab
+                0x06, 0xcd,       // LD B, 0xcd
+                0x88              // ADC A, B
+        );
+        assertEquals(0xcd, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_adding_b_to_a_with_carry_can_trigger_carry_due_to_carry_bit() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0xff,       // LD A, 0xff
+                0x06, 0x00,       // LD B, 0x00
+                0x88              // ADC A, B
+        );
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_adding_b_to_a_with_carry_can_trigger_nibble_carry_due_to_carry_bit() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0x07,       // LD A, 0x07
+                0x06, 0x08,       // LD B, 0x08
+                0x88              // ADC A, B
+        );
+        assertEquals(0x10, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_adding_b_to_a_with_carry_uses_4_cycles() {
+        Cpu cpu = runProgram(0x88);
+        assertEquals(4, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
