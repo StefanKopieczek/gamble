@@ -221,11 +221,14 @@ class Operations {
     }
 
     public static Integer subtract(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
-        cpu.set(leftArg, Byte.literal(0x00));
+        int a = cpu.read(leftArg);
+        int b = cpu.read(rightArg);
+        int result = (a - b + 0x0100) % (0x0100);
+        cpu.set(leftArg, Byte.literal(result));
         cpu.set(Flag.OPERATION, true);
-        cpu.set(Flag.ZERO, true);
-        cpu.set(Flag.CARRY, true);
-        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.ZERO, (result == 0x00));
+        cpu.set(Flag.CARRY, ((~a) & b) > 0x00);
+        cpu.set(Flag.NIBBLE, (b & 0x0f) > (a & 0x0f));
         return 4;
     }
 }
