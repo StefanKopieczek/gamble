@@ -217,6 +217,11 @@ public class Cpu {
         m.put(0xce, cpu -> Operations.addWithCarry(cpu, Byte.Register.A, Byte.argument()));
         m.put(0x97, cpu -> Operations.subtract(cpu, Byte.Register.A, Byte.Register.A));
         m.put(0x90, cpu -> Operations.subtract(cpu, Byte.Register.A, Byte.Register.B));
+        m.put(0x91, cpu -> Operations.subtract(cpu, Byte.Register.A, Byte.Register.C));
+        m.put(0x92, cpu -> Operations.subtract(cpu, Byte.Register.A, Byte.Register.D));
+        m.put(0x93, cpu -> Operations.subtract(cpu, Byte.Register.A, Byte.Register.E));
+        m.put(0x94, cpu -> Operations.subtract(cpu, Byte.Register.A, Byte.Register.H));
+        m.put(0x95, cpu -> Operations.subtract(cpu, Byte.Register.A, Byte.Register.L));
         return m.build();
     }
 }

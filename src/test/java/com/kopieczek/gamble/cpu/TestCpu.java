@@ -2879,6 +2879,66 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.NIBBLE));
     }
 
+    @Test
+    public void test_subtract_c_from_a() {
+        Cpu cpu = runProgram(0x3e, 0x2c, 0x0e, 0x5b, 0x91);
+        assertEquals(0xd1, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void tst_subtract_c_from_a_uses_4_cycles() {
+        Cpu cpu = runProgram(0x91);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_subtract_d_from_a() {
+        Cpu cpu = runProgram(0x3e, 0x1d, 0x16, 0x64, 0x92);
+        assertEquals(0xb9, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void tst_subtract_d_from_a_uses_4_cycles() {
+        Cpu cpu = runProgram(0x92);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_subtract_e_from_a() {
+        Cpu cpu = runProgram(0x3e, 0xac, 0x1e, 0xf8, 0x93);
+        assertEquals(0xb4, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_e_from_a_uses_4_cycles() {
+        Cpu cpu = runProgram(0x93);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_subtract_h_from_a() {
+        Cpu cpu = runProgram(0x3e, 0x82, 0x26, 0xa1, 0x94);
+        assertEquals(0xe1, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_h_from_a_uses_4_cycles() {
+        Cpu cpu = runProgram(0x94);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_subtract_l_from_a() {
+        Cpu cpu = runProgram(0x3e, 0xc9, 0x2e, 0xf0, 0x95);
+        assertEquals(0xd9, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_l_from_a_uses_4_cycles() {
+        Cpu cpu = runProgram(0x95);
+        assertEquals(4, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
