@@ -223,12 +223,23 @@ class Operations {
     public static Integer subtract(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
         int a = cpu.read(leftArg);
         int b = cpu.read(rightArg);
-        int result = (a - b + 0x0100) % (0x0100);
-        cpu.set(leftArg, Byte.literal(result));
+        doSubtract(cpu, leftArg, a, b);
+        return 4;
+    }
+
+    public static Integer subtract(Cpu cpu, Byte.Register leftArg, Pointer rightArgPtr) {
+        int a = cpu.read(leftArg);
+        int b = cpu.readFrom(rightArgPtr);
+        doSubtract(cpu, leftArg, a, b);
+        return 8;
+    }
+
+    private static void doSubtract(Cpu cpu, Byte.Register dest, int leftArg, int rightArg) {
+        int result = (leftArg - rightArg + 0x0100) % (0x0100);
+        cpu.set(dest, Byte.literal(result));
         cpu.set(Flag.OPERATION, true);
         cpu.set(Flag.ZERO, (result == 0x00));
-        cpu.set(Flag.CARRY, ((~a) & b) > 0x00);
-        cpu.set(Flag.NIBBLE, (b & 0x0f) > (a & 0x0f));
-        return 4;
+        cpu.set(Flag.CARRY, ((~leftArg) & rightArg) > 0x00);
+        cpu.set(Flag.NIBBLE, (rightArg & 0x0f) > (leftArg & 0x0f));
     }
 }

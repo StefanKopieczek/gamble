@@ -2939,6 +2939,162 @@ public class TestCpu {
         assertEquals(4, cpu.getCycles());
     }
 
+    @Test
+    public void test_subtract_indirect_hl_from_a_is_zero_when_both_are_zero() {
+        Cpu cpu = runProgram(0x24, 0x96);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0x96);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_is_zero_when_hl_mem_equals_a() {
+        Cpu cpu = runProgram(0x3e, 0x3e, 0x96);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_when_a_is_greater_than_hl_mem() {
+        Cpu cpu = runProgram(0x3e, 0xd5, 0x96);
+        assertEquals(0x97, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_when_a_is_less_than_hl_mem() {
+        Cpu cpu = runProgram(0x3e, 0xa3, 0x96);
+        assertEquals(0x65, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_leaves_hl_mem_alone() {
+        Cpu cpu = runProgram(0x3e, 0x94, 0x96);
+        assertEquals(0x3e, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_when_hl_is_nonzero() {
+        Cpu cpu = runProgram(
+            0x26, 0xca, // LD H,    0xca
+            0x2e, 0xfe, // LD L,    0xfe
+            0x36, 0x12, // LD (HL), 0x12
+            0x3e, 0xda, // LD A,    0xda
+            0x96        // SUB A,   (HL)
+        );
+        assertEquals(0xc8, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_operation_flag() {
+        Cpu cpu = runProgram(0x3e, 0xaa, 0x96);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_resets_zero_flag_if_result_is_nonzero() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x34, 0x96);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_zero_flag_if_a_equals_b() {
+        Cpu cpu = runProgram(0x3e, 0x3e, 0x96);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_1() {
+        Cpu cpu = runProgram(0x3e, 0xfe, 0x36, 0x01, 0x96);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_resets_carry_flag_if_no_borrows_occur() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x7f, 0x96);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_2() {
+        Cpu cpu = runProgram(0x3e, 0x04, 0x36, 0x02, 0x96);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_3() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x36, 0x04, 0x96);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_4() {
+        Cpu cpu = runProgram(0x3e, 0x10, 0x36, 0x08, 0x96);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_5() {
+        Cpu cpu = runProgram(0x3e, 0x20, 0x36, 0x10, 0x96);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_6() {
+        Cpu cpu = runProgram(0x3e, 0x40, 0x36, 0x20, 0x96);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_7() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x36, 0x40, 0x96);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_virtual_bit_8() {
+        Cpu cpu = runProgram(0x3e, 0x7f, 0x36, 0x80, 0x96);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_nibble_flag_on_direct_bit_4_borrow() {
+        Cpu cpu = runProgram(0x3e, 0x17, 0x36, 0x08, 0x96);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_resets_nibble_flag_when_no_bit_4_borrow_occurs() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xf8, 0x36, 0x07, 0x96);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_nibble_flag_on_double_bit_4_borrow() {
+        Cpu cpu = runProgram(0x3e, 0x27, 0x36, 0x08, 0x96);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_nibble_flag_on_bit_4_borrow_from_virtual_bit_8() {
+        Cpu cpu = runProgram(0x3e, 0x07, 0x36, 0x08, 0x96);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_sets_nibble_flag_on_indirect_bit_4_borrow() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x36, 0x01, 0x96);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
