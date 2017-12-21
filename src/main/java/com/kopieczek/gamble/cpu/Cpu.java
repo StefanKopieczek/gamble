@@ -223,6 +223,7 @@ public class Cpu {
         m.put(0x94, cpu -> Operations.subtract(cpu, Byte.Register.A, Byte.Register.H));
         m.put(0x95, cpu -> Operations.subtract(cpu, Byte.Register.A, Byte.Register.L));
         m.put(0x96, cpu -> Operations.subtract(cpu, Byte.Register.A, Pointer.of(Word.Register.HL)));
+        m.put(0xd6, cpu -> Operations.subtract(cpu, Byte.Register.A, Byte.argument()));
         return m.build();
     }
 }

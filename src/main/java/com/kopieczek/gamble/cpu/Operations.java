@@ -234,6 +234,13 @@ class Operations {
         return 8;
     }
 
+    public static Integer subtract(Cpu cpu, Byte.Register leftArg, Byte.Argument rightArg) {
+        int a = cpu.read(leftArg);
+        int b = cpu.read(rightArg);
+        doSubtract(cpu, leftArg, a, b);
+        return 8;
+    }
+
     private static void doSubtract(Cpu cpu, Byte.Register dest, int leftArg, int rightArg) {
         int result = (leftArg - rightArg + 0x0100) % (0x0100);
         cpu.set(dest, Byte.literal(result));
