@@ -256,4 +256,18 @@ class Operations {
         doSubtract(cpu, leftArg, a, b);
         return 4;
     }
+
+    public static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Pointer rightArgPtr) {
+        int a = cpu.read(leftArg);
+        int b = cpu.readFrom(rightArgPtr) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
+        doSubtract(cpu, leftArg, a, b);
+        return 8;
+    }
+
+    public static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Byte.Argument rightArg) {
+        int a = cpu.read(leftArg);
+        int b = cpu.read(rightArg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
+        doSubtract(cpu, leftArg, a, b);
+        return 8;
+    }
 }

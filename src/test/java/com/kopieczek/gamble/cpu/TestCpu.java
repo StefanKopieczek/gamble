@@ -3464,6 +3464,39 @@ public class TestCpu {
         assertEquals(0x56, cpu.read(Byte.Register.A));
     }
 
+    @Test
+    public void test_subtract_indirect_hl_from_a_with_carry_when_carry_is_zero() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0x36, 0x9d, 0x9e);
+        assertEquals(0x62, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_with_carry_when_carry_is_nonzero() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87,
+                0x3e, 0xa6, 0x36, 0xf8,
+                0x9e);
+        assertEquals(0xad, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_indirect_hl_from_a_with_carry_uses_8_cycles() {
+        Cpu cpu = runProgram(0x9e);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_subtract_arg_from_a_with_carry_when_carry_is_zero() {
+        Cpu cpu = runProgram(0x3e, 0xca, 0xde, 0x64);
+        assertEquals(0x66, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_arg_from_a_with_carry_uses_8_cycles() {
+        Cpu cpu = runProgram(0xde);
+        assertEquals(8, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
