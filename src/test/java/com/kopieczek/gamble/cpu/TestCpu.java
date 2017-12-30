@@ -3579,6 +3579,36 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.CARRY));
     }
 
+    @Test
+    public void test_a_and_b_is_0x00_when_both_are_zero() {
+        Cpu cpu = runProgram(0xa0);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_b_is_0x00_when_b_is_zero() {
+        Cpu cpu = runProgram(0x3e, 0x3f, 0xa0);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_b_is_0x00_when_a_is_zero() {
+        Cpu cpu = runProgram(0x06, 0x7f, 0xa0);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_b_1() {
+        Cpu cpu = runProgram(0x3e, 0x39, 0x06, 0x99, 0xa0);
+        assertEquals(0x19, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_b_2() {
+        Cpu cpu = runProgram(0x3e, 0x5d, 0x06, 0xa3, 0xa0);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

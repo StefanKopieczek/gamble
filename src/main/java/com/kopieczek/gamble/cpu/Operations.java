@@ -272,6 +272,9 @@ class Operations {
     }
 
     public static int and(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
+        int a = cpu.read(destArg);
+        int b = cpu.read(otherArg);
+        cpu.set(destArg, Byte.literal(a & b));
         cpu.set(Flag.ZERO, cpu.read(destArg) == 0x00);
         cpu.set(Flag.NIBBLE, true); // For some reason, AND always sets the NIBBLE flag. ¯\_(ツ)_/¯
         cpu.set(Flag.OPERATION, false);
