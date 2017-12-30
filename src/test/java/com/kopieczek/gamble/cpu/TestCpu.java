@@ -3429,6 +3429,28 @@ public class TestCpu {
     }
 
     @Test
+    public void test_subtract_d_from_a_with_carry_sets_zero_flag_if_result_is_zero() {
+        Cpu cpu = runProgram(
+                0x3e, 0x81, 0x87, // Set carry flag
+                0x3e, 0xac,
+                0x16, 0xab,
+                0x9a
+        );
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_subtract_d_from_a_with_carry_resets_zero_flag_if_result_is_nonzero() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // Set carry and zero flags
+                0x3e, 0xad,
+                0x16, 0xab,
+                0x9a
+        );
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
     public void test_subtract_e_from_a_with_carry() {
         Cpu cpu = runProgram(
                 0x3e, 0x23,
