@@ -3609,6 +3609,12 @@ public class TestCpu {
         assertEquals(0x01, cpu.read(Byte.Register.A));
     }
 
+    @Test
+    public void test_a_and_b_uses_4_cycles() {
+        Cpu cpu = runProgram(0xa0);
+        assertEquals(4, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
