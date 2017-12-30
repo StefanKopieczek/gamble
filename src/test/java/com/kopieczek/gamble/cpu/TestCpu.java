@@ -3233,6 +3233,83 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.NIBBLE));
     }
 
+    @Test
+    public void test_subtract_a_from_a_with_carry_when_everything_is_0() {
+        Cpu cpu = runProgram(0x9f);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_with_carry_when_a_is_nonzero_but_carry_is_zero() {
+        Cpu cpu = runProgram(0x3e, 0x8c, 0x9f);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_with_carry_uses_four_cycles() {
+        Cpu cpu = runProgram(0x9f);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_subtract_a_from_a_with_carry_when_a_is_zero_and_carry_is_set_gives_0xff() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // Set carry flag and reset A to 0x00
+                0x9f
+        );
+        assertEquals(0xff, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_when_a_with_carry_is_nonzero_and_carry_flag_is_set_gives_0xff() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // Set carry flag
+                0x3e, 0xe3, // LD A, 0xe3
+                0x9f
+        );
+        assertEquals(0xff, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_with_carry_sets_operation_flag() {
+        Cpu cpu = runProgram(0x9f);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_with_carry_preserves_carry_flag_when_it_is_not_set() {
+        Cpu cpu = runProgram(0x3e, 0xce, 0x9f);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_with_carry_preserves_carry_flag_when_it_is_set() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // Set carry flag
+                0x3e, 0x2f, // LD A, 0x2f,
+                0x9f);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_with_carry_resets_nibble_flag_when_carry_is_not_set() {
+        Cpu cpu = runProgram(
+                0x3e, 0x08, 0x87, // Set nibble flag
+                0x3e, 0xfd,
+                0x9f
+        );
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_subtract_a_from_a_with_carry_sets_nibble_flag_if_carry_is_set() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // Set carry flag
+                0x3e, 0x3a, // LD A, 0x3a,
+                0x9f);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

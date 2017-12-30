@@ -249,4 +249,11 @@ class Operations {
         cpu.set(Flag.CARRY, ((~leftArg) & rightArg) > 0x00);
         cpu.set(Flag.NIBBLE, (rightArg & 0x0f) > (leftArg & 0x0f));
     }
+
+    public static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
+        cpu.set(Byte.Register.A, Byte.literal(cpu.isSet(Flag.CARRY) ? 0xff : 0x00));
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.NIBBLE, cpu.isSet(Flag.CARRY));
+        return 4;
+    }
 }
