@@ -3762,6 +3762,118 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.CARRY));
     }
 
+    @Test
+    public void test_a_or_b_is_zero_when_both_are_zero() {
+        Cpu cpu = runProgram(0xb0);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_or_b_equals_a_when_b_is_zero() {
+        Cpu cpu = runProgram(0x3e, 0x9f, 0xb0);
+        assertEquals(0x9f, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_or_b_equals_a_when_a_is_zero() {
+        Cpu cpu = runProgram(0x06, 0x99, 0xb0);
+        assertEquals(0x99, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_or_b_1() {
+        Cpu cpu = runProgram(0x3e, 0xaa, 0x06, 0xcf, 0xb0);
+        assertEquals(0xef, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_or_b_2() {
+        Cpu cpu = runProgram(0x3e, 0xe0, 0x06, 0x44, 0xb0);
+        assertEquals(0xe4, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_or_b_resets_nibble_flag() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x87, 0xb0);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_a_or_b_resets_carry_flag() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x87, 0xb0);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_or_b_resets_operation_flag() {
+        Cpu cpu = runProgram(0x97, 0xb0);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_a_or_b_uses_4_cycles() {
+        Cpu cpu = runProgram(0xb0);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_or_c() {
+        Cpu cpu = runProgram(0x3e, 0xd6, 0x0e, 0x6f, 0xb1);
+        assertEquals(0xff, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_or_c_uses_4_cycles() {
+        Cpu cpu = runProgram(0xb1);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_or_d() {
+        Cpu cpu = runProgram(0x3e, 0xc4, 0x16, 0x23, 0xb2);
+        assertEquals(0xe7, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_or_d_uses_4_cycles() {
+        Cpu cpu = runProgram(0xb2);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_or_e() {
+        Cpu cpu = runProgram(0x3e, 0x0a, 0x1e, 0x0d, 0xb3);
+        assertEquals(0x0f, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_or_e_uses_4_cycles() {
+        Cpu cpu = runProgram(0xb3);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    public void test_a_or_h() {
+        Cpu cpu = runProgram(0x3e, 0x13, 0x1e, 0x9e, 0xb4);
+        assertEquals(0x9f, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_or_h_uses_4_cycles() {
+        Cpu cpu = runProgram(0xb4);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    public void test_a_or_l() {
+        Cpu cpu = runProgram(0x3e, 0x68, 0x1e, 0xf7, 0xb5);
+        assertEquals(0xff, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_or_l_uses_4_cycles() {
+        Cpu cpu = runProgram(0xb5);
+        assertEquals(4, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

@@ -302,7 +302,11 @@ class Operations {
     }
 
     public static int or(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
-        cpu.set(Flag.ZERO, cpu.read(destArg) == 0x00);
+        int a = cpu.read(destArg);
+        int b = cpu.read(otherArg);
+        int res = a | b;
+        cpu.set(destArg, Byte.literal(res));
+        cpu.set(Flag.ZERO, res == 0x00);
         cpu.set(Flag.OPERATION, false);
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.CARRY, false);
