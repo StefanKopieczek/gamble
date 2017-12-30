@@ -271,15 +271,33 @@ class Operations {
         return 8;
     }
 
-    public static int and(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
-        int a = cpu.read(destArg);
-        int b = cpu.read(otherArg);
-        int res = a & b;
-        cpu.set(destArg, Byte.literal(res));
+    private static void and(Cpu cpu, Byte.Register dest, int arg1, int arg2) {
+        int res = arg1 & arg2;
+        cpu.set(dest, Byte.literal(res));
         cpu.set(Flag.ZERO, res == 0x00);
         cpu.set(Flag.NIBBLE, true); // For some reason, AND always sets the NIBBLE flag. ¯\_(ツ)_/¯
         cpu.set(Flag.OPERATION, false);
         cpu.set(Flag.CARRY, false);
+    }
+
+    public static int and(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
+        int a = cpu.read(destArg);
+        int b = cpu.read(otherArg);
+        and(cpu, destArg, a, b);
         return 4;
+    }
+
+    public static int and(Cpu cpu, Byte.Register destArg, Pointer otherArgPtr) {
+        int a = cpu.read(destArg);
+        int b = cpu.readFrom(otherArgPtr);
+        and(cpu, destArg, a, b);
+        return 8;
+    }
+
+    public static int and(Cpu cpu, Byte.Register destArg, Byte.Argument otherArg) {
+        int a = cpu.read(destArg);
+        int b = cpu.read(otherArg);
+        and(cpu, destArg, a, b);
+        return 8;
     }
 }

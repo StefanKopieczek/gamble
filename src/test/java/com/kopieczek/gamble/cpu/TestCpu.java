@@ -3654,6 +3654,60 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.ZERO));
     }
 
+    @Test
+    public void test_a_and_indirect_hl_gives_zero_when_both_are_zero() {
+        Cpu cpu = runProgram(0x36, 0x00, 0xa6);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_indirect_hl_gives_zero_when_a_is_zero() {
+        Cpu cpu = runProgram(0xa6);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_indirect_hl_gives_zero_when_hl_mem_is_zero() {
+        Cpu cpu = runProgram(0x3e, 0xf9, 0x36, 0x00, 0xa6);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_indirect_hl_gives_zero_when_no_bits_are_in_common() {
+        Cpu cpu = runProgram(0x3e, 0b01010101, 0x36, 0b10101010, 0xa6);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_indirect_hl_1() {
+        Cpu cpu = runProgram(0x3e, 0x54, 0x36, 0x43, 0xa6);
+        assertEquals(0x40, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_indirect_hl_2() {
+        Cpu cpu = runProgram(0x3e, 0x49, 0x36, 0x21, 0xa6);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_indirect_hl_uses_8_cycles() {
+        Cpu cpu = runProgram(0xa6);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_and_argument() {
+        Cpu cpu = runProgram(0x3e, 0x47, 0xe6, 0x7d);
+        assertEquals(0x45, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_argument_uses_8_cycles() {
+        Cpu cpu = runProgram(0xe6);
+        assertEquals(8, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

@@ -240,6 +240,8 @@ public class Cpu {
         m.put(0xa3, cpu -> Operations.and(cpu, Byte.Register.A, Byte.Register.E));
         m.put(0xa4, cpu -> Operations.and(cpu, Byte.Register.A, Byte.Register.H));
         m.put(0xa5, cpu -> Operations.and(cpu, Byte.Register.A, Byte.Register.L));
+        m.put(0xa6, cpu -> Operations.and(cpu, Byte.Register.A, Pointer.of(Word.Register.HL)));
+        m.put(0xe6, cpu -> Operations.and(cpu, Byte.Register.A, Byte.argument()));
         return m.build();
     }
 }
