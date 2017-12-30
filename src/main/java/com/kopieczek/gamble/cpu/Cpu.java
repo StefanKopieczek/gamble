@@ -225,6 +225,12 @@ public class Cpu {
         m.put(0x96, cpu -> Operations.subtract(cpu, Byte.Register.A, Pointer.of(Word.Register.HL)));
         m.put(0xd6, cpu -> Operations.subtract(cpu, Byte.Register.A, Byte.argument()));
         m.put(0x9f, cpu -> Operations.subtractWithCarry(cpu, Byte.Register.A, Byte.Register.A));
+        m.put(0x98, cpu -> Operations.subtractWithCarry(cpu, Byte.Register.A, Byte.Register.B));
+        m.put(0x99, cpu -> Operations.subtractWithCarry(cpu, Byte.Register.A, Byte.Register.C));
+        m.put(0x9a, cpu -> Operations.subtractWithCarry(cpu, Byte.Register.A, Byte.Register.D));
+        m.put(0x9b, cpu -> Operations.subtractWithCarry(cpu, Byte.Register.A, Byte.Register.E));
+        m.put(0x9c, cpu -> Operations.subtractWithCarry(cpu, Byte.Register.A, Byte.Register.H));
+        m.put(0x9d, cpu -> Operations.subtractWithCarry(cpu, Byte.Register.A, Byte.Register.L));
         return m.build();
     }
 }

@@ -251,9 +251,9 @@ class Operations {
     }
 
     public static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
-        cpu.set(Byte.Register.A, Byte.literal(cpu.isSet(Flag.CARRY) ? 0xff : 0x00));
-        cpu.set(Flag.OPERATION, true);
-        cpu.set(Flag.NIBBLE, cpu.isSet(Flag.CARRY));
+        int a = cpu.read(leftArg);
+        int b = cpu.read(rightArg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
+        doSubtract(cpu, leftArg, a, b);
         return 4;
     }
 }

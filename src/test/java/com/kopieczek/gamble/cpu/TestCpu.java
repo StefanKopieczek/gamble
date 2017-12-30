@@ -3310,6 +3310,160 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.NIBBLE));
     }
 
+    @Test
+    public void test_subtract_b_from_a_with_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x36,
+                0x06, 0x31,
+                0x98
+        );
+        assertEquals(0x05, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_1() {
+        Cpu cpu = runProgram(0x3e, 0x02, 0x06, 0x01, 0x98);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_resets_carry_flag_if_no_borrows_occur() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xd7, 0x06, 0x93, 0x98);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_2() {
+        Cpu cpu = runProgram(0x3e, 0x04, 0x06, 0x02, 0x98);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_3() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x06, 0x04, 0x98);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_4() {
+        Cpu cpu = runProgram(0x3e, 0x10, 0x06, 0x08, 0x98);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_5() {
+        Cpu cpu = runProgram(0x3e, 0x20, 0x06, 0x10, 0x98);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_6() {
+        Cpu cpu = runProgram(0x3e, 0x40, 0x06, 0x20, 0x98);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_7() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x06, 0x40, 0x98);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_virtual_bit_8() {
+        Cpu cpu = runProgram(0x3e, 0x7f, 0x06, 0x80, 0x98);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_sets_nibble_flag_on_direct_bit_4_borrow() {
+        Cpu cpu = runProgram(0x3e, 0x17, 0x06, 0x08, 0x98);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_resets_nibble_flag_when_no_bit_4_borrow_occurs() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xf8, 0x06, 0x07, 0x98);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_sets_nibble_flag_on_double_bit_4_borrow() {
+        Cpu cpu = runProgram(0x3e, 0x27, 0x06, 0x08, 0x98);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_sets_nibble_flag_on_bit_4_borrow_from_virtual_bit_8() {
+        Cpu cpu = runProgram(0x3e, 0x07, 0x06, 0x08, 0x98);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_subtract_b_from_a_with_carry_sets_nibble_flag_on_indirect_bit_4_borrow() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x06, 0x01, 0x98);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_subtract_c_from_a_with_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x11,
+                0x0e, 0xe5,
+                0x99
+        );
+        assertEquals(0x2c, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_d_from_a_with_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x99,
+                0x16, 0x7a,
+                0x9a
+        );
+        assertEquals(0x1f, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_e_from_a_with_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x23,
+                0x1e, 0xbf,
+                0x9b
+        );
+        assertEquals(0x64, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_e_from_a_with_carry_uses_4_cycles() {
+        Cpu cpu = runProgram(0x9b);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_subtract_h_from_a_with_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0xf7,
+                0x26, 0x7f,
+                0x9c
+        );
+        assertEquals(0x78, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_subtract_l_from_a_with_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0xb4,
+                0x2e, 0x5e,
+                0x9d
+        );
+        assertEquals(0x56, cpu.read(Byte.Register.A));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
