@@ -300,4 +300,12 @@ class Operations {
         and(cpu, destArg, a, b);
         return 8;
     }
+
+    public static int or(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
+        cpu.set(Flag.ZERO, cpu.read(destArg) == 0x00);
+        cpu.set(Flag.OPERATION, false);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.CARRY, false);
+        return 4;
+    }
 }
