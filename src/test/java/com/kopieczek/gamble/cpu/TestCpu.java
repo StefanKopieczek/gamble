@@ -3615,6 +3615,36 @@ public class TestCpu {
         assertEquals(4, cpu.getCycles());
     }
 
+    @Test
+    public void test_a_and_c() {
+        Cpu cpu = runProgram(0x3e, 0x2b, 0x0e, 0x16, 0xa1);
+        assertEquals(0x02, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_d() {
+        Cpu cpu = runProgram(0x3e, 0x8d, 0x16, 0xfe, 0xa2);
+        assertEquals(0x8c, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_e() {
+        Cpu cpu = runProgram(0x3e, 0x63, 0x1e, 0xc8, 0xa3);
+        assertEquals(0x40, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_h() {
+        Cpu cpu = runProgram(0x3e, 0x8d, 0x26, 0xac, 0xa4);
+        assertEquals(0x8c, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_l() {
+        Cpu cpu = runProgram(0x3e, 0xd6, 0x2e, 0x1a, 0xa5);
+        assertEquals(0x12, cpu.read(Byte.Register.A));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
