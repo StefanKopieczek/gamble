@@ -3519,6 +3519,66 @@ public class TestCpu {
         assertEquals(8, cpu.getCycles());
     }
 
+    @Test
+    public void test_a_and_a_when_a_is_zero_returns_zero() {
+        Cpu cpu = runProgram(0xa7);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_a_uses_4_cycles() {
+        Cpu cpu = runProgram(0xa7);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_and_a_when_a_is_0xff_returns_0xff() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0xa7);
+        assertEquals(0xff, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_a_when_a_is_0x3d_returns_0x3d() {
+        Cpu cpu = runProgram(0x3e, 0x3d, 0xa7);
+        assertEquals(0x3d, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_and_a_sets_zero_flag_when_result_is_zero() {
+        Cpu cpu = runProgram(0xa7);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_and_a_resets_zero_flag_when_result_is_nonzero() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x87, 0x3e, 0xd9, 0xa7);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_and_a_sets_nibble_flag() {
+        Cpu cpu = runProgram(0xa7);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_a_and_a_keeps_nibble_flag_set_if_already_set() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x87, 0x3e, 0x19, 0xa7);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_a_and_a_resets_operation_flag() {
+        Cpu cpu = runProgram(0x97, 0xa7);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_a_and_a_resets_carry_flag() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x87, 0xa7);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
