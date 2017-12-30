@@ -3645,6 +3645,15 @@ public class TestCpu {
         assertEquals(0x12, cpu.read(Byte.Register.A));
     }
 
+    @Test
+    public void test_a_and_l_sets_zero_flag_when_a_and_l_have_no_bits_in_common() {
+        Cpu cpu = runProgram(
+                0x3e, 0b01010101,
+                0x2e, 0b10101010,
+                0xa5);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
