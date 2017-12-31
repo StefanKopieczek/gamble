@@ -4059,6 +4059,30 @@ public class TestCpu {
         assertEquals(4, cpu.getCycles());
     }
 
+    @Test
+    public void test_a_xor_indirect_hl_uses_8_cycles() {
+        Cpu cpu = runProgram(0xae);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_xor_indirect_hl() {
+        Cpu cpu = runProgram(0x21, 0x65, 0x9c, 0x36, 0xf8, 0x3e, 0x68, 0xae);
+        assertEquals(0x90, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_xor_argument_uses_8_cycles() {
+        Cpu cpu = runProgram(0xee, 0x00);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_xor_argument() {
+        Cpu cpu = runProgram(0x3e, 0x87, 0xee, 0x8a);
+        assertEquals(0x0d, cpu.read(Byte.Register.A));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
