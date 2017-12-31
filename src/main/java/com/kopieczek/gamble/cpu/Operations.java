@@ -381,4 +381,11 @@ class Operations {
         compare(cpu, leftVal, rightVal);
         return 8;
     }
+
+    public static int compare(Cpu cpu, Byte.Register left, Byte.Argument right) {
+        int leftVal = cpu.read(left);
+        int rightVal = cpu.read(right);
+        compare(cpu, leftVal, rightVal);
+        return 8;
+    }
 }

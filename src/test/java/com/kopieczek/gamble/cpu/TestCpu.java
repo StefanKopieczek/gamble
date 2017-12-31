@@ -4355,6 +4355,33 @@ public class TestCpu {
         assertEquals(8, cpu.getCycles());
     }
 
+    @Test
+    public void test_a_cp_argument_when_a_less_than_arg() {
+        Cpu cpu = runProgram(0x3e, 0x27, 0xfe, 0x3d);
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_argument_when_a_greater_than_arg() {
+        Cpu cpu = runProgram(0x3e, 0xef, 0xfe, 0xb4);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_argument_when_a_equal_to_arg() {
+        Cpu cpu = runProgram(0x3e, 0xbb, 0xfe, 0xbb);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_argument_uses_8_cycles() {
+        Cpu cpu = runProgram(0xfe, 0x00);
+        assertEquals(8, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
