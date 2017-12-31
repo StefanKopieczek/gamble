@@ -330,4 +330,16 @@ class Operations {
         doOr(cpu, destArg, a, b);
         return 8;
     }
+
+    public static int xor(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
+        int a = cpu.read(destArg);
+        int b = cpu.read(otherArg);
+        int res = a ^ b;
+        cpu.set(destArg, Byte.literal(res));
+        cpu.set(Flag.ZERO, a == b);
+        cpu.set(Flag.CARRY, false);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, false);
+        return 4;
+    }
 }

@@ -251,6 +251,7 @@ public class Cpu {
         m.put(0xb5, cpu -> Operations.or(cpu, Byte.Register.A, Byte.Register.L));
         m.put(0xb6, cpu -> Operations.or(cpu, Byte.Register.A, Pointer.of(Word.Register.HL)));
         m.put(0xf6, cpu -> Operations.or(cpu, Byte.Register.A, Byte.argument()));
+        m.put(0xa8, cpu -> Operations.xor(cpu, Byte.Register.A, Byte.Register.B));
         return m.build();
     }
 }

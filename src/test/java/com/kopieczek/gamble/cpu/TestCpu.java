@@ -3903,6 +3903,90 @@ public class TestCpu {
         assertEquals(0x7c, cpu.read(Byte.Register.A));
     }
 
+    @Test
+    public void test_a_xor_b_is_zero_when_both_are_zero() {
+        Cpu cpu = runProgram(0xa8);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_xor_b_uses_4_cycles() {
+        Cpu cpu = runProgram(0xa8);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_xor_b_is_0xff_when_a_is_zero_and_b_is_0xff() {
+        Cpu cpu = runProgram(0x06, 0xff, 0xa8);
+        assertEquals(0xff, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_xor_b_is_0xff_when_b_is_zero_and_a_is_0xff() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0xa8);
+        assertEquals(0xff, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_xor_b_is_0x00_when_a_and_b_are_0xff() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0x06, 0xff, 0xa8);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_xor_b_with_arbitrary_values() {
+        Cpu cpu = runProgram(0x3e, 0x19, 0x06, 0xd7, 0xa8);
+        assertEquals(0xce, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_xor_b_sets_zero_flag_if_a_equals_b() {
+        Cpu cpu = runProgram(0x3e, 0x6c, 0x06, 0x6c, 0xa8);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_xor_b_resets_zero_flag_if_a_does_not_equal_b() {
+        Cpu cpu = runProgram(0xa7, 0x3e, 0xef, 0x06, 0xff, 0xa8);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_xor_b_resets_carry_flag_when_a_equals_b() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x87, 0x3e, 0x6b, 0x06, 0x6b, 0xa8);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_xor_b_resets_carry_flag_when_a_does_not_equal_b() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x87, 0x3e, 0x6b, 0x06, 0x7f, 0xa8);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_xor_b_resets_nibble_flag_when_a_equals_b() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x87, 0x3e, 0xa9, 0x06, 0xa9, 0xa8);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_a_xor_b_resets_nibble_flag_when_a_does_not_equal_b() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x87, 0x3e, 0xa9, 0x06, 0x17, 0xa8);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_a_xor_b_resets_operation_flag_when_a_equals_b() {
+        Cpu cpu = runProgram(0x97, 0x3e, 0xa9, 0x06, 0xa9, 0xa8);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_a_xor_b_resets_operation_flag_when_a_does_not_equal_b() {
+        Cpu cpu = runProgram(0x97, 0x3e, 0xa9, 0x06, 0x17, 0xa8);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
