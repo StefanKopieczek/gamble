@@ -360,4 +360,12 @@ class Operations {
         doXor(cpu, destArg, a, b);
         return 8;
     }
+
+    public static int compare(Cpu cpu, Byte.Register left, Byte.Register right) {
+        cpu.set(Flag.ZERO, cpu.read(left) == cpu.read(right));
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.CARRY, cpu.read(left) < cpu.read(right));
+        cpu.set(Flag.NIBBLE, (cpu.read(left) & 0xf) < (cpu.read(right) & 0xf));
+        return 4;
+    }
 }

@@ -4083,6 +4083,132 @@ public class TestCpu {
         assertEquals(0x0d, cpu.read(Byte.Register.A));
     }
 
+    @Test
+    public void test_a_cp_b_uses_4_cycles() {
+        Cpu cpu = runProgram(0xb8);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_cp_b_sets_zero_flag_when_both_are_zero() {
+        Cpu cpu = runProgram(0xb8);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_b_resets_zero_flag_when_a_and_b_are_different() {
+        Cpu cpu = runProgram(0xa7, 0x3e, 0xab, 0x06, 0xcd, 0xb8);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_b_sets_zero_flag_when_a_and_b_are_equal_but_nonzero() {
+        Cpu cpu = runProgram(0x3e, 0xab, 0x06, 0xab, 0xb8);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_b_sets_operation_flag_when_a_and_b_are_zero() {
+        Cpu cpu = runProgram(0xb8);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_a_cp_b_sets_operation_flag_when_a_and_b_are_nonzero() {
+        Cpu cpu = runProgram(0x3e, 0x12, 0x06, 0x34, 0xb8);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_a_cp_b_sets_carry_flag_when_a_is_less_than_b() {
+        Cpu cpu = runProgram(0x3e, 0x19, 0x06, 0x22, 0xb8);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_cp_b_resets_carry_flag_when_a_is_greater_than_b() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x87, 0x3e, 0xf3, 0x06, 0xf1, 0xb8);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_cp_b_resets_carry_flag_when_a_equals_b() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x87, 0x3e, 0xf3, 0x06, 0xf3, 0xb8);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_cp_b_doesnt_set_carry_flag_on_bit_2_borrow_when_a_greater_than_b() {
+        Cpu cpu = runProgram(0x3e, 0x02, 0x06, 0x01, 0xb8);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_cp_b_doesnt_set_carry_flag_on_bit_3_borrow_when_a_greater_than_b() {
+        Cpu cpu = runProgram(0x3e, 0x04, 0x06, 0x02, 0xb8);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_cp_b_doesnt_set_carry_flag_on_bit_4_borrow_when_a_greater_than_b() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x06, 0x04, 0xb8);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_cp_b_doesnt_set_carry_flag_on_bit_5_borrow_when_a_greater_than_b() {
+        Cpu cpu = runProgram(0x3e, 0x10, 0x06, 0x08, 0xb8);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_cp_b_doesnt_set_carry_flag_on_bit_6_borrow_when_a_greater_than_b() {
+        Cpu cpu = runProgram(0x3e, 0x20, 0x06, 0x10, 0xb8);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_cp_b_doesnt_set_carry_flag_on_bit_7_borrow_when_a_greater_than_b() {
+        Cpu cpu = runProgram(0x3e, 0x40, 0x06, 0x20, 0xb8);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_cp_b_doesnt_set_carry_flag_on_bit_8_borrow_when_a_greater_than_b() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x06, 0x40, 0xb8);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_a_cp_b_sets_nibble_flag_when_b_nibble_greater_than_a_nibble_and_b_greater_than_a() {
+        Cpu cpu = runProgram(0x3e, 0xab, 0x06, 0xcd, 0xb8);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_a_cp_b_resets_nibble_flag_when_b_nibble_less_than_a_nibble_and_b_less_than_a() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x87, 0x3e, 0x56, 0x06, 0x34, 0xb8);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_a_cp_b_sets_nibble_flag_when_b_nibble_greater_than_a_nibble_and_b_less_than_a() {
+        Cpu cpu = runProgram(0x3e, 0xcb, 0x06, 0xad, 0xb8);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_a_cp_b_resets_nibble_flag_when_b_nibble_less_than_a_nibble_and_b_greater_than_a() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x87, 0x3e, 0x36, 0x06, 0x54, 0xb8);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_a_cp_b_resets_nibble_flag_when_a_equals_b() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x87, 0x3e, 0xaf, 0x06, 0xaf, 0xb8);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
