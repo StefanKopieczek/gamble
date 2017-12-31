@@ -3874,6 +3874,35 @@ public class TestCpu {
         assertEquals(4, cpu.getCycles());
     }
 
+    @Test
+    public void test_a_or_hl_uses_8_cycles() {
+        Cpu cpu = runProgram(0xb6);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_or_hl() {
+        Cpu cpu = runProgram(
+                0x21, 0x74, 0xaf, // LD HL, 0xaf74
+                0x3e, 0xa7,       // LD A, 0xa7
+                0x36, 0xf6,       // LD (HL), 0xf6
+                0xb6              // OR A, (HL)
+        );
+        assertEquals(0xf7, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_or_argument_uses_8_cycles() {
+        Cpu cpu = runProgram(0xf6, 0x00);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_or_argument() {
+        Cpu cpu = runProgram(0x3e, 0x58, 0xf6, 0x74);
+        assertEquals(0x7c, cpu.read(Byte.Register.A));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

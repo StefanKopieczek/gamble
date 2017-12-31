@@ -271,7 +271,7 @@ class Operations {
         return 8;
     }
 
-    private static void and(Cpu cpu, Byte.Register dest, int arg1, int arg2) {
+    private static void doAnd(Cpu cpu, Byte.Register dest, int arg1, int arg2) {
         int res = arg1 & arg2;
         cpu.set(dest, Byte.literal(res));
         cpu.set(Flag.ZERO, res == 0x00);
@@ -283,33 +283,51 @@ class Operations {
     public static int and(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
-        and(cpu, destArg, a, b);
+        doAnd(cpu, destArg, a, b);
         return 4;
     }
 
     public static int and(Cpu cpu, Byte.Register destArg, Pointer otherArgPtr) {
         int a = cpu.read(destArg);
         int b = cpu.readFrom(otherArgPtr);
-        and(cpu, destArg, a, b);
+        doAnd(cpu, destArg, a, b);
         return 8;
     }
 
     public static int and(Cpu cpu, Byte.Register destArg, Byte.Argument otherArg) {
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
-        and(cpu, destArg, a, b);
+        doAnd(cpu, destArg, a, b);
         return 8;
     }
 
-    public static int or(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
-        int a = cpu.read(destArg);
-        int b = cpu.read(otherArg);
+    private static void doOr(Cpu cpu, Byte.Register destArg, int a, int b) {
         int res = a | b;
         cpu.set(destArg, Byte.literal(res));
         cpu.set(Flag.ZERO, res == 0x00);
         cpu.set(Flag.OPERATION, false);
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.CARRY, false);
+    }
+
+    public static int or(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
+        int a = cpu.read(destArg);
+        int b = cpu.read(otherArg);
+        doOr(cpu, destArg, a, b);
         return 4;
+    }
+
+    public static int or(Cpu cpu, Byte.Register destArg, Pointer otherArgPtr) {
+        int a = cpu.read(destArg);
+        int b = cpu.readFrom(otherArgPtr);
+        doOr(cpu, destArg, a, b);
+        return 8;
+    }
+
+    public static int or(Cpu cpu, Byte.Register destArg, Byte.Argument otherArg) {
+        int a = cpu.read(destArg);
+        int b = cpu.read(otherArg);
+        doOr(cpu, destArg, a, b);
+        return 8;
     }
 }
