@@ -361,13 +361,24 @@ class Operations {
         return 8;
     }
 
+    private static void compare(Cpu cpu, int a, int b) {
+        cpu.set(Flag.ZERO, a == b);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.CARRY, a < b);
+        cpu.set(Flag.NIBBLE, (a & 0xf) < (b & 0xf));
+    }
+
     public static int compare(Cpu cpu, Byte.Register left, Byte.Register right) {
         int leftVal = cpu.read(left);
         int rightVal = cpu.read(right);
-        cpu.set(Flag.ZERO, leftVal == rightVal);
-        cpu.set(Flag.OPERATION, true);
-        cpu.set(Flag.CARRY, leftVal < rightVal);
-        cpu.set(Flag.NIBBLE, (leftVal & 0xf) < (rightVal & 0xf));
+        compare(cpu, leftVal, rightVal);
         return 4;
+    }
+
+    public static int compare(Cpu cpu, Byte.Register left, Pointer rightPtr) {
+        int leftVal = cpu.read(left);
+        int rightVal = cpu.readFrom(rightPtr);
+        compare(cpu, leftVal, rightVal);
+        return 8;
     }
 }

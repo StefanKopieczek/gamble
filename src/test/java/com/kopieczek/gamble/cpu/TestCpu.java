@@ -4328,6 +4328,33 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.ZERO));
     }
 
+    @Test
+    public void test_a_cp_indirect_hl_when_a_less_than_hl_mem() {
+        Cpu cpu = runProgram(0x21, 0x12, 0x34, 0x3e, 0xbc, 0x36, 0xc6, 0xbe);
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_indirect_hl_when_a_greater_than_hl_mem() {
+        Cpu cpu = runProgram(0x21, 0xaa, 0xbb, 0x3e, 0xbf, 0x36, 0x19, 0xbe);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_indirect_hl_when_a_equal_to_hl_mem() {
+        Cpu cpu = runProgram(0x21, 0xab, 0xcd, 0x3e, 0x5f, 0x36, 0x5f, 0xbe);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_indirect_hl_uses_8_cycles() {
+        Cpu cpu = runProgram(0xbe);
+        assertEquals(8, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
