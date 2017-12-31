@@ -260,7 +260,13 @@ public class Cpu {
         m.put(0xad, cpu -> Operations.xor(cpu, Byte.Register.A, Byte.Register.L));
         m.put(0xae, cpu -> Operations.xor(cpu, Byte.Register.A, Pointer.of(Word.Register.HL)));
         m.put(0xee, cpu -> Operations.xor(cpu, Byte.Register.A, Byte.argument()));
+        m.put(0xbf, cpu -> Operations.compare(cpu, Byte.Register.A, Byte.Register.A));
         m.put(0xb8, cpu -> Operations.compare(cpu, Byte.Register.A, Byte.Register.B));
+        m.put(0xb9, cpu -> Operations.compare(cpu, Byte.Register.A, Byte.Register.C));
+        m.put(0xba, cpu -> Operations.compare(cpu, Byte.Register.A, Byte.Register.D));
+        m.put(0xbb, cpu -> Operations.compare(cpu, Byte.Register.A, Byte.Register.E));
+        m.put(0xbc, cpu -> Operations.compare(cpu, Byte.Register.A, Byte.Register.H));
+        m.put(0xbd, cpu -> Operations.compare(cpu, Byte.Register.A, Byte.Register.L));
         return m.build();
     }
 }

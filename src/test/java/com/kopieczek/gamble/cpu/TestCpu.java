@@ -4209,6 +4209,125 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
+    @Test
+    public void test_a_cp_b_leaves_registers_alone() {
+        Cpu cpu = runProgram(0x3e, 0x97, 0x06, 0xab, 0xb8);
+        assertEquals(0x97, cpu.read(Byte.Register.A));
+        assertEquals(0xab, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_a_cp_c_when_a_less_than_c() {
+        Cpu cpu = runProgram(0x3e, 0x94, 0x0e, 0xd2, 0xb9);
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_c_when_a_greater_than_c() {
+        Cpu cpu = runProgram(0x3e, 0x17, 0x0e, 0x08, 0xb9);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_c_when_a_equal_to_c() {
+        Cpu cpu = runProgram(0x3e, 0x44, 0x0e, 0x44, 0xb9);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_d_when_a_less_than_d() {
+        Cpu cpu = runProgram(0x3e, 0x42, 0x16, 0x57, 0xba);
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_d_when_a_greater_than_d() {
+        Cpu cpu = runProgram(0x3e, 0xe0, 0x16, 0x94, 0xba);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_d_when_a_equal_to_d() {
+        Cpu cpu = runProgram(0x3e, 0x15, 0x16, 0x15, 0xba);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_e_when_a_less_than_e() {
+        Cpu cpu = runProgram(0x3e, 0x3c, 0x1e, 0xff, 0xbb);
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_e_when_a_greater_than_e() {
+        Cpu cpu = runProgram(0x3e, 0x65, 0x1e, 0x3f, 0xbb);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_e_when_a_equal_to_e() {
+        Cpu cpu = runProgram(0x3e, 0x0a, 0x1e, 0x0a, 0xbb);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_h_when_a_less_than_h() {
+        Cpu cpu = runProgram(0x3e, 0xc9, 0x26, 0xeb, 0xbc);
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_h_when_a_greater_than_h() {
+        Cpu cpu = runProgram(0x3e, 0xa0, 0x26, 0x1e, 0xbc);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_h_when_a_equal_to_h() {
+        Cpu cpu = runProgram(0x3e, 0xca, 0x26, 0xca, 0xbc);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_l_when_a_less_than_l() {
+        Cpu cpu = runProgram(0x3e, 0x2e, 0x2e, 0x37, 0xbd);
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_l_when_a_greater_than_l() {
+        Cpu cpu = runProgram(0x3e, 0xda, 0x2e, 0x69, 0xbd);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_l_when_a_equal_to_l() {
+        Cpu cpu = runProgram(0x3e, 0x9d, 0x2e, 0x9d, 0xbd);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_a_cp_a() {
+        Cpu cpu = runProgram(0x3e, 0x8f, 0xbf);
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
