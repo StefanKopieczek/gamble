@@ -3987,6 +3987,78 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.OPERATION));
     }
 
+    @Test
+    public void test_a_xor_a() {
+        Cpu cpu = runProgram(0x3e, 0xdf, 0xaf);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_xor_a_uses_4_cycles() {
+        Cpu cpu = runProgram(0xaf);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_xor_c() {
+        Cpu cpu = runProgram(0x3e, 0x44, 0x0e, 0x28, 0xa9);
+        assertEquals(0x6c, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_xor_c_uses_4_cycles() {
+        Cpu cpu = runProgram(0xa9);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_xor_d() {
+        Cpu cpu = runProgram(0x3e, 0x67, 0x16, 0xd5, 0xaa);
+        assertEquals(0xb2, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_xor_d_uses_4_cycles() {
+        Cpu cpu = runProgram(0xaa);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_xor_e() {
+        Cpu cpu = runProgram(0x3e, 0x4a, 0x1e, 0x4f, 0xab);
+        assertEquals(0x05, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_xor_e_uses_4_cycles() {
+        Cpu cpu = runProgram(0xab);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_xor_h() {
+        Cpu cpu = runProgram(0x3e, 0x39, 0x26, 0x89, 0xac);
+        assertEquals(0xb0, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_xor_h_uses_4_cycles() {
+        Cpu cpu = runProgram(0xac);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_a_xor_l() {
+        Cpu cpu = runProgram(0x3e, 0xc9, 0x2e, 0x0e, 0xad);
+        assertEquals(0xc7, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_a_xor_l_uses_4_cycles() {
+        Cpu cpu = runProgram(0xad);
+        assertEquals(4, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

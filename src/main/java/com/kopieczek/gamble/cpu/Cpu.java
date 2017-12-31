@@ -251,7 +251,13 @@ public class Cpu {
         m.put(0xb5, cpu -> Operations.or(cpu, Byte.Register.A, Byte.Register.L));
         m.put(0xb6, cpu -> Operations.or(cpu, Byte.Register.A, Pointer.of(Word.Register.HL)));
         m.put(0xf6, cpu -> Operations.or(cpu, Byte.Register.A, Byte.argument()));
+        m.put(0xaf, cpu -> Operations.xor(cpu, Byte.Register.A, Byte.Register.A));
         m.put(0xa8, cpu -> Operations.xor(cpu, Byte.Register.A, Byte.Register.B));
+        m.put(0xa9, cpu -> Operations.xor(cpu, Byte.Register.A, Byte.Register.C));
+        m.put(0xaa, cpu -> Operations.xor(cpu, Byte.Register.A, Byte.Register.D));
+        m.put(0xab, cpu -> Operations.xor(cpu, Byte.Register.A, Byte.Register.E));
+        m.put(0xac, cpu -> Operations.xor(cpu, Byte.Register.A, Byte.Register.H));
+        m.put(0xad, cpu -> Operations.xor(cpu, Byte.Register.A, Byte.Register.L));
         return m.build();
     }
 }
