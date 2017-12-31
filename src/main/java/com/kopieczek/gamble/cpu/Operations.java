@@ -362,10 +362,12 @@ class Operations {
     }
 
     public static int compare(Cpu cpu, Byte.Register left, Byte.Register right) {
-        cpu.set(Flag.ZERO, cpu.read(left) == cpu.read(right));
+        int leftVal = cpu.read(left);
+        int rightVal = cpu.read(right);
+        cpu.set(Flag.ZERO, leftVal == rightVal);
         cpu.set(Flag.OPERATION, true);
-        cpu.set(Flag.CARRY, cpu.read(left) < cpu.read(right));
-        cpu.set(Flag.NIBBLE, (cpu.read(left) & 0xf) < (cpu.read(right) & 0xf));
+        cpu.set(Flag.CARRY, leftVal < rightVal);
+        cpu.set(Flag.NIBBLE, (leftVal & 0xf) < (rightVal & 0xf));
         return 4;
     }
 }
