@@ -172,25 +172,25 @@ class Operations {
     public static Integer add(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
         int a = cpu.read(destOperand);
         int b = cpu.read(otherOperand);
-        doAdd(cpu, destOperand, a, b);
+        do8BitAdd(cpu, destOperand, a, b);
         return 4;
     }
 
     public static Integer add(Cpu cpu, Byte.Register destOperand, Byte.Argument otherOperand) {
         int a = cpu.read(destOperand);
         int b = cpu.read(otherOperand);
-        doAdd(cpu, destOperand, a, b);
+        do8BitAdd(cpu, destOperand, a, b);
         return 8;
     }
 
     public static Integer add(Cpu cpu, Byte.Register destOperand, Pointer ptrToOtherOperand) {
         int a = cpu.read(destOperand);
         int b = cpu.readFrom(ptrToOtherOperand);
-        doAdd(cpu, destOperand, a, b);
+        do8BitAdd(cpu, destOperand, a, b);
         return 8;
     }
 
-    private static void doAdd(Cpu cpu, Byte.Register dest, int a, int b) {
+    private static void do8BitAdd(Cpu cpu, Byte.Register dest, int a, int b) {
         int sum = (a + b) & 0xff;
         cpu.set(dest, Byte.literal(sum));
         cpu.set(Flag.ZERO, (sum == 0x00));
@@ -202,21 +202,21 @@ class Operations {
     public static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
         int a = cpu.read(destOperand);
         int b = cpu.read(otherOperand) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
-        doAdd(cpu, destOperand, a, b);
+        do8BitAdd(cpu, destOperand, a, b);
         return 4;
     }
 
     public static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Pointer otherOperandPtr) {
         int a = cpu.read(destOperand);
         int b = cpu.readFrom(otherOperandPtr) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
-        doAdd(cpu, destOperand, a, b);
+        do8BitAdd(cpu, destOperand, a, b);
         return 8;
     }
 
     public static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Argument arg) {
         int a = cpu.read(destOperand);
         int b = cpu.read(arg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
-        doAdd(cpu, destOperand, a, b);
+        do8BitAdd(cpu, destOperand, a, b);
         return 8;
     }
 
@@ -389,15 +389,26 @@ class Operations {
         return 8;
     }
 
-    public static int add(Cpu cpu, Word.Register destArg, Word.Register otherArg) {
-        int a = cpu.read(destArg);
-        int b = cpu.read(otherArg);
+    private static void do16BitAdd(Cpu cpu, Word.Register dest, int a, int b) {
         int rawResult = a + b;
         int boundedResult = rawResult % 0x10000;
-        cpu.set(destArg, Word.literal(boundedResult));
+        cpu.set(dest, Word.literal(boundedResult));
         cpu.set(Flag.OPERATION, false);
         cpu.set(Flag.CARRY, (boundedResult < rawResult));
         cpu.set(Flag.NIBBLE, (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) > 0);
+    }
+
+    public static int add(Cpu cpu, Word.Register destArg, Word.Register otherArg) {
+        int a = cpu.read(destArg);
+        int b = cpu.read(otherArg);
+        do16BitAdd(cpu, destArg, a, b);
         return 8;
+    }
+
+    public static int add(Cpu cpu, Word.Register destArg, Byte.Argument otherArg) {
+        int a = cpu.read(destArg);
+        int b = cpu.read(otherArg);
+        do16BitAdd(cpu, destArg, a, b);
+        return 16;
     }
 }

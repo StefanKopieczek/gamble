@@ -4557,6 +4557,21 @@ public class TestCpu {
         assertEquals(0x350c, cpu.read(Word.Register.HL));
     }
 
+    @Test
+    public void test_sp_add_argument() {
+        Cpu cpu = runProgram(
+                0x31, 0xb7, 0x6c,
+                0xe8, 0xf3
+        );
+        assertEquals(0x6daa, cpu.read(Word.Register.SP));
+    }
+
+    @Test
+    public void test_sp_add_argument_uses_16_cycles() {
+        Cpu cpu = runProgram(0xe8, 0x00);
+        assertEquals(16, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
