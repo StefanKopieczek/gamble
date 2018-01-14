@@ -270,6 +270,9 @@ public class Cpu {
         m.put(0xbe, cpu -> Operations.compare(cpu, Byte.Register.A, Pointer.of(Word.Register.HL)));
         m.put(0xfe, cpu -> Operations.compare(cpu, Byte.Register.A, Byte.argument()));
         m.put(0x09, cpu -> Operations.add(cpu, Word.Register.HL, Word.Register.BC));
+        m.put(0x19, cpu -> Operations.add(cpu, Word.Register.HL, Word.Register.DE));
+        m.put(0x29, cpu -> Operations.add(cpu, Word.Register.HL, Word.Register.HL));
+        m.put(0x39, cpu -> Operations.add(cpu, Word.Register.HL, Word.Register.SP));
         return m.build();
     }
 }

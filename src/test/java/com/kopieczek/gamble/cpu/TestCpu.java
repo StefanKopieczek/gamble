@@ -4528,6 +4528,35 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.NIBBLE));
     }
 
+    @Test
+    public void test_hl_add_de_with_arbitrary_arguments() {
+        Cpu cpu = runProgram(
+                0x21, 0x47, 0x09,
+                0x11, 0x72, 0x4c,
+                0x19
+        );
+        assertEquals(0x55b9, cpu.read(Word.Register.HL));
+    }
+
+    @Test
+    public void test_hl_add_hl_with_arbitrary_arguments() {
+        Cpu cpu = runProgram(
+                0x21, 0xc9, 0xec,
+                0x29
+        );
+        assertEquals(0xd992, cpu.read(Word.Register.HL));
+    }
+
+    @Test
+    public void test_hl_add_sp_with_arbitrary_arguments() {
+        Cpu cpu = runProgram(
+                0x21, 0x5a, 0xa1,
+                0x31, 0xb2, 0x93,
+                0x39
+        );
+        assertEquals(0x350c, cpu.read(Word.Register.HL));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
