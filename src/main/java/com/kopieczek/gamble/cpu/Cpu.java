@@ -269,6 +269,7 @@ public class Cpu {
         m.put(0xbd, cpu -> Operations.compare(cpu, Byte.Register.A, Byte.Register.L));
         m.put(0xbe, cpu -> Operations.compare(cpu, Byte.Register.A, Pointer.of(Word.Register.HL)));
         m.put(0xfe, cpu -> Operations.compare(cpu, Byte.Register.A, Byte.argument()));
+        m.put(0x09, cpu -> Operations.add(cpu, Word.Register.HL, Word.Register.BC));
         return m.build();
     }
 }

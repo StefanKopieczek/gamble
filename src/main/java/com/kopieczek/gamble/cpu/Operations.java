@@ -388,4 +388,16 @@ class Operations {
         compare(cpu, leftVal, rightVal);
         return 8;
     }
+
+    public static int add(Cpu cpu, Word.Register destArg, Word.Register otherArg) {
+        int a = cpu.read(destArg);
+        int b = cpu.read(otherArg);
+        int rawResult = a + b;
+        int boundedResult = rawResult % 0x10000;
+        cpu.set(destArg, Word.literal(boundedResult));
+        cpu.set(Flag.OPERATION, false);
+        cpu.set(Flag.CARRY, (boundedResult < rawResult));
+        cpu.set(Flag.NIBBLE, (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) > 0);
+        return 8;
+    }
 }

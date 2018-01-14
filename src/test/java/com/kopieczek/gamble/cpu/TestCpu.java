@@ -4382,6 +4382,152 @@ public class TestCpu {
         assertEquals(8, cpu.getCycles());
     }
 
+    @Test
+    public void test_hl_add_bc_equals_zero_when_hl_and_bc_are_zero() {
+        Cpu cpu = runProgram(0x09);
+        assertEquals(0x00, cpu.read(Word.Register.HL));
+    }
+
+    @Test
+    public void test_hl_add_bc_uses_8_cycles() {
+        Cpu cpu = runProgram(0x09);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_hl_add_bc_when_hl_is_zero() {
+        Cpu cpu = runProgram(0x01, 0x17, 0x9f, 0x09);
+        assertEquals(0x9f17, cpu.read(Word.Register.BC));
+    }
+
+    @Test
+    public void test_hl_add_bc_when_bc_is_zero() {
+        Cpu cpu = runProgram(0x21, 0xfc, 0x18, 0x09);
+        assertEquals(0x18fc, cpu.read(Word.Register.HL));
+    }
+
+    @Test
+    public void test_hl_add_bc_with_arbitrary_arguments() {
+        Cpu cpu = runProgram(
+                0x21, 0x0e, 0x02,
+                0x01, 0x91, 0x9f,
+                0x09
+        );
+        assertEquals(0xa19f, cpu.read(Word.Register.HL));
+    }
+
+    @Test
+    public void test_hl_add_bc_leaves_bc_alone() {
+        Cpu cpu = runProgram(
+                0x21, 0x93, 0x4c,
+                0x01, 0xbc, 0x2c,
+                0x09
+        );
+        assertEquals(0x2cbc, cpu.read(Word.Register.BC));
+    }
+
+    @Test
+    public void test_hl_add_bc_rolls_over_at_0x10000() {
+        Cpu cpu = runProgram(
+                0x21, 0xba, 0xe1,
+                0x01, 0x3b, 0x88,
+                0x09
+        );
+        assertEquals(0x69f5, cpu.read(Word.Register.HL));
+    }
+
+    @Test
+    public void test_hl_add_bc_does_not_set_zero_flag() {
+        // Even when the result of the operation is zero, the flag should never be set.
+        Cpu cpu = runProgram(0x09);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_hl_add_bc_does_not_reset_zero_flag() {
+        // Even when the result of the operation is nonzero, the zero flag should be left unchanged.
+        Cpu cpu = runProgram(0x87, 0x21, 0xab, 0xcd, 0x09);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_hl_add_bc_resets_operation_flag() {
+        Cpu cpu = runProgram(0x97, 0x09);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_hl_add_bc_resets_carry_flag_if_no_carry_occurs() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // Set carry flag
+                0x21, 0xaa, 0xaa, // LD HL, "0b 1010 1010 1010 1010"
+                0x01, 0x55, 0x55, // LD BC, "0b 0101 0101 0101 0101"
+                0x09              // ADD HL, BC
+        );
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_hl_add_bc_sets_carry_flag_if_simple_bit_15_carry_occurs() {
+        Cpu cpu = runProgram(
+                0x21, 0x00, 0x80, // LD HL, 0x8000
+                0x01, 0x00, 0x80, // LD BC, 0x8000
+                0x09              // ADD HL, BC
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_hl_add_bc_doesnt_set_carry_flag_for_carry_on_lower_bits() {
+        Cpu cpu = runProgram(
+                0x21, 0xff, 0x7f, // LD HL, 0x7fff
+                0x01, 0xff, 0x7f, // LD BC, 0x7fff
+                0x09
+        );
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_hl_add_bc_sets_carry_flag_on_chained_carry_from_bit_15() {
+        Cpu cpu = runProgram(
+                0x21, 0xff, 0xff, // LD HL, 0xffff
+                0x01, 0x01, 0x00, // LD BC, 0x0001
+                0x09
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_hl_add_bc_sets_nibble_flag_on_simple_carry_from_bit_11() {
+        Cpu cpu = runProgram(
+                0x21, 0x00, 0x08, // LD HL, 0x0800
+                0x01, 0x00, 0x08, // LD BC, 0x0800
+                0x09
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_hl_add_bc_resets_nibble_flag_when_no_carry_from_bit_11_occurs() {
+        Cpu cpu = runProgram(
+                0x3e, 0x08, 0x87, // Set nibble flag
+                0x21, 0xff, 0xf7, // LD HL, 0xf7ff
+                0x01, 0xff, 0xf7, // LD BC, 0xf7ff
+                0x09
+        );
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_hl_add_bc_sets_nibble_flag_on_chained_carry_from_bit_11() {
+        Cpu cpu = runProgram(
+                0x01, 0xff, 0x0f, // LD BC, 0x0fff
+                0x21, 0x01, 0x00, // LD HL, 0x0001
+                0x09
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
