@@ -4572,6 +4572,102 @@ public class TestCpu {
         assertEquals(16, cpu.getCycles());
     }
 
+    @Test
+    public void test_increment_bc_from_0x00_to_0x01() {
+        Cpu cpu = runProgram(0x03);
+        assertEquals(0x0001, cpu.read(Word.Register.BC));
+    }
+
+    @Test
+    public void test_increment_bc_uses_8_cycles() {
+        Cpu cpu = runProgram(0x03);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_increment_bc_from_0xab_to_0xac() {
+        Cpu cpu = runProgram(0x0e, 0xab, 0x03);
+        assertEquals(0x00ac, cpu.read(Word.Register.BC));
+    }
+
+    @Test
+    public void test_increment_bc_from_0x1f_to_0x20() {
+        Cpu cpu = runProgram(0x0e, 0x1f, 0x03);
+        assertEquals(0x0020, cpu.read(Word.Register.BC));
+    }
+
+    @Test
+    public void test_increment_bc_rolls_over_at_0x010000() {
+        Cpu cpu = runProgram(0x01, 0xff, 0xff, 0x03);
+        assertEquals(0x0000, cpu.read(Word.Register.BC));
+    }
+
+    @Test
+    public void test_increment_bc_does_not_roll_over_at_0x0100() {
+        Cpu cpu = runProgram(0x0e, 0xff, 0x03);
+        assertEquals(0x0100, cpu.read(Word.Register.BC));
+    }
+
+    @Test
+    public void test_increment_bc_from_0xcaff_to_0xcb00() {
+        Cpu cpu = runProgram(0x01, 0xff, 0xca, 0x03);
+        assertEquals(0xcb00, cpu.read(Word.Register.BC));
+    }
+
+    @Test
+    public void test_increment_bc_does_not_set_zero_flag() {
+        Cpu cpu = runProgram(0x01, 0xff, 0xff, 0x03);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_increment_bc_does_not_reset_zero_flag() {
+        Cpu cpu = runProgram(0x8f, 0x01, 0xff, 0xff, 0x03);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_increment_bc_does_not_set_carry_flag() {
+        Cpu cpu = runProgram(0x01, 0xff, 0xff, 0x03);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_increment_bc_does_not_reset_carry_flag() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // Set carry flag
+                0x03              // INC BC
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_increment_bc_does_not_set_nibble_flag() {
+        Cpu cpu = runProgram(0x01, 0xff, 0xff, 0x03);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_increment_bc_does_not_reset_nibble_flag() {
+        Cpu cpu = runProgram(
+                0x3e, 0x08, 0x87, // Set carry flag
+                0x03              // INC BC
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_increment_bc_does_not_set_operation_flag() {
+        Cpu cpu = runProgram(0x01, 0xff, 0xff, 0x03);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_increment_bc_does_not_reset_operation_flag() {
+        Cpu cpu = runProgram(0x97, 0x03);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

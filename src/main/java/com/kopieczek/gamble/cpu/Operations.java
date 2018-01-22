@@ -411,4 +411,11 @@ class Operations {
         do16BitAdd(cpu, destArg, a, b);
         return 16;
     }
+
+    public static int increment(Cpu cpu, Word.Register register) {
+        int current = cpu.read(register);
+        int newValue = (current + 1) % 0x010000;
+        cpu.set(register, Word.literal(newValue));
+        return 8;
+    }
 }
