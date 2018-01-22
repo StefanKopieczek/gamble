@@ -4668,6 +4668,24 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.OPERATION));
     }
 
+    @Test
+    public void test_increment_de() {
+        Cpu cpu = runProgram(0x11, 0xfc, 0x59, 0x13);
+        assertEquals(0x59fd, cpu.read(Word.Register.DE));
+    }
+
+    @Test
+    public void test_increment_hl() {
+        Cpu cpu = runProgram(0x21, 0xee, 0xb1, 0x23);
+        assertEquals(0xb1ef, cpu.read(Word.Register.HL));
+    }
+
+    @Test
+    public void test_increment_sp() {
+        Cpu cpu = runProgram(0x31, 0xc0, 0x99, 0x33);
+        assertEquals(0x99c1, cpu.read(Word.Register.SP));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
