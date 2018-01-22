@@ -413,8 +413,15 @@ class Operations {
     }
 
     public static int increment(Cpu cpu, Word.Register register) {
-        int current = cpu.read(register);
-        int newValue = (current + 1) % 0x010000;
+        int oldValue = cpu.read(register);
+        int newValue = (oldValue + 1) % 0x010000;
+        cpu.set(register, Word.literal(newValue));
+        return 8;
+    }
+
+    public static int decrement(Cpu cpu, Word.Register register) {
+        int oldValue = cpu.read(register);
+        int newValue = (oldValue + 0xffff) % 0x010000;
         cpu.set(register, Word.literal(newValue));
         return 8;
     }
