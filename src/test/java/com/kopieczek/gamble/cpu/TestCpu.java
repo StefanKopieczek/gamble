@@ -4774,6 +4774,24 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.OPERATION));
     }
 
+    @Test
+    public void test_decrement_de() {
+        Cpu cpu = runProgram(0x11, 0x7c, 0x17, 0x1b);
+        assertEquals(0x177b, cpu.read(Word.Register.DE));
+    }
+
+    @Test
+    public void test_decrement_hl() {
+        Cpu cpu = runProgram(0x21, 0x72, 0xa2, 0x2b);
+        assertEquals(0xa271, cpu.read(Word.Register.HL));
+    }
+
+    @Test
+    public void test_decrement_sp() {
+        Cpu cpu = runProgram(0x31, 0x73, 0xff, 0x3b);
+        assertEquals(0xff72, cpu.read(Word.Register.SP));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
