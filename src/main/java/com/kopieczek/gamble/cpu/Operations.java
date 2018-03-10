@@ -425,4 +425,13 @@ class Operations {
         cpu.set(register, Word.literal(newValue));
         return 8;
     }
+
+    public static int swap(Cpu cpu, Byte.Register register) {
+        cpu.pc += 1;
+        int oldValue = cpu.read(register);
+        int newValue = ((oldValue << 4) % 0x0100) + (oldValue >> 4);
+        cpu.set(register, Byte.literal(newValue));
+        cpu.set(Flag.ZERO, newValue == 0);
+        return 8;
+    }
 }

@@ -282,6 +282,7 @@ public class Cpu {
         m.put(0x1b, cpu -> Operations.decrement(cpu, Word.Register.DE));
         m.put(0x2b, cpu -> Operations.decrement(cpu, Word.Register.HL));
         m.put(0x3b, cpu -> Operations.decrement(cpu, Word.Register.SP));
+        m.put(0xcb, cpu -> Operations.swap(cpu, Byte.Register.A));
         return m.build();
     }
 }

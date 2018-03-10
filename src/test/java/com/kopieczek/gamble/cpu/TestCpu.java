@@ -4792,6 +4792,90 @@ public class TestCpu {
         assertEquals(0xff72, cpu.read(Word.Register.SP));
     }
 
+    @Test
+    public void test_swap_a_when_a_is_0x00_gives_0x00() {
+        Cpu cpu = runProgram(0xcb, 0x37);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_swap_a_when_a_is_0x01_gives_0x10() {
+        Cpu cpu = runProgram(0x3e, 0x01, 0xcb, 0x37);
+        assertEquals(0x10, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_swap_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x37);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_swap_a_when_a_is_0x10_gives_0x01() {
+        Cpu cpu = runProgram(0x3e, 0x10, 0xcb, 0x37);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_swap_a_when_a_is_ab_gives_ba() {
+        Cpu cpu = runProgram(0x3e, 0xab, 0xcb, 0x37);
+        assertEquals(0xba, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_swap_a_when_a_is_zero_sets_zero_flag() {
+        Cpu cpu = runProgram(0xcb, 0x37);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_swap_a_when_a_is_nonzero_resets_zero_flag() {
+        Cpu cpu = runProgram(0x8f, 0x3e, 0x13, 0xcb, 0x37);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_swap_a_doesnt_set_carry_flag() {
+        Cpu cpu = runProgram(0x3e, 0xf0, 0xcb, 0x37);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_swap_a_doesnt_reset_carry_flag() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // Set carry flag
+                0x3e, 0xf0, 0xcb, 0x37
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_swap_a_doesnt_set_nibble_flag() {
+        Cpu cpu = runProgram(0x3e, 0x0f, 0xcb, 0x37);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_swap_a_doesnt_reset_nibble_flag() {
+        Cpu cpu = runProgram(
+                0x3e, 0x08, 0x87, // Set nibble flag
+                0x3e, 0x0f, 0xcb, 0x37
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_swap_a_doesnt_set_operation_flag() {
+        Cpu cpu = runProgram(0xcb, 0x37);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_swap_a_doesnt_reset_operation_flag() {
+        Cpu cpu = runProgram(0x97, 0xcb, 0x37);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
