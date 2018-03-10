@@ -428,10 +428,19 @@ class Operations {
 
     public static int swap(Cpu cpu, Byte.Register register) {
         int oldValue = cpu.read(register);
-        int newValue = ((oldValue << 4) % 0x0100) + (oldValue >> 4);
-        cpu.set(register, Byte.literal(newValue));
-        cpu.set(Flag.ZERO, newValue == 0);
+        cpu.set(register, Byte.literal(doSwap(cpu, oldValue)));
         return 8;
     }
 
+    public static int swap(Cpu cpu, Pointer ptr) {
+        int oldValue = cpu.readFrom(ptr);
+        cpu.writeTo(ptr, Byte.literal(doSwap(cpu, oldValue)));
+        return 16;
+    }
+
+    private static int doSwap(Cpu cpu, int oldValue) {
+        int newValue = ((oldValue << 4) % 0x0100) + (oldValue >> 4);
+        cpu.set(Flag.ZERO, newValue == 0);
+        return newValue;
+    }
 }

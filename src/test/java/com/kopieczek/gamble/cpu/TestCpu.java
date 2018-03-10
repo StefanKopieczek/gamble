@@ -4918,6 +4918,22 @@ public class TestCpu {
         assertEquals(0x75, cpu.read(Byte.Register.L));
     }
 
+    @Test
+    public void test_swap_hl_indirect() {
+        Cpu cpu = runProgram(
+                0x21, 0x98, 0x1f, // LD HL,   0x1f98
+                0x36, 0x97,       // LD (HL), 0x97
+                0xcb, 0x36
+        );
+        assertEquals(0x79, cpu.readFrom(Pointer.literal(0x1f98)));
+    }
+
+    @Test
+    public void test_swap_hl_indirect_uses_16_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x36);
+        assertEquals(16, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

@@ -308,6 +308,7 @@ public class Cpu {
         m.put(0x33, cpu -> Operations.swap(cpu, Byte.Register.E));
         m.put(0x34, cpu -> Operations.swap(cpu, Byte.Register.H));
         m.put(0x35, cpu -> Operations.swap(cpu, Byte.Register.L));
+        m.put(0x36, cpu -> Operations.swap(cpu, Pointer.of(Word.Register.HL)));
         return m.build();
     }
 }
