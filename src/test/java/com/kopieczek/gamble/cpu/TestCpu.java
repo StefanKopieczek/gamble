@@ -4876,6 +4876,48 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.OPERATION));
     }
 
+    @Test
+    public void test_swap_b() {
+        Cpu cpu = runProgram(0x06, 0x79, 0xcb, 0x30);
+        assertEquals(0x97, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_program_counter_correct_after_extended_operation() {
+        Cpu cpu = runProgram(0xcb, 0x30, 0x3c);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_swap_c() {
+        Cpu cpu = runProgram(0x0e, 0xfe, 0xcb, 0x31);
+        assertEquals(0xef, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_swap_d() {
+        Cpu cpu = runProgram(0x16, 0xa7, 0xcb, 0x32);
+        assertEquals(0x7a, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_swap_e() {
+        Cpu cpu = runProgram(0x1e, 0x0c, 0xcb, 0x33);
+        assertEquals(0xc0, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_swap_h() {
+        Cpu cpu = runProgram(0x26, 0xfd, 0xcb, 0x34);
+        assertEquals(0xdf, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_swap_l() {
+        Cpu cpu = runProgram(0x2e, 0x57, 0xcb, 0x35);
+        assertEquals(0x75, cpu.read(Byte.Register.L));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

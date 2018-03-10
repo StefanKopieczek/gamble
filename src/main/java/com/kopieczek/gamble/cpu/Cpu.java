@@ -9,6 +9,7 @@ import java.util.function.Function;
 public class Cpu {
     final MemoryManagementUnit mmu;
     static final Map<Integer, Function<Cpu, Integer>> operations = loadOperations();
+    static final Map<Integer, Function<Cpu, Integer>> extendedOperations = loadExtendedOperations();
     int pc = 0;
     int cycles = 0;
     int[] registers;
@@ -70,6 +71,18 @@ public class Cpu {
             pc += 1;
         } else {
             throw new IllegalArgumentException("Unknown opcode 0x" + Integer.toHexString(opcode));
+        }
+    }
+
+    private int doExtendedOperation() {
+        pc += 1;
+        int extOpcode = mmu.readByte(pc);
+
+        Function<Cpu, Integer> op = extendedOperations.get(extOpcode);
+        if (op != null) {
+            return op.apply(this);
+        } else {
+            throw new IllegalArgumentException("Unknown extension opcode 0x" + Integer.toHexString(extOpcode));
         }
     }
 
@@ -282,7 +295,19 @@ public class Cpu {
         m.put(0x1b, cpu -> Operations.decrement(cpu, Word.Register.DE));
         m.put(0x2b, cpu -> Operations.decrement(cpu, Word.Register.HL));
         m.put(0x3b, cpu -> Operations.decrement(cpu, Word.Register.SP));
-        m.put(0xcb, cpu -> Operations.swap(cpu, Byte.Register.A));
+        m.put(0xcb, Cpu::doExtendedOperation);
+        return m.build();
+    }
+
+    private static Map<Integer, Function<Cpu, Integer>> loadExtendedOperations() {
+        ImmutableMap.Builder<Integer, Function<Cpu, Integer>> m = ImmutableMap.builder();
+        m.put(0x37, cpu -> Operations.swap(cpu, Byte.Register.A));
+        m.put(0x30, cpu -> Operations.swap(cpu, Byte.Register.B));
+        m.put(0x31, cpu -> Operations.swap(cpu, Byte.Register.C));
+        m.put(0x32, cpu -> Operations.swap(cpu, Byte.Register.D));
+        m.put(0x33, cpu -> Operations.swap(cpu, Byte.Register.E));
+        m.put(0x34, cpu -> Operations.swap(cpu, Byte.Register.H));
+        m.put(0x35, cpu -> Operations.swap(cpu, Byte.Register.L));
         return m.build();
     }
 }
