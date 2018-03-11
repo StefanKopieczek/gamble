@@ -530,4 +530,11 @@ class Operations {
         cpu.set(Flag.NIBBLE, true);
         return 4;
     }
+
+    public static int complementCarryFlag(Cpu cpu) {
+        cpu.set(Flag.CARRY, !cpu.isSet(Flag.CARRY));
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, false);
+        return 4;
+    }
 }

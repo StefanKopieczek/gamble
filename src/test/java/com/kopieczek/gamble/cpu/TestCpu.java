@@ -5505,6 +5505,42 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.ZERO));
     }
 
+    @Test
+    public void test_ccf_sets_carry_flag() {
+        Cpu cpu = runProgram(0x3f);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_ccf_resets_carry_flag() {
+        Cpu cpu = cpuWithProgram(0x3f);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_ccf_takes_4_cycles() {
+        Cpu cpu = runProgram(0x3f);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_ccf_clears_nibble_flag() {
+        Cpu cpu = cpuWithProgram(0x3f);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_ccf_clears_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x3f);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
