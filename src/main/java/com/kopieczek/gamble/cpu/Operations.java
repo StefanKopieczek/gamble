@@ -522,4 +522,12 @@ class Operations {
             }
         }
     }
+
+    public static int complement(Cpu cpu, Byte.Register register) {
+        int newValue = 0xff & ~cpu.read(Byte.Register.A);
+        cpu.set(register, Byte.literal(newValue));
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.NIBBLE, true);
+        return 4;
+    }
 }

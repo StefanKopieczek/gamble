@@ -5441,6 +5441,70 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.NIBBLE));
     }
 
+    @Test
+    public void test_cpl_0x00() {
+        Cpu cpu = runProgram(0x2f);
+        assertEquals(0xff, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_cpl_0xff() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0x2f);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_cpl_0xa7() {
+        Cpu cpu = runProgram(0x3e, 0xa7, 0x2f);
+        assertEquals(0x58, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_cpl_uses_4_cycles() {
+        Cpu cpu = runProgram(0x2f);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_cpl_sets_operation_flag() {
+        Cpu cpu = runProgram(0x2f);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_cpl_sets_nibble_flag() {
+        Cpu cpu = runProgram(0x2f);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_cpl_doesnt_set_carry_flag() {
+        Cpu cpu = runProgram(0x2f);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_cpl_doesnt_reset_carry_flag() {
+        Cpu cpu = cpuWithProgram(0x2f);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 1);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_cpl_doesnt_set_zero_flag() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0x2f);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_cpl_doesnt_reset_zero_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xff, 0x2f);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
