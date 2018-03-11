@@ -1,6 +1,10 @@
 package com.kopieczek.gamble.cpu;
 
+import java.util.logging.Logger;
+
 class Operations {
+    private static final Logger log = Logger.getLogger(Operations.class.getCanonicalName());
+
     static int nop(Cpu cpu) {
         return 4;
     }
@@ -442,5 +446,80 @@ class Operations {
         int newValue = ((oldValue << 4) % 0x0100) + (oldValue >> 4);
         cpu.set(Flag.ZERO, newValue == 0);
         return newValue;
+    }
+
+    public static int bcdAdjust(Cpu cpu, Byte.Register register) {
+        logInvalidDaaContexts(cpu, register);
+        int result = cpu.read(register);
+        boolean shouldSetCarry = false;
+
+        if (cpu.isSet(Flag.OPERATION)) {
+            if (cpu.isSet(Flag.NIBBLE)) {
+                result += 0xfa;
+            }
+            if (cpu.isSet(Flag.CARRY)) {
+                result += 0xa0;
+                shouldSetCarry = true;
+            }
+        } else {
+            int rightNibble = (result & 0x0f);
+            if ((rightNibble >= 0x0a) || cpu.isSet(Flag.NIBBLE)) {
+                result += 0x06;
+            }
+
+            // Mask here with 0x1f0 instead of 0xf0 because the lower nibble
+            // addition may trigger a full carry - e.g. [DAA 0xfa]. We need
+            // to make sure we still adjust the upper nibble in this case.
+            int leftNibble = (result & 0x1f0);
+            if ((leftNibble >= 0xa0) || cpu.isSet(Flag.CARRY)) {
+                result += 0x60;
+                shouldSetCarry = true;
+            }
+        }
+
+        result %= 0x0100;
+
+        cpu.set(register, Byte.literal(result));
+        cpu.set(Flag.ZERO, result == 0x00);
+        cpu.set(Flag.CARRY, shouldSetCarry);
+        return 4;
+    }
+
+    private static void logInvalidDaaContexts(Cpu cpu, Byte.Register register) {
+        int leftNibble = cpu.read(register) & 0xf0;
+        int rightNibble = cpu.read(register) & 0x0f;
+        if (cpu.isSet(Flag.OPERATION)) {
+            if (cpu.isSet(Flag.NIBBLE) && rightNibble < 0x06) {
+                log.warning("Invalid context during DAA operation at position " +
+                        cpu.getProgramCounter() +
+                        ": right nibble is <0x06 (0x" + Integer.toHexString(rightNibble) +
+                        "), but operation and nibble are set");
+            } else if (cpu.isSet(Flag.CARRY)) {
+                int leftLimit = 0x70 - (cpu.isSet(Flag.NIBBLE) ? 0x10 : 0x00);
+                if (leftNibble < leftLimit) {
+                    log.warning("Invalid context during DAA operation at position " +
+                        cpu.getProgramCounter() +
+                        ": left nibble is <0x" + Integer.toHexString(leftLimit) +
+                        " (0x" + Integer.toHexString(leftNibble) +
+                        "), but operation is set and nibble=" + cpu.isSet(Flag.NIBBLE));
+                }
+            }
+        } else {
+            int leftLimit = 0x20 + (cpu.isSet(Flag.NIBBLE) ? 0x10 : 0x00);
+            if ((leftNibble > leftLimit) && cpu.isSet(Flag.CARRY)) {
+                log.warning("Invalid context during DAA operation at position " +
+                        cpu.getProgramCounter() +
+                        ":　left nibble is >0x" + Integer.toHexString(leftLimit) +
+                        " (0x" + Integer.toHexString(leftNibble) +
+                        "), but carry is set and nibble=" + cpu.isSet(Flag.NIBBLE));
+            }
+
+            if ((rightNibble > 0x03) && cpu.isSet(Flag.NIBBLE)) {
+                log.warning("Invalid context during DAA operation at position " +
+                        cpu.getProgramCounter() +
+                        ":　right nibble is >0x03 (0x" + Integer.toHexString(rightNibble) +
+                        "), but nibble flag is set");
+            }
+        }
     }
 }

@@ -146,19 +146,19 @@ public class TestCpu {
     // for all 8 bit INCs.
     public void test_inc_c_sets_nibble_flag_after_16_incs() {
         Cpu cpu = runProgram(0x0c, 0x0c, 0x0c, 0x0c,
-                             0x0c, 0x0c, 0x0c, 0x0c,
-                             0x0c, 0x0c, 0x0c, 0x0c,
-                             0x0c, 0x0c, 0x0c, 0x0c);
+                0x0c, 0x0c, 0x0c, 0x0c,
+                0x0c, 0x0c, 0x0c, 0x0c,
+                0x0c, 0x0c, 0x0c, 0x0c);
         assertTrue(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
     public void test_inc_c_unsets_nibble_flag_after_17_incs() {
         Cpu cpu = runProgram(0x0c, 0x0c, 0x0c, 0x0c,
-                             0x0c, 0x0c, 0x0c, 0x0c,
-                             0x0c, 0x0c, 0x0c, 0x0c,
-                             0x0c, 0x0c, 0x0c, 0x0c,
-                             0x0c);
+                0x0c, 0x0c, 0x0c, 0x0c,
+                0x0c, 0x0c, 0x0c, 0x0c,
+                0x0c, 0x0c, 0x0c, 0x0c,
+                0x0c);
         assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
@@ -205,7 +205,7 @@ public class TestCpu {
         program[3] = 0xee;
 
         // 256x INC HL to trigger rollover.
-        for (int i=4; i<260; i++) {
+        for (int i = 4; i < 260; i++) {
             program[i] = 0x34;
         }
 
@@ -223,10 +223,10 @@ public class TestCpu {
     @Test
     public void test_inc_hl_sets_nibble_flag_after_16_incs() {
         Cpu cpu = runProgram(0x26, 0x12, 0x2e, 0x34, // HL=0x1234
-                             0x34, 0x34, 0x34, 0x34,
-                             0x34, 0x34, 0x34, 0x34,
-                             0x34, 0x34, 0x34, 0x34,
-                             0x34, 0x34, 0x34, 0x34);
+                0x34, 0x34, 0x34, 0x34,
+                0x34, 0x34, 0x34, 0x34,
+                0x34, 0x34, 0x34, 0x34,
+                0x34, 0x34, 0x34, 0x34);
         assertTrue(cpu.isSet(Flag.NIBBLE));
     }
 
@@ -349,7 +349,7 @@ public class TestCpu {
     @Test
     public void test_load_b_to_a() {
         Cpu cpu = runProgram(0x06, 0xaa, // LD B, 0xaa
-                             0x78);      // LD A, B
+                0x78);      // LD A, B
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD A, B
         assertEquals(0xaa, cpu.read(Byte.Register.A));
@@ -359,7 +359,7 @@ public class TestCpu {
     @Test
     public void test_load_c_to_a() {
         Cpu cpu = runProgram(0x0e, 0x10, // LD C, 0x10
-                             0x79);      // LD A, C
+                0x79);      // LD A, C
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD C, 4 for the LD A, C
         assertEquals(0x10, cpu.read(Byte.Register.A));
@@ -369,7 +369,7 @@ public class TestCpu {
     @Test
     public void test_load_d_to_a() {
         Cpu cpu = runProgram(0x16, 0xff, // LD D, 0xff
-                             0x7a);      // LD A, D
+                0x7a);      // LD A, D
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD D, 4 for the LD A, D
         assertEquals(0xff, cpu.read(Byte.Register.A));
@@ -379,8 +379,8 @@ public class TestCpu {
     @Test
     public void test_load_e_to_a_when_e_is_nonzero() {
         Cpu cpu = runProgram(0x1c,       // INC E
-                             0x1e, 0x00, // LD E, 0x00
-                             0x7b);      // LD A, E
+                0x1e, 0x00, // LD E, 0x00
+                0x7b);      // LD A, E
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(4 + 8 + 4, cpu.getCycles());
         assertEquals(0x00, cpu.read(Byte.Register.A));
@@ -390,7 +390,7 @@ public class TestCpu {
     @Test
     public void test_load_h_to_a() {
         Cpu cpu = runProgram(0x26, 0xca, // LD H, 0xca
-                             0x7c);      // LD A, H
+                0x7c);      // LD A, H
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD A, H
         assertEquals(0xca, cpu.read(Byte.Register.A));
@@ -400,7 +400,7 @@ public class TestCpu {
     @Test
     public void test_load_l_to_a() {
         Cpu cpu = runProgram(0x2e, 0xfe, // LD L, 0xfe
-                             0x7d);      // LD A, L
+                0x7d);      // LD A, L
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD L, 4 for the LD A, L
         assertEquals(0xfe, cpu.read(Byte.Register.A));
@@ -431,7 +431,7 @@ public class TestCpu {
     @Test
     public void test_load_c_to_b() {
         Cpu cpu = runProgram(0x0e, 0x10, // LD C, 0x10
-                             0x41);      // LD B, C
+                0x41);      // LD B, C
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD C, 4 for the LD B, C
         assertEquals(0x10, cpu.read(Byte.Register.B));
@@ -441,7 +441,7 @@ public class TestCpu {
     @Test
     public void test_load_d_to_b() {
         Cpu cpu = runProgram(0x16, 0xff, // LD D, 0xff
-                             0x42);      // LD A, D
+                0x42);      // LD A, D
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD D, 4 for the LD B, D
         assertEquals(0xff, cpu.read(Byte.Register.B));
@@ -451,7 +451,7 @@ public class TestCpu {
     @Test
     public void test_load_e_to_b() {
         Cpu cpu = runProgram(0x1e, 0x01, // LD E, 0x01
-                             0x43);      // LD B, E
+                0x43);      // LD B, E
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD E, 4 for the LD B, E
         assertEquals(0x01, cpu.read(Byte.Register.B));
@@ -461,7 +461,7 @@ public class TestCpu {
     @Test
     public void test_load_h_to_b() {
         Cpu cpu = runProgram(0x26, 0xca, // LD H, 0xca
-                             0x44);      // LD B, H
+                0x44);      // LD B, H
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD B, H
         assertEquals(0xca, cpu.read(Byte.Register.B));
@@ -471,7 +471,7 @@ public class TestCpu {
     @Test
     public void test_load_l_to_b() {
         Cpu cpu = runProgram(0x2e, 0xfe, // LD L, 0xfe
-                             0x45);      // LD B, L
+                0x45);      // LD B, L
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD L, 4 for the LD B, L
         assertEquals(0xfe, cpu.read(Byte.Register.B));
@@ -500,7 +500,7 @@ public class TestCpu {
     @Test
     public void test_load_b_to_c() {
         Cpu cpu = runProgram(0x06, 0x10, // LD B, 0x10
-                             0x48);      // LD C, B
+                0x48);      // LD C, B
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD C, B
         assertEquals(0x10, cpu.read(Byte.Register.C));
@@ -518,7 +518,7 @@ public class TestCpu {
     @Test
     public void test_load_d_to_c() {
         Cpu cpu = runProgram(0x16, 0xff, // LD D, 0xff
-                             0x4a);      // LD A, D
+                0x4a);      // LD A, D
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD D, 4 for the LD C, D
         assertEquals(0xff, cpu.read(Byte.Register.C));
@@ -528,7 +528,7 @@ public class TestCpu {
     @Test
     public void test_load_e_to_c() {
         Cpu cpu = runProgram(0x1e, 0x01, // LD E, 0x01
-                             0x4b);      // LD C, E
+                0x4b);      // LD C, E
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD E, 4 for the LD C, E
         assertEquals(0x01, cpu.read(Byte.Register.C));
@@ -538,7 +538,7 @@ public class TestCpu {
     @Test
     public void test_load_h_to_c() {
         Cpu cpu = runProgram(0x26, 0xca, // LD H, 0xca
-                             0x4c);      // LD C, H
+                0x4c);      // LD C, H
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD C, H
         assertEquals(0xca, cpu.read(Byte.Register.C));
@@ -548,7 +548,7 @@ public class TestCpu {
     @Test
     public void test_load_l_to_c() {
         Cpu cpu = runProgram(0x2e, 0xfe, // LD L, 0xfe
-                             0x4d);      // LD C, L
+                0x4d);      // LD C, L
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD L, 4 for the LD B, L
         assertEquals(0xfe, cpu.read(Byte.Register.C));
@@ -577,7 +577,7 @@ public class TestCpu {
     @Test
     public void test_load_b_to_d() {
         Cpu cpu = runProgram(0x06, 0x10, // LD B, 0x10
-                             0x50);      // LD D, B
+                0x50);      // LD D, B
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD D, B
         assertEquals(0x10, cpu.read(Byte.Register.D));
@@ -587,7 +587,7 @@ public class TestCpu {
     @Test
     public void test_load_c_to_d() {
         Cpu cpu = runProgram(0x0e, 0xff, // LD C, 0xff
-                             0x51);      // LD D, C
+                0x51);      // LD D, C
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD C, 4 for the LD D, C
         assertEquals(0xff, cpu.read(Byte.Register.D));
@@ -605,7 +605,7 @@ public class TestCpu {
     @Test
     public void test_load_e_to_d() {
         Cpu cpu = runProgram(0x1e, 0x01, // LD E, 0x01
-                             0x53);      // LD D, E
+                0x53);      // LD D, E
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD E, 4 for the LD D, E
         assertEquals(0x01, cpu.read(Byte.Register.D));
@@ -615,7 +615,7 @@ public class TestCpu {
     @Test
     public void test_load_h_to_d() {
         Cpu cpu = runProgram(0x26, 0xca, // LD H, 0xca
-                             0x54);      // LD D, H
+                0x54);      // LD D, H
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD D, H
         assertEquals(0xca, cpu.read(Byte.Register.D));
@@ -625,7 +625,7 @@ public class TestCpu {
     @Test
     public void test_load_l_to_d() {
         Cpu cpu = runProgram(0x2e, 0xfe, // LD L, 0xfe
-                             0x55);      // LD D, L
+                0x55);      // LD D, L
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD L, 4 for the LD D, L
         assertEquals(0xfe, cpu.read(Byte.Register.D));
@@ -654,7 +654,7 @@ public class TestCpu {
     @Test
     public void test_load_b_to_e() {
         Cpu cpu = runProgram(0x06, 0x10, // LD B, 0x10
-                             0x58);      // LD E, B
+                0x58);      // LD E, B
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD B, E
         assertEquals(0x10, cpu.read(Byte.Register.E));
@@ -664,7 +664,7 @@ public class TestCpu {
     @Test
     public void test_load_c_to_e() {
         Cpu cpu = runProgram(0x0e, 0xff, // LD C, 0xff
-                             0x59);      // LD E, C
+                0x59);      // LD E, C
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD C, 4 for the LD E, C
         assertEquals(0xff, cpu.read(Byte.Register.E));
@@ -674,7 +674,7 @@ public class TestCpu {
     @Test
     public void test_load_d_to_e() {
         Cpu cpu = runProgram(0x16, 0x01, // LD D, 0x01
-                             0x5a);      // LD E, D
+                0x5a);      // LD E, D
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD D, 4 for the LD E, D
         assertEquals(0x01, cpu.read(Byte.Register.E));
@@ -692,7 +692,7 @@ public class TestCpu {
     @Test
     public void test_load_h_to_e() {
         Cpu cpu = runProgram(0x26, 0xca, // LD H, 0xca
-                             0x5c);      // LD E, H
+                0x5c);      // LD E, H
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD E, H
         assertEquals(0xca, cpu.read(Byte.Register.E));
@@ -702,7 +702,7 @@ public class TestCpu {
     @Test
     public void test_load_l_to_e() {
         Cpu cpu = runProgram(0x2e, 0xfe, // LD L, 0xfe
-                             0x5d);      // LD E, L
+                0x5d);      // LD E, L
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD L, 4 for the LD E, L
         assertEquals(0xfe, cpu.read(Byte.Register.E));
@@ -731,7 +731,7 @@ public class TestCpu {
     @Test
     public void test_load_b_to_h() {
         Cpu cpu = runProgram(0x06, 0x10, // LD B, 0x10
-                             0x60);      // LD H, B
+                0x60);      // LD H, B
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD H, B
         assertEquals(0x10, cpu.read(Byte.Register.H));
@@ -741,7 +741,7 @@ public class TestCpu {
     @Test
     public void test_load_c_to_h() {
         Cpu cpu = runProgram(0x0e, 0xff, // LD C, 0xff
-                             0x61);      // LD H, C
+                0x61);      // LD H, C
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD C, 4 for the LD H, C
         assertEquals(0xff, cpu.read(Byte.Register.H));
@@ -751,7 +751,7 @@ public class TestCpu {
     @Test
     public void test_load_d_to_h() {
         Cpu cpu = runProgram(0x16, 0x01, // LD D, 0x01
-                             0x62);      // LD H, D
+                0x62);      // LD H, D
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD D, 4 for the LD H, D
         assertEquals(0x01, cpu.read(Byte.Register.H));
@@ -761,7 +761,7 @@ public class TestCpu {
     @Test
     public void test_load_e_to_h() {
         Cpu cpu = runProgram(0x1e, 0xca, // LD E, 0xca
-                             0x63);      // LD H, E
+                0x63);      // LD H, E
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD H, E
         assertEquals(0xca, cpu.read(Byte.Register.E));
@@ -779,7 +779,7 @@ public class TestCpu {
     @Test
     public void test_load_l_to_h() {
         Cpu cpu = runProgram(0x2e, 0xfe, // LD L, 0xfe
-                             0x65);      // LD H, L
+                0x65);      // LD H, L
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD L, 4 for the LD H, L
         assertEquals(0xfe, cpu.read(Byte.Register.H));
@@ -808,7 +808,7 @@ public class TestCpu {
     @Test
     public void test_load_b_to_l() {
         Cpu cpu = runProgram(0x06, 0x10, // LD B, 0x10
-                             0x68);      // LD L, B
+                0x68);      // LD L, B
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD B, 4 for the LD L, B
         assertEquals(0x10, cpu.read(Byte.Register.L));
@@ -818,7 +818,7 @@ public class TestCpu {
     @Test
     public void test_load_c_to_l() {
         Cpu cpu = runProgram(0x0e, 0xff, // LD C, 0xff
-                             0x69);      // LD L, C
+                0x69);      // LD L, C
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD C, 4 for the LD L, C
         assertEquals(0xff, cpu.read(Byte.Register.L));
@@ -828,7 +828,7 @@ public class TestCpu {
     @Test
     public void test_load_d_to_l() {
         Cpu cpu = runProgram(0x16, 0x01, // LD D, 0x01
-                             0x6a);      // LD L, D
+                0x6a);      // LD L, D
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD D, 4 for the LD L, D
         assertEquals(0x01, cpu.read(Byte.Register.L));
@@ -838,7 +838,7 @@ public class TestCpu {
     @Test
     public void test_load_e_to_l() {
         Cpu cpu = runProgram(0x1e, 0xca, // LD E, 0xca
-                             0x6b);      // LD L, E
+                0x6b);      // LD L, E
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD E, H
         assertEquals(0xca, cpu.read(Byte.Register.L));
@@ -848,7 +848,7 @@ public class TestCpu {
     @Test
     public void test_load_h_to_l() {
         Cpu cpu = runProgram(0x26, 0xfe, // LD H, 0xfe
-                             0x6c);      // LD L, H
+                0x6c);      // LD L, H
         assertEquals(0x00, cpu.read(Byte.Register.F)); // Assert flags all clear.
         assertEquals(12, cpu.getCycles()); // 8 for the LD H, 4 for the LD L, H
         assertEquals(0xfe, cpu.read(Byte.Register.L));
@@ -885,10 +885,10 @@ public class TestCpu {
     @Test
     public void test_load_b_to_indirect_hl() {
         Cpu cpu = runProgram(
-            0x06, 0x56, // LD B, 0x56
-            0x26, 0x10, // LD H, 0x10
-            0x2e, 0xff, // LD L, 0xff (now HL=0x10ff).
-            0x70        // LD (HL), B
+                0x06, 0x56, // LD B, 0x56
+                0x26, 0x10, // LD H, 0x10
+                0x2e, 0xff, // LD L, 0xff (now HL=0x10ff).
+                0x70        // LD (HL), B
         );
 
         assertEquals(0x56, cpu.unsafeRead(0x10ff));
@@ -1059,13 +1059,13 @@ public class TestCpu {
     @Test
     public void test_indirect_load_c_to_a() {
         Cpu cpu = runProgram(
-            0x26, 0xff,
-            0x2e, 0x54,
-            0x36, 0xcd,       // Load 0xcd to (0xff54)
-            0x26, 0x00,
-            0x2e, 0x00,       // Clear (HL)
-            0x0e, 0x54,       // LD C, 0x54
-            0xf2              // LD A, 0xff(C)
+                0x26, 0xff,
+                0x2e, 0x54,
+                0x36, 0xcd,       // Load 0xcd to (0xff54)
+                0x26, 0x00,
+                0x2e, 0x00,       // Clear (HL)
+                0x0e, 0x54,       // LD C, 0x54
+                0xf2              // LD A, 0xff(C)
         );
         assertEquals(0xcd, cpu.read(Byte.Register.A));
     }
@@ -1079,9 +1079,9 @@ public class TestCpu {
     @Test
     public void test_load_c_to_a_indirect() {
         Cpu cpu = runProgram(
-            0x3e, 0x3b, // LD A, 0x3b
-            0x0e, 0xab, // LD C, 0xab
-            0xe2        // LD 0xff(C), A
+                0x3e, 0x3b, // LD A, 0x3b
+                0x0e, 0xab, // LD C, 0xab
+                0xe2        // LD 0xff(C), A
         );
         assertEquals(0x3b, cpu.unsafeRead(0xff0ab));
     }
@@ -1095,10 +1095,10 @@ public class TestCpu {
     @Test
     public void test_ldd_a_hl() {
         Cpu cpu = runProgram(
-            0x26, 0xff,
-            0x2e, 0x54,       // Set HL = 0xff54.
-            0x36, 0xcd,       // Store 0xcd at 0xff54.
-            0x3a              // Move 0xcd to A and dec HL.
+                0x26, 0xff,
+                0x2e, 0x54,       // Set HL = 0xff54.
+                0x36, 0xcd,       // Store 0xcd at 0xff54.
+                0x3a              // Move 0xcd to A and dec HL.
         );
         assertEquals(0xcd, cpu.read(Byte.Register.A));
         assertEquals(0xff, cpu.read(Byte.Register.H));
@@ -1635,13 +1635,13 @@ public class TestCpu {
     @Test
     public void test_pop_af() {
         Cpu cpu = runProgram(
-            0x31, 0xc2, 0xb8, // LD SP, 0xb8c2
-            0x08, 0xb4, 0x3d, // LD (0x3db4), SP
-            0x31, 0xb4, 0x3d, // LD SP, 0x3db4
-            0xf1              // POP AF
+                0x31, 0xc2, 0xb8, // LD SP, 0xb8c2
+                0x08, 0xb4, 0x3d, // LD (0x3db4), SP
+                0x31, 0xb4, 0x3d, // LD SP, 0x3db4
+                0xf1              // POP AF
         );
-       assertEquals(0xb8, cpu.read(Byte.Register.A));
-       assertEquals(0xc2, cpu.read(Byte.Register.F));
+        assertEquals(0xb8, cpu.read(Byte.Register.A));
+        assertEquals(0xc2, cpu.read(Byte.Register.F));
     }
 
     @Test
@@ -1939,9 +1939,9 @@ public class TestCpu {
     @Test
     public void test_add_indirect_hl_to_a_when_hl_points_to_0x00() {
         Cpu cpu = runProgram(
-            0x21, 0xcd, 0xab, // LD HL, 0xabcd
-            0x3e, 0xef,       // LD A, 0xef
-            0x86              // ADD A, (HL)
+                0x21, 0xcd, 0xab, // LD HL, 0xabcd
+                0x3e, 0xef,       // LD A, 0xef
+                0x86              // ADD A, (HL)
         );
         assertEquals(0xef, cpu.read(Byte.Register.A));
     }
@@ -2157,8 +2157,8 @@ public class TestCpu {
     @Test
     public void test_adding_argument_to_a_sets_carry_flag_on_overflow_past_zero() {
         Cpu cpu = runProgram(
-               0x3e, 0x6e,
-               0xc6, 0x93
+                0x3e, 0x6e,
+                0xc6, 0x93
         );
         assertTrue(cpu.isSet(Flag.CARRY));
     }
@@ -2978,11 +2978,11 @@ public class TestCpu {
     @Test
     public void test_subtract_indirect_hl_from_a_when_hl_is_nonzero() {
         Cpu cpu = runProgram(
-            0x26, 0xca, // LD H,    0xca
-            0x2e, 0xfe, // LD L,    0xfe
-            0x36, 0x12, // LD (HL), 0x12
-            0x3e, 0xda, // LD A,    0xda
-            0x96        // SUB A,   (HL)
+                0x26, 0xca, // LD H,    0xca
+                0x2e, 0xfe, // LD L,    0xfe
+                0x36, 0x12, // LD (HL), 0x12
+                0x3e, 0xda, // LD A,    0xda
+                0x96        // SUB A,   (HL)
         );
         assertEquals(0xc8, cpu.read(Byte.Register.A));
     }
@@ -4932,6 +4932,513 @@ public class TestCpu {
     public void test_swap_hl_indirect_uses_16_cycles() {
         Cpu cpu = runProgram(0xcb, 0x36);
         assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_daa_on_0x00_when_flags_are_false() {
+        Cpu cpu = runProgram(0x27);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertTrue(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_uses_4_cycles() {
+        Cpu cpu = runProgram(0x27);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_daa_on_0x76_when_flags_are_false() {
+        Cpu cpu = runProgram(0x3e, 0x76, 0x27);
+        assertEquals(0x76, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x99_when_flags_are_false() {
+        Cpu cpu = runProgram(0x3e, 0x99, 0x27);
+        assertEquals(0x99, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x0a_when_flags_are_false() {
+        Cpu cpu = runProgram(0x3e, 0x0a, 0x27);
+        assertEquals(0x10, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x6d_when_flags_are_false() {
+        Cpu cpu = runProgram(0x3e, 0x6d, 0x27);
+        assertEquals(0x73, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x8f_when_flags_are_false() {
+        Cpu cpu = runProgram(0x3e, 0x8f, 0x27);
+        assertEquals(0x95, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0xa0_when_flags_are_false() {
+        Cpu cpu = runProgram(0x3e, 0xa0, 0x27);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertTrue(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0xc7_when_flags_are_false() {
+        Cpu cpu = runProgram(0x3e, 0xc7, 0x27);
+        assertEquals(0x27, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0xf9_when_flags_are_false() {
+        Cpu cpu = runProgram(0x3e, 0xf9, 0x27);
+        assertEquals(0x59, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x9a_when_flags_are_false() {
+        Cpu cpu = runProgram(0x3e, 0x9a, 0x27);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertTrue(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0xbe_when_flags_are_false() {
+        Cpu cpu = runProgram(0x3e, 0xbe, 0x27);
+        assertEquals(0x24, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0xff_when_flags_are_false() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0x27);
+        assertEquals(0x65, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x00_when_carry_is_true() {
+        Cpu cpu = cpuWithProgram(0x27);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 1);
+        assertEquals(0x60, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x18_when_carry_is_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x18, 0x27);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x78, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x29_when_carry_is_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x29, 0x27);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x89, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x0a_when_carry_is_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x0a, 0x27);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x70, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x1b_when_carry_is_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x1b, 0x27);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x81, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x2f_when_carry_is_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x2f, 0x27);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x95, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x00_when_nibble_is_true() {
+        Cpu cpu = cpuWithProgram(0x27);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 1);
+        assertEquals(0x06, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x82_when_nibble_is_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x82, 0x27);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertEquals(0x88, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x93_when_nibble_is_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x93, 0x27);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertEquals(0x99, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0xa0_when_nibble_is_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xa0, 0x27);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertEquals(0x06, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0xd1_when_nibble_is_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xd1, 0x27);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertEquals(0x37, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0xf3_when_nibble_is_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xf3, 0x27);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertEquals(0x59, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x00_when_nibble_and_carry_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x00, 0x27);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x66, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x21_when_nibble_and_carry_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x21, 0x27);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x87, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x33_when_nibble_and_carry_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x33, 0x27);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x99, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x06_when_operation_and_nibble_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x06, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x6c_when_operation_and_nibble_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x6c, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertEquals(0x66, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x8f_when_operation_and_nibble_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x8f, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertEquals(0x89, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x73_when_operation_and_carry_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x73, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x13, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x90_when_operation_and_carry_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x90, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x30, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0xf9_when_operation_and_carry_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xf9, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x99, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x66_when_operation_carry_and_nibble_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x66, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x7a_when_operation_carry_and_nibble_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x7a, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertEquals(0x14, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0xdc_when_operation_carry_and_nibble_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xdb, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertEquals(0x75, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0xff_when_operation_carry_and_nibble_are_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xff, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertEquals(0x99, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x00_when_operation_is_true() {
+        Cpu cpu = cpuWithProgram(0x27);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 1);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x71_when_operation_is_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x71, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertEquals(0x71, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_on_0x99_when_operation_is_true() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x99, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertEquals(0x99, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_doesnt_set_operation_flag() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0x27);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_daa_doesnt_reset_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xff, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_daa_doesnt_set_nibble_flag() {
+        Cpu cpu = runProgram(0x3e, 0xf2, 0x27);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_daa_doesnt_reset_nibble_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xf2, 0x27);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
     }
 
     private static Cpu cpuWithProgram(int... program) {
