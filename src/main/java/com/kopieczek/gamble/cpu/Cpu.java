@@ -298,6 +298,7 @@ public class Cpu {
         m.put(0x27, cpu -> Operations.bcdAdjust(cpu, Byte.Register.A));
         m.put(0x2f, cpu -> Operations.complement(cpu, Byte.Register.A));
         m.put(0x3f, cpu -> Operations.complementCarryFlag(cpu));
+        m.put(0x37, cpu -> Operations.setCarryFlag(cpu));
         m.put(0xcb, Cpu::doExtendedOperation);
         return m.build();
     }

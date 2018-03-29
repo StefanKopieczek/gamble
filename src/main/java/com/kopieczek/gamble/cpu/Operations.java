@@ -537,4 +537,11 @@ class Operations {
         cpu.set(Flag.OPERATION, false);
         return 4;
     }
+
+    public static int setCarryFlag(Cpu cpu) {
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, false);
+        return 4;
+    }
 }

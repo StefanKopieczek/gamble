@@ -5541,6 +5541,54 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.OPERATION));
     }
 
+    @Test
+    public void test_scf_sets_carry_flag() {
+        Cpu cpu = runProgram(0x37);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_scf_uses_4_cycles() {
+        Cpu cpu = runProgram(0x37);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_scf_doesnt_reset_carry_flag() {
+        Cpu cpu = cpuWithProgram(0x37);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 1);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_scf_doesnt_set_nibble_flag() {
+        Cpu cpu = runProgram(0x37);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_scf_resets_nibble_flag() {
+        Cpu cpu = cpuWithProgram(0x37);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_scf_doesnt_set_operation_flag() {
+        Cpu cpu = runProgram(0x37);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_scf_resets_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x37);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
