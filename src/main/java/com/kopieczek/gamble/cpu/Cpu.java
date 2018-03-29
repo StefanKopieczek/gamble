@@ -297,8 +297,12 @@ public class Cpu {
         m.put(0x3b, cpu -> Operations.decrement(cpu, Word.Register.SP));
         m.put(0x27, cpu -> Operations.bcdAdjust(cpu, Byte.Register.A));
         m.put(0x2f, cpu -> Operations.complement(cpu, Byte.Register.A));
-        m.put(0x3f, cpu -> Operations.complementCarryFlag(cpu));
-        m.put(0x37, cpu -> Operations.setCarryFlag(cpu));
+        m.put(0x3f, Operations::complementCarryFlag);
+        m.put(0x37, Operations::setCarryFlag);
+        m.put(0x76, Operations::halt);
+        m.put(0x10, cpu -> Operations.stop(cpu, Byte.argument()));
+        m.put(0xf3, Operations::disableInterrupts);
+        m.put(0xfb, Operations::enableInterrupts);
         m.put(0xcb, Cpu::doExtendedOperation);
         return m.build();
     }

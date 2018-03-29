@@ -544,4 +544,31 @@ class Operations {
         cpu.set(Flag.OPERATION, false);
         return 4;
     }
+
+    public static int halt(Cpu cpu) {
+        throw new UnsupportedOperationException("CPU halt not yet implemented");
+        // return 4;
+    }
+
+    public static int stop(Cpu cpu, Byte.Argument nextByte) {
+        final int nextByteVal = nextByte.getValue(cpu);
+        if (nextByteVal == 0x00) {
+            throw new UnsupportedOperationException("CPU stop not yet implemented");
+        } else {
+            throw new IllegalArgumentException("Unexpected opcode 0x" +
+                    Integer.toHexString(nextByteVal) +
+                    " following 0x10");
+        }
+        // return 4;
+    }
+
+    public static int disableInterrupts(Cpu cpu) {
+        throw new UnsupportedOperationException("Interrupt management not yet implemented");
+        // return 4
+    }
+
+    public static int enableInterrupts(Cpu cpu) {
+        throw new UnsupportedOperationException("Interrupt management not yet implemented");
+        // return 4
+    }
 }

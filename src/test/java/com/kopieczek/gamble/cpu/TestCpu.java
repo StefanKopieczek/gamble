@@ -5589,6 +5589,41 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.OPERATION));
     }
 
+    @Test(expected=UnsupportedOperationException.class)
+    public void test_halt_is_unsupported() {
+        runProgram(0x76);
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void test_stop_is_unsupported() {
+        runProgram(0x10, 0x00);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_0x10_is_not_stop_when_followed_by_0x01() {
+        runProgram(0x10, 0x01);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_0x10_is_not_stop_when_followed_by_0x17() {
+        runProgram(0x10, 0x17);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_0x10_is_not_stop_when_followed_by_0xff() {
+        runProgram(0x10, 0xff);
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void test_di_is_unsupported() {
+        runProgram(0xf3);
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void test_ei_is_unsupported() {
+        runProgram(0xfb);
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
