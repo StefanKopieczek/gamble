@@ -3852,8 +3852,9 @@ public class TestCpu {
         assertEquals(4, cpu.getCycles());
     }
 
+    @Test
     public void test_a_or_h() {
-        Cpu cpu = runProgram(0x3e, 0x13, 0x1e, 0x9e, 0xb4);
+        Cpu cpu = runProgram(0x3e, 0x13, 0x26, 0x9e, 0xb4);
         assertEquals(0x9f, cpu.read(Byte.Register.A));
     }
 
@@ -3863,8 +3864,9 @@ public class TestCpu {
         assertEquals(4, cpu.getCycles());
     }
 
+    @Test
     public void test_a_or_l() {
-        Cpu cpu = runProgram(0x3e, 0x68, 0x1e, 0xf7, 0xb5);
+        Cpu cpu = runProgram(0x3e, 0x68, 0x2e, 0xf7, 0xb5);
         assertEquals(0xff, cpu.read(Byte.Register.A));
     }
 
