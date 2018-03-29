@@ -571,4 +571,16 @@ class Operations {
         throw new UnsupportedOperationException("Interrupt management not yet implemented");
         // return 4
     }
+
+    public static int rotateLeftOntoCarry(Cpu cpu, Byte.Register r) {
+        int newValue = cpu.read(r) << 1;
+        int topBit = (0x0100 & newValue) >> 8;
+        newValue = (0xff & newValue) + topBit;
+        cpu.set(r, Byte.literal(newValue));
+        cpu.set(Flag.CARRY, (topBit > 0));
+        cpu.set(Flag.ZERO, false);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, false);
+        return 4;
+    }
 }

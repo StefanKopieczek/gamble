@@ -5626,6 +5626,116 @@ public class TestCpu {
         runProgram(0xfb);
     }
 
+    @Test
+    public void test_rcla_of_0x00_is_0x00() {
+        Cpu cpu = runProgram(0x07);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_rcla_uses_4_cycles() {
+        Cpu cpu = runProgram(0x07);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rcla_of_0x01_is_0x02() {
+        Cpu cpu = runProgram(0x3e, 0x01, 0x07);
+        assertEquals(0x02, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_rcla_of_0b01100111_is_0b11001110() {
+        Cpu cpu = runProgram(0x3e, 0b01100111, 0x07);
+        assertEquals(0b11001110, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_rcla_of_0b11010110_is_0b10101101() {
+        Cpu cpu = runProgram(0x3e, 0b11010110, 0x07);
+        assertEquals(0b10101101, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_rcla_of_0x00_is_still_0x00_when_carry_is_true() {
+        Cpu cpu = cpuWithProgram(0x07);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 1);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_rcla_copies_bit_7_to_carry_flag_when_bit_7_is_high() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0x07);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rcla_copies_bit_7_to_carry_flag_when_bit_7_is_low() {
+        Cpu cpu = cpuWithProgram(0x07);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rcla_preserves_high_carry_flag_when_bit_7_is_high() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x80, 0x07);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rcla_preserves_low_carry_flag_when_bit_7_is_low() {
+        Cpu cpu = runProgram(0x07);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rcla_does_not_set_zero_flag() {
+        // Contra GBCPUMan, the official manual says zero should always
+        // be reset when RCLA is called.
+        Cpu cpu = runProgram(0x07);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rcla_resets_zero_flag() {
+        Cpu cpu = cpuWithProgram(0x07);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 1);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rcla_does_not_set_nibble_flag() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0x07);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_rcla_resets_nibble_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x08, 0x07);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_rcla_does_not_set_operation_flag() {
+        Cpu cpu = runProgram(0x3e, 0x10, 0x07);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_rcla_resets_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x10, 0x07);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
