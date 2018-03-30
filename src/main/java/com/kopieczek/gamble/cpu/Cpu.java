@@ -305,6 +305,7 @@ public class Cpu {
         m.put(0xfb, cpu -> Operations.enableInterrupts(cpu));
         m.put(0x07, cpu -> Operations.rotateLeftOntoCarry(cpu, Byte.Register.A));
         m.put(0x17, cpu -> Operations.rotateLeftThroughCarry(cpu, Byte.Register.A));
+        m.put(0x0f, cpu -> Operations.rotateRightOntoCarry(cpu, Byte.Register.A));
         m.put(0xcb, Cpu::doExtendedOperation);
         return m.build();
     }
