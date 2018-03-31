@@ -608,4 +608,17 @@ class Operations {
         cpu.set(Flag.OPERATION, false);
         return 4;
     }
+
+    public static int rotateRightThroughCarry(Cpu cpu, Byte.Register r) {
+        final int oldValue = cpu.read(r);
+        final int bit0 = oldValue & 0x01;
+        final int carryAdjustment = (cpu.isSet(Flag.CARRY)) ? 1 : 0;
+        final int newValue = (carryAdjustment << 7) + (oldValue >> 1);
+        cpu.set(r, Byte.literal(newValue));
+        cpu.set(Flag.CARRY, bit0 > 0);
+        cpu.set(Flag.ZERO, false);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, false);
+        return 4;
+    }
 }
