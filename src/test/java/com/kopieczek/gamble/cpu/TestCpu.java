@@ -6150,10 +6150,29 @@ public class TestCpu {
     }
 
     @Test
+    public void test_rlc_a_sets_zero_flag() {
+        // Although RLCA doesn't set the zero flag, RLC does.
+        Cpu cpu = runProgram(0xcb, 0x07);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rlc_a_doesnt_set_zero_flag_if_result_is_nonzero() {
+        Cpu cpu = runProgram(0x3e, 0x01, 0xcb, 0x07);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
     public void test_rlc_b() {
         Cpu cpu = runProgram(0x06, 0x9d, 0xcb, 0x00);
         assertEquals(0x3b, cpu.read(Byte.Register.B));
         assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rlc_b_sets_zero_flag() {
+        Cpu cpu = runProgram(0x06, 0x00, 0xcb, 0x00);
+        assertTrue(cpu.isSet(Flag.ZERO));
     }
 
     @Test
@@ -6205,6 +6224,12 @@ public class TestCpu {
     }
 
     @Test
+    public void test_rlc_hl_indirect_sets_zero_flag() {
+        Cpu cpu = runProgram(0x36, 0x00, 0xcb, 0x06);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
     public void test_rl_a_with_carry_low() {
         Cpu cpu = runProgram(0x3e, 0x42, 0xcb, 0x17);
         assertEquals(0x84, cpu.read(Byte.Register.A));
@@ -6217,6 +6242,27 @@ public class TestCpu {
         cpu.set(Flag.CARRY, true);
         runProgram(cpu, 4);
         assertEquals(0x85, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_a_with_carry_low_sets_zero_flag() {
+        Cpu cpu = runProgram(0x3e, 0x00, 0xcb, 0x17);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rl_a_with_carry_low_sets_zero_flag_despite_nonzero_input() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0xcb, 0x17);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rl_a_of_0x00_with_carry_high_resets_zero_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x00, 0xcb, 0x17);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 4);
         assertFalse(cpu.isSet(Flag.CARRY));
     }
 
@@ -6339,6 +6385,18 @@ public class TestCpu {
     }
 
     @Test
+    public void test_rl_hl_indirect_sets_zero_flag() {
+        Cpu cpu = runProgram(0x36, 0x80, 0xcb, 0x16);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rl_hl_indirect_doesnt_always_set_zero_flag() {
+        Cpu cpu = runProgram(0xcb, 0x16);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
     public void test_rl_hl_uses_16_cycles() {
         Cpu cpu = runProgram(0xcb, 0x16);
         assertEquals(16, cpu.getCycles());
@@ -6362,6 +6420,32 @@ public class TestCpu {
         Cpu cpu = runProgram(0x06, 0x50, 0xcb, 0x08);
         assertEquals(0x28, cpu.read(Byte.Register.B));
         assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rrc_b_sets_zero_flag_on_0x00() {
+        Cpu cpu = runProgram(0xcb, 0x08);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rrc_b_does_not_set_zero_flag_on_0x01() {
+        Cpu cpu = runProgram(0x06, 0x01, 0xcb, 0x08);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rrc_b_sets_zero_flag_on_0x00_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x06, 0x00, 0xcb, 0x08);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rrc_b_doesnt_always_set_zero_flag() {
+        Cpu cpu = runProgram(0x06, 0x02, 0xcb, 0x08);
+        assertFalse(cpu.isSet(Flag.ZERO));
     }
 
     @Test
@@ -6410,6 +6494,18 @@ public class TestCpu {
     public void test_rrc_hl_indirect_uses_16_cycles() {
         Cpu cpu = runProgram(0xcb, 0x0e);
         assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rrc_hl_indirect_sets_zero_flag() {
+        Cpu cpu = runProgram(0x36, 0x00, 0xcb, 0x0e);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rrc_hl_indirect_doesnt_always_set_zero_flag() {
+        Cpu cpu = runProgram(0xcb, 0x0e);
+        assertFalse(cpu.isSet(Flag.ZERO));
     }
 
     @Test
@@ -6483,6 +6579,26 @@ public class TestCpu {
     }
 
     @Test
+    public void test_rr_d_sets_zero_flag() {
+        Cpu cpu = runProgram(0xcb, 0x1a);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rr_d_doesnt_always_set_zero_flag() {
+        Cpu cpu = runProgram(0x16, 0x02, 0xcb, 0x1a);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rr_d_does_not_set_zero_flag_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0xcb, 0x1a);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 2);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
     public void test_rr_e_with_carry_low() {
         Cpu cpu = runProgram(0x1e, 0xae, 0xcb, 0x1b);
         assertEquals(0x57, cpu.read(Byte.Register.E));
@@ -6549,6 +6665,18 @@ public class TestCpu {
     public void test_rr_hl_indirect_uses_16_cycles() {
         Cpu cpu = runProgram(0xcb, 0x1e);
         assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rr_hl_indirect_sets_zero_flag() {
+        Cpu cpu = runProgram(0x36, 0x01, 0xcb, 0x1e);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_rr_hl_indirect_doesnt_always_set_zero_flag() {
+        Cpu cpu = runProgram(0xcb, 0x1e);
+        assertFalse(cpu.isSet(Flag.ZERO));
     }
 
     private static Cpu cpuWithProgram(int... program) {

@@ -583,11 +583,12 @@ class Operations {
             throw new IllegalArgumentException("Unsupported rotate mode " + rotateMode);
         }
 
+        final int newValue = ((oldValue << 1) & 0xff) + newBit0;
         cpu.set(Flag.CARRY, oldBit7 > 0);
-        cpu.set(Flag.ZERO, false) ;
+        cpu.set(Flag.ZERO, newValue == 0x00);
         cpu.set(Flag.NIBBLE, false) ;
         cpu.set(Flag.OPERATION, false) ;
-        return ((oldValue << 1) & 0xff) + newBit0;
+        return newValue;
     }
 
     private static int rotateRight(Cpu cpu, int oldValue, RotateMode rotateMode) {
@@ -601,11 +602,12 @@ class Operations {
             throw new IllegalArgumentException("Unsupported rotate mode " + rotateMode);
         }
 
+        final int newValue = (newBit7 << 7) + (oldValue >> 1);
         cpu.set(Flag.CARRY, oldBit0 > 0);
-        cpu.set(Flag.ZERO, false);
+        cpu.set(Flag.ZERO, newValue == 0x00);
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.OPERATION, false);
-        return (newBit7 << 7) + (oldValue >> 1);
+        return newValue;
     }
 
     public static int rotateLeft(Cpu cpu, Byte.Register r, RotateMode mode) {
@@ -634,12 +636,14 @@ class Operations {
 
     public static int rotateALeft(Cpu cpu, RotateMode mode) {
         rotateLeft(cpu, Byte.Register.A, mode);
-        return 4; // RLCA is 4 cycles even though RLC A is 8.
+        cpu.set(Flag.ZERO, false); // Unlike RL/RLC, RLA/RLCA always reset ZERO
+        return 4; // RLCA and RLA are 4 cycles even though RLC A and RL A are 8
     }
 
     public static int rotateARight(Cpu cpu, RotateMode mode) {
         rotateRight(cpu, Byte.Register.A, mode);
-        return 4; // RRCA is 4 cycles even though RRC A is 8.
+        cpu.set(Flag.ZERO, false); // Unlike RR/RRC, RRA/RRCA always reset ZERO
+        return 4; // RRCA is 4 cycles even though RRC A is 8
     }
 
     public enum RotateMode {
