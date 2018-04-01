@@ -6801,6 +6801,68 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.CARRY));
     }
 
+    @Test
+    public void test_left_shift_b() {
+        Cpu cpu = runProgram(0x06, 0b10101010, 0xcb, 0x20);
+        assertEquals(0b01010100, cpu.read(Byte.Register.B));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_left_shift_c() {
+        Cpu cpu = runProgram(0x0e, 0b01111101, 0xcb, 0x21);
+        assertEquals(0b11111010, cpu.read(Byte.Register.C));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_left_shift_d() {
+        Cpu cpu = runProgram(0x16, 0b11011011, 0xcb, 0x22);
+        assertEquals(0b10110110, cpu.read(Byte.Register.D));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_left_shift_e() {
+        Cpu cpu = runProgram(0x1e, 0b10110101, 0xcb, 0x23);
+        assertEquals(0b01101010, cpu.read(Byte.Register.E));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_left_shift_h() {
+        Cpu cpu = runProgram(0x26, 0b10110101, 0xcb, 0x24);
+        assertEquals(0b01101010, cpu.read(Byte.Register.H));
+        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_left_shift_l() {
+        Cpu cpu = runProgram(0x2e, 0b00101000, 0xcb, 0x25);
+        assertEquals(0b01010000, cpu.read(Byte.Register.L));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_left_shift_indirect_hl() {
+        Cpu cpu = runProgram(0x36, 0b00101111, 0xcb, 0x26);
+        assertEquals(0b01011110, cpu.readFrom(Pointer.of(Word.Register.HL)));
+        assertFalse(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_left_shift_indirect_hl_uses_16_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x26);
+        assertEquals(16, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
