@@ -572,123 +572,78 @@ class Operations {
         // return 4
     }
 
-    public static int rotateLeftOntoCarry(Cpu cpu, Byte.Register r) {
-        int newValue = cpu.read(r) << 1;
-        int bit7 = (0x0100 & newValue) >> 8;
-        newValue = (0xff & newValue) + bit7;
-        cpu.set(r, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, (bit7 > 0));
+    private static int rotateLeft(Cpu cpu, int oldValue, RotateMode rotateMode) {
+        final int oldBit7 = (0x80 & oldValue) >> 7;
+        int newBit0;
+        if (rotateMode == RotateMode.COPY_TO_CARRY) {
+            newBit0 = oldBit7;
+        } else if (rotateMode == RotateMode.INCLUDE_CARRY) {
+            newBit0 = cpu.isSet(Flag.CARRY) ? 1 : 0;
+        } else {
+            throw new IllegalArgumentException("Unsupported rotate mode " + rotateMode);
+        }
+
+        cpu.set(Flag.CARRY, oldBit7 > 0);
+        cpu.set(Flag.ZERO, false) ;
+        cpu.set(Flag.NIBBLE, false) ;
+        cpu.set(Flag.OPERATION, false) ;
+        return ((oldValue << 1) & 0xff) + newBit0;
+    }
+
+    private static int rotateRight(Cpu cpu, int oldValue, RotateMode rotateMode) {
+        final int oldBit0 = 0x01 & oldValue;
+        int newBit7;
+        if (rotateMode == RotateMode.COPY_TO_CARRY) {
+            newBit7 = oldBit0;
+        } else if (rotateMode == RotateMode.INCLUDE_CARRY) {
+            newBit7 = cpu.isSet(Flag.CARRY) ? 1 : 0;
+        } else {
+            throw new IllegalArgumentException("Unsupported rotate mode " + rotateMode);
+        }
+
+        cpu.set(Flag.CARRY, oldBit0 > 0);
         cpu.set(Flag.ZERO, false);
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.OPERATION, false);
+        return (newBit7 << 7) + (oldValue >> 1);
+    }
+
+    public static int rotateLeft(Cpu cpu, Byte.Register r, RotateMode mode) {
+        int newValue = rotateLeft(cpu, cpu.read(r), mode);
+        cpu.set(r, Byte.literal(newValue));
         return 8;
     }
 
-    public static int rotateLeftOntoCarry(Cpu cpu, Pointer p) {
-        int newValue = cpu.readFrom(p) << 1;
-        int bit7 = (0x0100 & newValue) >> 8;
-        newValue = (0xff & newValue) + bit7;
+    public static int rotateLeft(Cpu cpu, Pointer p, RotateMode mode) {
+        int newValue = rotateLeft(cpu, cpu.readFrom(p), mode);
         cpu.writeTo(p, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, (bit7 > 0));
-        cpu.set(Flag.ZERO, false);
-        cpu.set(Flag.NIBBLE, false);
-        cpu.set(Flag.OPERATION, false);
         return 16;
     }
 
-    public static int rotateLeftThroughCarry(Cpu cpu, Byte.Register r) {
-        final int oldValue = r.getValue(cpu);
-        final int bit7 = (0x80 & oldValue) >> 7;
-        final int carryAdjustment = (cpu.isSet(Flag.CARRY) ? 1 : 0);
-        final int newValue = (0xff & (oldValue << 1)) + carryAdjustment;
+    public static int rotateRight(Cpu cpu, Byte.Register r, RotateMode mode) {
+        int newValue = rotateRight(cpu, cpu.read(r), mode);
         cpu.set(r, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, bit7 > 0);
-        cpu.set(Flag.ZERO, false);
-        cpu.set(Flag.NIBBLE, false);
-        cpu.set(Flag.OPERATION, false);
         return 8;
     }
 
-    public static int rotateLeftThroughCarry(Cpu cpu, Pointer p) {
-        final int oldValue = cpu.readFrom(p);
-        final int bit7 = (0x80 & oldValue) >> 7;
-        final int carryAdjustment = (cpu.isSet(Flag.CARRY) ? 1 : 0);
-        final int newValue = (0xff & (oldValue << 1)) + carryAdjustment;
+    public static int rotateRight(Cpu cpu, Pointer p, RotateMode mode) {
+        int newValue = rotateRight(cpu, cpu.readFrom(p), mode);
         cpu.writeTo(p, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, bit7 > 0);
-        cpu.set(Flag.ZERO, false);
-        cpu.set(Flag.NIBBLE, false);
-        cpu.set(Flag.OPERATION, false);
         return 16;
     }
 
-    public static int rotateRightOntoCarry(Cpu cpu, Byte.Register r) {
-        final int oldValue = cpu.read(r);
-        final int bit0 = oldValue & 0x01;
-        final int newValue = (bit0 << 7) + (oldValue >> 1);
-        cpu.set(r, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, bit0 > 0);
-        cpu.set(Flag.ZERO, false);
-        cpu.set(Flag.NIBBLE, false);
-        cpu.set(Flag.OPERATION, false);
-        return 8;
-    }
-
-    public static int rotateRightOntoCarry(Cpu cpu, Pointer p) {
-        final int oldValue = cpu.readFrom(p);
-        final int bit0 = oldValue & 0x01;
-        final int newValue = (bit0 << 7) + (oldValue >> 1);
-        cpu.writeTo(p, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, bit0 > 0);
-        cpu.set(Flag.ZERO, false);
-        cpu.set(Flag.NIBBLE, false);
-        cpu.set(Flag.OPERATION, false);
-        return 16;
-    }
-
-    public static int rotateRightThroughCarry(Cpu cpu, Byte.Register r) {
-        final int oldValue = cpu.read(r);
-        final int bit0 = oldValue & 0x01;
-        final int carryAdjustment = (cpu.isSet(Flag.CARRY)) ? 1 : 0;
-        final int newValue = (carryAdjustment << 7) + (oldValue >> 1);
-        cpu.set(r, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, bit0 > 0);
-        cpu.set(Flag.ZERO, false);
-        cpu.set(Flag.NIBBLE, false);
-        cpu.set(Flag.OPERATION, false);
-        return 8;
-    }
-
-    public static int rotateRightThroughCarry(Cpu cpu, Pointer p) {
-        final int oldValue = cpu.readFrom(p);
-        final int bit0 = oldValue & 0x01;
-        final int carryAdjustment = (cpu.isSet(Flag.CARRY)) ? 1 : 0;
-        final int newValue = (carryAdjustment << 7) + (oldValue >> 1);
-        cpu.writeTo(p, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, bit0 > 0);
-        cpu.set(Flag.ZERO, false);
-        cpu.set(Flag.NIBBLE, false);
-        cpu.set(Flag.OPERATION, false);
-        return 16;
-    }
-
-    public static int rotateALeftOntoCarry(Cpu cpu) {
-        rotateLeftOntoCarry(cpu, Byte.Register.A);
+    public static int rotateALeft(Cpu cpu, RotateMode mode) {
+        rotateLeft(cpu, Byte.Register.A, mode);
         return 4; // RLCA is 4 cycles even though RLC A is 8.
     }
 
-    public static int rotateALeftThroughCarry(Cpu cpu) {
-        rotateLeftThroughCarry(cpu, Byte.Register.A);
-        return 4; // RLA is 4 cycles even though RL A is 8.
-    }
-
-    public static int rotateARightOntoCarry(Cpu cpu) {
-        rotateRightOntoCarry(cpu, Byte.Register.A);
+    public static int rotateARight(Cpu cpu, RotateMode mode) {
+        rotateRight(cpu, Byte.Register.A, mode);
         return 4; // RRCA is 4 cycles even though RRC A is 8.
     }
 
-    public static int rotateARightThroughCarry(Cpu cpu) {
-        rotateRightThroughCarry(cpu, Byte.Register.A);
-        return 4; // RRA is 4 cycles even though RR A is 8.
+    public enum RotateMode {
+        COPY_TO_CARRY,
+        INCLUDE_CARRY;
     }
 }
