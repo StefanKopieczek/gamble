@@ -353,6 +353,7 @@ public class Cpu {
         m.put(0x25, cpu -> Operations.leftShift(cpu, Byte.Register.L));
         m.put(0x26, cpu -> Operations.leftShift(cpu, Pointer.of(Word.Register.HL)));
         m.put(0x27, cpu -> Operations.leftShift(cpu, Byte.Register.A));
+        m.put(0x2f, cpu -> Operations.rightShiftArithmetic(cpu, Byte.Register.A));
         m.put(0x37, cpu -> Operations.swap(cpu, Byte.Register.A));
         m.put(0x30, cpu -> Operations.swap(cpu, Byte.Register.B));
         m.put(0x31, cpu -> Operations.swap(cpu, Byte.Register.C));
