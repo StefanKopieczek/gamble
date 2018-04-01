@@ -6973,6 +6973,61 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.OPERATION));
     }
 
+    @Test
+    public void test_arithmetic_right_shift_b() {
+        Cpu cpu = runProgram(0x06, 0xb4, 0xcb, 0x28);
+        assertEquals(0xda, cpu.read(Byte.Register.B));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_arithmetic_right_shift_c() {
+        Cpu cpu = runProgram(0x0e, 0xd5, 0xcb, 0x29);
+        assertEquals(0xea, cpu.read(Byte.Register.C));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_arithmetic_right_shift_d() {
+        Cpu cpu = runProgram(0x16, 0xfe, 0xcb, 0x2a);
+        assertEquals(0xff, cpu.read(Byte.Register.D));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_arithmetic_right_shift_e() {
+        Cpu cpu = runProgram(0x1e, 0xfc, 0xcb, 0x2b);
+        assertEquals(0xfe, cpu.read(Byte.Register.E));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_arithmetic_right_shift_h() {
+        Cpu cpu = runProgram(0x26, 0xd2, 0xcb, 0x2c);
+        assertEquals(0xe9, cpu.read(Byte.Register.H));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_arithmetic_right_shift_l() {
+        Cpu cpu = runProgram(0x2e, 0x16, 0xcb, 0x2d);
+        assertEquals(0x0b, cpu.read(Byte.Register.L));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_arithmetic_right_shift_hl_indirect() {
+        Cpu cpu = runProgram(0x36, 0x75, 0xcb, 0x2e);
+        assertEquals(0x3a, cpu.readFrom(Pointer.of(Word.Register.HL)));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_arithmetic_right_shift_hl_indirect_uses_16_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x2e);
+        assertEquals(16, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

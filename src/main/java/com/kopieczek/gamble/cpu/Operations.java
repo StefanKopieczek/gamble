@@ -680,6 +680,18 @@ class Operations {
         return 8;
     }
 
+    public static int rightShiftArithmetic(Cpu cpu, Pointer p) {
+        final int oldValue = cpu.readFrom(p);
+        final int oldBit0 = oldValue & 0x01;
+        final int newValue = (oldValue & 0x80) + (oldValue >> 1);
+        cpu.writeTo(p, Byte.literal(newValue));
+        cpu.set(Flag.CARRY, oldBit0 > 0);
+        cpu.set(Flag.ZERO, newValue == 0x00);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, false);
+        return 16;
+    }
+
     public enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY;
