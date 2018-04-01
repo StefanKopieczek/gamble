@@ -6136,6 +6136,421 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.OPERATION));
     }
 
+    @Test
+    public void test_rlc_a() {
+        Cpu cpu = runProgram(0x3e, 0x8b, 0xcb, 0x07);
+        assertEquals(0x17, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rlc_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x07);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rlc_b() {
+        Cpu cpu = runProgram(0x06, 0x9d, 0xcb, 0x00);
+        assertEquals(0x3b, cpu.read(Byte.Register.B));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rlc_c() {
+        Cpu cpu = runProgram(0x0e, 0xac, 0xcb, 0x01);
+        assertEquals(0x59, cpu.read(Byte.Register.C));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rlc_d() {
+        Cpu cpu = runProgram(0x16, 0x44, 0xcb, 0x02);
+        assertEquals(0x88, cpu.read(Byte.Register.D));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rlc_e() {
+        Cpu cpu = runProgram(0x1e, 0x28, 0xcb, 0x03);
+        assertEquals(0x50, cpu.read(Byte.Register.E));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rlc_h() {
+        Cpu cpu = runProgram(0x26, 0xbb, 0xcb, 0x04);
+        assertEquals(0x77, cpu.read(Byte.Register.H));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rlc_l() {
+        Cpu cpu = runProgram(0x2e, 0xc7, 0xcb, 0x05);
+        assertEquals(0x8f, cpu.read(Byte.Register.L));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rlc_hl_indirect() {
+        Cpu cpu = runProgram(0x36, 0x21, 0xcb, 0x06);
+        assertEquals(0x42, cpu.readFrom(Pointer.of(Word.Register.HL)));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rlc_hl_indirect_uses_16_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x06);
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rl_a_with_carry_low() {
+        Cpu cpu = runProgram(0x3e, 0x42, 0xcb, 0x17);
+        assertEquals(0x84, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_a_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x42, 0xcb, 0x17);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0x85, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x17);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rl_b_with_carry_low() {
+        Cpu cpu = runProgram(0x06, 0xf1, 0xcb, 0x10);
+        assertEquals(0xe2, cpu.read(Byte.Register.B));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_b_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x06, 0xf1, 0xcb, 0x10);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0xe3, cpu.read(Byte.Register.B));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_c_with_carry_low() {
+        Cpu cpu = runProgram(0x0e, 0x15, 0xcb, 0x11);
+        assertEquals(0x2a, cpu.read(Byte.Register.C));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_c_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x0e, 0x15, 0xcb, 0x11);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0x2b, cpu.read(Byte.Register.C));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_d_with_carry_low() {
+        Cpu cpu = runProgram(0x16, 0xbe, 0xcb, 0x12);
+        assertEquals(0x7c, cpu.read(Byte.Register.D));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_d_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x16, 0xbe, 0xcb, 0x12);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0x7d, cpu.read(Byte.Register.D));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_e_with_carry_low() {
+        Cpu cpu = runProgram(0x1e, 0x54, 0xcb, 0x13);
+        assertEquals(0xa8, cpu.read(Byte.Register.E));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_e_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x1e, 0x54, 0xcb, 0x13);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0xa9, cpu.read(Byte.Register.E));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_h_with_carry_low() {
+        Cpu cpu = runProgram(0x26, 0x4e, 0xcb, 0x14);
+        assertEquals(0x9c, cpu.read(Byte.Register.H));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_h_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x26, 0x4e, 0xcb, 0x14);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0x9d, cpu.read(Byte.Register.H));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_l_with_carry_low() {
+        Cpu cpu = runProgram(0x2e, 0xb2, 0xcb, 0x15);
+        assertEquals(0x64, cpu.read(Byte.Register.L));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_l_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x2e, 0xb2, 0xcb, 0x15);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0x65, cpu.read(Byte.Register.L));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_hl_indirect_with_carry_low() {
+        Cpu cpu = runProgram(0x36, 0x42, 0xcb, 0x16);
+        assertEquals(0x84, cpu.readFrom(Pointer.of(Word.Register.HL)));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_hl_indirect_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x36, 0x42, 0xcb, 0x16);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0x85, cpu.readFrom(Pointer.of(Word.Register.HL)));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rl_hl_uses_16_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x16);
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rrc_a() {
+        Cpu cpu = runProgram(0x3e, 0x9d, 0xcb, 0x0f);
+        assertEquals(0xce, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rrc_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x0f);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rrc_b() {
+        Cpu cpu = runProgram(0x06, 0x50, 0xcb, 0x08);
+        assertEquals(0x28, cpu.read(Byte.Register.B));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rrc_c() {
+        Cpu cpu = runProgram(0x0e, 0x48, 0xcb, 0x09);
+        assertEquals(0x24, cpu.read(Byte.Register.C));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rrc_d() {
+        Cpu cpu = runProgram(0x16, 0xef, 0xcb, 0x0a);
+        assertEquals(0xf7, cpu.read(Byte.Register.D));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rrc_e() {
+        Cpu cpu = runProgram(0x1e, 0x29, 0xcb, 0x0b);
+        assertEquals(0x94, cpu.read(Byte.Register.E));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rrc_h() {
+        Cpu cpu = runProgram(0x26, 0x88, 0xcb, 0x0c);
+        assertEquals(0x44, cpu.read(Byte.Register.H));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rrc_l() {
+        Cpu cpu = runProgram(0x2e, 0x50, 0xcb, 0x0d);
+        assertEquals(0x28, cpu.read(Byte.Register.L));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rrc_hl_indirect() {
+        Cpu cpu = runProgram(0x36, 0x06, 0xcb, 0x0e);
+        assertEquals(0x03, cpu.readFrom(Pointer.of(Word.Register.HL)));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rrc_hl_indirect_uses_16_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x0e);
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rr_a_with_carry_low() {
+        Cpu cpu = runProgram(0x3e, 0x02, 0xcb, 0x1f);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_a_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x02, 0xcb, 0x1f);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0x81, cpu.read(Byte.Register.A));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x1f);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rr_b_with_carry_low() {
+        Cpu cpu = runProgram(0x06, 0xd4, 0xcb, 0x18);
+        assertEquals(0x6a, cpu.read(Byte.Register.B));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_b_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x06, 0xd4, 0xcb, 0x18);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0xea, cpu.read(Byte.Register.B));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_c_with_carry_low() {
+        Cpu cpu = runProgram(0x0e, 0x85, 0xcb, 0x19);
+        assertEquals(0x42, cpu.read(Byte.Register.C));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_c_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x0e, 0x85, 0xcb, 0x19);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0xc2, cpu.read(Byte.Register.C));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_d_with_carry_low() {
+        Cpu cpu = runProgram(0x16, 0x60, 0xcb, 0x1a);
+        assertEquals(0x30, cpu.read(Byte.Register.D));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_d_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x16, 0x60, 0xcb, 0x1a);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0xb0, cpu.read(Byte.Register.D));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_e_with_carry_low() {
+        Cpu cpu = runProgram(0x1e, 0xae, 0xcb, 0x1b);
+        assertEquals(0x57, cpu.read(Byte.Register.E));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_e_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x1e, 0xae, 0xcb, 0x1b);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0xd7, cpu.read(Byte.Register.E));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_h_with_carry_low() {
+        Cpu cpu = runProgram(0x26, 0xc8, 0xcb, 0x1c);
+        assertEquals(0x64, cpu.read(Byte.Register.H));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_h_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x26, 0xc8, 0xcb, 0x1c);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0xe4, cpu.read(Byte.Register.H));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    public void test_rr_l_with_carry_low() {
+        Cpu cpu = runProgram(0x2e, 0x8f, 0xcb, 0x1d);
+        assertEquals(0x47, cpu.read(Byte.Register.L));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_l_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x2e, 0x8f, 0xcb, 0x1d);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0xc7, cpu.read(Byte.Register.L));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_hl_indirect_with_carry_low() {
+        Cpu cpu = runProgram(0x36, 0x68, 0xcb, 0x1e);
+        assertEquals(0x34, cpu.readFrom(Pointer.of(Word.Register.HL)));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_hl_indirect_with_carry_high() {
+        Cpu cpu = cpuWithProgram(0x36, 0x68, 0xcb, 0x1e);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertEquals(0xb4, cpu.readFrom(Pointer.of(Word.Register.HL)));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_rr_hl_indirect_uses_16_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x1e);
+        assertEquals(16, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

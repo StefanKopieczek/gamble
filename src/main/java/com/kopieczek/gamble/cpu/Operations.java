@@ -574,31 +574,56 @@ class Operations {
 
     public static int rotateLeftOntoCarry(Cpu cpu, Byte.Register r) {
         int newValue = cpu.read(r) << 1;
-        int topBit = (0x0100 & newValue) >> 8;
-        newValue = (0xff & newValue) + topBit;
+        int bit7 = (0x0100 & newValue) >> 8;
+        newValue = (0xff & newValue) + bit7;
         cpu.set(r, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, (topBit > 0));
+        cpu.set(Flag.CARRY, (bit7 > 0));
         cpu.set(Flag.ZERO, false);
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.OPERATION, false);
-        return 4;
+        return 8;
+    }
+
+    public static int rotateLeftOntoCarry(Cpu cpu, Pointer p) {
+        int newValue = cpu.readFrom(p) << 1;
+        int bit7 = (0x0100 & newValue) >> 8;
+        newValue = (0xff & newValue) + bit7;
+        cpu.writeTo(p, Byte.literal(newValue));
+        cpu.set(Flag.CARRY, (bit7 > 0));
+        cpu.set(Flag.ZERO, false);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, false);
+        return 16;
     }
 
     public static int rotateLeftThroughCarry(Cpu cpu, Byte.Register r) {
-        int newValue = r.getValue(cpu) << 1;
-        final int topBit = (0x0100 & newValue) >> 8;
+        final int oldValue = r.getValue(cpu);
+        final int bit7 = (0x80 & oldValue) >> 7;
         final int carryAdjustment = (cpu.isSet(Flag.CARRY) ? 1 : 0);
-        newValue = 0xff & newValue + carryAdjustment;
+        final int newValue = (0xff & (oldValue << 1)) + carryAdjustment;
         cpu.set(r, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, topBit > 0);
+        cpu.set(Flag.CARRY, bit7 > 0);
         cpu.set(Flag.ZERO, false);
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.OPERATION, false);
-        return 4;
+        return 8;
+    }
+
+    public static int rotateLeftThroughCarry(Cpu cpu, Pointer p) {
+        final int oldValue = cpu.readFrom(p);
+        final int bit7 = (0x80 & oldValue) >> 7;
+        final int carryAdjustment = (cpu.isSet(Flag.CARRY) ? 1 : 0);
+        final int newValue = (0xff & (oldValue << 1)) + carryAdjustment;
+        cpu.writeTo(p, Byte.literal(newValue));
+        cpu.set(Flag.CARRY, bit7 > 0);
+        cpu.set(Flag.ZERO, false);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, false);
+        return 16;
     }
 
     public static int rotateRightOntoCarry(Cpu cpu, Byte.Register r) {
-        final int oldValue = cpu.read(Byte.Register.A);
+        final int oldValue = cpu.read(r);
         final int bit0 = oldValue & 0x01;
         final int newValue = (bit0 << 7) + (oldValue >> 1);
         cpu.set(r, Byte.literal(newValue));
@@ -606,7 +631,19 @@ class Operations {
         cpu.set(Flag.ZERO, false);
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.OPERATION, false);
-        return 4;
+        return 8;
+    }
+
+    public static int rotateRightOntoCarry(Cpu cpu, Pointer p) {
+        final int oldValue = cpu.readFrom(p);
+        final int bit0 = oldValue & 0x01;
+        final int newValue = (bit0 << 7) + (oldValue >> 1);
+        cpu.writeTo(p, Byte.literal(newValue));
+        cpu.set(Flag.CARRY, bit0 > 0);
+        cpu.set(Flag.ZERO, false);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, false);
+        return 16;
     }
 
     public static int rotateRightThroughCarry(Cpu cpu, Byte.Register r) {
@@ -619,6 +656,39 @@ class Operations {
         cpu.set(Flag.ZERO, false);
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.OPERATION, false);
-        return 4;
+        return 8;
+    }
+
+    public static int rotateRightThroughCarry(Cpu cpu, Pointer p) {
+        final int oldValue = cpu.readFrom(p);
+        final int bit0 = oldValue & 0x01;
+        final int carryAdjustment = (cpu.isSet(Flag.CARRY)) ? 1 : 0;
+        final int newValue = (carryAdjustment << 7) + (oldValue >> 1);
+        cpu.writeTo(p, Byte.literal(newValue));
+        cpu.set(Flag.CARRY, bit0 > 0);
+        cpu.set(Flag.ZERO, false);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, false);
+        return 16;
+    }
+
+    public static int rotateALeftOntoCarry(Cpu cpu) {
+        rotateLeftOntoCarry(cpu, Byte.Register.A);
+        return 4; // RLCA is 4 cycles even though RLC A is 8.
+    }
+
+    public static int rotateALeftThroughCarry(Cpu cpu) {
+        rotateLeftThroughCarry(cpu, Byte.Register.A);
+        return 4; // RLA is 4 cycles even though RL A is 8.
+    }
+
+    public static int rotateARightOntoCarry(Cpu cpu) {
+        rotateRightOntoCarry(cpu, Byte.Register.A);
+        return 4; // RRCA is 4 cycles even though RRC A is 8.
+    }
+
+    public static int rotateARightThroughCarry(Cpu cpu) {
+        rotateRightThroughCarry(cpu, Byte.Register.A);
+        return 4; // RRA is 4 cycles even though RR A is 8.
     }
 }
