@@ -6679,6 +6679,128 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.ZERO));
     }
 
+    @Test
+    public void test_left_shift_a_of_0x00_is_0x00() {
+        Cpu cpu = runProgram(0xcb, 0x27);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_left_shift_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x27);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_left_shift_a_of_0x01_is_0x02() {
+        Cpu cpu = runProgram(0x3e, 0x01, 0xcb, 0x27);
+        assertEquals(0x02, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_left_shift_a_of_0b01011101_is_0b1011101() {
+        Cpu cpu = runProgram(0x3e, 0b01011101, 0xcb, 0x27);
+        assertEquals(0b10111010, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_left_shift_a_of_0x80_is_0x00() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0xcb, 0x27);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_left_shift_a_of_0b10111011_is_0b01110110() {
+        Cpu cpu = runProgram(0x3e, 0b10111011, 0xcb, 0x27);
+        assertEquals(0b01110110, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_left_shift_a_sets_zero_flag_if_input_is_zero() {
+        Cpu cpu = runProgram(0xcb, 0x27);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_left_shift_a_of_0xff_doesnt_set_zero_flag() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0xcb, 0x27);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_left_shift_a_of_0x01_doesnt_set_zero_flag() {
+        Cpu cpu = runProgram(0x3e, 0x01, 0xcb, 0x27);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_left_shift_a_of_0x80_sets_zero_flag() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0xcb, 0x27);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_left_shift_a_of_0x81_resets_zero_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x81, 0xcb, 0x27);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_left_shift_a_doesnt_set_nibble_flag() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0xcb, 0x27);
+        assertFalse(cpu.isSet(Flag.NIBBLE)) ;
+    }
+
+    @Test
+    public void test_left_shift_a_resets_nibble_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x08, 0xcb, 0x27);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_left_shift_a_doesnt_set_operation_flag() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0xcb, 0x27);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_left_shift_a_resets_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x80, 0xcb, 0x27);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_left_shift_a_sets_carry_flag_if_input_is_0x80() {
+        Cpu cpu = runProgram(0x3e, 0x80, 0xcb, 0x27);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_left_shift_a_does_not_set_carry_flag_if_input_is_0x7f() {
+        Cpu cpu = runProgram(0x3e, 0x7f, 0xcb, 0x27);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_left_shift_a_sets_carry_flag_if_input_is_0xff() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0xcb, 0x27);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_left_shift_a_resets_carry_flag_if_bit_7_is_low() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x01, 0xcb, 0x27);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

@@ -345,6 +345,7 @@ public class Cpu {
         m.put(0x1d, cpu -> Operations.rotateRight(cpu, Byte.Register.L, Operations.RotateMode.INCLUDE_CARRY));
         m.put(0x1e, cpu -> Operations.rotateRight(cpu, Pointer.of(Word.Register.HL), Operations.RotateMode.INCLUDE_CARRY));
         m.put(0x1f, cpu -> Operations.rotateRight(cpu, Byte.Register.A, Operations.RotateMode.INCLUDE_CARRY));
+        m.put(0x27, cpu -> Operations.leftShift(cpu, Byte.Register.A));
         m.put(0x37, cpu -> Operations.swap(cpu, Byte.Register.A));
         m.put(0x30, cpu -> Operations.swap(cpu, Byte.Register.B));
         m.put(0x31, cpu -> Operations.swap(cpu, Byte.Register.C));

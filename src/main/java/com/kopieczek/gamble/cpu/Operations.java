@@ -646,6 +646,17 @@ class Operations {
         return 4; // RRCA is 4 cycles even though RRC A is 8
     }
 
+    public static int leftShift(Cpu cpu, Byte.Register r) {
+        final int oldValue = cpu.read(r);
+        final int newValue = (oldValue << 1) & 0xff;
+        cpu.set(r, Byte.literal(newValue));
+        cpu.set(Flag.ZERO, newValue == 0x00);
+        cpu.set(Flag.CARRY, (oldValue & 0x80) > 0);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, false);
+        return 8;
+    }
+
     public enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY;
