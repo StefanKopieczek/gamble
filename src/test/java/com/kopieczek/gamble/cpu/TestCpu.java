@@ -6870,7 +6870,7 @@ public class TestCpu {
     }
 
     @Test
-    public void test_arithmetic_right_shift_of_0x80_is_0x40() {
+    public void test_arithmetic_right_shift_a_of_0x40_is_0x20() {
         Cpu cpu = runProgram(0x3e, 0x40, 0xcb, 0x2f);
         assertEquals(0x20, cpu.read(Byte.Register.A));
     }
@@ -7025,6 +7025,171 @@ public class TestCpu {
     @Test
     public void test_arithmetic_right_shift_hl_indirect_uses_16_cycles() {
         Cpu cpu = runProgram(0xcb, 0x2e);
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_logical_right_shift_a_of_0x00_is_0x00() {
+        Cpu cpu = runProgram(0xcb, 0x3f);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_of_0x40_is_0x20() {
+        Cpu cpu = runProgram(0x3e, 0x40, 0xcb, 0x3f);
+        assertEquals(0x20, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x3f);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_logical_right_shift_a_of_0b01101011_is_0b00110101() {
+        Cpu cpu = runProgram(0x3e, 0b01101011, 0xcb, 0x3f);
+        assertEquals(0b00110101, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_of_0x80_is_0x40(){
+        Cpu cpu = runProgram(0x3e, 0x80, 0xcb, 0x3f);
+        assertEquals(0x40, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_of_0b10111011_is_0b01011101() {
+        Cpu cpu = runProgram(0x3e, 0b10111011, 0xcb, 0x3f);
+        assertEquals(0b01011101, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_of_0x01_sets_carry() {
+        Cpu cpu = runProgram(0x3e, 0x01, 0xcb, 0x3f)    ;
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_of_0x02_does_not_set_carry() {
+        Cpu cpu = runProgram(0x3e, 0x02, 0xcb, 0x3f);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_of_0xf1_sets_carry() {
+        Cpu cpu = runProgram(0x3e, 0xf1, 0xcb, 0x3f);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_of_0xfe_resets_carry() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xfe, 0xcb, 0x3f);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_sets_zero_flag_when_result_is_zero() {
+        Cpu cpu = runProgram(0x3e, 0x01, 0xcb, 0x3f);
+        assertTrue(cpu.isSet(Flag.ZERO)) ;
+    }
+
+    @Test
+    public void test_logical_right_shift_a_doesnt_set_zero_flag_when_result_is_nonzero() {
+        Cpu cpu = runProgram(0x3e, 0x02, 0xcb, 0x3f);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_resets_zero_flag_when_result_is_nonzero() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x03, 0xcb, 0x3f);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_doesnt_set_nibble_flag() {
+        Cpu cpu = runProgram(0x3e, 0x10, 0xcb, 0x3f);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_resets_nibble_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x10, 0xcb, 0x3f);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_doesnt_set_operation_flag() {
+        Cpu cpu = runProgram(0x3e, 0x10, 0xcb, 0x3f);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_logical_right_shift_a_resets_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x10, 0xcb, 0x3f);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_logical_right_shift_b() {
+        Cpu cpu = runProgram(0x06, 0xb4, 0xcb, 0x38);
+        assertEquals(0x5a, cpu.read(Byte.Register.B));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_logical_right_shift_c() {
+        Cpu cpu = runProgram(0x0e, 0xd5, 0xcb, 0x39);
+        assertEquals(0x6a, cpu.read(Byte.Register.C));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_logical_right_shift_d() {
+        Cpu cpu = runProgram(0x16, 0xfe, 0xcb, 0x3a);
+        assertEquals(0x7f, cpu.read(Byte.Register.D));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_logical_right_shift_e() {
+        Cpu cpu = runProgram(0x1e, 0xfc, 0xcb, 0x3b);
+        assertEquals(0x7e, cpu.read(Byte.Register.E));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_logical_right_shift_h() {
+        Cpu cpu = runProgram(0x26, 0xd2, 0xcb, 0x3c);
+        assertEquals(0x69, cpu.read(Byte.Register.H));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_logical_right_shift_l() {
+        Cpu cpu = runProgram(0x2e, 0x16, 0xcb, 0x3d);
+        assertEquals(0x0b, cpu.read(Byte.Register.L));
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_logical_right_shift_hl_indirect() {
+        Cpu cpu = runProgram(0x36, 0x75, 0xcb, 0x3e);
+        assertEquals(0x3a, cpu.readFrom(Pointer.of(Word.Register.HL)));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_logical_right_shift_hl_indirect_uses_16_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x3e);
         assertEquals(16, cpu.getCycles());
     }
 

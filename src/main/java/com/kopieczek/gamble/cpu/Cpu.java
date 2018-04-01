@@ -361,7 +361,6 @@ public class Cpu {
         m.put(0x2d, cpu -> Operations.rightShiftArithmetic(cpu, Byte.Register.L));
         m.put(0x2e, cpu -> Operations.rightShiftArithmetic(cpu, Pointer.of(Word.Register.HL)));
         m.put(0x2f, cpu -> Operations.rightShiftArithmetic(cpu, Byte.Register.A));
-        m.put(0x37, cpu -> Operations.swap(cpu, Byte.Register.A));
         m.put(0x30, cpu -> Operations.swap(cpu, Byte.Register.B));
         m.put(0x31, cpu -> Operations.swap(cpu, Byte.Register.C));
         m.put(0x32, cpu -> Operations.swap(cpu, Byte.Register.D));
@@ -369,6 +368,15 @@ public class Cpu {
         m.put(0x34, cpu -> Operations.swap(cpu, Byte.Register.H));
         m.put(0x35, cpu -> Operations.swap(cpu, Byte.Register.L));
         m.put(0x36, cpu -> Operations.swap(cpu, Pointer.of(Word.Register.HL)));
+        m.put(0x37, cpu -> Operations.swap(cpu, Byte.Register.A));
+        m.put(0x38, cpu -> Operations.rightShiftLogical(cpu, Byte.Register.B));
+        m.put(0x39, cpu -> Operations.rightShiftLogical(cpu, Byte.Register.C));
+        m.put(0x3a, cpu -> Operations.rightShiftLogical(cpu, Byte.Register.D));
+        m.put(0x3b, cpu -> Operations.rightShiftLogical(cpu, Byte.Register.E));
+        m.put(0x3c, cpu -> Operations.rightShiftLogical(cpu, Byte.Register.H));
+        m.put(0x3d, cpu -> Operations.rightShiftLogical(cpu, Byte.Register.L));
+        m.put(0x3e, cpu -> Operations.rightShiftLogical(cpu, Pointer.of(Word.Register.HL)));
+        m.put(0x3f, cpu -> Operations.rightShiftLogical(cpu, Byte.Register.A));
         return m.build();
     }
 }
