@@ -668,51 +668,26 @@ class Operations {
         return 16;
     }
 
-    static int rightShiftArithmetic(Cpu cpu, Byte.Register r) {
-        final int oldValue = cpu.read(r);
+    private static int rightShift(Cpu cpu, int oldValue, ShiftMode mode) {
         final int oldBit0 = oldValue & 0x01;
-        final int newValue = (oldValue & 0x80) + (oldValue >> 1);
-        cpu.set(r, Byte.literal(newValue));
+        final int newBit7 = mode.equals(ShiftMode.ARITHMETIC) ? (oldValue & 0x80) : 0;
+        final int newValue = (newBit7) + (oldValue >> 1);
         cpu.set(Flag.CARRY, oldBit0 > 0);
         cpu.set(Flag.ZERO, newValue == 0x00);
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.OPERATION, false);
+        return newValue;
+    }
+
+    static int rightShift(Cpu cpu, Byte.Register r, ShiftMode mode) {
+        final int newValue = rightShift(cpu, cpu.read(r), mode);
+        cpu.set(r, Byte.literal(newValue));
         return 8;
     }
 
-    static int rightShiftArithmetic(Cpu cpu, Pointer p) {
-        final int oldValue = cpu.readFrom(p);
-        final int oldBit0 = oldValue & 0x01;
-        final int newValue = (oldValue & 0x80) + (oldValue >> 1);
+    static int rightShift(Cpu cpu, Pointer p, ShiftMode mode) {
+        final int newValue = rightShift(cpu, cpu.readFrom(p), mode);
         cpu.writeTo(p, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, oldBit0 > 0);
-        cpu.set(Flag.ZERO, newValue == 0x00);
-        cpu.set(Flag.NIBBLE, false);
-        cpu.set(Flag.OPERATION, false);
-        return 16;
-    }
-
-    static int rightShiftLogical(Cpu cpu, Byte.Register r) {
-        final int oldValue = cpu.read(r);
-        final int oldBit0 = oldValue & 0x01;
-        final int newValue = oldValue >> 1;
-        cpu.set(r, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, oldBit0 > 0);
-        cpu.set(Flag.ZERO, newValue == 0x00);
-        cpu.set(Flag.NIBBLE, false);
-        cpu.set(Flag.OPERATION, false);
-        return 8;
-    }
-
-    static int rightShiftLogical(Cpu cpu, Pointer p) {
-        final int oldValue = cpu.readFrom(p);
-        final int oldBit0 = oldValue & 0x01;
-        final int newValue = oldValue >> 1;
-        cpu.writeTo(p, Byte.literal(newValue));
-        cpu.set(Flag.CARRY, oldBit0 > 0);
-        cpu.set(Flag.ZERO, newValue == 0x00);
-        cpu.set(Flag.NIBBLE, false);
-        cpu.set(Flag.OPERATION, false);
         return 16;
     }
 
@@ -743,5 +718,10 @@ class Operations {
     enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY
+    }
+
+    enum ShiftMode {
+        ARITHMETIC,
+        LOGICAL
     }
 }
