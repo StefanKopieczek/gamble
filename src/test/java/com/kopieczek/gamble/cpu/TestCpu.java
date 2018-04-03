@@ -7394,6 +7394,105 @@ public class TestCpu {
         assertEquals(16, cpu.getCycles());
     }
 
+    @Test
+    public void test_bit_set_register_a_bit_0() {
+        Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_1() {
+        Cpu cpu = runProgram(0xcb, 0xc7, 0x01);
+        assertEquals(0x02, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_takes_8_cycles() {
+        Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_7() {
+        Cpu cpu = runProgram(0xcb, 0xc7, 0x07);
+        assertEquals(0x80, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_preserves_existing_bits() {
+        Cpu cpu = runProgram(0x3e, 0xfe, 0xcb, 0xc7, 0x00);
+        assertEquals(0xff, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_successive_bit_sets_on_register_a() {
+        Cpu cpu = runProgram(
+                0xcb, 0xc7, 0x00,
+                0xcb, 0xc7, 0x02,
+                0xcb, 0xc7, 0x04
+        );
+        assertEquals(0x15, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_on_register_a_is_idempotent() {
+        Cpu cpu = runProgram(0xcb, 0xc7, 0x03, 0xcb, 0xc7, 0x03);
+        assertEquals(0x08, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_on_register_a_does_not_set_zero_flag() {
+        Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_set_on_register_a_does_not_reset_zero_flag() {
+        Cpu cpu = cpuWithProgram(0xcb, 0xc7, 0x00);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+    @Test
+    public void test_bit_set_on_register_a_does_not_set_carry_flag() {
+        Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_bit_set_on_register_a_does_not_reset_carry_flag() {
+        Cpu cpu = cpuWithProgram(0xcb, 0xc7, 0x00);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+    @Test
+    public void test_bit_set_on_register_a_does_not_set_nibble_flag() {
+        Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_bit_set_on_register_a_does_not_reset_nibble_flag() {
+        Cpu cpu = cpuWithProgram(0xcb, 0xc7, 0x00);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+    @Test
+    public void test_bit_set_on_register_a_does_not_set_operation_flag() {
+        Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_bit_set_on_register_a_does_not_reset_operation_flag() {
+        Cpu cpu = cpuWithProgram(0xcb, 0xc7, 0x00);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

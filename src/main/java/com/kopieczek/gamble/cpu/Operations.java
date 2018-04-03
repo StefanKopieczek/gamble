@@ -711,6 +711,14 @@ class Operations {
         return 16;
     }
 
+    static int bitSet(Cpu cpu, Byte.Argument bitIdx, Byte.Register r) {
+        final int bitIndex = cpu.read(bitIdx);
+        final int bitToSet = 1 << bitIndex;
+        final int newValue = cpu.read(r) | bitToSet;
+        cpu.set(Byte.Register.A, Byte.literal(newValue));
+        return 8;
+    }
+
     enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY

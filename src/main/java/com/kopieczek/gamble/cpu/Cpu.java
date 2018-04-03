@@ -385,6 +385,7 @@ public class Cpu {
         m.put(0x45, cpu -> Operations.bitTest(cpu, Byte.argument(), Byte.Register.L));
         m.put(0x46, cpu -> Operations.bitTest(cpu, Byte.argument(), Pointer.of(Word.Register.HL)));
         m.put(0x47, cpu -> Operations.bitTest(cpu, Byte.argument(), Byte.Register.A));
+        m.put(0xc7, cpu -> Operations.bitSet(cpu, Byte.argument(), Byte.Register.A));
         return m.build();
     }
 }
