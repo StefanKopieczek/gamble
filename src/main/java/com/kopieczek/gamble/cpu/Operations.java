@@ -135,7 +135,7 @@ class Operations {
         return 12;
     }
 
-    public static int push(Cpu cpu, Word.Register from) {
+    static int push(Cpu cpu, Word.Register from) {
         Pointer stackPointer = Pointer.of(Word.Register.SP);
         decrementWord(Word.Register.SP, cpu);
         cpu.writeTo(stackPointer, from.left);
@@ -144,7 +144,7 @@ class Operations {
         return 16;
     }
 
-    public static Integer pop(Cpu cpu, Word.Register to) {
+    static Integer pop(Cpu cpu, Word.Register to) {
         Pointer stackPointer = Pointer.of(Word.Register.SP);
         cpu.set(to.right, stackPointer);
         incrementWord(Word.Register.SP, cpu);
@@ -173,21 +173,21 @@ class Operations {
         return (((original & 0x0f) + (offset & 0x0f)) & 0x10) > 0;
     }
 
-    public static Integer add(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
+    static Integer add(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
         int a = cpu.read(destOperand);
         int b = cpu.read(otherOperand);
         do8BitAdd(cpu, destOperand, a, b);
         return 4;
     }
 
-    public static Integer add(Cpu cpu, Byte.Register destOperand, Byte.Argument otherOperand) {
+    static Integer add(Cpu cpu, Byte.Register destOperand, Byte.Argument otherOperand) {
         int a = cpu.read(destOperand);
         int b = cpu.read(otherOperand);
         do8BitAdd(cpu, destOperand, a, b);
         return 8;
     }
 
-    public static Integer add(Cpu cpu, Byte.Register destOperand, Pointer ptrToOtherOperand) {
+    static Integer add(Cpu cpu, Byte.Register destOperand, Pointer ptrToOtherOperand) {
         int a = cpu.read(destOperand);
         int b = cpu.readFrom(ptrToOtherOperand);
         do8BitAdd(cpu, destOperand, a, b);
@@ -203,42 +203,42 @@ class Operations {
         cpu.set(Flag.CARRY, shouldSetCarry(a, b));
     }
 
-    public static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
+    static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
         int a = cpu.read(destOperand);
         int b = cpu.read(otherOperand) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
         do8BitAdd(cpu, destOperand, a, b);
         return 4;
     }
 
-    public static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Pointer otherOperandPtr) {
+    static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Pointer otherOperandPtr) {
         int a = cpu.read(destOperand);
         int b = cpu.readFrom(otherOperandPtr) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
         do8BitAdd(cpu, destOperand, a, b);
         return 8;
     }
 
-    public static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Argument arg) {
+    static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Argument arg) {
         int a = cpu.read(destOperand);
         int b = cpu.read(arg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
         do8BitAdd(cpu, destOperand, a, b);
         return 8;
     }
 
-    public static Integer subtract(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
+    static Integer subtract(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
         int a = cpu.read(leftArg);
         int b = cpu.read(rightArg);
         doSubtract(cpu, leftArg, a, b);
         return 4;
     }
 
-    public static Integer subtract(Cpu cpu, Byte.Register leftArg, Pointer rightArgPtr) {
+    static Integer subtract(Cpu cpu, Byte.Register leftArg, Pointer rightArgPtr) {
         int a = cpu.read(leftArg);
         int b = cpu.readFrom(rightArgPtr);
         doSubtract(cpu, leftArg, a, b);
         return 8;
     }
 
-    public static Integer subtract(Cpu cpu, Byte.Register leftArg, Byte.Argument rightArg) {
+    static Integer subtract(Cpu cpu, Byte.Register leftArg, Byte.Argument rightArg) {
         int a = cpu.read(leftArg);
         int b = cpu.read(rightArg);
         doSubtract(cpu, leftArg, a, b);
@@ -254,21 +254,21 @@ class Operations {
         cpu.set(Flag.NIBBLE, (rightArg & 0x0f) > (leftArg & 0x0f));
     }
 
-    public static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
+    static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
         int a = cpu.read(leftArg);
         int b = cpu.read(rightArg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
         doSubtract(cpu, leftArg, a, b);
         return 4;
     }
 
-    public static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Pointer rightArgPtr) {
+    static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Pointer rightArgPtr) {
         int a = cpu.read(leftArg);
         int b = cpu.readFrom(rightArgPtr) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
         doSubtract(cpu, leftArg, a, b);
         return 8;
     }
 
-    public static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Byte.Argument rightArg) {
+    static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Byte.Argument rightArg) {
         int a = cpu.read(leftArg);
         int b = cpu.read(rightArg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
         doSubtract(cpu, leftArg, a, b);
@@ -284,21 +284,21 @@ class Operations {
         cpu.set(Flag.CARRY, false);
     }
 
-    public static int and(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
+    static int and(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         doAnd(cpu, destArg, a, b);
         return 4;
     }
 
-    public static int and(Cpu cpu, Byte.Register destArg, Pointer otherArgPtr) {
+    static int and(Cpu cpu, Byte.Register destArg, Pointer otherArgPtr) {
         int a = cpu.read(destArg);
         int b = cpu.readFrom(otherArgPtr);
         doAnd(cpu, destArg, a, b);
         return 8;
     }
 
-    public static int and(Cpu cpu, Byte.Register destArg, Byte.Argument otherArg) {
+    static int and(Cpu cpu, Byte.Register destArg, Byte.Argument otherArg) {
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         doAnd(cpu, destArg, a, b);
@@ -314,21 +314,21 @@ class Operations {
         cpu.set(Flag.CARRY, false);
     }
 
-    public static int or(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
+    static int or(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         doOr(cpu, destArg, a, b);
         return 4;
     }
 
-    public static int or(Cpu cpu, Byte.Register destArg, Pointer otherArgPtr) {
+    static int or(Cpu cpu, Byte.Register destArg, Pointer otherArgPtr) {
         int a = cpu.read(destArg);
         int b = cpu.readFrom(otherArgPtr);
         doOr(cpu, destArg, a, b);
         return 8;
     }
 
-    public static int or(Cpu cpu, Byte.Register destArg, Byte.Argument otherArg) {
+    static int or(Cpu cpu, Byte.Register destArg, Byte.Argument otherArg) {
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         doOr(cpu, destArg, a, b);
@@ -344,21 +344,21 @@ class Operations {
         cpu.set(Flag.OPERATION, false);
     }
 
-    public static int xor(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
+    static int xor(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         doXor(cpu, destArg, a, b);
         return 4;
     }
 
-    public static int xor(Cpu cpu, Byte.Register destArg, Pointer otherArgPtr) {
+    static int xor(Cpu cpu, Byte.Register destArg, Pointer otherArgPtr) {
         int a = cpu.read(destArg);
         int b = cpu.readFrom(otherArgPtr);
         doXor(cpu, destArg, a, b);
         return 8;
     }
 
-    public static int xor(Cpu cpu, Byte.Register destArg, Byte.Argument otherArg) {
+    static int xor(Cpu cpu, Byte.Register destArg, Byte.Argument otherArg) {
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         doXor(cpu, destArg, a, b);
@@ -372,21 +372,21 @@ class Operations {
         cpu.set(Flag.NIBBLE, (a & 0xf) < (b & 0xf));
     }
 
-    public static int compare(Cpu cpu, Byte.Register left, Byte.Register right) {
+    static int compare(Cpu cpu, Byte.Register left, Byte.Register right) {
         int leftVal = cpu.read(left);
         int rightVal = cpu.read(right);
         compare(cpu, leftVal, rightVal);
         return 4;
     }
 
-    public static int compare(Cpu cpu, Byte.Register left, Pointer rightPtr) {
+    static int compare(Cpu cpu, Byte.Register left, Pointer rightPtr) {
         int leftVal = cpu.read(left);
         int rightVal = cpu.readFrom(rightPtr);
         compare(cpu, leftVal, rightVal);
         return 8;
     }
 
-    public static int compare(Cpu cpu, Byte.Register left, Byte.Argument right) {
+    static int compare(Cpu cpu, Byte.Register left, Byte.Argument right) {
         int leftVal = cpu.read(left);
         int rightVal = cpu.read(right);
         compare(cpu, leftVal, rightVal);
@@ -402,41 +402,41 @@ class Operations {
         cpu.set(Flag.NIBBLE, (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) > 0);
     }
 
-    public static int add(Cpu cpu, Word.Register destArg, Word.Register otherArg) {
+    static int add(Cpu cpu, Word.Register destArg, Word.Register otherArg) {
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         do16BitAdd(cpu, destArg, a, b);
         return 8;
     }
 
-    public static int add(Cpu cpu, Word.Register destArg, Byte.Argument otherArg) {
+    static int add(Cpu cpu, Word.Register destArg, Byte.Argument otherArg) {
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         do16BitAdd(cpu, destArg, a, b);
         return 16;
     }
 
-    public static int increment(Cpu cpu, Word.Register register) {
+    static int increment(Cpu cpu, Word.Register register) {
         int oldValue = cpu.read(register);
         int newValue = (oldValue + 1) % 0x010000;
         cpu.set(register, Word.literal(newValue));
         return 8;
     }
 
-    public static int decrement(Cpu cpu, Word.Register register) {
+    static int decrement(Cpu cpu, Word.Register register) {
         int oldValue = cpu.read(register);
         int newValue = (oldValue + 0xffff) % 0x010000;
         cpu.set(register, Word.literal(newValue));
         return 8;
     }
 
-    public static int swap(Cpu cpu, Byte.Register register) {
+    static int swap(Cpu cpu, Byte.Register register) {
         int oldValue = cpu.read(register);
         cpu.set(register, Byte.literal(doSwap(cpu, oldValue)));
         return 8;
     }
 
-    public static int swap(Cpu cpu, Pointer ptr) {
+    static int swap(Cpu cpu, Pointer ptr) {
         int oldValue = cpu.readFrom(ptr);
         cpu.writeTo(ptr, Byte.literal(doSwap(cpu, oldValue)));
         return 16;
@@ -448,7 +448,7 @@ class Operations {
         return newValue;
     }
 
-    public static int bcdAdjust(Cpu cpu, Byte.Register register) {
+    static int bcdAdjust(Cpu cpu, Byte.Register register) {
         logInvalidDaaContexts(cpu, register);
         int result = cpu.read(register);
         boolean shouldSetCarry = false;
@@ -459,7 +459,7 @@ class Operations {
             }
             if (cpu.isSet(Flag.CARRY)) {
                 result += 0xa0;
-                shouldSetCarry = true;
+               shouldSetCarry = true;
             }
         } else {
             int rightNibble = (result & 0x0f);
@@ -473,7 +473,7 @@ class Operations {
             int leftNibble = (result & 0x1f0);
             if ((leftNibble >= 0xa0) || cpu.isSet(Flag.CARRY)) {
                 result += 0x60;
-                shouldSetCarry = true;
+               shouldSetCarry = true;
             }
         }
 
@@ -523,7 +523,7 @@ class Operations {
         }
     }
 
-    public static int complement(Cpu cpu, Byte.Register register) {
+    static int complement(Cpu cpu, Byte.Register register) {
         int newValue = 0xff & ~cpu.read(Byte.Register.A);
         cpu.set(register, Byte.literal(newValue));
         cpu.set(Flag.OPERATION, true);
@@ -531,26 +531,26 @@ class Operations {
         return 4;
     }
 
-    public static int complementCarryFlag(Cpu cpu) {
+    static int complementCarryFlag(Cpu cpu) {
         cpu.set(Flag.CARRY, !cpu.isSet(Flag.CARRY));
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.OPERATION, false);
         return 4;
     }
 
-    public static int setCarryFlag(Cpu cpu) {
+    static int setCarryFlag(Cpu cpu) {
         cpu.set(Flag.CARRY, true);
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.OPERATION, false);
         return 4;
     }
 
-    public static int halt(Cpu cpu) {
+    static int halt(Cpu cpu) {
         throw new UnsupportedOperationException("CPU halt not yet implemented");
         // return 4;
     }
 
-    public static int stop(Cpu cpu, Byte.Argument nextByte) {
+    static int stop(Cpu cpu, Byte.Argument nextByte) {
         final int nextByteVal = nextByte.getValue(cpu);
         if (nextByteVal == 0x00) {
             throw new UnsupportedOperationException("CPU stop not yet implemented");
@@ -562,12 +562,12 @@ class Operations {
         // return 4;
     }
 
-    public static int disableInterrupts(Cpu cpu) {
+    static int disableInterrupts(Cpu cpu) {
         throw new UnsupportedOperationException("Interrupt management not yet implemented");
         // return 4
     }
 
-    public static int enableInterrupts(Cpu cpu) {
+    static int enableInterrupts(Cpu cpu) {
         throw new UnsupportedOperationException("Interrupt management not yet implemented");
         // return 4
     }
@@ -610,43 +610,43 @@ class Operations {
         return newValue;
     }
 
-    public static int rotateLeft(Cpu cpu, Byte.Register r, RotateMode mode) {
+    static int rotateLeft(Cpu cpu, Byte.Register r, RotateMode mode) {
         int newValue = rotateLeft(cpu, cpu.read(r), mode);
         cpu.set(r, Byte.literal(newValue));
         return 8;
     }
 
-    public static int rotateLeft(Cpu cpu, Pointer p, RotateMode mode) {
+    static int rotateLeft(Cpu cpu, Pointer p, RotateMode mode) {
         int newValue = rotateLeft(cpu, cpu.readFrom(p), mode);
         cpu.writeTo(p, Byte.literal(newValue));
         return 16;
     }
 
-    public static int rotateRight(Cpu cpu, Byte.Register r, RotateMode mode) {
+    static int rotateRight(Cpu cpu, Byte.Register r, RotateMode mode) {
         int newValue = rotateRight(cpu, cpu.read(r), mode);
         cpu.set(r, Byte.literal(newValue));
         return 8;
     }
 
-    public static int rotateRight(Cpu cpu, Pointer p, RotateMode mode) {
+    static int rotateRight(Cpu cpu, Pointer p, RotateMode mode) {
         int newValue = rotateRight(cpu, cpu.readFrom(p), mode);
         cpu.writeTo(p, Byte.literal(newValue));
         return 16;
     }
 
-    public static int rotateALeft(Cpu cpu, RotateMode mode) {
+    static int rotateALeft(Cpu cpu, RotateMode mode) {
         rotateLeft(cpu, Byte.Register.A, mode);
         cpu.set(Flag.ZERO, false); // Unlike RL/RLC, RLA/RLCA always reset ZERO
         return 4; // RLCA and RLA are 4 cycles even though RLC A and RL A are 8
     }
 
-    public static int rotateARight(Cpu cpu, RotateMode mode) {
+    static int rotateARight(Cpu cpu, RotateMode mode) {
         rotateRight(cpu, Byte.Register.A, mode);
         cpu.set(Flag.ZERO, false); // Unlike RR/RRC, RRA/RRCA always reset ZERO
         return 4; // RRCA is 4 cycles even though RRC A is 8
     }
 
-    public static int leftShift(Cpu cpu, Byte.Register r) {
+    static int leftShift(Cpu cpu, Byte.Register r) {
         final int oldValue = cpu.read(r);
         final int newValue = (oldValue << 1) & 0xff;
         cpu.set(r, Byte.literal(newValue));
@@ -657,7 +657,7 @@ class Operations {
         return 8;
     }
 
-    public static int leftShift(Cpu cpu, Pointer p) {
+    static int leftShift(Cpu cpu, Pointer p) {
         final int oldValue = cpu.readFrom(p);
         final int newValue = (oldValue << 1) & 0xff;
         cpu.writeTo(p, Byte.literal(newValue));
@@ -668,7 +668,7 @@ class Operations {
         return 16;
     }
 
-    public static int rightShiftArithmetic(Cpu cpu, Byte.Register r) {
+    static int rightShiftArithmetic(Cpu cpu, Byte.Register r) {
         final int oldValue = cpu.read(r);
         final int oldBit0 = oldValue & 0x01;
         final int newValue = (oldValue & 0x80) + (oldValue >> 1);
@@ -680,7 +680,7 @@ class Operations {
         return 8;
     }
 
-    public static int rightShiftArithmetic(Cpu cpu, Pointer p) {
+    static int rightShiftArithmetic(Cpu cpu, Pointer p) {
         final int oldValue = cpu.readFrom(p);
         final int oldBit0 = oldValue & 0x01;
         final int newValue = (oldValue & 0x80) + (oldValue >> 1);
@@ -692,7 +692,7 @@ class Operations {
         return 16;
     }
 
-    public static int rightShiftLogical(Cpu cpu, Byte.Register r) {
+    static int rightShiftLogical(Cpu cpu, Byte.Register r) {
         final int oldValue = cpu.read(r);
         final int oldBit0 = oldValue & 0x01;
         final int newValue = oldValue >> 1;
@@ -704,7 +704,7 @@ class Operations {
         return 8;
     }
 
-    public static int rightShiftLogical(Cpu cpu, Pointer p) {
+    static int rightShiftLogical(Cpu cpu, Pointer p) {
         final int oldValue = cpu.readFrom(p);
         final int oldBit0 = oldValue & 0x01;
         final int newValue = oldValue >> 1;
@@ -716,7 +716,7 @@ class Operations {
         return 16;
     }
 
-    public static int bitTest(Cpu cpu, Byte bitIndex, Byte.Register r) {
+    static int bitTest(Cpu cpu, Byte bitIndex, Byte.Register r) {
         final int bitIdx = cpu.read(bitIndex);
         if (bitIdx > 7) {
             throw new IllegalArgumentException("Cannot test bit at index > 7: " + bitIdx);
@@ -728,7 +728,7 @@ class Operations {
         return 8;
     }
 
-    public static int bitTest(Cpu cpu, Byte bitIndex, Pointer p) {
+    static int bitTest(Cpu cpu, Byte bitIndex, Pointer p) {
         final int bitIdx = cpu.read(bitIndex);
         if (bitIdx > 7) {
             throw new IllegalArgumentException("Cannot test bit at index > 7: " + bitIdx);
@@ -740,7 +740,7 @@ class Operations {
         return 16;
     }
 
-    public enum RotateMode {
+    enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY
     }
