@@ -7193,6 +7193,117 @@ public class TestCpu {
         assertEquals(16, cpu.getCycles());
     }
 
+    @Test
+    public void test_bit_test_register_a_bit_0_on_0x00() {
+        Cpu cpu = runProgram(0xcb, 0x47, 0x00);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_does_not_affect_register() {
+        Cpu cpu = runProgram(0x3e, 0xd8, 0xcb, 0x47, 0x00);
+        assertEquals(0xd8, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_test_uses_8_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x47, 0x00);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_bit_test_register_a_bit_0_on_0xff() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0xcb, 0x47, 0x00);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_a_bit_0_on_0xfe() {
+        Cpu cpu = runProgram(0x3e, 0xfe, 0xcb, 0x47, 0x00);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_a_bit_0_on_0x01() {
+        Cpu cpu = runProgram(0x3e, 0x01, 0xcb, 0x47, 0x00);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_a_bit_3_on_0x08() {
+        Cpu cpu = runProgram(0x3e, 0x08, 0xcb, 0x47, 0x03);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_a_bit_7_on_0xff() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0xcb, 0x47, 0x07);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_a_bit_7_on_0x7f() {
+        Cpu cpu = runProgram(0x3e, 0x7f, 0xcb, 0x47, 0x07);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_bit_test_register_a_bit_8_throws_illegal_argument_exception() {
+       Cpu cpu = runProgram(0xcb, 0x47, 0x08);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_bit_test_register_a_bit_17_throws_illegal_argument_exception() {
+        Cpu cpu = runProgram(0xcb, 0x47, 0x11);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_bit_test_register_a_bit_255_throws_illegal_argument_exception() {
+        Cpu cpu = runProgram(0xcb, 0x47, 0xff);
+    }
+
+    @Test
+    public void test_bit_test_register_a_doesnt_set_carry_flag() {
+        Cpu cpu = runProgram(0xcb, 0x47, 0x00);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_bit_test_register_a_doesnt_reset_carry_flag() {
+        Cpu cpu = cpuWithProgram(0xcb, 0x47, 0x00);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_bit_test_register_a_sets_operation_flag() {
+        Cpu cpu = runProgram(0xcb, 0x47, 0x00);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_bit_test_register_a_does_not_reset_operation_flag() {
+        Cpu cpu = cpuWithProgram(0xcb, 0x47, 0x00);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_bit_test_register_a_does_not_set_nibble_flag() {
+        Cpu cpu = runProgram(0xcb, 0x47, 0x00);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_bit_test_register_a_resets_nibble_flag() {
+        Cpu cpu = cpuWithProgram(0xcb, 0x47, 0x00);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
