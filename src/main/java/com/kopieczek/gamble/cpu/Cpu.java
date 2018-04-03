@@ -377,6 +377,13 @@ public class Cpu {
         m.put(0x3d, cpu -> Operations.rightShiftLogical(cpu, Byte.Register.L));
         m.put(0x3e, cpu -> Operations.rightShiftLogical(cpu, Pointer.of(Word.Register.HL)));
         m.put(0x3f, cpu -> Operations.rightShiftLogical(cpu, Byte.Register.A));
+        m.put(0x40, cpu -> Operations.bitTest(cpu, Byte.argument(), Byte.Register.B));
+        m.put(0x41, cpu -> Operations.bitTest(cpu, Byte.argument(), Byte.Register.C));
+        m.put(0x42, cpu -> Operations.bitTest(cpu, Byte.argument(), Byte.Register.D));
+        m.put(0x43, cpu -> Operations.bitTest(cpu, Byte.argument(), Byte.Register.E));
+        m.put(0x44, cpu -> Operations.bitTest(cpu, Byte.argument(), Byte.Register.H));
+        m.put(0x45, cpu -> Operations.bitTest(cpu, Byte.argument(), Byte.Register.L));
+        m.put(0x46, cpu -> Operations.bitTest(cpu, Byte.argument(), Pointer.of(Word.Register.HL)));
         m.put(0x47, cpu -> Operations.bitTest(cpu, Byte.argument(), Byte.Register.A));
         return m.build();
     }

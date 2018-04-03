@@ -7304,6 +7304,96 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
+    @Test
+    public void test_bit_test_register_b_on_high_bit() {
+        Cpu cpu = runProgram(0x06, 0xe0, 0xcb, 0x40, 0x06);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_b_on_low_bit() {
+        Cpu cpu = runProgram(0x06, 0x93, 0xcb, 0x40, 0x02);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_c_on_high_bit() {
+        Cpu cpu = runProgram(0x0e, 0x64, 0xcb, 0x41, 0x05);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_c_on_low_bit() {
+        Cpu cpu = runProgram(0x0e, 0x0c, 0xcb, 0x41, 0x07);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_d_on_high_bit() {
+        Cpu cpu = runProgram(0x16, 0x87, 0xcb, 0x42, 0x02);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_d_on_low_bit() {
+        Cpu cpu = runProgram(0x16, 0x44, 0xcb, 0x42, 0x07);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_e_on_high_bit() {
+        Cpu cpu = runProgram(0x1e, 0xd1, 0xcb, 0x43, 0x00);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_e_on_low_bit() {
+        Cpu cpu = runProgram(0x1e, 0xcf, 0xcb, 0x43, 0x05);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_h_on_high_bit() {
+        Cpu cpu = runProgram(0x26, 0x85, 0xcb, 0x44, 0x07);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_h_on_low_bit() {
+        Cpu cpu = runProgram(0x26, 0x1d, 0xcb, 0x44, 0x07);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_l_on_high_bit() {
+        Cpu cpu = runProgram(0x2e, 0xcd, 0xcb, 0x45, 0x06);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_l_on_low_bit() {
+        Cpu cpu = runProgram(0x2e, 0xbd, 0xcb, 0x45, 0x01);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_hl_indirect_on_high_bit() {
+        Cpu cpu = runProgram(0x36, 0xcd, 0xcb, 0x46, 0x06);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_hl_indirect_on_low_bit() {
+        Cpu cpu = runProgram(0x36, 0xbd, 0xcb, 0x46, 0x01);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_test_register_hl_indirect_uses_16_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x46, 0x00);
+        assertEquals(16, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

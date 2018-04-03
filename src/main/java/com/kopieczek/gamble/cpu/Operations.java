@@ -728,6 +728,18 @@ class Operations {
         return 8;
     }
 
+    public static int bitTest(Cpu cpu, Byte bitIndex, Pointer p) {
+        final int bitIdx = cpu.read(bitIndex);
+        if (bitIdx > 7) {
+            throw new IllegalArgumentException("Cannot test bit at index > 7: " + bitIdx);
+        }
+        final int bit = (0x01 << bitIdx & cpu.readFrom(p));
+        cpu.set(Flag.ZERO, bit == 0);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, true);
+        return 16;
+    }
+
     public enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY
