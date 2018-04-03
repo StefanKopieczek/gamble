@@ -691,27 +691,23 @@ class Operations {
         return 16;
     }
 
-    static int bitTest(Cpu cpu, Byte bitIndex, Byte.Register r) {
-        final int bitIdx = cpu.read(bitIndex);
-        if (bitIdx > 7) {
-            throw new IllegalArgumentException("Cannot test bit at index > 7: " + bitIdx);
+    private static void bitTest(Cpu cpu, int bitIndex, int value) {
+        if (bitIndex > 7) {
+            throw new IllegalArgumentException("Cannot test bit at index > 7: " + bitIndex);
         }
-        final int bit = (0x01 << bitIdx & cpu.read(r));
+        final int bit = (0x01 << bitIndex & value);
         cpu.set(Flag.ZERO, bit == 0);
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.OPERATION, true);
+    }
+
+    static int bitTest(Cpu cpu, Byte bitIndex, Byte.Register r) {
+        bitTest(cpu, cpu.read(bitIndex), cpu.read(r));
         return 8;
     }
 
     static int bitTest(Cpu cpu, Byte bitIndex, Pointer p) {
-        final int bitIdx = cpu.read(bitIndex);
-        if (bitIdx > 7) {
-            throw new IllegalArgumentException("Cannot test bit at index > 7: " + bitIdx);
-        }
-        final int bit = (0x01 << bitIdx & cpu.readFrom(p));
-        cpu.set(Flag.ZERO, bit == 0);
-        cpu.set(Flag.NIBBLE, false);
-        cpu.set(Flag.OPERATION, true);
+        bitTest(cpu, cpu.read(bitIndex), cpu.readFrom(p));
         return 16;
     }
 
