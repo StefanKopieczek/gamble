@@ -7722,6 +7722,60 @@ public class TestCpu {
         assertEquals(16, cpu.getCycles());
     }
 
+    @Test
+    public void test_jmp_to_start() {
+        Cpu cpu = cpuWithProgram(0xc3, 0x00, 0x00);
+        step(cpu, 1);
+        assertEquals(0x00, cpu.pc);
+    }
+
+    @Test
+    public void test_jmp_uses_16_cycles() {
+        Cpu cpu = cpuWithProgram(0xc3, 0x00, 0x00);
+        step(cpu, 1);
+        assertEquals(16, cpu.getCycles());  // GBCPUMan wrongly says 12 here.
+    }
+
+    @Test
+    public void test_successive_jumps_in_initial_memory() {
+        Cpu cpu = cpuWithProgram();
+        // Jump through several checkpoints, doing INC A at each.
+        // When complete check that A has been incremented the right number of times.
+        memset(cpu, 0x0000, 0x3c, 0xc3, 0x10, 0x00);
+        memset(cpu, 0x0010, 0x3c, 0xc3, 0x20, 0x00);
+        memset(cpu, 0x0020, 0x3c, 0xc3, 0x30, 0x00);
+        memset(cpu, 0x0030, 0x3c);
+        step(cpu, 7);
+        assertEquals(4, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_successive_jumps_in_deep_memory() {
+        Cpu cpu = cpuWithProgram();
+        // Jump through several checkpoints, doing INC A at each.
+        // When complete check that A has been incremented the right number of times.
+        memset(cpu, 0x0000, 0x3c, 0xc3, 0x22, 0x11);
+        memset(cpu, 0x1122, 0x3c, 0xc3, 0x44, 0x33);
+        memset(cpu, 0x3344, 0x3c, 0xc3, 0x66, 0x55);
+        memset(cpu, 0x5566, 0x3c, 0xc3, 0x88, 0x77);
+        memset(cpu, 0x7788, 0x3c);
+        step(cpu, 9);
+        assertEquals(5, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_chained_jumps() {
+        Cpu cpu = cpuWithProgram();
+        // Have each jump end directly on a new jump.
+        // Include some jumps that go backwards in memory.
+        memset(cpu, 0x0000, 0xc3, 0x00, 0x10); // 1->3
+        memset(cpu, 0x0050, 0xc3, 0x50, 0x20); // 2->4
+        memset(cpu, 0x1000, 0xc3, 0x50, 0x00); // 3->2
+        memset(cpu, 0x2050, 0xc3, 0xff, 0xff); // 4->end
+        step(cpu, 4);
+        assertEquals(0xffff, cpu.pc);
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
@@ -7746,6 +7800,19 @@ public class TestCpu {
             if (ticks > 1000) {
                 throw new RuntimeException("Program failed to terminate");
             }
+        }
+    }
+
+    private static void step(Cpu cpu, int ticks) {
+        for (int tick = 0; tick < ticks; tick++) {
+            cpu.tick();
+        }
+    }
+
+    private static void memset(Cpu cpu, int address, int... data) {
+        for (int idx = 0; idx < data.length; idx++) {
+            Pointer ptr = Pointer.of(Word.literal(address + idx));
+            cpu.writeTo(ptr, Byte.literal(data[idx]));
         }
     }
 }

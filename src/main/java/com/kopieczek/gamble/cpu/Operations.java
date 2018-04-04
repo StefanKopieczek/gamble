@@ -752,7 +752,12 @@ class Operations {
         return 16;
     }
 
-   enum RotateMode {
+    public static int jump(Cpu cpu, Word.Argument address) {
+        cpu.pc = cpu.read(address) - 1;  //  -1 because the PC still needs to tick forward for this instruction.
+        return 16;
+    }
+
+    enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY
     }
