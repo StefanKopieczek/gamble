@@ -708,7 +708,7 @@ class Operations {
 
     static int bitTest(Cpu cpu, Byte bitIndex, Pointer p) {
         bitTest(cpu, cpu.read(bitIndex), cpu.readFrom(p));
-        return 16;
+        return 12;
     }
 
     private static int bitSet(int oldValue, int bitIndex) {

@@ -7389,9 +7389,9 @@ public class TestCpu {
     }
 
     @Test
-    public void test_bit_test_register_hl_indirect_uses_16_cycles() {
+    public void test_bit_test_register_hl_indirect_uses_12_cycles() {
         Cpu cpu = runProgram(0xcb, 0x46, 0x00);
-        assertEquals(16, cpu.getCycles());
+        assertEquals(12, cpu.getCycles());  // GBCPUMan wrongly says 16 cycles.
     }
 
     @Test
