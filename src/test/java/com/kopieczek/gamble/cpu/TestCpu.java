@@ -8098,6 +8098,38 @@ public class TestCpu {
         assertEquals(5, cpu.read(Byte.Register.A));
     }
 
+    @Test
+    public void test_jr_0x00_is_a_no_op() {
+        Cpu cpu = cpuWithProgram(0x18, 0x00, 0x3c);
+        step(cpu, 2);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jr_0x01_skips_next_instruction() {
+        Cpu cpu = runProgram(0x18, 0x01, 0x3c, 0x3c);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jr_0x02_skips_two_instructions() {
+        Cpu cpu = runProgram(0x18, 0x02, 0x3c, 0x3c);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jr_0xfe_jumps_back_onto_itself() {
+        Cpu cpu = cpuWithProgram(0x18, 0xfe);
+        step(cpu, 1);
+        assertEquals(0x00, cpu.pc);
+    }
+
+    @Test
+    public void test_jr_uses_12_cycles() {
+        Cpu cpu = runProgram(0x18, 0x00);
+        assertEquals(12, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

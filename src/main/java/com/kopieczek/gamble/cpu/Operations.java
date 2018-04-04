@@ -786,6 +786,17 @@ class Operations {
         return 12;
     }
 
+    static int jumpRelative(Cpu cpu, Byte.Argument offsetArg) {
+        // The Byte.Argument abstraction sadly makes this a little fragile.
+        // We have to make sure we call cpu.read(offsetArg) before trying to access cpu.pc.
+        // This is because reading the argument triggers the cpu to move pc past the argument and onto the next
+        // instruction.
+        int offset = cpu.read(offsetArg);
+        offset = (offset <= 128) ? offset : offset - 256;  // Offset should be treated as 8-bit signed int in [-127,128]
+        doJump(cpu, cpu.pc + offset + 1);
+        return 12;
+    }
+
     enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY
