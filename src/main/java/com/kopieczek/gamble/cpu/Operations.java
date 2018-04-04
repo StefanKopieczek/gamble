@@ -761,6 +761,11 @@ class Operations {
         return 16;
     }
 
+    static int jump(Cpu cpu, Word.Register r) {
+        doJump(cpu, cpu.read(r));
+        return 4;
+    }
+
     static int jumpIfNotSet(Cpu cpu, Word.Argument address, Flag flag) {
         final int targetAddress = cpu.read(address);
         if (!cpu.isSet(flag)) {

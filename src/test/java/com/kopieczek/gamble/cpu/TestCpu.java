@@ -8050,6 +8050,54 @@ public class TestCpu {
         assertEquals(12, cpu.getCycles());
     }
 
+    @Test
+    public void test_jmp_hl_with_hl_equal_to_0x00() {
+        Cpu cpu = cpuWithProgram(0xe9);
+        step(cpu, 1);
+        assertEquals(0x00, cpu.pc);
+    }
+
+    @Test
+    public void test_jmp_hl_uses_4_cycles() {
+        Cpu cpu = cpuWithProgram(0xe9);
+        step(cpu, 1);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jmp_hl_with_hl_equal_to_0x1234() {
+        Cpu cpu = cpuWithProgram(0x21, 0x34, 0x12, 0xe9);
+        step(cpu, 2);
+        assertEquals(0x1234, cpu.pc);
+    }
+
+    @Test
+    public void test_successive_jumps_in_initial_memory_using_hl() {
+        Cpu cpu = cpuWithProgram();
+        // Jump through several checkpoints, doing INC A at each.
+        // When complete check that A has been incremented the right number of times.
+        memset(cpu, 0x0000, 0x3c, 0x21, 0x10, 0x00, 0xe9);
+        memset(cpu, 0x0010, 0x3c, 0x21, 0x20, 0x00, 0xe9);
+        memset(cpu, 0x0020, 0x3c, 0x21, 0x30, 0x00, 0xe9);
+        memset(cpu, 0x0030, 0x3c);
+        step(cpu, 10);
+        assertEquals(4, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_successive_jumps_in_deep_memory_using_hl() {
+        Cpu cpu = cpuWithProgram();
+        // Jump through several checkpoints, doing INC A at each.
+        // When complete check that A has been incremented the right number of times.
+        memset(cpu, 0x0000, 0x3c, 0x21, 0x22, 0x11, 0xe9);
+        memset(cpu, 0x1122, 0x3c, 0x21, 0x44, 0x33, 0xe9);
+        memset(cpu, 0x3344, 0x3c, 0x21, 0x66, 0x55, 0xe9);
+        memset(cpu, 0x5566, 0x3c, 0x21, 0x88, 0x77, 0xe9);
+        memset(cpu, 0x7788, 0x3c);
+        step(cpu, 13);
+        assertEquals(5, cpu.read(Byte.Register.A));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

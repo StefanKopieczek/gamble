@@ -313,6 +313,7 @@ public class Cpu {
         m.put(0xcb, Cpu::doExtendedOperation);
         m.put(0xd2, cpu -> Operations.jumpIfNotSet(cpu, Word.argument(), Flag.CARRY));
         m.put(0xda, cpu -> Operations.jumpIfSet(cpu, Word.argument(), Flag.CARRY));
+        m.put(0xe9, cpu -> Operations.jump(cpu, Word.Register.HL));
         return m.build();
     }
 
