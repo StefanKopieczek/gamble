@@ -7776,6 +7776,81 @@ public class TestCpu {
         assertEquals(0xffff, cpu.pc);
     }
 
+    @Test
+    public void test_jnz_does_nothing_if_zero_is_set() {
+        Cpu cpu = cpuWithProgram(0xc2, 0xff, 0xff);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertEquals(0x03, cpu.pc);
+    }
+
+    @Test
+    public void test_jnz_jumps_correctly_if_zero_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xc2, 0x34, 0x12);
+        step(cpu, 1);
+        assertEquals(0x1234, cpu.pc);
+    }
+
+    @Test
+    public void test_jnz_is_unaffected_by_other_flags_if_zero_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xc2, 0xbb, 0xaa);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        step(cpu, 1);
+        assertEquals(0xaabb, cpu.pc);
+    }
+
+    @Test
+    public void test_jnz_is_unaffected_by_other_flags_if_zero_is_set() {
+        Cpu cpu = cpuWithProgram(0xc2, 0x78, 0x56);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.ZERO, true);
+        step(cpu, 1);
+        assertEquals(0x03, cpu.pc);
+    }
+
+    @Test
+    public void test_jnz_does_not_modify_zero_flag_when_initially_false() {
+        Cpu cpu = runProgram(0xc2, 0xff, 0xff);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_jnz_does_not_modify_zero_flag_when_initially_true() {
+        Cpu cpu = cpuWithProgram(0xc2, 0xff, 0xff);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_jnz_simple_countdown() {
+        Cpu cpu = runProgram(
+                0x3e, 0xee,       // LD A, 0xee
+                0xd6, 0x01,       // loop: SUB A, 0x01
+                0xc2, 0x02, 0x00  // JNZ loop
+        );
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jnz_uses_16_cycles_if_jump_occurs() {
+        Cpu cpu = runProgram(0xc2, 0xff, 0xff);
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jnz_uses_12_cycles_if_no_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0xc2, 0xff, 0xff);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertEquals(12, cpu.getCycles());
+    }
+
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

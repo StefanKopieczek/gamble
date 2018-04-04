@@ -752,9 +752,23 @@ class Operations {
         return 16;
     }
 
-    public static int jump(Cpu cpu, Word.Argument address) {
-        cpu.pc = cpu.read(address) - 1;  //  -1 because the PC still needs to tick forward for this instruction.
+    private static void doJump(Cpu cpu, int address) {
+        cpu.pc = address - 1;  //  -1 because the PC still needs to tick forward for this instruction.
+    }
+
+    static int jump(Cpu cpu, Word.Argument address) {
+        doJump(cpu, cpu.read(address));
         return 16;
+    }
+
+    static int jumpIfNonZero(Cpu cpu, Word.Argument address) {
+        final int targetAddress = cpu.read(address);
+        if (!cpu.isSet(Flag.ZERO)) {
+            doJump(cpu, targetAddress);
+            return 16;
+        }
+
+        return 12;
     }
 
     enum RotateMode {
