@@ -715,8 +715,16 @@ class Operations {
         final int bitIndex = cpu.read(bitIdx);
         final int bitToSet = 1 << bitIndex;
         final int newValue = cpu.read(r) | bitToSet;
-        cpu.set(Byte.Register.A, Byte.literal(newValue));
+        cpu.set(r, Byte.literal(newValue));
         return 8;
+    }
+
+    static int bitSet(Cpu cpu, Byte.Argument bitIdx, Pointer p) {
+        final int bitIndex = cpu.read(bitIdx);
+        final int bitToSet = 1 << bitIndex;
+        final int newValue = cpu.readFrom(p) | bitToSet;
+        cpu.writeTo(p, Byte.literal(newValue));
+        return 16;
     }
 
     enum RotateMode {

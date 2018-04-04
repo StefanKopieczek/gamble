@@ -7493,6 +7493,54 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.OPERATION));
     }
 
+    @Test
+    public void test_bit_set_on_register_b() {
+        Cpu cpu = runProgram(0x06, 0xb1, 0xcb, 0xc0, 0x02);
+        assertEquals(0xb5, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_bit_set_on_register_c() {
+        Cpu cpu = runProgram(0x0e, 0x5a, 0xcb, 0xc1, 0x07);
+        assertEquals(0xda, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_on_register_d() {
+        Cpu cpu = runProgram(0x16, 0x28, 0xcb, 0xc2, 0x07);
+        assertEquals(0xa8, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_on_register_e() {
+        Cpu cpu = runProgram(0x1e, 0x2e, 0xcb, 0xc3, 0x04);
+        assertEquals(0x3e, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_on_register_h() {
+        Cpu cpu = runProgram(0x26, 0x45, 0xcb, 0xc4, 0x01);
+        assertEquals(0x47, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_on_register_l() {
+        Cpu cpu = runProgram(0x2e, 0x09, 0xcb, 0xc5, 0x01);
+        assertEquals(0x0b, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_on_register_hl_indirect() {
+        Cpu cpu = runProgram(0xcb, 0xc6, 0x05);
+        assertEquals(0xeb, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_on_register_hl_indirect_uses_16_cycles() {
+        Cpu cpu = runProgram(0xcb, 0xc6, 0x05);
+        assertEquals(16, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
