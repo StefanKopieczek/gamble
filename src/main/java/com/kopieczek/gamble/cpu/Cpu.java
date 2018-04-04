@@ -315,6 +315,10 @@ public class Cpu {
         m.put(0xda, cpu -> Operations.jumpIfSet(cpu, Word.argument(), Flag.CARRY));
         m.put(0xe9, cpu -> Operations.jump(cpu, Word.Register.HL));
         m.put(0x18, cpu -> Operations.jumpRelative(cpu, Byte.argument()));
+        m.put(0x20, cpu -> Operations.jumpRelativeIfNotSet(cpu, Byte.argument(), Flag.ZERO));
+        m.put(0x28, cpu -> Operations.jumpRelativeIfSet(cpu, Byte.argument(), Flag.ZERO));
+        m.put(0x30, cpu -> Operations.jumpRelativeIfNotSet(cpu, Byte.argument(), Flag.CARRY));
+        m.put(0x38, cpu -> Operations.jumpRelativeIfSet(cpu, Byte.argument(), Flag.CARRY));
         return m.build();
     }
 

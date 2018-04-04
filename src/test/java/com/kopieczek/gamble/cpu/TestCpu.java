@@ -8130,6 +8130,278 @@ public class TestCpu {
         assertEquals(12, cpu.getCycles());
     }
 
+    @Test
+    public void test_jrnz_does_nothing_if_zero_flag_is_set() {
+        Cpu cpu = cpuWithProgram(0x20, 0x01, 0x3c);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrnz_jumps_correctly_if_zero_is_not_set() {
+        Cpu cpu = runProgram(0x20, 0x01, 0x3c);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrnz_is_unaffected_by_other_flags_if_zero_is_not_set() {
+        Cpu cpu = cpuWithProgram(0x20, 0x01, 0x3c);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrnz_is_unaffected_by_other_flags_if_zero_is_set() {
+        Cpu cpu = cpuWithProgram(0x20, 0x01, 0x3c);
+        cpu.set(Flag.ZERO, true);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrnz_does_not_modify_zero_flag_when_initial_state_is_high() {
+        Cpu cpu = cpuWithProgram(0x20, 0x00);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_jrnz_does_not_modify_zero_flag_when_initial_state_is_low() {
+        Cpu cpu = runProgram(0x20, 0x00);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_jrnz_simple_countdown() {
+        Cpu cpu = runProgram(
+                0x3e, 0xee,       // LD A, 0xee
+                0xd6, 0x01,       // loop: SUB A, 0x01
+                0x20, 0xfc        // JRNZ loop
+        );
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrnz_uses_12_cycles_if_jump_occurs() {
+        Cpu cpu = runProgram(0x20, 0x00);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jrnz_uses_8_cycles_if_no_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0x20, 0x00);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 2);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jrz_jumps_correctly_if_zero_flag_is_set() {
+        Cpu cpu = cpuWithProgram(0x28, 0x01, 0x3c);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrz_does_nothing_if_zero_is_not_set() {
+        Cpu cpu = runProgram(0x28, 0x01, 0x3c);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrz_is_unaffected_by_other_flags_if_zero_is_not_set() {
+        Cpu cpu = cpuWithProgram(0x28, 0x01, 0x3c);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrz_is_unaffected_by_other_flags_if_zero_is_set() {
+        Cpu cpu = cpuWithProgram(0x28, 0x01, 0x3c);
+        cpu.set(Flag.ZERO, true);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrz_does_not_modify_zero_flag_when_initial_state_is_high() {
+        Cpu cpu = cpuWithProgram(0x28, 0x00);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_jrz_does_not_modify_zero_flag_when_initial_state_is_low() {
+        Cpu cpu = runProgram(0x28, 0x00);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_jrz_uses_8_cycles_if_no_jump_occurs() {
+        Cpu cpu = runProgram(0x28, 0x00);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jrz_uses_12_cycles_if_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0x28, 0x00);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 2);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jrnc_does_nothing_if_carry_flag_is_set() {
+        Cpu cpu = cpuWithProgram(0x30, 0x01, 0x3c);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrnc_jumps_correctly_if_carry_is_not_set() {
+        Cpu cpu = runProgram(0x30, 0x01, 0x3c);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrnc_is_unaffected_by_other_flags_if_carry_is_not_set() {
+        Cpu cpu = cpuWithProgram(0x30, 0x01, 0x3c);
+        cpu.set(Flag.ZERO, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrnc_is_unaffected_by_other_flags_if_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0x30, 0x01, 0x3c);
+        cpu.set(Flag.ZERO, true);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrnc_does_not_modify_carry_flag_when_initial_state_is_high() {
+        Cpu cpu = cpuWithProgram(0x30, 0x00);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_jrnc_does_not_modify_carry_flag_when_initial_state_is_low() {
+        Cpu cpu = runProgram(0x30, 0x00);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_jrnc_simple_count_until_rollover() {
+        Cpu cpu = runProgram(
+                0x3e, 0x10,       // LD A, 0x10
+                0xc6, 0x01,       // loop: ADD A, 0x01
+                0x30, 0xfc        // JRNC loop
+        );
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrnc_uses_12_cycles_if_jump_occurs() {
+        Cpu cpu = runProgram(0x30, 0x00);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jrnc_uses_8_cycles_if_no_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0x30, 0x00);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 2);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jrc_jumps_correctly_if_carry_flag_is_set() {
+        Cpu cpu = cpuWithProgram(0x38, 0x01, 0x3c);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrc_does_nothing_if_carry_is_not_set() {
+        Cpu cpu = runProgram(0x38, 0x01, 0x3c);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrc_is_unaffected_by_other_flags_if_carry_is_not_set() {
+        Cpu cpu = cpuWithProgram(0x38, 0x01, 0x3c);
+        cpu.set(Flag.ZERO, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrc_is_unaffected_by_other_flags_if_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0x38, 0x01, 0x3c);
+        cpu.set(Flag.ZERO, true);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jrc_does_not_modify_carry_flag_when_initial_state_is_high() {
+        Cpu cpu = cpuWithProgram(0x38, 0x00);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_jrc_does_not_modify_carry_flag_when_initial_state_is_low() {
+        Cpu cpu = runProgram(0x38, 0x00);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_jrc_uses_8_cycles_if_no_jump_occurs() {
+        Cpu cpu = runProgram(0x38, 0x00);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jrc_uses_12_cycles_if_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0x38, 0x00);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 2);
+        assertEquals(12, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
