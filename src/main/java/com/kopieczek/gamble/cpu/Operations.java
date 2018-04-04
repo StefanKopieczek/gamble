@@ -732,16 +732,24 @@ class Operations {
         return 16;
     }
 
-    static int bitReset(Cpu cpu, Byte.Argument bitIdx, Byte.Register r) {
-        final int bitIndex = cpu.read(bitIdx);
+    private static int bitReset(int oldValue, int bitIndex) {
         if (bitIndex > 7) {
             throw new IllegalArgumentException("Cannot reset bit at index > 7: " + bitIndex);
         }
-
         final int bitToReset = 1 << bitIndex;
-        final int newValue = cpu.read(r) & ~bitToReset;
+        return oldValue & ~bitToReset;
+    }
+
+    static int bitReset(Cpu cpu, Byte.Argument bitIndex, Byte.Register r) {
+        final int newValue = bitReset(cpu.read(r), cpu.read(bitIndex));
         cpu.set(r, Byte.literal(newValue));
         return 8;
+    }
+
+    static int bitReset(Cpu cpu, Byte.Argument bitIndex, Pointer p) {
+        final int newValue = bitReset(cpu.readFrom(p), cpu.read(bitIndex));
+        cpu.writeTo(p, Byte.literal(newValue));
+        return 16;
     }
 
    enum RotateMode {
