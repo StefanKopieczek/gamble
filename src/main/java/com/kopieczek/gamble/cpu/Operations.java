@@ -761,9 +761,9 @@ class Operations {
         return 16;
     }
 
-    static int jumpIfNonZero(Cpu cpu, Word.Argument address) {
+    static int jumpIfNotSet(Cpu cpu, Word.Argument address, Flag flag) {
         final int targetAddress = cpu.read(address);
-        if (!cpu.isSet(Flag.ZERO)) {
+        if (!cpu.isSet(flag)) {
             doJump(cpu, targetAddress);
             return 16;
         }
@@ -771,9 +771,9 @@ class Operations {
         return 12;
     }
 
-    static int jumpIfZero(Cpu cpu, Word.Argument address) {
+    static int jumpIfSet(Cpu cpu, Word.Argument address, Flag flag) {
         final int targetAddress = cpu.read(address);
-        if (cpu.isSet(Flag.ZERO)) {
+        if (cpu.isSet(flag)) {
             doJump(cpu, targetAddress);
             return 16;
         }

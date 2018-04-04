@@ -7913,6 +7913,143 @@ public class TestCpu {
         assertEquals(12, cpu.getCycles());
     }
 
+    @Test
+    public void test_jnc_does_nothing_if_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0xd2, 0xff, 0xff);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x03, cpu.pc);
+    }
+
+    @Test
+    public void test_jnc_jumps_correctly_if_carry_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xd2, 0x34, 0x12);
+        step(cpu, 1);
+        assertEquals(0x1234, cpu.pc);
+    }
+
+    @Test
+    public void test_jnc_is_unaffected_by_other_flags_if_carry_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xd2, 0xbb, 0xaa);
+        cpu.set(Flag.ZERO, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        step(cpu, 1);
+        assertEquals(0xaabb, cpu.pc);
+    }
+
+    @Test
+    public void test_jnc_is_unaffected_by_other_flags_if_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0xd2, 0x78, 0x56);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.ZERO, true);
+        step(cpu, 1);
+        assertEquals(0x03, cpu.pc);
+    }
+
+    @Test
+    public void test_jnc_does_not_modify_carry_flag_when_initially_false() {
+        Cpu cpu = runProgram(0xd2, 0xff, 0xff);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_jnc_does_not_modify_carry_flag_when_initially_true() {
+        Cpu cpu = cpuWithProgram(0xd2, 0xff, 0xff);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_jnc_count_up_to_rollover() {
+        Cpu cpu = runProgram(
+                0x3e, 0x01,       // LD A, 0x01
+                0xc6, 0x01,       // loop: ADD A, 0x01  -- Note that INC A wouldn't work because it doesn't set carry.
+                0xd2, 0x02, 0x00  // JNC loop
+        );
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_jnc_uses_16_cycles_if_jump_occurs() {
+        Cpu cpu = runProgram(0xd2, 0xff, 0xff);
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jnc_uses_12_cycles_if_no_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0xd2, 0xff, 0xff);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jc_does_nothing_if_carry_is_not_set() {
+        Cpu cpu = runProgram(0xda, 0xff, 0xff);
+        assertEquals(0x03, cpu.pc);
+    }
+
+    @Test
+    public void test_jc_jumps_correctly_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0xda, 0xff, 0xff);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0xffff, cpu.pc);
+    }
+
+    @Test
+    public void test_jc_is_unaffected_by_other_flags_if_carry_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xda, 0xbb, 0xaa);
+        cpu.set(Flag.ZERO, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        step(cpu, 1);
+        assertEquals(0x03, cpu.pc);
+    }
+
+    @Test
+    public void test_jc_is_unaffected_by_other_flags_if_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0xda, 0x78, 0x56);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.ZERO, true);
+        step(cpu, 1);
+        assertEquals(0x5678, cpu.pc);
+    }
+
+    @Test
+    public void test_jc_does_not_modify_carry_flag_when_initially_false() {
+        Cpu cpu = runProgram(0xda, 0xff, 0xff);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_jc_does_not_modify_carry_flag_when_initially_true() {
+        Cpu cpu = cpuWithProgram(0xda, 0xff, 0xff);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_jc_uses_16_cycles_if_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0xda, 0xff, 0xff);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jc_uses_12_cycles_if_no_jump_occurs() {
+        Cpu cpu = runProgram(0xda, 0xff, 0xff);
+        assertEquals(12, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

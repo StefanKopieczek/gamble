@@ -307,10 +307,12 @@ public class Cpu {
         m.put(0x17, cpu -> Operations.rotateALeft(cpu, Operations.RotateMode.INCLUDE_CARRY));
         m.put(0x0f, cpu -> Operations.rotateARight(cpu, Operations.RotateMode.COPY_TO_CARRY));
         m.put(0x1f, cpu -> Operations.rotateARight(cpu, Operations.RotateMode.INCLUDE_CARRY));
-        m.put(0xc2, cpu -> Operations.jumpIfNonZero(cpu, Word.argument()));
+        m.put(0xc2, cpu -> Operations.jumpIfNotSet(cpu, Word.argument(), Flag.ZERO));
         m.put(0xc3, cpu -> Operations.jump(cpu, Word.argument()));
-        m.put(0xca, cpu -> Operations.jumpIfZero(cpu, Word.argument()));
+        m.put(0xca, cpu -> Operations.jumpIfSet(cpu, Word.argument(), Flag.ZERO));
         m.put(0xcb, Cpu::doExtendedOperation);
+        m.put(0xd2, cpu -> Operations.jumpIfNotSet(cpu, Word.argument(), Flag.CARRY));
+        m.put(0xda, cpu -> Operations.jumpIfSet(cpu, Word.argument(), Flag.CARRY));
         return m.build();
     }
 
