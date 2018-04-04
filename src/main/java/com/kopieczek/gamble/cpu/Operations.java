@@ -771,6 +771,16 @@ class Operations {
         return 12;
     }
 
+    static int jumpIfZero(Cpu cpu, Word.Argument address) {
+        final int targetAddress = cpu.read(address);
+        if (cpu.isSet(Flag.ZERO)) {
+            doJump(cpu, targetAddress);
+            return 16;
+        }
+
+        return 12;
+    }
+
     enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY

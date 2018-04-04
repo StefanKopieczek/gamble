@@ -7850,6 +7850,68 @@ public class TestCpu {
         assertEquals(12, cpu.getCycles());
     }
 
+    @Test
+    public void test_jz_does_nothing_if_zero_is_not_set() {
+        Cpu cpu = runProgram(0xca, 0xff, 0xff);
+        assertEquals(0x03, cpu.pc);
+    }
+
+    @Test
+    public void test_jz_jumps_correctly_zero_is_set() {
+        Cpu cpu = cpuWithProgram(0xca, 0xff, 0xff);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertEquals(0xffff, cpu.pc);
+    }
+
+    @Test
+    public void test_jz_is_unaffected_by_other_flags_if_zero_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xca, 0xbb, 0xaa);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        step(cpu, 1);
+        assertEquals(0x03, cpu.pc);
+    }
+
+    @Test
+    public void test_jz_is_unaffected_by_other_flags_if_zero_is_set() {
+        Cpu cpu = cpuWithProgram(0xca, 0x78, 0x56);
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.ZERO, true);
+        step(cpu, 1);
+        assertEquals(0x5678, cpu.pc);
+    }
+
+    @Test
+    public void test_jz_does_not_modify_zero_flag_when_initially_false() {
+        Cpu cpu = runProgram(0xca, 0xff, 0xff);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_jz_does_not_modify_zero_flag_when_initially_true() {
+        Cpu cpu = cpuWithProgram(0xca, 0xff, 0xff);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_jz_uses_16_cycles_if_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0xca, 0xff, 0xff);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_jz_uses_12_cycles_if_no_jump_occurs() {
+        Cpu cpu = runProgram(0xca, 0xff, 0xff);
+        assertEquals(12, cpu.getCycles());
+    }
 
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();

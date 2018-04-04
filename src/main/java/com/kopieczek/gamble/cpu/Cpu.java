@@ -309,6 +309,7 @@ public class Cpu {
         m.put(0x1f, cpu -> Operations.rotateARight(cpu, Operations.RotateMode.INCLUDE_CARRY));
         m.put(0xc2, cpu -> Operations.jumpIfNonZero(cpu, Word.argument()));
         m.put(0xc3, cpu -> Operations.jump(cpu, Word.argument()));
+        m.put(0xca, cpu -> Operations.jumpIfZero(cpu, Word.argument()));
         m.put(0xcb, Cpu::doExtendedOperation);
         return m.build();
     }
