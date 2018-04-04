@@ -711,18 +711,23 @@ class Operations {
         return 16;
     }
 
-    static int bitSet(Cpu cpu, Byte.Argument bitIdx, Byte.Register r) {
-        final int bitIndex = cpu.read(bitIdx);
+    private static int bitSet(int oldValue, int bitIndex) {
+        if (bitIndex > 7) {
+            throw new IllegalArgumentException("Cannot set bit at index > 7: " + bitIndex);
+        }
         final int bitToSet = 1 << bitIndex;
-        final int newValue = cpu.read(r) | bitToSet;
+        final int newValue = oldValue | bitToSet;
+        return newValue;
+    }
+
+    static int bitSet(Cpu cpu, Byte.Argument bitIndex, Byte.Register r) {
+        final int newValue = bitSet(cpu.read(r), cpu.read(bitIndex));
         cpu.set(r, Byte.literal(newValue));
         return 8;
     }
 
-    static int bitSet(Cpu cpu, Byte.Argument bitIdx, Pointer p) {
-        final int bitIndex = cpu.read(bitIdx);
-        final int bitToSet = 1 << bitIndex;
-        final int newValue = cpu.readFrom(p) | bitToSet;
+    static int bitSet(Cpu cpu, Byte.Argument bitIndex, Pointer p) {
+        final int newValue = bitSet(cpu.readFrom(p), cpu.read(bitIndex));
         cpu.writeTo(p, Byte.literal(newValue));
         return 16;
     }

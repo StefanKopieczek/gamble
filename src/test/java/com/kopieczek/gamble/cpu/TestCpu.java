@@ -7440,6 +7440,21 @@ public class TestCpu {
         assertEquals(0x08, cpu.read(Byte.Register.A));
     }
 
+    @Test(expected=IllegalArgumentException.class)
+    public void test_bit_set_on_register_a_bit_8_throws_illegal_argument_exception() {
+        Cpu cpu = runProgram(0xcb, 0xc7, 0x08);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_bit_set_on_register_a_bit_19_throws_illegal_argument_exception() {
+        Cpu cpu = runProgram(0xcb, 0xc7, 0x13);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_bit_set_on_register_a_bit_255_throws_illegal_argument_exception() {
+        Cpu cpu = runProgram(0xcb, 0xc7, 0xff);
+    }
+
     @Test
     public void test_bit_set_on_register_a_does_not_set_zero_flag() {
         Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
