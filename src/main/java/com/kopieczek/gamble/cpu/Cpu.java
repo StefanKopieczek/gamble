@@ -393,6 +393,7 @@ public class Cpu {
         m.put(0xc5, cpu -> Operations.bitSet(cpu, Byte.argument(), Byte.Register.L));
         m.put(0xc6, cpu -> Operations.bitSet(cpu, Byte.argument(), Pointer.of(Word.Register.HL)));
         m.put(0xc7, cpu -> Operations.bitSet(cpu, Byte.argument(), Byte.Register.A));
+        m.put(0x87, cpu -> Operations.bitReset(cpu, Byte.argument(), Byte.Register.A));
         return m.build();
     }
 }

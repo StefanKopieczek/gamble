@@ -732,7 +732,19 @@ class Operations {
         return 16;
     }
 
-    enum RotateMode {
+    static int bitReset(Cpu cpu, Byte.Argument bitIdx, Byte.Register r) {
+        final int bitIndex = cpu.read(bitIdx);
+        if (bitIndex > 7) {
+            throw new IllegalArgumentException("Cannot reset bit at index > 7: " + bitIndex);
+        }
+
+        final int bitToReset = 1 << bitIndex;
+        final int newValue = cpu.read(r) & ~bitToReset;
+        cpu.set(r, Byte.literal(newValue));
+        return 8;
+    }
+
+   enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY
     }

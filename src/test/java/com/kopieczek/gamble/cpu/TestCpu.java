@@ -7556,6 +7556,124 @@ public class TestCpu {
         assertEquals(16, cpu.getCycles());
     }
 
+    @Test
+    public void test_bit_reset_register_a_bit_0() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0xcb, 0x87, 0x00);
+        assertEquals(0xfe, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_reset_register_a_bit_1() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0xcb, 0x87, 0x01);
+        assertEquals(0xfd, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_reset_register_a_uses_8_cycles() {
+        Cpu cpu = runProgram(0xcb, 0x87, 0x00);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_reset_register_a_preserves_existing_low_bits() {
+        Cpu cpu = runProgram(0x3e, 0x03, 0xcb, 0x87, 0x01);
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_reset_register_a_bit_6() {
+        Cpu cpu = runProgram(0x3e, 0xff, 0xcb, 0x87, 0x06);
+        assertEquals(0xbf, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_successive_bit_resets_on_register_a() {
+        Cpu cpu = runProgram(
+                0x3e, 0xff,
+                0xcb, 0x87, 0x00,
+                0xcb, 0x87, 0x01,
+                0xcb, 0x87, 0x07
+        );
+        assertEquals(0x7c, cpu.read(Byte.Register.A));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_bit_reset_on_register_a_bit_8_throws_illegal_argument_exception() {
+        Cpu cpu = runProgram(0xcb, 0x87, 0x08);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_bit_reset_on_register_a_bit_34_throws_illegal_argument_exception() {
+        Cpu cpu = runProgram(0xcb, 0x87, 0x22);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_bit_reset_on_register_a_bit_255_throws_illegal_argument_exception() {
+        Cpu cpu = runProgram(0xcb, 0xff, 0x22);
+    }
+
+    @Test
+    public void test_bit_reset_on_register_a_is_idempotent() {
+        Cpu cpu = runProgram(0x3e, 0xa0, 0xcb, 0x87, 0x07, 0xcb, 0x87, 0x07);
+        assertEquals(0x20, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_reset_on_register_a_preserves_low_carry_bit() {
+        Cpu cpu = runProgram(0xcb, 0x87, 0x00);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_bit_reset_on_register_a_preserves_high_carry_bit() {
+        Cpu cpu = cpuWithProgram(0xcb, 0x87, 0x00);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_bit_reset_on_register_a_preserves_low_nibble_bit() {
+        Cpu cpu = runProgram(0xcb, 0x87, 0x00);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_bit_reset_on_register_a_preserves_high_nibble_bit() {
+        Cpu cpu = cpuWithProgram(0xcb, 0x87, 0x00);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_bit_reset_on_register_a_preserves_low_zero_bit() {
+        Cpu cpu = runProgram(0xcb, 0x87, 0x00);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_reset_on_register_a_preserves_high_zero_bit() {
+        Cpu cpu = cpuWithProgram(0xcb, 0x87, 0x00);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_bit_reset_on_register_a_preserves_low_operation_bit() {
+        Cpu cpu = runProgram(0xcb, 0x87, 0x00);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_bit_reset_on_register_a_preserves_high_operation_bit() {
+        Cpu cpu = cpuWithProgram(0xcb, 0x87, 0x00);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
