@@ -871,6 +871,22 @@ class Operations {
         return 16;
     }
 
+    static int returnIfNotSet(Cpu cpu, Flag flag) {
+        if (!cpu.isSet(flag)) {
+            doJump(cpu, doPop(cpu));
+            return 20;
+        }
+        return 8;
+    }
+
+    static int returnIfSet(Cpu cpu, Flag flag) {
+        if (cpu.isSet(flag)) {
+            doJump(cpu, doPop(cpu));
+            return 20;
+        }
+        return 8;
+    }
+
     enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY
