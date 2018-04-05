@@ -8459,8 +8459,6 @@ public class TestCpu {
         assertEquals(24, cpu.getCycles());
     }
 
-    // -------------------------------------------------------------------------
-
     @Test
     public void test_call_nz_does_nothing_if_zero_is_set() {
         Cpu cpu = cpuWithProgram(0xc4, 0x34, 0x12);
@@ -8824,6 +8822,253 @@ public class TestCpu {
         assertEquals(12, cpu.getCycles());
     }
 
+    @Test
+    public void test_rst_00_from_address_0x1234() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0x1234, 0xc7);
+        cpu.pc = 0x1234;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0000, cpu.pc);
+        assertEquals(0x12, cpu.unsafeRead(0xfffe));
+        assertEquals(0x35, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_00_from_address_0xabcd() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xabcd, 0xc7);
+        cpu.pc = 0xabcd;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0000, cpu.pc);
+        assertEquals(0xab, cpu.unsafeRead(0xfffe));
+        assertEquals(0xce, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_00_uses_16_cycles() {
+        Cpu cpu = cpuWithProgram(0xc7);
+        cpu.tick();
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rst_08_from_address_0x1234() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0x1234, 0xcf);
+        cpu.pc = 0x1234;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0008, cpu.pc);
+        assertEquals(0x12, cpu.unsafeRead(0xfffe));
+        assertEquals(0x35, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_08_from_address_0xabcd() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xabcd, 0xcf);
+        cpu.pc = 0xabcd;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0008, cpu.pc);
+        assertEquals(0xab, cpu.unsafeRead(0xfffe));
+        assertEquals(0xce, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_08_uses_16_cycles() {
+        Cpu cpu = cpuWithProgram(0xcf);
+        cpu.tick();
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rst_10_from_address_0x1234() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0x1234, 0xd7);
+        cpu.pc = 0x1234;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0010, cpu.pc);
+        assertEquals(0x12, cpu.unsafeRead(0xfffe));
+        assertEquals(0x35, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_10_from_address_0xabcd() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xabcd, 0xd7);
+        cpu.pc = 0xabcd;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0010, cpu.pc);
+        assertEquals(0xab, cpu.unsafeRead(0xfffe));
+        assertEquals(0xce, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_10_uses_16_cycles() {
+        Cpu cpu = cpuWithProgram(0xd7);
+        cpu.tick();
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rst_18_from_address_0x1234() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0x1234, 0xdf);
+        cpu.pc = 0x1234;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0018, cpu.pc);
+        assertEquals(0x12, cpu.unsafeRead(0xfffe));
+        assertEquals(0x35, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_18_from_address_0xabcd() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xabcd, 0xdf);
+        cpu.pc = 0xabcd;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0018, cpu.pc);
+        assertEquals(0xab, cpu.unsafeRead(0xfffe));
+        assertEquals(0xce, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_18_uses_16_cycles() {
+        Cpu cpu = cpuWithProgram(0xdf);
+        cpu.tick();
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rst_20_from_address_0x1234() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0x1234, 0xe7);
+        cpu.pc = 0x1234;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0020, cpu.pc);
+        assertEquals(0x12, cpu.unsafeRead(0xfffe));
+        assertEquals(0x35, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_20_from_address_0xabcd() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xabcd, 0xe7);
+        cpu.pc = 0xabcd;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0020, cpu.pc);
+        assertEquals(0xab, cpu.unsafeRead(0xfffe));
+        assertEquals(0xce, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_20_uses_16_cycles() {
+        Cpu cpu = cpuWithProgram(0xe7);
+        cpu.tick();
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rst_28_from_address_0x1234() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0x1234, 0xef);
+        cpu.pc = 0x1234;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0028, cpu.pc);
+        assertEquals(0x12, cpu.unsafeRead(0xfffe));
+        assertEquals(0x35, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_28_from_address_0xabcd() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xabcd, 0xef);
+        cpu.pc = 0xabcd;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0028, cpu.pc);
+        assertEquals(0xab, cpu.unsafeRead(0xfffe));
+        assertEquals(0xce, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_28_uses_16_cycles() {
+        Cpu cpu = cpuWithProgram(0xef);
+        cpu.tick();
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rst_30_from_address_0x1234() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0x1234, 0xf7);
+        cpu.pc = 0x1234;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0030, cpu.pc);
+        assertEquals(0x12, cpu.unsafeRead(0xfffe));
+        assertEquals(0x35, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_30_from_address_0xabcd() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xabcd, 0xf7);
+        cpu.pc = 0xabcd;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0030, cpu.pc);
+        assertEquals(0xab, cpu.unsafeRead(0xfffe));
+        assertEquals(0xce, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_30_uses_16_cycles() {
+        Cpu cpu = cpuWithProgram(0xf7);
+        cpu.tick();
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_rst_38_from_address_0x1234() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0x1234, 0xff);
+        cpu.pc = 0x1234;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0038, cpu.pc);
+        assertEquals(0x12, cpu.unsafeRead(0xfffe));
+        assertEquals(0x35, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_38_from_address_0xabcd() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xabcd, 0xff);
+        cpu.pc = 0xabcd;
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x0038, cpu.pc);
+        assertEquals(0xab, cpu.unsafeRead(0xfffe));
+        assertEquals(0xce, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_rst_38_uses_16_cycles() {
+        Cpu cpu = cpuWithProgram(0xff);
+        cpu.tick();
+        assertEquals(16, cpu.getCycles());
+    }
 
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();

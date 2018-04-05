@@ -830,18 +830,20 @@ class Operations {
         return 8;
     }
 
-    static int call(Cpu cpu, Word.Argument addressArg) {
-        int address = cpu.read(addressArg);
+    private static void doCall(Cpu cpu, int address) {
         doPush(cpu, cpu.pc);
         doJump(cpu, address);
+    }
+
+    static int call(Cpu cpu, Word.Argument address) {
+        doCall(cpu, cpu.read(address));
         return 24;
     }
 
     static int callIfNotSet(Cpu cpu, Word.Argument address, Flag flag) {
         final int targetAddress = cpu.read(address);
         if (!cpu.isSet(flag)) {
-            doPush(cpu, cpu.pc);
-            doJump(cpu, targetAddress);
+            doCall(cpu, targetAddress);
             return 24;
         }
 
@@ -851,12 +853,16 @@ class Operations {
     static int callIfSet(Cpu cpu, Word.Argument address, Flag flag) {
         final int targetAddress = cpu.read(address);
         if (cpu.isSet(flag)) {
-            doPush(cpu, cpu.pc);
-            doJump(cpu, targetAddress);
+            doCall(cpu, targetAddress);
             return 24;
         }
 
         return 12;
+    }
+
+    static int reset(Cpu cpu, Word address) {
+        doCall(cpu, cpu.read(address));
+        return 16;
     }
 
     enum RotateMode {
