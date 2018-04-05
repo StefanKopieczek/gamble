@@ -9073,8 +9073,7 @@ public class TestCpu {
     @Test
     public void test_ret_with_sp_at_0x1234_jumping_to_0x5678() {
         Cpu cpu = cpuWithProgram(0xc9);
-        memset(cpu, 0x1234, 0x78, 0x56);
-        cpu.set(Word.Register.SP, Word.literal(0x1234));
+        setupStack(cpu, 0x1234, 0x56, 0x78);
         cpu.tick();
         assertEquals(0x5678, cpu.pc);
     }
@@ -9082,8 +9081,7 @@ public class TestCpu {
     @Test
     public void test_ret_with_sp_at_0x3456_jumping_to_0xabcd() {
         Cpu cpu = cpuWithProgram(0xc9);
-        memset(cpu, 0x3456, 0xcd, 0xab);
-        cpu.set(Word.Register.SP, Word.literal(0x3456));
+        setupStack(cpu, 0x3456, 0xab, 0xcd);
         cpu.tick();
         assertEquals(0xabcd, cpu.pc);
     }
@@ -9146,6 +9144,14 @@ public class TestCpu {
         for (int idx = 0; idx < data.length; idx++) {
             Pointer ptr = Pointer.of(Word.literal(address + idx));
             cpu.writeTo(ptr, Byte.literal(data[idx]));
+        }
+    }
+
+    private static void setupStack(Cpu cpu, int stackStart, int... data) {
+        cpu.set(Word.Register.SP, Word.literal(stackStart));
+        for (int dataByte : data) {
+            cpu.set(Word.Register.SP, Word.literal(cpu.read(Word.Register.SP) - 1));
+            cpu.writeTo(Pointer.of(Word.Register.SP), Byte.literal(dataByte));
         }
     }
 }
