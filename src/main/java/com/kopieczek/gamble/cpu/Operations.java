@@ -837,6 +837,28 @@ class Operations {
         return 24;
     }
 
+    static int callIfNotSet(Cpu cpu, Word.Argument address, Flag flag) {
+        final int targetAddress = cpu.read(address);
+        if (!cpu.isSet(flag)) {
+            doPush(cpu, cpu.pc);
+            doJump(cpu, targetAddress);
+            return 24;
+        }
+
+        return 12;
+    }
+
+    static int callIfSet(Cpu cpu, Word.Argument address, Flag flag) {
+        final int targetAddress = cpu.read(address);
+        if (cpu.isSet(flag)) {
+            doPush(cpu, cpu.pc);
+            doJump(cpu, targetAddress);
+            return 24;
+        }
+
+        return 12;
+    }
+
     enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY

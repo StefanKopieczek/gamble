@@ -8459,6 +8459,372 @@ public class TestCpu {
         assertEquals(24, cpu.getCycles());
     }
 
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void test_call_nz_does_nothing_if_zero_is_set() {
+        Cpu cpu = cpuWithProgram(0xc4, 0x34, 0x12);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertEquals(0x03, cpu.pc);
+        assertEquals("CALL_NZ shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffe));
+        assertEquals("CALL_NZ shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_nz_jumps_correctly_if_zero_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xc4, 0x34, 0x12);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x1234, cpu.pc);
+        assertEquals(0x00, cpu.unsafeRead(0xfffe));
+        assertEquals(0x03, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_nz_is_unaffected_by_other_flags_if_zero_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xc4, 0xbb, 0xaa);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        step(cpu, 1);
+        assertEquals(0xaabb, cpu.pc);
+        assertEquals(0x00, cpu.unsafeRead(0xfffe));
+        assertEquals(0x03, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_nz_is_unaffected_by_other_flags_if_zero_is_set() {
+        Cpu cpu = cpuWithProgram(0xc4, 0x78, 0x56);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.ZERO, true);
+        step(cpu, 1);
+        assertEquals(0x03, cpu.pc);
+        assertEquals("CALL_NZ shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffe));
+        assertEquals("CALL_NZ shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_nz_does_not_modify_zero_flag_when_initially_false() {
+        Cpu cpu = cpuWithProgram(0xc4, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_call_nz_does_not_modify_zero_flag_when_initially_true() {
+        Cpu cpu = cpuWithProgram(0xc4, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.ZERO, true);
+        step(cpu, 1);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_call_nz_recursive_countdown() {
+        Cpu cpu = cpuWithProgram(
+                0x3e, 0xee,       // LD A, 0xee
+                0xd6, 0x01,       // loop: SUB A, 0x01
+                0xc4, 0x02, 0x00  // CALL NZ, loop
+        );
+        cpu.set(Word.Register.SP, Word.literal(0xfe99));
+        runProgram(cpu, 7);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        for (int i = 0; i < 0xed; i++) {
+            assertEquals("Stack check at " + Integer.toHexString(0xfe98 - 2*i),
+            0x00, cpu.unsafeRead(0xfe98 - 2*i));
+            assertEquals("Stack check at " + Integer.toHexString(0xfe98 - 2*i - 1),
+                    0x07, cpu.unsafeRead(0xfe98 - 2*i - 1));
+        }
+    }
+
+    @Test
+    public void test_call_nz_uses_24_cycles_if_triggered() {
+        Cpu cpu = cpuWithProgram(0xc4, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(24, cpu.getCycles());
+    }
+
+    @Test
+    public void test_call_nz_uses_12_cycles_if_not_triggered_() {
+        Cpu cpu = cpuWithProgram(0xc4, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.ZERO, true);
+        step(cpu, 1);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_call_z_does_nothing_if_zero_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xcc, 0x34, 0x12);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x03, cpu.pc);
+        assertEquals("CALL_Z shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffe));
+        assertEquals("CALL_Z shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_z_jumps_correctly_zero_is_set() {
+        Cpu cpu = cpuWithProgram(0xcc, 0x34, 0x12);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertEquals(0x1234, cpu.pc);
+        assertEquals(0x00, cpu.unsafeRead(0xfffe));
+        assertEquals(0x03, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_z_is_unaffected_by_other_flags_if_zero_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xcc, 0xbb, 0xaa);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        step(cpu, 1);
+        assertEquals(0x03, cpu.pc);
+        assertEquals("CALL_Z shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffe));
+        assertEquals("CALL_Z shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_z_is_unaffected_by_other_flags_if_zero_is_set() {
+        Cpu cpu = cpuWithProgram(0xcc, 0x78, 0x56);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.ZERO, true);
+        step(cpu, 1);
+        assertEquals(0x5678, cpu.pc);
+        assertEquals(0x00, cpu.unsafeRead(0xfffe));
+        assertEquals(0x03, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_z_does_not_modify_zero_flag_when_initially_false() {
+        Cpu cpu = cpuWithProgram(0xcc, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_call_z_does_not_modify_zero_flag_when_initially_true() {
+        Cpu cpu = cpuWithProgram(0xcc, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_call_z_uses_24_cycles_if_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0xcc, 0xff, 0xff);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertEquals(24, cpu.getCycles());
+    }
+
+    @Test
+    public void test_call_z_uses_12_cycles_if_no_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0xca, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_call_nc_does_nothing_if_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0xd4, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0x03, cpu.pc);
+        assertEquals("CALL_NC shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffe));
+        assertEquals("CALL_NC shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_nc_jumps_correctly_if_carry_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xd4, 0x34, 0x12);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(0x1234, cpu.pc);
+        assertEquals(0x00, cpu.unsafeRead(0xfffe));
+        assertEquals(0x03, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_nc_is_unaffected_by_other_flags_if_carry_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xd4, 0xbb, 0xaa);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.ZERO, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        step(cpu, 1);
+        assertEquals(0xaabb, cpu.pc);
+        assertEquals(0x00, cpu.unsafeRead(0xfffe));
+        assertEquals(0x03, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_nc_is_unaffected_by_other_flags_if_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0xd4, 0x78, 0x56);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.ZERO, true);
+        step(cpu, 1);
+        assertEquals(0x03, cpu.pc);
+        assertEquals("CALL_NC shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffe));
+        assertEquals("CALL_NC shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_nc_does_not_modify_carry_flag_when_initially_false() {
+        Cpu cpu = cpuWithProgram(0xd4, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_call_nc_does_not_modify_carry_flag_when_initially_true() {
+        Cpu cpu = cpuWithProgram(0xd4, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_call_nc_count_up_to_rollover_recursively() {
+        Cpu cpu = cpuWithProgram(
+                0x3e, 0x01,       // LD A, 0x01
+                0xc6, 0x01,       // loop: ADD A, 0x01  -- Note that INC A wouldn't work because it doesn't set carry.
+                0xd4, 0x02, 0x00  // CALL_NC loop
+        );
+        cpu.set(Word.Register.SP, Word.literal(0xfe99));
+        runProgram(cpu, 7);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        for (int i = 0; i < 0xfe; i++) {
+            assertEquals("Stack check at " + Integer.toHexString(0xfe98 - 2*i),
+            0x00, cpu.unsafeRead(0xfe98 - 2*i));
+            assertEquals("Stack check at " + Integer.toHexString(0xfe98 - 2*i),
+                    0x07, cpu.unsafeRead(0xfe98 - 2*i - 1));
+        }
+    }
+
+    @Test
+    public void test_call_nc_uses_24_cycles_if_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0xd4, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(24, cpu.getCycles());
+    }
+
+    @Test
+    public void test_call_nc_uses_12_cycles_if_no_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0xd4, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_call_c_does_nothing_if_carry_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xdc, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        runProgram(cpu, 3);
+        assertEquals(0x03, cpu.pc);
+        assertEquals("CALL_C shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffe));
+        assertEquals("CALL_C shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_c_jumps_correctly_if_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0xdc, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(0xffff, cpu.pc);
+        assertEquals(0x00, cpu.unsafeRead(0xfffe));
+        assertEquals(0x03, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_c_is_unaffected_by_other_flags_if_carry_is_not_set() {
+        Cpu cpu = cpuWithProgram(0xdc, 0xbb, 0xaa);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.ZERO, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        step(cpu, 1);
+        assertEquals(0x03, cpu.pc);
+        assertEquals("CALL_C shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffe));
+        assertEquals("CALL_C shouldn't touch stack if not triggered", 0x00, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_c_is_unaffected_by_other_flags_if_carry_is_set() {
+        Cpu cpu = cpuWithProgram(0xdc, 0x78, 0x56);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.CARRY, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.ZERO, true);
+        step(cpu, 1);
+        assertEquals(0x5678, cpu.pc);
+        assertEquals(0x00, cpu.unsafeRead(0xfffe));
+        assertEquals(0x03, cpu.unsafeRead(0xfffd));
+    }
+
+    @Test
+    public void test_call_c_does_not_modify_carry_flag_when_initially_false() {
+        Cpu cpu = cpuWithProgram(0xdc, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_call_c_does_not_modify_carry_flag_when_initially_true() {
+        Cpu cpu = cpuWithProgram(0xdc, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_call_c_uses_24_cycles_if_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0xdc, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+        assertEquals(24, cpu.getCycles());
+    }
+
+    @Test
+    public void test_call_c_uses_12_cycles_if_no_jump_occurs() {
+        Cpu cpu = cpuWithProgram(0xdc, 0xff, 0xff);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 1);
+        assertEquals(12, cpu.getCycles());
+    }
+
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

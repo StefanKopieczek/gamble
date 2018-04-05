@@ -321,6 +321,10 @@ public class Cpu {
         m.put(0x30, cpu -> Operations.jumpRelativeIfNotSet(cpu, Byte.argument(), Flag.CARRY));
         m.put(0x38, cpu -> Operations.jumpRelativeIfSet(cpu, Byte.argument(), Flag.CARRY));
         m.put(0xcd, cpu -> Operations.call(cpu, Word.argument()));
+        m.put(0xc4, cpu -> Operations.callIfNotSet(cpu, Word.argument(), Flag.ZERO));
+        m.put(0xcc, cpu -> Operations.callIfSet(cpu, Word.argument(), Flag.ZERO));
+        m.put(0xd4, cpu -> Operations.callIfNotSet(cpu, Word.argument(), Flag.CARRY));
+        m.put(0xdc, cpu -> Operations.callIfSet(cpu, Word.argument(), Flag.CARRY));
         return m.build();
     }
 
