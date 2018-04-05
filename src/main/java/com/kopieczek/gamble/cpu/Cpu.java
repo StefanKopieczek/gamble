@@ -58,25 +58,26 @@ public class Cpu {
     }
 
     int readNextArg() {
+        int result = unsafeRead(pc);
         pc += 1;
-        return unsafeRead(pc);
+        return result;
     }
 
     public void tick() {
         int opcode = mmu.readByte(pc);
+        pc += 1;
 
         Function<Cpu, Integer> op = operations.get(opcode);
         if (op != null) {
             cycles += op.apply(this);
-            pc += 1;
         } else {
             throw new IllegalArgumentException("Unknown opcode 0x" + Integer.toHexString(opcode));
         }
     }
 
     private int doExtendedOperation() {
-        pc += 1;
         int extOpcode = mmu.readByte(pc);
+        pc += 1;
 
         Function<Cpu, Integer> op = extendedOperations.get(extOpcode);
         if (op != null) {
@@ -319,6 +320,7 @@ public class Cpu {
         m.put(0x28, cpu -> Operations.jumpRelativeIfSet(cpu, Byte.argument(), Flag.ZERO));
         m.put(0x30, cpu -> Operations.jumpRelativeIfNotSet(cpu, Byte.argument(), Flag.CARRY));
         m.put(0x38, cpu -> Operations.jumpRelativeIfSet(cpu, Byte.argument(), Flag.CARRY));
+        m.put(0xcd, cpu -> Operations.call(cpu, Word.argument()));
         return m.build();
     }
 

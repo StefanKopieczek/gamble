@@ -8402,6 +8402,63 @@ public class TestCpu {
         assertEquals(12, cpu.getCycles());
     }
 
+    @Test
+    public void test_call_0x0000_with_sp_0x0002_jumps_to_0x0000() {
+        Cpu cpu = cpuWithProgram(0xcd, 0x00, 0x00);
+        cpu.set(Word.Register.SP, Word.literal(0x0002));
+        step(cpu, 1);
+        assertEquals(0x0000, cpu.pc);
+    }
+
+    @Test
+    public void test_call_0x0000_with_sp_0x0002_writes_0x00_0x03_backwards_at_0x0002() {
+        Cpu cpu = cpuWithProgram(0xcd, 0x00, 0x00);
+        cpu.set(Word.Register.SP, Word.literal(0x0002));
+        step(cpu, 1);
+        assertEquals(0x00, cpu.readFrom(Pointer.of(Word.literal(0x0001))));
+        assertEquals(0x03, cpu.readFrom(Pointer.of(Word.literal(0x0000))));
+    }
+
+    @Test
+    public void test_call_0x0000_with_sp_0xabcd_writes_0x00_0x03_backwards_at_0xabcc() {
+        Cpu cpu = cpuWithProgram(0xcd, 0x00, 0x00);
+        cpu.set(Word.Register.SP, Word.literal(0xabcd));
+        step(cpu, 1);
+        assertEquals(0x00, cpu.readFrom(Pointer.of(Word.literal(0xabcc))));
+        assertEquals(0x03, cpu.readFrom(Pointer.of(Word.literal(0xabcb))));
+    }
+
+    @Test
+    public void test_call_0x1234_with_sp_0xabcd_jumps_to_0x1234() {
+        Cpu cpu = cpuWithProgram(0xcd, 0x34, 0x12);
+        cpu.set(Word.Register.SP, Word.literal(0xabcd));
+        step(cpu, 1);
+        assertEquals(0x1234, cpu.pc);
+    }
+
+    @Test
+    public void test_successive_calls() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0x0000, 0xcd, 0x34, 0x12);
+        memset(cpu, 0x1234, 0xcd, 0x78, 0x56);
+        memset(cpu, 0x5678, 0xcd, 0xde, 0xbc);
+        cpu.set(Word.Register.SP, Word.literal(0xffff));
+        step(cpu, 3);
+        assertEquals(0xbcde, cpu.pc);
+        assertEquals(0x00, cpu.unsafeRead(0xfffe));
+        assertEquals(0x03, cpu.unsafeRead(0xfffd));
+        assertEquals(0x12, cpu.unsafeRead(0xfffc));
+        assertEquals(0x37, cpu.unsafeRead(0xfffb));
+        assertEquals(0x56, cpu.unsafeRead(0xfffa));
+        assertEquals(0x7b, cpu.unsafeRead(0xfff9));
+    }
+
+    @Test
+    public void test_call_uses_24_cycles() {
+        Cpu cpu = runProgram(0xcd, 0xff, 0xff);
+        assertEquals(24, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

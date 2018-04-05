@@ -136,21 +136,32 @@ class Operations {
     }
 
     static int push(Cpu cpu, Word.Register from) {
-        Pointer stackPointer = Pointer.of(Word.Register.SP);
-        decrementWord(Word.Register.SP, cpu);
-        cpu.writeTo(stackPointer, from.left);
-        decrementWord(Word.Register.SP, cpu);
-        cpu.writeTo(stackPointer, from.right);
+        doPush(cpu, cpu.read(from));
         return 16;
     }
 
-    static Integer pop(Cpu cpu, Word.Register to) {
-        Pointer stackPointer = Pointer.of(Word.Register.SP);
-        cpu.set(to.right, stackPointer);
-        incrementWord(Word.Register.SP, cpu);
-        cpu.set(to.left, stackPointer);
-        incrementWord(Word.Register.SP, cpu);
+    static int pop(Cpu cpu, Word.Register to) {
+        cpu.set(to, Word.literal(doPop(cpu)));
         return 12;
+    }
+
+    private static void doPush(Cpu cpu, int word) {
+        final Byte msByte = Byte.literal(word >> 8);
+        final Byte lsByte = Byte.literal(word & 0xff);
+        Pointer stackPointer = Pointer.of(Word.Register.SP);
+        decrementWord(Word.Register.SP, cpu);
+        cpu.writeTo(stackPointer, msByte);
+        decrementWord(Word.Register.SP, cpu);
+        cpu.writeTo(stackPointer, lsByte);
+    }
+
+    private static int doPop(Cpu cpu) {
+        Pointer stackPointer = Pointer.of(Word.Register.SP);
+        int result = cpu.readFrom(stackPointer);
+        incrementWord(Word.Register.SP, cpu);
+        result += cpu.readFrom(stackPointer) << 8;
+        incrementWord(Word.Register.SP, cpu);
+        return result;
     }
 
     private static void decrementWord(Word.Register r, Cpu cpu) {
@@ -753,7 +764,7 @@ class Operations {
     }
 
     private static void doJump(Cpu cpu, int address) {
-        cpu.pc = address - 1;  //  -1 because the PC still needs to tick forward for this instruction.
+        cpu.pc = address;
     }
 
     static int jump(Cpu cpu, Word.Argument address) {
@@ -789,7 +800,7 @@ class Operations {
     private static void doRelativeJump(Cpu cpu, int offsetByte) {
         // Offset should be treated as 8-bit signed int in [-127,128]
         int offset = (offsetByte <= 128) ? offsetByte : offsetByte - 256;
-        doJump(cpu, cpu.pc + offset + 1);
+        doJump(cpu, cpu.pc + offset);
     }
 
     static int jumpRelative(Cpu cpu, Byte.Argument offsetArg) {
@@ -817,6 +828,13 @@ class Operations {
             return 12;
         }
         return 8;
+    }
+
+    static int call(Cpu cpu, Word.Argument addressArg) {
+        int address = cpu.read(addressArg);
+        doPush(cpu, cpu.pc);
+        doJump(cpu, address);
+        return 24;
     }
 
     enum RotateMode {
