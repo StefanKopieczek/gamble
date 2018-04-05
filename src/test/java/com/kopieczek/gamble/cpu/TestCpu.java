@@ -9403,6 +9403,11 @@ public class TestCpu {
         assertEquals(8, cpu.getCycles());
     }
 
+    @Test(expected=UnsupportedOperationException.class)
+    public void test_reti_is_unsupported() {
+        Cpu cpu = runProgram(0xd9);
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);

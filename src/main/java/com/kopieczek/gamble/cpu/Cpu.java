@@ -330,6 +330,7 @@ public class Cpu {
         m.put(0xc8, cpu -> Operations.returnIfSet(cpu, Flag.ZERO));
         m.put(0xd0, cpu -> Operations.returnIfNotSet(cpu, Flag.CARRY));
         m.put(0xd8, cpu -> Operations.returnIfSet(cpu, Flag.CARRY));
+        m.put(0xd9, cpu -> Operations.returnWithInterrupt(cpu));
         m.put(0xc7, cpu -> Operations.reset(cpu, Word.literal(0x0000)));
         m.put(0xcf, cpu -> Operations.reset(cpu, Word.literal(0x0008)));
         m.put(0xd7, cpu -> Operations.reset(cpu, Word.literal(0x0010)));

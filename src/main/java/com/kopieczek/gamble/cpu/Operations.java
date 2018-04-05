@@ -887,6 +887,10 @@ class Operations {
         return 8;
     }
 
+    public static int returnWithInterrupt(Cpu cpu) {
+        throw new UnsupportedOperationException("Interrupts are not yet supported!");
+    }
+
     enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY
