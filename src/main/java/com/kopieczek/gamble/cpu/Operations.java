@@ -865,6 +865,12 @@ class Operations {
         return 16;
     }
 
+    static int returnFromCall(Cpu cpu) {
+        final int returnAddress = doPop(cpu);
+        doJump(cpu, returnAddress);
+        return 16;
+    }
+
     enum RotateMode {
         COPY_TO_CARRY,
         INCLUDE_CARRY

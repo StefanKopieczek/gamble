@@ -9070,6 +9070,45 @@ public class TestCpu {
         assertEquals(16, cpu.getCycles());
     }
 
+    @Test
+    public void test_ret_with_sp_at_0x1234_jumping_to_0x5678() {
+        Cpu cpu = cpuWithProgram(0xc9);
+        memset(cpu, 0x1234, 0x78, 0x56);
+        cpu.set(Word.Register.SP, Word.literal(0x1234));
+        cpu.tick();
+        assertEquals(0x5678, cpu.pc);
+    }
+
+    @Test
+    public void test_ret_with_sp_at_0x3456_jumping_to_0xabcd() {
+        Cpu cpu = cpuWithProgram(0xc9);
+        memset(cpu, 0x3456, 0xcd, 0xab);
+        cpu.set(Word.Register.SP, Word.literal(0x3456));
+        cpu.tick();
+        assertEquals(0xabcd, cpu.pc);
+    }
+
+    @Test
+    public void test_call_and_return() {
+        Cpu cpu = cpuWithProgram(
+                0x3c,              // INC A
+                0xcd, 0xcd, 0xab,  // CALL 0xabcd
+                0x3c               // INC A
+        );
+        memset(cpu, 0xabcd, 0x3c, 0xc9); // INC A; RET
+        cpu.set(Word.Register.SP, Word.literal(0xeeee));
+        step(cpu, 5);
+        assertEquals(3, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_ret_uses_16_cycles() {
+        Cpu cpu = cpuWithProgram(0xc9);
+        cpu.set(Word.Register.SP, Word.literal(0xeeee));
+        cpu.tick();
+        assertEquals(16, cpu.getCycles());
+    }
+
     private static Cpu cpuWithProgram(int... program) {
         MemoryManagementUnit mmu = buildMmu();
         mmu.setBiosEnabled(false);
