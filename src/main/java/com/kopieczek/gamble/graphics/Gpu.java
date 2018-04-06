@@ -66,12 +66,65 @@ public class Gpu {
     }
 
     private void renderLine(int currentLine) {
-        Random r = new Random();
+        final int tileY = currentLine / (DISPLAY_HEIGHT / 8);
         synchronized (screenBuffer) {
-            for (int x = 0; x < DISPLAY_WIDTH; x++) {
-                screenBuffer[currentLine][x] = new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256));
+            for (int tileX = 0; tileX < (DISPLAY_WIDTH / 8); tileX++) {
+                int tileMapIdx = 32 * tileY + tileX;
+                int tileDataStart = getTileDataAddress(tileMapIdx);
+                int[] rowData = getRowData(tileDataStart, currentLine % 8);
+                Color[] rowPixels = extractPixels(rowData);
+                for (int subX = 0; subX < 8; subX++) {
+                    screenBuffer[currentLine][tileX * 8 + subX] = rowPixels[subX];
+                }
             }
         }
+    }
+
+    private static Color[] extractPixels(int[] rowData) {
+        Color[] pixels = new Color[8];
+        for (int idx = 0; idx < 8; idx++) {
+            int mask = 0x80 >> idx;
+            boolean lowBit = (rowData[0] & mask) > 0;
+            boolean highBit = (rowData[1] & mask) > 0;
+            pixels[idx] = decodeColor(highBit, lowBit);
+        }
+
+        return pixels;
+    }
+
+    private static Color decodeColor(boolean highBit, boolean lowBit) {
+        if (highBit && lowBit) {
+            return Color.BLACK;
+        } else if (highBit) {
+            return new Color(192, 192, 192);
+        } else if (lowBit) {
+            return new Color(96, 96, 96);
+        } else {
+            return Color.WHITE;
+        }
+    }
+
+    private int[] getRowData(int tileDataStart, int rowIdx) {
+        int rowDataStart = tileDataStart + rowIdx * 2;
+        return new int[] {mmu.readByte(rowDataStart), mmu.readByte(rowDataStart + 1)};
+    }
+
+    private TileSet getTileSet() {
+        if ((mmu.readByte(0xff40) & 0x08) == 0) {
+            return TileSet.PRIMARY;
+        } else {
+            return TileSet.SECONDARY;
+        }
+    }
+
+    private int getTileDataAddress(int tileMapIdx) {
+        TileSet tileSet = getTileSet();
+        int tileDataIdx = mmu.readByte(tileSet.mapStartAddress + tileMapIdx);
+        if (tileSet.isDataIndexSigned && tileDataIdx > 128) {
+            tileDataIdx -= 256;
+        }
+
+        return tileSet.dataZeroAddress + tileDataIdx;
     }
 
     private void changeMode(Mode newMode) {
@@ -90,6 +143,20 @@ public class Gpu {
         Mode(int ticks) {
             duration = ticks;
         }
+    }
 
+    private enum TileSet {
+        PRIMARY(0x9800, 0x9000, true),
+        SECONDARY(0x9c00, 0x8000, false);
+
+        public final int mapStartAddress;
+        public final int dataZeroAddress;
+        public final boolean isDataIndexSigned;
+
+        TileSet(int mapStartAddress, int dataZeroAddress, boolean isDataIndexSigned) {
+            this.mapStartAddress = mapStartAddress;
+            this.dataZeroAddress = dataZeroAddress;
+            this.isDataIndexSigned = isDataIndexSigned;
+        }
     }
 }
