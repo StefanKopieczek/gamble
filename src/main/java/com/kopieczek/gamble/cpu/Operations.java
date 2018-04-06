@@ -574,13 +574,13 @@ class Operations {
     }
 
     static int disableInterrupts(Cpu cpu) {
-        throw new UnsupportedOperationException("Interrupt management not yet implemented");
-        // return 4
+        cpu.setInterruptsEnabled(false);
+        return 4;
     }
 
     static int enableInterrupts(Cpu cpu) {
-        throw new UnsupportedOperationException("Interrupt management not yet implemented");
-        // return 4
+        cpu.setInterruptsEnabled(true);
+        return 4;
     }
 
     private static int rotateLeft(Cpu cpu, int oldValue, RotateMode rotateMode) {
@@ -830,7 +830,7 @@ class Operations {
         return 8;
     }
 
-    private static void doCall(Cpu cpu, int address) {
+    static void doCall(Cpu cpu, int address) {
         doPush(cpu, cpu.pc);
         doJump(cpu, address);
     }
@@ -888,7 +888,9 @@ class Operations {
     }
 
     public static int returnWithInterrupt(Cpu cpu) {
-        throw new UnsupportedOperationException("Interrupts are not yet supported!");
+        doJump(cpu, doPop(cpu));
+        cpu.interruptsEnabled = true;
+        return 16;
     }
 
     enum RotateMode {

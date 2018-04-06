@@ -1,18 +1,26 @@
 package com.kopieczek.gamble.cpu;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.kopieczek.gamble.memory.MemoryManagementUnit;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 
 public class Cpu {
+    private static final int INTERRUPT_ENABLED_FLAG_ADDRESS = 0xffff;
+    private static final int INTERRUPT_FLAG_ADDRESS = 0xff0f;
+    private static final int INTERRUPT_HANDLERS_START = 0x0040;
+    private static final int INTERRUPT_HANDLERS_OFFSET = 0x0008;
+
     final MemoryManagementUnit mmu;
     static final Map<Integer, Function<Cpu, Integer>> operations = loadOperations();
     static final Map<Integer, Function<Cpu, Integer>> extendedOperations = loadExtendedOperations();
     int pc = 0;
     int cycles = 0;
     int[] registers;
+    boolean interruptsEnabled = false;
 
     public Cpu(MemoryManagementUnit mmu) {
         this.mmu = mmu;
@@ -64,6 +72,10 @@ public class Cpu {
     }
 
     public void tick() {
+        if (interruptsEnabled) {
+            handleInterrupts();
+        }
+
         int opcode = mmu.readByte(pc);
         pc += 1;
 
@@ -72,6 +84,18 @@ public class Cpu {
             cycles += op.apply(this);
         } else {
             throw new IllegalArgumentException("Unknown opcode 0x" + Integer.toHexString(opcode));
+        }
+    }
+
+    private void handleInterrupts() {
+        // Step through interrupts in reverse ordinal order as the highest priorities come last.
+        for (Interrupt interrupt : Lists.reverse(Arrays.asList(Interrupt.values()))) {
+            if (isEnabled(interrupt) && checkInterrupt(interrupt)) {
+                final int handlerAddress = INTERRUPT_HANDLERS_START + interrupt.ordinal() * INTERRUPT_HANDLERS_OFFSET;
+                Operations.doCall(this, handlerAddress);
+                resetInterrupt(interrupt);
+                interruptsEnabled = false;
+            }
         }
     }
 
@@ -108,6 +132,34 @@ public class Cpu {
             flagRegister &= ~flagMask;
         }
         set(Byte.Register.F, Byte.literal(flagRegister));
+    }
+
+    void setInterruptsEnabled(boolean isEnabled) {
+        interruptsEnabled = isEnabled;
+    }
+
+    public void interrupt(Interrupt interrupt) {
+        final int currentValue = unsafeRead(INTERRUPT_FLAG_ADDRESS);
+        final int bitMask = (0x01 << interrupt.ordinal());
+        unsafeSet(INTERRUPT_FLAG_ADDRESS, currentValue | bitMask);
+    }
+
+    boolean checkInterrupt(Interrupt interrupt) {
+        final int flagValue = unsafeRead(INTERRUPT_FLAG_ADDRESS);
+        final int bitMask = (0x01 << interrupt.ordinal());
+        return (flagValue & bitMask) > 0;
+    }
+
+    void resetInterrupt(Interrupt interrupt) {
+        final int currentValue = unsafeRead(INTERRUPT_FLAG_ADDRESS);
+        final int bitMask = ~(0x01 << interrupt.ordinal());
+        unsafeSet(INTERRUPT_FLAG_ADDRESS, currentValue & bitMask);
+    }
+
+    boolean isEnabled(Interrupt interrupt) {
+        final int flagValue = unsafeRead(INTERRUPT_ENABLED_FLAG_ADDRESS);
+        final int bitMask = (0x01 << interrupt.ordinal());
+        return (flagValue & bitMask) > 0;
     }
 
     private static Map<Integer, Function<Cpu, Integer>> loadOperations() {

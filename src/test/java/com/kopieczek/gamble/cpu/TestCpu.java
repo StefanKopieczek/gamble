@@ -5616,14 +5616,48 @@ public class TestCpu {
         runProgram(0x10, 0xff);
     }
 
-    @Test(expected=UnsupportedOperationException.class)
-    public void test_di_is_unsupported() {
-        runProgram(0xf3);
+    @Test
+    public void test_di_disables_interrupts() {
+        Cpu cpu = cpuWithProgram(0xf3);
+        cpu.setInterruptsEnabled(true);
+        cpu.tick();
+        assertFalse(cpu.interruptsEnabled);
     }
 
-    @Test(expected=UnsupportedOperationException.class)
-    public void test_ei_is_unsupported() {
-        runProgram(0xfb);
+    @Test
+    public void test_di_does_not_enable_interrupts() {
+        Cpu cpu = cpuWithProgram(0xf3);
+        cpu.setInterruptsEnabled(false);
+        cpu.tick();
+        assertFalse(cpu.interruptsEnabled);
+    }
+
+    @Test
+    public void test_di_uses_4_cycles() {
+        Cpu cpu = runProgram(0xf3);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_ei_enables_interrupts() {
+        Cpu cpu = cpuWithProgram(0xfb);
+        cpu.setInterruptsEnabled(false);
+        cpu.tick();
+        assertTrue(cpu.interruptsEnabled);
+    }
+
+    @Test
+    public void test_ei_does_not_disable_interrupts() {
+        Cpu cpu = cpuWithProgram(0xfb);
+        cpu.setInterruptsEnabled(true);
+        cpu.tick();
+        assertTrue(cpu.interruptsEnabled);
+    }
+
+    @Test
+    public void test_ei_uses_4_cycles() {
+        Cpu cpu = runProgram(0xfb);
+        assertEquals(4, cpu.getCycles());
     }
 
     @Test
@@ -9403,9 +9437,511 @@ public class TestCpu {
         assertEquals(8, cpu.getCycles());
     }
 
-    @Test(expected=UnsupportedOperationException.class)
-    public void test_reti_is_unsupported() {
-        Cpu cpu = runProgram(0xd9);
+    @Test
+    public void test_reti_returns_from_call() {
+        Cpu cpu = cpuWithProgram(0xcd, 0x04, 0x00, 0x3c, 0x3c, 0xd9);
+        step(cpu, 4);
+        assertEquals(0x02, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_reti_enables_interrupts() {
+        Cpu cpu = cpuWithProgram(0xd9);
+        cpu.interruptsEnabled = false;
+        cpu.tick();
+        assertTrue(cpu.interruptsEnabled);
+    }
+
+    @Test
+    public void test_reti_does_not_disable_interrupts() {
+        Cpu cpu = cpuWithProgram(0xd9);
+        cpu.interruptsEnabled = true;
+        cpu.tick();
+        assertTrue(cpu.interruptsEnabled);
+    }
+
+    @Test
+    public void test_reti_uses_16_cycles() {
+        Cpu cpu = cpuWithProgram(0xd9);
+        cpu.tick();
+        assertEquals(16, cpu.getCycles());
+    }
+
+    @Test
+    public void test_vblank_interrupt_does_nothing_if_master_interrupt_switch_disabled() {
+        Cpu cpu = cpuWithProgram(0x00, 0x00, 0x00);
+        cpu.setInterruptsEnabled(false);
+        memset(cpu, 0x0040, 0x3c, 0x3c, 0x3c);
+        cpu.interrupt(Interrupt.V_BLANK);
+        step(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_vblank_interrupt_sets_0xff0f_bit_0() {
+        Cpu cpu = cpuWithProgram();
+        cpu.interrupt(Interrupt.V_BLANK);
+        assertEquals(0x01, cpu.unsafeRead(0xff0f) & 0x01);
+    }
+
+    @Test
+    public void test_vblank_interrupt_doesnt_set_0xff0f_bits_other_than_0() {
+        Cpu cpu = cpuWithProgram();
+        cpu.interrupt(Interrupt.V_BLANK);
+        assertEquals(0x00, cpu.unsafeRead(0xff0f) & 0xfe);
+    }
+
+    @Test
+    public void test_check_interrupt_vblank_returns_false_when_0xff0f_is_0x00() {
+        Cpu cpu = cpuWithProgram();
+        assertFalse(cpu.checkInterrupt(Interrupt.V_BLANK));
+    }
+
+    @Test
+    public void test_check_interrupt_vblank_returns_false_when_0xff0f_is_0xfe() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0xfe);
+        assertFalse(cpu.checkInterrupt(Interrupt.V_BLANK));
+    }
+
+    @Test
+    public void test_check_interrupt_vblank_returns_true_when_0xff0f_is_0x01() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0x01);
+        assertTrue(cpu.checkInterrupt(Interrupt.V_BLANK));
+    }
+
+    @Test
+    public void test_check_interrupt_vblank_returns_true_when_0xff0f_is_0xff() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0xff);
+        assertTrue(cpu.checkInterrupt(Interrupt.V_BLANK));
+    }
+
+    @Test
+    public void test_reset_interrupt_vblank_sets_0xff0f_from_0x01_to_0x00() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0x01);
+        cpu.resetInterrupt(Interrupt.V_BLANK);
+        assertEquals(0x00, cpu.unsafeRead(0xff0f));
+    }
+
+    @Test
+    public void test_reset_interrupt_vblank_sets_0xff0f_from_0xff_to_0xfe() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0xff);
+        cpu.resetInterrupt(Interrupt.V_BLANK);
+        assertEquals(0xfe, cpu.unsafeRead(0xff0f));
+    }
+
+    @Test
+    public void test_reset_interrupt_vblank_has_no_effect_when_0xff0f_is_0x00() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0x00);
+        cpu.resetInterrupt(Interrupt.V_BLANK);
+        assertEquals(0x00, cpu.unsafeRead(0xff0f));
+    }
+
+    @Test
+    public void test_reset_interrupt_vblank_has_no_effect_when_0xff0f_is_0xfe() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0xfe);
+        cpu.resetInterrupt(Interrupt.V_BLANK);
+        assertEquals(0xfe, cpu.unsafeRead(0xff0f));
+    }
+
+    public void test_is_enabled_vblank_returns_false_when_0xffff_is_0x00() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xffff, 0x00);
+        assertFalse(cpu.isEnabled(Interrupt.V_BLANK));
+    }
+
+    @Test
+    public void test_is_enabled_vblank_returns_false_when_0xffff_is_0xfe() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xffff, 0xfe);
+        assertFalse(cpu.isEnabled(Interrupt.V_BLANK));
+    }
+
+    @Test
+    public void test_is_enabled_vblank_returns_true_when_0xffff_is_0x01() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xffff, 0x01);
+        assertTrue(cpu.isEnabled(Interrupt.V_BLANK));
+    }
+
+    @Test
+    public void test_is_enabled_vblank_returns_true_when_0xffff_is_0xff() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xffff, 0xff);
+        assertTrue(cpu.isEnabled(Interrupt.V_BLANK));
+    }
+
+    @Test
+    public void test_vblank_interrupt_fires_when_enabled_and_triggered() {
+        Cpu cpu = cpuWithProgram(0x00, 0x00, 0x00);
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x01);  // Enable V_BLANK interrupt
+        memset(cpu, 0x0040, 0x3c, 0x3c, 0x3c); // Set up V_BLANK handler - this should be triggered
+        cpu.interrupt(Interrupt.V_BLANK);
+        step(cpu, 3);
+        assertEquals(0x03, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_vblank_interrupt_doesnt_fire_if_specifically_disabled() {
+        Cpu cpu = cpuWithProgram(0x00, 0x00, 0x00);
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x00); // Explicitly disable V_BLANK
+        memset(cpu, 0x0040, 0x3c, 0x3c, 0x3c); // Set up V_BLANK handler - this should never run
+        cpu.interrupt(Interrupt.V_BLANK);
+        step(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_vblank_interrupt_doesnt_fire_if_enabled_but_master_interrupt_off() {
+        Cpu cpu = cpuWithProgram(0x00, 0x00, 0x00);
+        cpu.setInterruptsEnabled(false);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x01); // Enable V_BLANK
+        memset(cpu, 0x0040, 0x3c, 0x3c, 0x3c); // Set up V_BLANK handler - this should never run
+        cpu.interrupt(Interrupt.V_BLANK);
+        step(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_vblank_interrupt_doesnt_fire_unless_triggered() {
+        Cpu cpu = cpuWithProgram(0x00, 0x00, 0x00);
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x01); // Enable V_BLANK
+        memset(cpu, 0x0040, 0x3c, 0x3c, 0x3c); // Set up V_BLANK handler - this should never run
+        step(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_vblank_interrupt_is_reset_when_handler_is_called() {
+        Cpu cpu = cpuWithProgram();
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x01); // Enable V_BLANK
+        cpu.interrupt(Interrupt.V_BLANK);
+        cpu.tick();
+        assertFalse(cpu.checkInterrupt(Interrupt.V_BLANK));
+    }
+
+    @Test
+    public void test_master_interrupt_flag_disabled_when_vblank_handler_is_called() {
+        Cpu cpu = cpuWithProgram();
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x01); // Enable V_BLANK
+        cpu.interrupt(Interrupt.V_BLANK);
+        cpu.tick();
+        assertFalse(cpu.interruptsEnabled);
+    }
+
+    @Test
+    public void test_a_different_vblank_interrupt_handler() {
+        Cpu cpu = cpuWithProgram();
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x01); // Enable V_BLANK
+        memset(cpu, 0x0040, 0x06, 0xab); // V_BLANK handler: set B to 0xab
+        cpu.interrupt(Interrupt.V_BLANK);
+        cpu.tick();
+        assertEquals(0xab, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_interrupt_on_third_clock_tick() {
+        Cpu cpu = cpuWithProgram(0x3c, 0x3c, 0x3c, 0x3c);
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x01); // Enable V_BLANK
+        memset(cpu, 0x0040, 0x04, 0x04); // V_BLANK handler: increment B twice
+        step(cpu, 2); // Do the first two increments of A
+        cpu.interrupt(Interrupt.V_BLANK); // Trigger interrupt (so remaining two increments of A should be skipped)
+        step(cpu, 2); // These two ticks should be spend in the V_BLANK handler
+        assertEquals(0x02, cpu.read(Byte.Register.A));
+        assertEquals(0x02, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_interrupt_and_return() {
+        Cpu cpu = cpuWithProgram(0x3c, 0x3c, 0x3c);
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x01); // Enable V_BLANK
+        memset(cpu, 0x0040, 0x04, 0x04, 0xc9);
+        cpu.interrupt(Interrupt.V_BLANK);
+        step(cpu, 6);
+        assertEquals(0x03, cpu.read(Byte.Register.A));
+        assertEquals(0x02, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_successive_vblank_interrupts_ignored_if_using_ret() {
+        Cpu cpu = cpuWithProgram();
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x01); // Enable V_BLANK
+        memset(cpu, 0x0040, 0x3c, 0xc9); // V_BLANK handler: INC A; RET
+        cpu.interrupt(Interrupt.V_BLANK);
+        cpu.tick();
+        cpu.interrupt(Interrupt.V_BLANK);
+        cpu.tick();
+        cpu.interrupt(Interrupt.V_BLANK);
+        cpu.tick();
+        assertEquals(0x01, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_successive_vblank_interrupts_using_reti() {
+        Cpu cpu = cpuWithProgram();
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x01); // Enable V_BLANK
+        memset(cpu, 0x0040, 0x3c, 0xd9); // V_BLANK handler: INC A; RETI
+        cpu.interrupt(Interrupt.V_BLANK);
+        step(cpu, 2);
+        cpu.interrupt(Interrupt.V_BLANK);
+        step(cpu, 2);
+        cpu.interrupt(Interrupt.V_BLANK);
+        step(cpu, 2);
+        assertEquals(0x03, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_lcd_stat_interrupt_does_nothing_if_master_interrupt_switch_disabled() {
+        Cpu cpu = cpuWithProgram(0x00, 0x00, 0x00);
+        cpu.setInterruptsEnabled(false);
+        memset(cpu, 0x0048, 0x3c, 0x3c, 0x3c);
+        cpu.interrupt(Interrupt.LCD_STAT);
+        step(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_lcd_stat_interrupt_sets_0xff0f_bit_1() {
+        Cpu cpu = cpuWithProgram();
+        cpu.interrupt(Interrupt.LCD_STAT);
+        assertEquals(0x02, cpu.unsafeRead(0xff0f) & 0x02);
+    }
+
+    @Test
+    public void test_lcd_stat_interrupt_doesnt_set_0xff0f_bits_other_than_1() {
+        Cpu cpu = cpuWithProgram();
+        cpu.interrupt(Interrupt.LCD_STAT);
+        assertEquals(0x00, cpu.unsafeRead(0xff0f) & 0xfd);
+    }
+
+    @Test
+    public void test_check_interrupt_lcd_stat_returns_false_when_0xff0f_is_0x00() {
+        Cpu cpu = cpuWithProgram();
+        assertFalse(cpu.checkInterrupt(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_check_interrupt_lcd_stat_returns_false_when_0xff0f_is_0xfd() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0xfd);
+        assertFalse(cpu.checkInterrupt(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_check_interrupt_lcd_stat_returns_true_when_0xff0f_is_0x02() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0x02);
+        assertTrue(cpu.checkInterrupt(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_check_interrupt_lcd_stat_returns_true_when_0xff0f_is_0xff() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0xff);
+        assertTrue(cpu.checkInterrupt(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_reset_interrupt_lcd_stat_sets_0xff0f_from_0x02_to_0x00() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0x02);
+        cpu.resetInterrupt(Interrupt.LCD_STAT);
+        assertEquals(0x00, cpu.unsafeRead(0xff0f));
+    }
+
+    @Test
+    public void test_reset_interrupt_lcd_stat_sets_0xff0f_from_0xff_to_0xfd() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0xff);
+        cpu.resetInterrupt(Interrupt.LCD_STAT);
+        assertEquals(0xfd, cpu.unsafeRead(0xff0f));
+    }
+
+    @Test
+    public void test_reset_interrupt_lcd_stat_has_no_effect_when_0xff0f_is_0x00() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0x00);
+        cpu.resetInterrupt(Interrupt.LCD_STAT);
+        assertEquals(0x00, cpu.unsafeRead(0xff0f));
+    }
+
+    @Test
+    public void test_reset_interrupt_lcd_stat_has_no_effect_when_0xff0f_is_0xfd() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xff0f, 0xfd);
+        cpu.resetInterrupt(Interrupt.LCD_STAT);
+        assertEquals(0xfd, cpu.unsafeRead(0xff0f));
+    }
+
+    public void test_is_enabled_lcd_stat_returns_false_when_0xffff_is_0x00() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xffff, 0x00);
+        assertFalse(cpu.isEnabled(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_is_enabled_lcd_stat_returns_false_when_0xffff_is_0xfd() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xffff, 0xfd);
+        assertFalse(cpu.isEnabled(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_is_enabled_lcd_stat_returns_true_when_0xffff_is_0x02() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xffff, 0x02);
+        assertTrue(cpu.isEnabled(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_is_enabled_lcd_stat_returns_true_when_0xffff_is_0xff() {
+        Cpu cpu = cpuWithProgram();
+        memset(cpu, 0xffff, 0xff);
+        assertTrue(cpu.isEnabled(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_lcd_stat_interrupt_fires_when_enabled_and_triggered() {
+        Cpu cpu = cpuWithProgram(0x00, 0x00, 0x00);
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x02);  // Enable LCD STAT interrupt
+        memset(cpu, 0x0048, 0x3c, 0x3c, 0x3c); // Set up LCD STAT handler - this should be triggered
+        cpu.interrupt(Interrupt.LCD_STAT);
+        step(cpu, 3);
+        assertEquals(0x03, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_lcd_stat_interrupt_doesnt_fire_if_specifically_disabled() {
+        Cpu cpu = cpuWithProgram(0x00, 0x00, 0x00);
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x00); // Explicitly disable LCD STAT
+        memset(cpu, 0x0048, 0x3c, 0x3c, 0x3c); // Set up LCD STAT handler - this should never run
+        cpu.interrupt(Interrupt.LCD_STAT);
+        step(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_lcd_stat_interrupt_doesnt_fire_if_enabled_but_master_interrupt_off() {
+        Cpu cpu = cpuWithProgram(0x00, 0x00, 0x00);
+        cpu.setInterruptsEnabled(false);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x02); // Enable LCD STAT
+        memset(cpu, 0x0048, 0x3c, 0x3c, 0x3c); // Set up LCD STAT handler - this should never run
+        cpu.interrupt(Interrupt.LCD_STAT);
+        step(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_lcd_stat_interrupt_doesnt_fire_unless_triggered() {
+        Cpu cpu = cpuWithProgram(0x00, 0x00, 0x00);
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x02); // Enable LCD STAT
+        memset(cpu, 0x0048, 0x3c, 0x3c, 0x3c); // Set up LCD_STAT handler - this should never run
+        step(cpu, 3);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_lcd_stat_interrupt_is_reset_when_handler_is_called() {
+        Cpu cpu = cpuWithProgram();
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x02); // Enable LCD STAT
+        cpu.interrupt(Interrupt.LCD_STAT);
+        cpu.tick();
+        assertFalse(cpu.checkInterrupt(Interrupt.V_BLANK));
+    }
+
+    @Test
+    public void test_master_interrupt_flag_disabled_when_lcd_stat_handler_is_called() {
+        Cpu cpu = cpuWithProgram();
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x02); // Enable LCD STAT
+        cpu.interrupt(Interrupt.LCD_STAT);
+        cpu.tick();
+        assertFalse(cpu.interruptsEnabled);
+    }
+
+    @Test
+    public void test_a_different_lcd_stat_interrupt_handler() {
+        Cpu cpu = cpuWithProgram();
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x02); // Enable LCD STAT
+        memset(cpu, 0x0048, 0x06, 0xab); // LCD STAT handler: set B to 0xab
+        cpu.interrupt(Interrupt.LCD_STAT);
+        cpu.tick();
+        assertEquals(0xab, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_timer_interrupt() {
+        Cpu cpu = cpuWithProgram();
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x04);
+        memset(cpu, 0x0050, 0x3c, 0x3c);
+        cpu.interrupt(Interrupt.TIMER);
+        step(cpu, 2);
+        assertEquals(0x02, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_serial_interrupt() {
+        Cpu cpu = cpuWithProgram();
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x08);
+        memset(cpu, 0x0058, 0x3c, 0x3c);
+        cpu.interrupt(Interrupt.SERIAL);
+        step(cpu, 2);
+        assertEquals(0x02, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_joypad_interrupt() {
+        Cpu cpu = cpuWithProgram();
+        cpu.setInterruptsEnabled(true);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x10);
+        memset(cpu, 0x0060, 0x3c, 0x3c);
+        cpu.interrupt(Interrupt.JOYPAD);
+        step(cpu, 2);
+        assertEquals(0x02, cpu.read(Byte.Register.A));
     }
 
     private static Cpu cpuWithProgram(int... program) {

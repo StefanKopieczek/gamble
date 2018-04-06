@@ -6,7 +6,9 @@ public interface Byte {
     enum Register implements Byte {
         A, B, C, D, E, H, L, // Standard byte registers.
         S, P,                // Byte parts of stack pointer.
-        F;                   // Flag register: [Z, O, N, C, 0, 0, 0, 0]
+        F,                   // Flag register: [Z, O, N, C, 0, 0, 0, 0]
+        IE,                  // Interrupt enabled: [_, _, _, Joypad, Serial, Timer, LCD stat, V_BLANK]
+        IF;                  // Interrupt flag:    [ ditto ]
 
         @Override
         public int getValue(Cpu cpu) {
