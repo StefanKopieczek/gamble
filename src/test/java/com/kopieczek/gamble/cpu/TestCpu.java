@@ -1,7 +1,6 @@
 package com.kopieczek.gamble.cpu;
 
 import com.kopieczek.gamble.memory.MemoryManagementUnit;
-import com.kopieczek.gamble.memory.SimpleMemoryModule;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -13,7 +12,7 @@ import static org.junit.Assert.*;
 public class TestCpu {
     @Test
     public void test_simple_read() {
-        MemoryManagementUnit mmu = buildMmu();
+        MemoryManagementUnit mmu = MemoryManagementUnit.build();
         mmu.setByte(0xdead, 0xf0);
         Cpu cpu = new Cpu(mmu);
         assertEquals(0xf0, cpu.readFrom(Pointer.of(Word.literal(0xdead))));
@@ -21,29 +20,15 @@ public class TestCpu {
 
     @Test
     public void test_simple_write() {
-        MemoryManagementUnit mmu = buildMmu();
+        MemoryManagementUnit mmu = MemoryManagementUnit.build();
         Cpu cpu = new Cpu(mmu);
         cpu.writeTo(Pointer.of(Word.literal(0xdead)), Byte.literal(0xf0));
         assertEquals(0xf0, mmu.readByte(0xdead));
     }
 
-    private static MemoryManagementUnit buildMmu() {
-        return new MemoryManagementUnit(
-                new SimpleMemoryModule(MemoryManagementUnit.BIOS_SIZE),
-                new SimpleMemoryModule(MemoryManagementUnit.ROM_0_SIZE),
-                new SimpleMemoryModule(MemoryManagementUnit.ROM_1_SIZE),
-                new SimpleMemoryModule(MemoryManagementUnit.VRAM_SIZE),
-                new SimpleMemoryModule(MemoryManagementUnit.EXT_RAM_SIZE),
-                new SimpleMemoryModule(MemoryManagementUnit.RAM_SIZE),
-                new SimpleMemoryModule(MemoryManagementUnit.SPRITES_SIZE),
-                new SimpleMemoryModule(MemoryManagementUnit.IO_AREA_SIZE),
-                new SimpleMemoryModule(MemoryManagementUnit.ZRAM_SIZE)
-        );
-    }
-
     @Test
     public void test_initial_state() {
-        Cpu cpu = new Cpu(buildMmu());
+        Cpu cpu = new Cpu(MemoryManagementUnit.build());
         assertEquals(0, cpu.getCycles());
         assertFalse(cpu.isSet(Flag.ZERO));
         assertFalse(cpu.isSet(Flag.OPERATION));
@@ -10010,7 +9995,7 @@ public class TestCpu {
     }
 
     private static Cpu cpuWithProgram(int... program) {
-        MemoryManagementUnit mmu = buildMmu();
+        MemoryManagementUnit mmu = MemoryManagementUnit.build();
         mmu.setBiosEnabled(false);
         for (int idx = 0; idx < program.length; idx++) {
             mmu.setByte(idx, program[idx]);

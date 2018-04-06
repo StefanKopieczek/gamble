@@ -57,6 +57,20 @@ public class MemoryManagementUnit {
         validateMemoryModuleSizes();
     }
 
+    public static MemoryManagementUnit build() {
+        return new MemoryManagementUnit(
+                new SimpleMemoryModule(BIOS_SIZE),
+                new SimpleMemoryModule(ROM_0_SIZE),
+                new SimpleMemoryModule(ROM_1_SIZE),
+                new SimpleMemoryModule(VRAM_SIZE),
+                new SimpleMemoryModule(EXT_RAM_SIZE),
+                new SimpleMemoryModule(RAM_SIZE),
+                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleMemoryModule(IO_AREA_SIZE),
+                new SimpleMemoryModule(ZRAM_SIZE)
+        );
+    }
+
     private void validateMemoryModuleSizes() throws IllegalArgumentException {
         assertModuleSize("BIOS", bios, BIOS_SIZE);
         assertModuleSize("ROM0", rom0, ROM_0_SIZE);

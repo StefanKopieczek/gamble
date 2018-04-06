@@ -1,13 +1,17 @@
 package com.kopieczek.gamble.ui;
 
-import com.kopieczek.gamble.graphics.Screen;
+import com.kopieczek.gamble.cpu.Cpu;
+import com.kopieczek.gamble.memory.MemoryManagementUnit;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class Gameboy extends JFrame {
-    public Gameboy() {
+public class GambleUi extends JFrame {
+    private final Color[][] screenBuffer;
+
+    public GambleUi(Color[][] screenBuffer) {
         super("Gamble Gameboy Emulator");
+        this.screenBuffer = screenBuffer;
     }
 
     public void init() {
@@ -15,7 +19,7 @@ public class Gameboy extends JFrame {
         setDefaultLookAndFeelDecorated(true);
         getContentPane().setLayout(new BorderLayout());
 
-        Screen screen = new Screen();
+        Screen screen = new Screen(screenBuffer);
         screen.init();
         getContentPane().add(screen, BorderLayout.CENTER);
 
