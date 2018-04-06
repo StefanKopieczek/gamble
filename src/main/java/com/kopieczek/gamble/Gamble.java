@@ -15,5 +15,14 @@ public class Gamble {
 
         GambleUi gb = new GambleUi(gpu.getScreenBuffer());
         SwingUtilities.invokeLater(gb::init);
+
+        while (true) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                // Eh
+            }
+            gpu.stepAhead(400);
+        }
     }
 }

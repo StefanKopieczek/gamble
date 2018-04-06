@@ -4,8 +4,11 @@ import com.kopieczek.gamble.graphics.Gpu;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class Screen extends JPanel {
+public class Screen extends JPanel implements ActionListener {
+    private Timer repaintTimer = new Timer(17, this);
     private final Color[][] screenBuffer;
 
     public Screen(Color[][] screenBuffer) {
@@ -16,6 +19,7 @@ public class Screen extends JPanel {
         setMinimumSize(new Dimension(Gpu.DISPLAY_WIDTH, Gpu.DISPLAY_HEIGHT));
         setPreferredSize(new Dimension(Gpu.DISPLAY_WIDTH, Gpu.DISPLAY_HEIGHT));
         setMaximumSize(new Dimension(Gpu.DISPLAY_WIDTH, Gpu.DISPLAY_HEIGHT));
+        repaintTimer.start();
     }
 
     @Override
@@ -32,5 +36,10 @@ public class Screen extends JPanel {
     private void setPixel(Graphics g, int x, int y, Color c) {
         g.setColor(c);
         g.drawLine(x, y, x, y);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        repaint();
     }
 }
