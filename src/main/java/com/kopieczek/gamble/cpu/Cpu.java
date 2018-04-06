@@ -21,6 +21,7 @@ public class Cpu {
     int cycles = 0;
     int[] registers;
     boolean interruptsEnabled = false;
+    boolean isHalted = false;
 
     public Cpu(MemoryManagementUnit mmu) {
         this.mmu = mmu;
@@ -72,6 +73,12 @@ public class Cpu {
     }
 
     public void tick() {
+        if (isHalted) {
+            isHalted = (unsafeRead(INTERRUPT_ENABLED_FLAG_ADDRESS) & unsafeRead(INTERRUPT_FLAG_ADDRESS) & 0x1f) == 0;
+            cycles += 4;
+            return;
+        }
+
         if (interruptsEnabled) {
             handleInterrupts();
         }

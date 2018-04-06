@@ -557,8 +557,8 @@ class Operations {
     }
 
     static int halt(Cpu cpu) {
-        throw new UnsupportedOperationException("CPU halt not yet implemented");
-        // return 4;
+        cpu.isHalted = true;
+        return 4;
     }
 
     static int stop(Cpu cpu, Byte.Argument nextByte) {
