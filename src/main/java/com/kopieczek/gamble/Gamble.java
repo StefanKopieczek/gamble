@@ -8,6 +8,7 @@ import com.kopieczek.gamble.ui.GambleUi;
 import javax.swing.*;
 
 public class Gamble {
+    private static final int CYCLE_DELAY = 0;
     public static void main(String[] args) {
         MemoryManagementUnit mmu = MemoryManagementUnit.build();
         setBios(mmu);
@@ -18,11 +19,7 @@ public class Gamble {
         SwingUtilities.invokeLater(gb::init);
 
         while (true) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                // Eh
-            }
+            sleep(CYCLE_DELAY);
 
             int cyclesBefore = cpu.getCycles();
             cpu.tick();
@@ -50,8 +47,27 @@ public class Gamble {
                 0x21, 0x04, 0x01, 0x11, 0xA8, 0x00, 0x1A, 0x13, 0xBE, 0x20, 0xFE, 0x23, 0x7D, 0xFE, 0x34, 0x20,
                 0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
         };
+        final int[] cartridgeHeader = {
+                0xce, 0xed, 0x66, 0x66, 0xcc, 0x0d, 0x00, 0x0b, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0c, 0x00, 0x0d,
+                0x00, 0x08, 0x11, 0x1f, 0x88, 0x89, 0x00, 0x0e, 0xdc, 0xcc, 0x6e, 0xe6, 0xdd, 0xdd, 0xd9, 0x99,
+                0xbb, 0xbb, 0x67, 0x63, 0x6e, 0x0e, 0xec, 0xcc, 0xdd, 0xdc, 0x99, 0x9f, 0xbb, 0xb9, 0x33, 0x3e
+        };
         for (int idx = 0; idx < bios.length; idx ++) {
             mmu.setByte(idx, bios[idx]);
+        }
+        for (int idx = 0x0104; idx < cartridgeHeader.length; idx ++) {
+            mmu.setByte(idx, cartridgeHeader[idx]);
+        }
+    }
+
+    private static void sleep(int ms) {
+        if (ms <= 0) {
+            return;
+        }
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 }
