@@ -712,13 +712,13 @@ class Operations {
         cpu.set(Flag.OPERATION, true);
     }
 
-    static int bitTest(Cpu cpu, Byte bitIndex, Byte.Register r) {
-        bitTest(cpu, cpu.read(bitIndex), cpu.read(r));
+    static int bitTest(Cpu cpu, Byte.Register r, int bitIndex) {
+        bitTest(cpu, bitIndex, cpu.read(r));
         return 8;
     }
 
-    static int bitTest(Cpu cpu, Byte bitIndex, Pointer p) {
-        bitTest(cpu, cpu.read(bitIndex), cpu.readFrom(p));
+    static int bitTest(Cpu cpu, Pointer p, int bitIndex) {
+        bitTest(cpu, bitIndex, cpu.readFrom(p));
         return 12;
     }
 
