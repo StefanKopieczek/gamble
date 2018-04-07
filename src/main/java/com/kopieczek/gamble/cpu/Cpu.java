@@ -181,6 +181,12 @@ public class Cpu {
         m.put(0x26, cpu -> Operations.copy(cpu, Byte.Register.H, Byte.argument()));
         m.put(0x2e, cpu -> Operations.copy(cpu, Byte.Register.L, Byte.argument()));
         m.put(0x7f, cpu -> Operations.nop(cpu));
+        m.put(0x47, cpu -> Operations.copy(cpu, Byte.Register.B, Byte.Register.A));
+        m.put(0x4f, cpu -> Operations.copy(cpu, Byte.Register.C, Byte.Register.A));
+        m.put(0x57, cpu -> Operations.copy(cpu, Byte.Register.D, Byte.Register.A));
+        m.put(0x5f, cpu -> Operations.copy(cpu, Byte.Register.E, Byte.Register.A));
+        m.put(0x67, cpu -> Operations.copy(cpu, Byte.Register.H, Byte.Register.A));
+        m.put(0x6f, cpu -> Operations.copy(cpu, Byte.Register.L, Byte.Register.A));
         m.put(0x78, cpu -> Operations.copy(cpu, Byte.Register.A, Byte.Register.B));
         m.put(0x79, cpu -> Operations.copy(cpu, Byte.Register.A, Byte.Register.C));
         m.put(0x7a, cpu -> Operations.copy(cpu, Byte.Register.A, Byte.Register.D));

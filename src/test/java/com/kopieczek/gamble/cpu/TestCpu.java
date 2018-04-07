@@ -332,6 +332,48 @@ public class TestCpu {
     }
 
     @Test
+    public void test_load_a_to_b() {
+        Cpu cpu = runProgram(0x3e, 0x94, 0x47);
+        assertEquals(0x94, cpu.read(Byte.Register.A));
+        assertEquals(12, cpu.getCycles()); // 8 + 4
+    }
+
+    @Test
+    public void test_load_a_to_c() {
+        Cpu cpu = runProgram(0x3e, 0x4f, 0x4f);
+        assertEquals(0x4f, cpu.read(Byte.Register.A));
+        assertEquals(12, cpu.getCycles()); // 8 + 4
+    }
+
+    @Test
+    public void test_load_a_to_d() {
+        Cpu cpu = runProgram(0x3e, 0x4f, 0x57);
+        assertEquals(0x4f, cpu.read(Byte.Register.A));
+        assertEquals(12, cpu.getCycles()); // 8 + 4
+    }
+
+    @Test
+    public void test_load_a_to_e() {
+        Cpu cpu = runProgram(0x3e, 0x07, 0x5f);
+        assertEquals(0x07, cpu.read(Byte.Register.A));
+        assertEquals(12, cpu.getCycles()); // 8 + 4
+    }
+
+    @Test
+    public void test_load_a_to_h() {
+        Cpu cpu = runProgram(0x3e, 0x27, 0x67);
+        assertEquals(0x27, cpu.read(Byte.Register.A));
+        assertEquals(12, cpu.getCycles()); // 8 + 4
+    }
+
+    @Test
+    public void test_load_a_to_l() {
+        Cpu cpu = runProgram(0x3e, 0x44, 0x67);
+        assertEquals(0x44, cpu.read(Byte.Register.A));
+        assertEquals(12, cpu.getCycles()); // 8 + 4
+    }
+
+    @Test
     public void test_load_b_to_a() {
         Cpu cpu = runProgram(0x06, 0xaa, // LD B, 0xaa
                 0x78);      // LD A, B
