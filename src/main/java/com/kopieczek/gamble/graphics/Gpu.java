@@ -3,11 +3,11 @@ package com.kopieczek.gamble.graphics;
 import com.kopieczek.gamble.memory.MemoryManagementUnit;
 
 import java.awt.*;
-import java.util.Random;
 
 public class Gpu {
     public static final int DISPLAY_WIDTH = 160;
     public static final int DISPLAY_HEIGHT= 144;
+    public static final int VIRTUAL_TOTAL_HEIGHT = 153; // Including VBlank
     private final MemoryManagementUnit mmu;
     private final Color[][] screenBuffer = initScreenBuffer();
     private Mode mode = Mode.OAM_READ;
@@ -62,13 +62,18 @@ public class Gpu {
                 default:
                     throw new IllegalStateException("Unknown GPU mode " + mode);
             }
+        } else if (mode == Mode.VBLANK) {
+            float progress = ((float)modeClock) / mode.duration;
+            currentLine = (int)(DISPLAY_HEIGHT + progress * (VIRTUAL_TOTAL_HEIGHT - DISPLAY_HEIGHT));
         }
+
+        mmu.setByte(0xff44, currentLine);
     }
 
     private void renderLine(int currentLine) {
-        final int tileY = currentLine / (DISPLAY_HEIGHT / 8);
+        final int tileY = currentLine / 8;
         synchronized (screenBuffer) {
-            for (int tileX = 0; tileX < (DISPLAY_WIDTH / 8); tileX++) {
+            for (int tileX = 0; tileX < DISPLAY_WIDTH / 8; tileX++) {
                 int tileMapIdx = 32 * tileY + tileX;
                 int tileDataStart = getTileDataAddress(tileMapIdx);
                 int[] rowData = getRowData(tileDataStart, currentLine % 8);
@@ -111,7 +116,7 @@ public class Gpu {
 
     private TileSet getTileSet() {
         if ((mmu.readByte(0xff40) & 0x08) == 0) {
-            return TileSet.PRIMARY;
+            return TileSet.SECONDARY; //TileSet.PRIMARY; -- TODO remove this hack --
         } else {
             return TileSet.SECONDARY;
         }
@@ -119,12 +124,12 @@ public class Gpu {
 
     private int getTileDataAddress(int tileMapIdx) {
         TileSet tileSet = getTileSet();
-        int tileDataIdx = mmu.readByte(tileSet.mapStartAddress + tileMapIdx);
+        int tileDataIdx = mmu.readByte(0x9800 + tileMapIdx); // TODO should use tileset rather than hard coding
         if (tileSet.isDataIndexSigned && tileDataIdx > 128) {
             tileDataIdx -= 256;
         }
 
-        return tileSet.dataZeroAddress + tileDataIdx;
+        return tileSet.dataZeroAddress + tileDataIdx * 16;
     }
 
     private void changeMode(Mode newMode) {

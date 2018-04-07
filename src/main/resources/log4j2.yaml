@@ -11,11 +11,11 @@ Configuration:
   Loggers:
     Logger:
       - name: com.kopieczek.gamble
-        level: debug
+        level: info
         additivity: false
         AppenderRef:
           ref: Console
-          level: debug
+          level: info
     Root:
       level: warn
       AppenderRef:

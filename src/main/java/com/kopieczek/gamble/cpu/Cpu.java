@@ -64,6 +64,9 @@ public class Cpu {
 
     public void writeTo(Pointer ptr, Byte from) {
         ptr.set(read(from), this);
+        log.trace("Wrote 0x{} to 0x{}",
+                Integer.toHexString(read(from)),
+                Integer.toHexString(read(ptr.address)));
     }
 
     int unsafeRead(int address) {
