@@ -177,7 +177,7 @@ public class Cpu {
         // 0x02 - LD (BC), A
         m.put(0x03, cpu -> Operations.increment(cpu, Word.Register.BC));
         m.put(0x04, cpu -> Operations.increment(cpu, Byte.Register.B));
-        // 0x05 - DEC B
+        m.put(0x05, cpu -> Operations.decrement(cpu, Byte.Register.B));
         m.put(0x06, cpu -> Operations.copy(cpu, Byte.Register.B, Byte.argument()));
         m.put(0x07, cpu -> Operations.rotateALeft(cpu, Operations.RotateMode.COPY_TO_CARRY));
         m.put(0x08, cpu -> Operations.write(cpu, Pointer.of(Word.argument()), Word.Register.SP));

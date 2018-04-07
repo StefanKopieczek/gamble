@@ -109,6 +109,143 @@ public class TestCpu {
     }
 
     @Test
+    public void test_dec_b_on_0x01_is_0x00() {
+        Cpu cpu = runProgram(0x06, 0x01, 0x05);
+        assertEquals(0x00, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_dec_b_on_0x17_is_0x16() {
+        Cpu cpu = runProgram(0x06, 0x17, 0x05);
+        assertEquals(0x16, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_dec_b_on_0xff_is_0xfe() {
+        Cpu cpu = runProgram(0x06, 0xff, 0x05);
+        assertEquals(0xfe, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_dec_b_uses_4_cycles() {
+        Cpu cpu = runProgram(0x05);
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_dec_b_on_0x00_is_0xff() {
+        Cpu cpu = runProgram(0x05);
+        assertEquals(0xff, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_dec_b_on_0x01_sets_zero_flag() {
+        Cpu cpu = runProgram(0x06, 0x01, 0x05);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_dec_b_on_0xff_does_not_set_zero_flag() {
+        Cpu cpu = runProgram(0x06, 0xff, 0x05);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_dec_b_on_0x00_does_not_set_zero_flag() {
+        Cpu cpu = runProgram(0x06, 0x00, 0x05);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_dec_b_on_0x01_does_not_reset_zero_flag() {
+        Cpu cpu = cpuWithProgram(0x06, 0x01, 0x05);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_dec_b_on_0xfe_resets_zero_flag() {
+        Cpu cpu = cpuWithProgram(0x06, 0xfe, 0x05);
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 3);
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_dec_b_on_0x56_sets_operation_flag() {
+        Cpu cpu = runProgram(0x06, 0x56, 0x05);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_dec_b_on_0x00_sets_operation_flag() {
+        Cpu cpu = runProgram(0x06, 0x00, 0x05);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_dec_b_on_0x64_does_not_reset_operation_flag() {
+        Cpu cpu = cpuWithProgram(0x06, 0x64, 0x05);
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
+    public void test_dec_b_on_0x78_does_not_set_carry_flag() {
+        Cpu cpu = runProgram(0x06, 0x78, 0x05);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_dec_b_on_0x78_does_not_reset_carry_flag() {
+        Cpu cpu = cpuWithProgram(0x06, 0x78, 0x05);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 3);
+    }
+
+    @Test
+    public void test_dec_b_on_0x01_does_not_set_nibble_flag() {
+        Cpu cpu = runProgram(0x06, 0x01, 0x05);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_dec_b_on_0x01_resets_nibble_flag() {
+        Cpu cpu = cpuWithProgram(0x06, 0x01, 0x05);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_dec_b_on_0x10_sets_nibble_flag() {
+        Cpu cpu = runProgram(0x06, 0x10, 0x05);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_dec_b_on_0x10_does_not_reset_nibble_flag() {
+        Cpu cpu = cpuWithProgram(0x06, 0x10, 0x05);
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 3);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_dec_b_on_0x80_sets_nibble_flag() {
+        Cpu cpu = runProgram(0x06, 0x80, 0x05);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_dec_b_on_0x00_sets_nibble_flag() {
+        Cpu cpu = runProgram(0x05);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
     public void test_rollover() {
         int[] program = new int[256];
         for (int idx = 0; idx < program.length; idx++) {

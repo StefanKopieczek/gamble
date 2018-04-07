@@ -63,6 +63,16 @@ class Operations {
         return 12;
     }
 
+    static int decrement(Cpu cpu, Byte.Register r) {
+        final int oldValue = cpu.read(r);
+        final int newValue = (oldValue - 1) & 0xff;
+        cpu.set(Flag.ZERO, newValue == 0x00);
+        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.NIBBLE, (oldValue & 0x0f) == 0x00);
+        cpu.set(r, Byte.literal(newValue));
+        return 4;
+    }
+
     static int loadPartial(Cpu cpu, Byte.Register to, Byte.Register fromLsb) {
         Pointer fromPtr = Pointer.literal(0xff00 + cpu.read(fromLsb));
         cpu.set(to, fromPtr);
