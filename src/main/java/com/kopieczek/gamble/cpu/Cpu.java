@@ -174,8 +174,10 @@ public class Cpu {
         ImmutableMap.Builder<Integer, Function<Cpu, Integer>> m = ImmutableMap.builder();
         m.put(0x00, cpu -> Operations.nop(cpu));
         m.put(0x01, cpu -> Operations.copy(cpu, Word.Register.BC, Word.argument()));
+        // 0x02 - LD (BC), A
         m.put(0x03, cpu -> Operations.increment(cpu, Word.Register.BC));
         m.put(0x04, cpu -> Operations.increment(cpu, Byte.Register.B));
+        // 0x05 - DEC B
         m.put(0x06, cpu -> Operations.copy(cpu, Byte.Register.B, Byte.argument()));
         m.put(0x07, cpu -> Operations.rotateALeft(cpu, Operations.RotateMode.COPY_TO_CARRY));
         m.put(0x08, cpu -> Operations.write(cpu, Pointer.of(Word.argument()), Word.Register.SP));
@@ -183,12 +185,15 @@ public class Cpu {
         m.put(0x0a, cpu -> Operations.load(cpu, Byte.Register.A, Pointer.of(Word.Register.BC)));
         m.put(0x0b, cpu -> Operations.decrement(cpu, Word.Register.BC));
         m.put(0x0c, cpu -> Operations.increment(cpu, Byte.Register.C));
+        // 0x0d - DEC C
         m.put(0x0e, cpu -> Operations.copy(cpu, Byte.Register.C, Byte.argument()));
         m.put(0x0f, cpu -> Operations.rotateARight(cpu, Operations.RotateMode.COPY_TO_CARRY));
         m.put(0x10, cpu -> Operations.stop(cpu, Byte.argument()));
         m.put(0x11, cpu -> Operations.copy(cpu, Word.Register.DE, Word.argument()));
+        // 0x12 - LD (DE), A
         m.put(0x13, cpu -> Operations.increment(cpu, Word.Register.DE));
         m.put(0x14, cpu -> Operations.increment(cpu, Byte.Register.D));
+        // 0x15 - DEC D
         m.put(0x16, cpu -> Operations.copy(cpu, Byte.Register.D, Byte.argument()));
         m.put(0x17, cpu -> Operations.rotateALeft(cpu, Operations.RotateMode.INCLUDE_CARRY));
         m.put(0x18, cpu -> Operations.jumpRelative(cpu, Byte.argument()));
@@ -196,6 +201,7 @@ public class Cpu {
         m.put(0x1a, cpu -> Operations.load(cpu, Byte.Register.A, Pointer.of(Word.Register.DE)));
         m.put(0x1b, cpu -> Operations.decrement(cpu, Word.Register.DE));
         m.put(0x1c, cpu -> Operations.increment(cpu, Byte.Register.E));
+        // 0x1d - DEC E
         m.put(0x1e, cpu -> Operations.copy(cpu, Byte.Register.E, Byte.argument()));
         m.put(0x1f, cpu -> Operations.rotateARight(cpu, Operations.RotateMode.INCLUDE_CARRY));
         m.put(0x20, cpu -> Operations.jumpRelativeIfNotSet(cpu, Byte.argument(), Flag.ZERO));
@@ -203,6 +209,7 @@ public class Cpu {
         m.put(0x22, cpu -> Operations.writeInc(cpu, Word.Register.HL, Byte.Register.A));
         m.put(0x23, cpu -> Operations.increment(cpu, Word.Register.HL));
         m.put(0x24, cpu -> Operations.increment(cpu, Byte.Register.H));
+        // 0x25 - DEC H
         m.put(0x26, cpu -> Operations.copy(cpu, Byte.Register.H, Byte.argument()));
         m.put(0x27, cpu -> Operations.bcdAdjust(cpu, Byte.Register.A));
         m.put(0x28, cpu -> Operations.jumpRelativeIfSet(cpu, Byte.argument(), Flag.ZERO));
@@ -210,6 +217,7 @@ public class Cpu {
         m.put(0x2a, cpu -> Operations.loadInc(cpu, Byte.Register.A, Word.Register.HL));
         m.put(0x2b, cpu -> Operations.decrement(cpu, Word.Register.HL));
         m.put(0x2c, cpu -> Operations.increment(cpu, Byte.Register.L));
+        // 0x2d - DEC L
         m.put(0x2e, cpu -> Operations.copy(cpu, Byte.Register.L, Byte.argument()));
         m.put(0x2f, cpu -> Operations.complement(cpu, Byte.Register.A));
         m.put(0x30, cpu -> Operations.jumpRelativeIfNotSet(cpu, Byte.argument(), Flag.CARRY));
@@ -217,6 +225,7 @@ public class Cpu {
         m.put(0x32, cpu -> Operations.writeDec(cpu, Word.Register.HL, Byte.Register.A));
         m.put(0x33, cpu -> Operations.increment(cpu, Word.Register.SP));
         m.put(0x34, cpu -> Operations.increment(cpu, Pointer.of(Word.Register.HL)));
+        // 0x35 - DEC (HL)
         m.put(0x36, cpu -> Operations.write(cpu, Pointer.of(Word.Register.HL), Byte.argument()));
         m.put(0x37, cpu -> Operations.setCarryFlag(cpu));
         m.put(0x38, cpu -> Operations.jumpRelativeIfSet(cpu, Byte.argument(), Flag.CARRY));
@@ -224,6 +233,7 @@ public class Cpu {
         m.put(0x3a, cpu -> Operations.loadDec(cpu, Byte.Register.A, Word.Register.HL));
         m.put(0x3b, cpu -> Operations.decrement(cpu, Word.Register.SP));
         m.put(0x3c, cpu -> Operations.increment(cpu, Byte.Register.A));
+        // 0x3d - DEC A
         m.put(0x3e, cpu -> Operations.copy(cpu, Byte.Register.A, Byte.argument()));
         m.put(0x3f, cpu -> Operations.complementCarryFlag(cpu));
         m.put(0x40, cpu -> Operations.copy(cpu, Byte.Register.B, Byte.Register.B));
@@ -373,6 +383,7 @@ public class Cpu {
         m.put(0xd0, cpu -> Operations.returnIfNotSet(cpu, Flag.CARRY));
         m.put(0xd1, cpu -> Operations.pop(cpu, Word.Register.DE));
         m.put(0xd2, cpu -> Operations.jumpIfNotSet(cpu, Word.argument(), Flag.CARRY));
+        // 0xd3 - Unused opcode
         m.put(0xd4, cpu -> Operations.callIfNotSet(cpu, Word.argument(), Flag.CARRY));
         m.put(0xd5, cpu -> Operations.push(cpu, Word.Register.DE));
         m.put(0xd6, cpu -> Operations.subtract(cpu, Byte.Register.A, Byte.argument()));
@@ -380,23 +391,32 @@ public class Cpu {
         m.put(0xd8, cpu -> Operations.returnIfSet(cpu, Flag.CARRY));
         m.put(0xd9, cpu -> Operations.returnWithInterrupt(cpu));
         m.put(0xda, cpu -> Operations.jumpIfSet(cpu, Word.argument(), Flag.CARRY));
+        // 0xdb - Unused opcode
         m.put(0xdc, cpu -> Operations.callIfSet(cpu, Word.argument(), Flag.CARRY));
+        // 0xdd - Unused opcode
         m.put(0xde, cpu -> Operations.subtractWithCarry(cpu, Byte.Register.A, Byte.argument()));
         m.put(0xdf, cpu -> Operations.reset(cpu, Word.literal(0x0018)));
         m.put(0xe0, cpu -> Operations.writePartial(cpu, Byte.argument(), Byte.Register.A));
         m.put(0xe1, cpu -> Operations.pop(cpu, Word.Register.HL));
         m.put(0xe2, cpu -> Operations.writePartial(cpu, Byte.Register.C, Byte.Register.A));
+        // 0xe3 - Unused opcode
+        // 0xe4 - Unused opcode
         m.put(0xe5, cpu -> Operations.push(cpu, Word.Register.HL));
         m.put(0xe6, cpu -> Operations.and(cpu, Byte.Register.A, Byte.argument()));
         m.put(0xe7, cpu -> Operations.reset(cpu, Word.literal(0x0020)));
         m.put(0xe8, cpu -> Operations.add(cpu, Word.Register.SP, Byte.argument()));
         m.put(0xe9, cpu -> Operations.jump(cpu, Word.Register.HL));
+        // 0xea - LD (WORD), A
+        // 0xeb - Unused opcode
+        // 0xec - Unused opcode
+        // 0xed - Unused opcode
         m.put(0xee, cpu -> Operations.xor(cpu, Byte.Register.A, Byte.argument()));
         m.put(0xef, cpu -> Operations.reset(cpu, Word.literal(0x0028)));
         m.put(0xf0, cpu -> Operations.loadPartial(cpu, Byte.Register.A, Byte.argument()));
         m.put(0xf1, cpu -> Operations.pop(cpu, Word.Register.AF));
         m.put(0xf2, cpu -> Operations.loadPartial(cpu, Byte.Register.A, Byte.Register.C));
         m.put(0xf3, cpu -> Operations.disableInterrupts(cpu));
+        // 0xf4 - Unused opcode
         m.put(0xf5, cpu -> Operations.push(cpu, Word.Register.AF));
         m.put(0xf6, cpu -> Operations.or(cpu, Byte.Register.A, Byte.argument()));
         m.put(0xf7, cpu -> Operations.reset(cpu, Word.literal(0x0030)));
@@ -404,6 +424,8 @@ public class Cpu {
         m.put(0xf9, cpu -> Operations.copy(cpu, Word.Register.SP, Word.Register.HL));
         m.put(0xfa, cpu -> Operations.load(cpu, Byte.Register.A, Pointer.of(Word.argument())));
         m.put(0xfb, cpu -> Operations.enableInterrupts(cpu));
+        // 0xfc - Unused opcode
+        // 0xfd - Unused opcode
         m.put(0xfe, cpu -> Operations.compare(cpu, Byte.Register.A, Byte.argument()));
         m.put(0xff, cpu -> Operations.reset(cpu, Word.literal(0x0038)));
         return m.build();
