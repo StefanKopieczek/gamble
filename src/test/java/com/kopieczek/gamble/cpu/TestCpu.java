@@ -1200,6 +1200,42 @@ public class TestCpu {
     }
 
     @Test
+    public void test_load_a_to_indirect_bc() {
+        Cpu cpu = runProgram(0x06, 0xab, 0x0e, 0x99, 0x3e, 0x88, 0x02);
+        assertEquals(0x88, cpu.unsafeRead(0xab99));
+    }
+
+    @Test
+    public void test_load_a_to_indirect_bc_uses_8_cycles() {
+        Cpu cpu = runProgram(0x02);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_load_a_to_indirect_de() {
+        Cpu cpu = runProgram(0x16, 0xac, 0x1e, 0x19, 0x3e, 0x82, 0x12);
+        assertEquals(0x82, cpu.unsafeRead(0xac19));
+    }
+
+    @Test
+    public void test_load_a_to_indirect_de_uses_8_cycles() {
+        Cpu cpu = runProgram(0x12);
+        assertEquals(8, cpu.getCycles());
+    }
+
+    @Test
+    public void test_load_a_to_indirect_arg() {
+        Cpu cpu = runProgram(0x3e, 0x82, 0xea, 0x96, 0xab);
+        assertEquals(0x82, cpu.unsafeRead(0xab96));
+    }
+
+    @Test
+    public void test_load_a_to_indirect_arg_uses_12_cycles() {
+        Cpu cpu = runProgram(0xea, 0x00, 0x00);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
     public void test_load_indirect_bc_to_a() {
         Cpu cpu = runProgram(
                 0x26, 0x43,

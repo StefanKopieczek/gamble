@@ -174,7 +174,7 @@ public class Cpu {
         ImmutableMap.Builder<Integer, Function<Cpu, Integer>> m = ImmutableMap.builder();
         m.put(0x00, cpu -> Operations.nop(cpu));
         m.put(0x01, cpu -> Operations.copy(cpu, Word.Register.BC, Word.argument()));
-        // 0x02 - LD (BC), A
+        m.put(0x02, cpu -> Operations.write(cpu, Pointer.of(Word.Register.BC), Byte.Register.A));
         m.put(0x03, cpu -> Operations.increment(cpu, Word.Register.BC));
         m.put(0x04, cpu -> Operations.increment(cpu, Byte.Register.B));
         m.put(0x05, cpu -> Operations.decrement(cpu, Byte.Register.B));
@@ -190,7 +190,7 @@ public class Cpu {
         m.put(0x0f, cpu -> Operations.rotateARight(cpu, Operations.RotateMode.COPY_TO_CARRY));
         m.put(0x10, cpu -> Operations.stop(cpu, Byte.argument()));
         m.put(0x11, cpu -> Operations.copy(cpu, Word.Register.DE, Word.argument()));
-        // 0x12 - LD (DE), A
+        m.put(0x12, cpu -> Operations.write(cpu, Pointer.of(Word.Register.DE), Byte.Register.A));
         m.put(0x13, cpu -> Operations.increment(cpu, Word.Register.DE));
         m.put(0x14, cpu -> Operations.increment(cpu, Byte.Register.D));
         m.put(0x15, cpu -> Operations.decrement(cpu, Byte.Register.D));
@@ -406,6 +406,7 @@ public class Cpu {
         m.put(0xe7, cpu -> Operations.reset(cpu, Word.literal(0x0020)));
         m.put(0xe8, cpu -> Operations.add(cpu, Word.Register.SP, Byte.argument()));
         m.put(0xe9, cpu -> Operations.jump(cpu, Word.Register.HL));
+        m.put(0xea, cpu -> Operations.write(cpu, Word.argument(), Byte.Register.A));
         // 0xea - LD (WORD), A
         // 0xeb - Unused opcode
         // 0xec - Unused opcode

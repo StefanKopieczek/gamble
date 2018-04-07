@@ -34,6 +34,11 @@ class Operations {
         return 12;
     }
 
+    static int write(Cpu cpu, Word.Argument to, Byte.Register from) {
+        cpu.writeTo(Pointer.of(to), from);
+        return 12;
+    }
+
     static int write(Cpu cpu, Pointer to, Word.Register from) {
         int fromValue = cpu.read(from);
         Byte fromLsb = Byte.literal(fromValue & 0xff);
