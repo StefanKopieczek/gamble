@@ -246,6 +246,54 @@ public class TestCpu {
     }
 
     @Test
+    public void test_dec_c_on_0x75() {
+        Cpu cpu = runProgram(0x0e, 0x75, 0x0d);
+        assertEquals(0x74, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_dec_d_on_0x4d() {
+        Cpu cpu = runProgram(0x16, 0x4d, 0x15);
+        assertEquals(0x4c, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_dec_e_on_0x04() {
+        Cpu cpu = runProgram(0x1e, 0x04, 0x1d);
+        assertEquals(0x03, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_dec_h_on_0x83() {
+        Cpu cpu = runProgram(0x26, 0x83, 0x25);
+        assertEquals(0x82, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_dec_l_on_0xea() {
+        Cpu cpu = runProgram(0x2e, 0xea, 0x2d);
+        assertEquals(0xe9, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_dec_hl_on_0x79() {
+        Cpu cpu = runProgram(0x36, 0x79, 0x35);
+        assertEquals(0x78, cpu.unsafeRead(0x0000));
+    }
+
+    @Test
+    public void test_dec_hl_uses_12_cycles() {
+        Cpu cpu = runProgram(0x35);
+        assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_dec_a_on_0x3e() {
+        Cpu cpu = runProgram(0x3e, 0x3e, 0x3d);
+        assertEquals(0x3d, cpu.read(Byte.Register.A));
+    }
+
+    @Test
     public void test_rollover() {
         int[] program = new int[256];
         for (int idx = 0; idx < program.length; idx++) {

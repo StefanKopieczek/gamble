@@ -185,7 +185,7 @@ public class Cpu {
         m.put(0x0a, cpu -> Operations.load(cpu, Byte.Register.A, Pointer.of(Word.Register.BC)));
         m.put(0x0b, cpu -> Operations.decrement(cpu, Word.Register.BC));
         m.put(0x0c, cpu -> Operations.increment(cpu, Byte.Register.C));
-        // 0x0d - DEC C
+        m.put(0x0d, cpu -> Operations.decrement(cpu, Byte.Register.C));
         m.put(0x0e, cpu -> Operations.copy(cpu, Byte.Register.C, Byte.argument()));
         m.put(0x0f, cpu -> Operations.rotateARight(cpu, Operations.RotateMode.COPY_TO_CARRY));
         m.put(0x10, cpu -> Operations.stop(cpu, Byte.argument()));
@@ -193,7 +193,7 @@ public class Cpu {
         // 0x12 - LD (DE), A
         m.put(0x13, cpu -> Operations.increment(cpu, Word.Register.DE));
         m.put(0x14, cpu -> Operations.increment(cpu, Byte.Register.D));
-        // 0x15 - DEC D
+        m.put(0x15, cpu -> Operations.decrement(cpu, Byte.Register.D));
         m.put(0x16, cpu -> Operations.copy(cpu, Byte.Register.D, Byte.argument()));
         m.put(0x17, cpu -> Operations.rotateALeft(cpu, Operations.RotateMode.INCLUDE_CARRY));
         m.put(0x18, cpu -> Operations.jumpRelative(cpu, Byte.argument()));
@@ -201,7 +201,7 @@ public class Cpu {
         m.put(0x1a, cpu -> Operations.load(cpu, Byte.Register.A, Pointer.of(Word.Register.DE)));
         m.put(0x1b, cpu -> Operations.decrement(cpu, Word.Register.DE));
         m.put(0x1c, cpu -> Operations.increment(cpu, Byte.Register.E));
-        // 0x1d - DEC E
+        m.put(0x1d, cpu -> Operations.decrement(cpu, Byte.Register.E));
         m.put(0x1e, cpu -> Operations.copy(cpu, Byte.Register.E, Byte.argument()));
         m.put(0x1f, cpu -> Operations.rotateARight(cpu, Operations.RotateMode.INCLUDE_CARRY));
         m.put(0x20, cpu -> Operations.jumpRelativeIfNotSet(cpu, Byte.argument(), Flag.ZERO));
@@ -209,7 +209,7 @@ public class Cpu {
         m.put(0x22, cpu -> Operations.writeInc(cpu, Word.Register.HL, Byte.Register.A));
         m.put(0x23, cpu -> Operations.increment(cpu, Word.Register.HL));
         m.put(0x24, cpu -> Operations.increment(cpu, Byte.Register.H));
-        // 0x25 - DEC H
+        m.put(0x25, cpu -> Operations.decrement(cpu, Byte.Register.H));
         m.put(0x26, cpu -> Operations.copy(cpu, Byte.Register.H, Byte.argument()));
         m.put(0x27, cpu -> Operations.bcdAdjust(cpu, Byte.Register.A));
         m.put(0x28, cpu -> Operations.jumpRelativeIfSet(cpu, Byte.argument(), Flag.ZERO));
@@ -217,7 +217,7 @@ public class Cpu {
         m.put(0x2a, cpu -> Operations.loadInc(cpu, Byte.Register.A, Word.Register.HL));
         m.put(0x2b, cpu -> Operations.decrement(cpu, Word.Register.HL));
         m.put(0x2c, cpu -> Operations.increment(cpu, Byte.Register.L));
-        // 0x2d - DEC L
+        m.put(0x2d, cpu -> Operations.decrement(cpu, Byte.Register.L));
         m.put(0x2e, cpu -> Operations.copy(cpu, Byte.Register.L, Byte.argument()));
         m.put(0x2f, cpu -> Operations.complement(cpu, Byte.Register.A));
         m.put(0x30, cpu -> Operations.jumpRelativeIfNotSet(cpu, Byte.argument(), Flag.CARRY));
@@ -225,7 +225,7 @@ public class Cpu {
         m.put(0x32, cpu -> Operations.writeDec(cpu, Word.Register.HL, Byte.Register.A));
         m.put(0x33, cpu -> Operations.increment(cpu, Word.Register.SP));
         m.put(0x34, cpu -> Operations.increment(cpu, Pointer.of(Word.Register.HL)));
-        // 0x35 - DEC (HL)
+        m.put(0x35, cpu -> Operations.decrement(cpu, Pointer.of(Word.Register.HL)));
         m.put(0x36, cpu -> Operations.write(cpu, Pointer.of(Word.Register.HL), Byte.argument()));
         m.put(0x37, cpu -> Operations.setCarryFlag(cpu));
         m.put(0x38, cpu -> Operations.jumpRelativeIfSet(cpu, Byte.argument(), Flag.CARRY));
@@ -233,7 +233,7 @@ public class Cpu {
         m.put(0x3a, cpu -> Operations.loadDec(cpu, Byte.Register.A, Word.Register.HL));
         m.put(0x3b, cpu -> Operations.decrement(cpu, Word.Register.SP));
         m.put(0x3c, cpu -> Operations.increment(cpu, Byte.Register.A));
-        // 0x3d - DEC A
+        m.put(0x3d, cpu -> Operations.decrement(cpu, Byte.Register.A));
         m.put(0x3e, cpu -> Operations.copy(cpu, Byte.Register.A, Byte.argument()));
         m.put(0x3f, cpu -> Operations.complementCarryFlag(cpu));
         m.put(0x40, cpu -> Operations.copy(cpu, Byte.Register.B, Byte.Register.B));

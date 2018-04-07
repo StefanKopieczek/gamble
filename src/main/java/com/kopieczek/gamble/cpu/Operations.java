@@ -43,34 +43,44 @@ class Operations {
         return 20;
     }
 
-    static int increment(Cpu cpu, Byte.Register r) {
-        int oldValue = cpu.read(r);
+    private static int doIncrement(Cpu cpu, int oldValue) {
         int newValue = (oldValue + 1) & 0xff;
-        cpu.set(r, Byte.literal(newValue));
         cpu.set(Flag.ZERO, (newValue == 0));
         cpu.set(Flag.NIBBLE, shouldSetNibble(oldValue, 1));
         cpu.set(Flag.OPERATION, false);
+        return newValue;
+    }
+
+    static int increment(Cpu cpu, Byte.Register r) {
+        final int newValue = doIncrement(cpu, cpu.read(r));
+        cpu.set(r, Byte.literal(newValue));
         return 4;
     }
 
     static int increment(Cpu cpu, Pointer ptr) {
-        int oldValue = cpu.readFrom(ptr);
-        int newValue = (oldValue + 1) & 0xff;
+        final int newValue = doIncrement(cpu, cpu.readFrom(ptr));
         cpu.writeTo(ptr, Byte.literal(newValue));
-        cpu.set(Flag.ZERO, (newValue == 0));
-        cpu.set(Flag.NIBBLE, shouldSetNibble(oldValue, 1));
-        cpu.set(Flag.OPERATION, false);
         return 12;
     }
 
-    static int decrement(Cpu cpu, Byte.Register r) {
-        final int oldValue = cpu.read(r);
+    private static int doDecrement(Cpu cpu, int oldValue) {
         final int newValue = (oldValue - 1) & 0xff;
         cpu.set(Flag.ZERO, newValue == 0x00);
         cpu.set(Flag.OPERATION, true);
         cpu.set(Flag.NIBBLE, (oldValue & 0x0f) == 0x00);
+        return newValue;
+    }
+
+    static int decrement(Cpu cpu, Byte.Register r) {
+        final int newValue = doDecrement(cpu, cpu.read(r));
         cpu.set(r, Byte.literal(newValue));
         return 4;
+    }
+
+    static int decrement(Cpu cpu, Pointer p) {
+        final int newValue = doDecrement(cpu, cpu.readFrom(p));
+        cpu.writeTo(p, Byte.literal(newValue));
+        return 12;
     }
 
     static int loadPartial(Cpu cpu, Byte.Register to, Byte.Register fromLsb) {
