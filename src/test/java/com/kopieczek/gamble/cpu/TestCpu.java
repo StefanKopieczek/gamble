@@ -944,6 +944,18 @@ public class TestCpu {
     }
 
     @Test
+    public void test_load_a_to_indirect_hl() {
+        Cpu cpu = runProgram(
+                0x3e, 0x8b, // LD A, 8b
+                0x26, 0x10, // LD H, 0x10
+                0x2e, 0x66, // LD L, 0x66 (now HL=0x1066).
+                0x77        // LD (HL), A
+        );
+
+        assertEquals(0x8b, cpu.unsafeRead(0x1066));
+    }
+
+    @Test
     public void test_load_value_to_indirect_hl() {
         Cpu cpu = runProgram(
                 0x26, 0x5f, // LD H, 0x5f

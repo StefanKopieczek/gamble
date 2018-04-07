@@ -90,7 +90,8 @@ public class Cpu {
         if (op != null) {
             cycles += op.apply(this);
         } else {
-            throw new IllegalArgumentException("Unknown opcode 0x" + Integer.toHexString(opcode));
+            throw new IllegalArgumentException(Integer.toHexString(pc) +
+                    ": Unknown opcode 0x" + Integer.toHexString(opcode));
         }
     }
 
@@ -235,6 +236,7 @@ public class Cpu {
         m.put(0x73, cpu -> Operations.write(cpu, Pointer.of(Word.Register.HL), Byte.Register.E));
         m.put(0x74, cpu -> Operations.write(cpu, Pointer.of(Word.Register.HL), Byte.Register.H));
         m.put(0x75, cpu -> Operations.write(cpu, Pointer.of(Word.Register.HL), Byte.Register.L));
+        m.put(0x77, cpu -> Operations.write(cpu, Pointer.of(Word.Register.HL), Byte.Register.A));
         m.put(0x36, cpu -> Operations.write(cpu, Pointer.of(Word.Register.HL), Byte.argument()));
         m.put(0x0a, cpu -> Operations.load(cpu, Byte.Register.A, Pointer.of(Word.Register.BC)));
         m.put(0x1a, cpu -> Operations.load(cpu, Byte.Register.A, Pointer.of(Word.Register.DE)));
