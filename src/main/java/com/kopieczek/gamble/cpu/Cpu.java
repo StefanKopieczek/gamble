@@ -3,12 +3,16 @@ package com.kopieczek.gamble.cpu;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.kopieczek.gamble.memory.MemoryManagementUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 
 public class Cpu {
+    private static final Logger log = LogManager.getLogger(Cpu.class);
+
     private static final int INTERRUPT_ENABLED_FLAG_ADDRESS = 0xffff;
     private static final int INTERRUPT_FLAG_ADDRESS = 0xff0f;
     private static final int INTERRUPT_HANDLERS_START = 0x0040;
@@ -41,7 +45,11 @@ public class Cpu {
     }
 
     public void set(Byte.Register to, Byte from) {
-        registers[to.ordinal()] = from.getValue(this);
+        final int oldValue = to.getValue(this);
+        final int newValue = from.getValue(this);
+        registers[to.ordinal()] = newValue;
+        log.trace("Setting register {} to 0x{} (was 0x{})",
+                  to, Integer.toHexString(newValue), Integer.toHexString(oldValue)) ;
     }
 
     public void set(Byte.Register to, Pointer from) {
@@ -73,8 +81,10 @@ public class Cpu {
     }
 
     public void tick() {
+        log.trace("Cpu cycle starts");
         if (isHalted) {
             isHalted = (unsafeRead(INTERRUPT_ENABLED_FLAG_ADDRESS) & unsafeRead(INTERRUPT_FLAG_ADDRESS) & 0x1f) == 0;
+            log.debug("CPU is halted. Stay halted? " + isHalted);
             cycles += 4;
             return;
         }
@@ -84,11 +94,13 @@ public class Cpu {
         }
 
         int opcode = mmu.readByte(pc);
+        log.debug("At pc=0x{}, found opcode 0x{}", Integer.toHexString(pc), Integer.toHexString(opcode));
         pc += 1;
 
         Function<Cpu, Integer> op = operations.get(opcode);
         if (op != null) {
             cycles += op.apply(this);
+            log.trace("CPU progressed {} cycles", cycles);
         } else {
             throw new IllegalArgumentException(Integer.toHexString(pc) +
                     ": Unknown opcode 0x" + Integer.toHexString(opcode));
@@ -97,8 +109,11 @@ public class Cpu {
 
     private void handleInterrupts() {
         // Step through interrupts in reverse ordinal order as the highest priorities come last.
+        log.trace("Checking for interrupts needing handling");
         for (Interrupt interrupt : Lists.reverse(Arrays.asList(Interrupt.values()))) {
+            log.trace("Examining interrupt {}", interrupt);
             if (isEnabled(interrupt) && checkInterrupt(interrupt)) {
+                log.debug("Interrupt {} triggered", interrupt);
                 final int handlerAddress = INTERRUPT_HANDLERS_START + interrupt.ordinal() * INTERRUPT_HANDLERS_OFFSET;
                 Operations.doCall(this, handlerAddress);
                 resetInterrupt(interrupt);
@@ -109,6 +124,8 @@ public class Cpu {
 
     private int doExtendedOperation() {
         int extOpcode = mmu.readByte(pc);
+        log.debug("At pc=0x{}, found extended opcode 0x{}",
+                Integer.toHexString(pc), Integer.toHexString(extOpcode));
         pc += 1;
 
         Function<Cpu, Integer> op = extendedOperations.get(extOpcode);
@@ -132,6 +149,7 @@ public class Cpu {
     }
 
     void set(Flag flag, boolean shouldEnable) {
+        log.trace("Setting flag {} to {}", flag, shouldEnable);
         int flagRegister = read(Byte.Register.F);
         int flagMask = (1 << (flag.ordinal() + 4));
         if (shouldEnable) {
@@ -143,10 +161,12 @@ public class Cpu {
     }
 
     void setInterruptsEnabled(boolean isEnabled) {
+        log.trace("Setting interrupts enabled = {}", interruptsEnabled);
         interruptsEnabled = isEnabled;
     }
 
     public void interrupt(Interrupt interrupt) {
+        log.debug("Interupt line {} fired", interrupt);
         final int currentValue = unsafeRead(INTERRUPT_FLAG_ADDRESS);
         final int bitMask = (0x01 << interrupt.ordinal());
         unsafeSet(INTERRUPT_FLAG_ADDRESS, currentValue | bitMask);
@@ -159,6 +179,7 @@ public class Cpu {
     }
 
     void resetInterrupt(Interrupt interrupt) {
+        log.trace("Interrupt {} reset by CPU", interrupt);
         final int currentValue = unsafeRead(INTERRUPT_FLAG_ADDRESS);
         final int bitMask = ~(0x01 << interrupt.ordinal());
         unsafeSet(INTERRUPT_FLAG_ADDRESS, currentValue & bitMask);

@@ -1,0 +1,22 @@
+Configuration:
+  status: warn
+
+  Appenders:
+    Console:
+      name: Console
+      target: SYSTEM_OUT
+      PatternLayout:
+        Pattern: "%highlight{%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n%throwable}"
+
+  Loggers:
+    Logger:
+      - name: com.kopieczek.gamble
+        level: debug
+        additivity: false
+        AppenderRef:
+          ref: Console
+          level: debug
+    Root:
+      level: warn
+      AppenderRef:
+        ref: Console

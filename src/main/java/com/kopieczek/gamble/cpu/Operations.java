@@ -1,45 +1,54 @@
 package com.kopieczek.gamble.cpu;
 
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 class Operations {
-    private static final Logger log = Logger.getLogger(Operations.class.getCanonicalName());
+    private static final Logger log = LogManager.getLogger(Operations.class);
 
     static int nop(Cpu cpu) {
+        logOp("NOP");
         return 4;
     }
 
     static int copy(Cpu cpu, Byte.Register to, Byte.Register from) {
+        logOp("LD {}, {}", to, from);
         cpu.set(to, from);
         return 4;
     }
 
     static int copy(Cpu cpu, Byte.Register to, Byte.Argument from) {
+        logOp("LD {}, {}", to, hex(cpu, from));
         cpu.set(to, from);
         return 8;
     }
 
     static int load(Cpu cpu, Byte.Register to, Pointer from) {
+        logOp("LD {}, {}", to, hex(cpu, from));
         cpu.set(to, from);
-        return (from.address instanceof Word.Argument) ? 16 : 8;
+        return 8;
     }
 
     static int write(Cpu cpu, Pointer to, Byte.Register from) {
+        logOp("LD {}, {}", hex(cpu, to), from);
         cpu.writeTo(to, from);
         return 8;
     }
 
     static int write(Cpu cpu, Pointer to, Byte.Argument from) {
+        logOp("LD {}, {}", hex(cpu, to), hex(cpu, from));
         cpu.writeTo(to, from);
         return 12;
     }
 
     static int write(Cpu cpu, Word.Argument to, Byte.Register from) {
+        logOp("LD {}, {}", hex(cpu, to), from);
         cpu.writeTo(Pointer.of(to), from);
         return 12;
     }
 
     static int write(Cpu cpu, Pointer to, Word.Register from) {
+        logOp("LD {}, {}", hex(cpu, to), from);
         int fromValue = cpu.read(from);
         Byte fromLsb = Byte.literal(fromValue & 0xff);
         Byte fromMsb = Byte.literal(fromValue >> 8);
@@ -57,12 +66,14 @@ class Operations {
     }
 
     static int increment(Cpu cpu, Byte.Register r) {
+        logOp("INC {}", r);
         final int newValue = doIncrement(cpu, cpu.read(r));
         cpu.set(r, Byte.literal(newValue));
         return 4;
     }
 
     static int increment(Cpu cpu, Pointer ptr) {
+        logOp("INC {}", hex(cpu, ptr));
         final int newValue = doIncrement(cpu, cpu.readFrom(ptr));
         cpu.writeTo(ptr, Byte.literal(newValue));
         return 12;
@@ -77,76 +88,89 @@ class Operations {
     }
 
     static int decrement(Cpu cpu, Byte.Register r) {
+        logOp("DEC {}", r);
         final int newValue = doDecrement(cpu, cpu.read(r));
         cpu.set(r, Byte.literal(newValue));
         return 4;
     }
 
     static int decrement(Cpu cpu, Pointer p) {
+        logOp("DEC {}", hex(cpu, p));
         final int newValue = doDecrement(cpu, cpu.readFrom(p));
         cpu.writeTo(p, Byte.literal(newValue));
         return 12;
     }
 
     static int loadPartial(Cpu cpu, Byte.Register to, Byte.Register fromLsb) {
+        logOp("LD {}, (0xff00+{}) - with {}={}", to, fromLsb, fromLsb, hex(cpu, fromLsb));
         Pointer fromPtr = Pointer.literal(0xff00 + cpu.read(fromLsb));
         cpu.set(to, fromPtr);
         return 8;
     }
 
     static int loadPartial(Cpu cpu, Byte.Register to, Byte.Argument fromLsb) {
+        logOp("LD {}, (0xff00+{})", to, hex(cpu, fromLsb));
         Pointer fromPtr = Pointer.literal(0xff00 + cpu.read(fromLsb));
         cpu.set(to, fromPtr);
         return 12;
     }
 
     static int writePartial(Cpu cpu, Byte.Register toLsb, Byte.Register from) {
+        logOp("LD (0xff00+{}), {}", toLsb, from);
         Pointer toPtr = Pointer.literal(0xff00 + cpu.read(toLsb));
         cpu.writeTo(toPtr, from);
         return 8;
     }
 
     static int loadDec(Cpu cpu, Byte.Register to, Word.Register from) {
+        logOp("LDD {}, {}", to, from);
         cpu.set(to, Pointer.of(from));
         decrementWord(from, cpu);
         return 8;
     }
 
     static int loadInc(Cpu cpu, Byte.Register to, Word.Register from) {
+        logOp("LDI {}, {}", to, from);
         cpu.set(to, Pointer.of(from));
         incrementWord(from, cpu);
         return 8;
     }
 
     static int writeDec(Cpu cpu, Word.Register to, Byte from) {
+        logOp("LDD {}, {}", hex(cpu, Pointer.of(to)), from);
         cpu.writeTo(Pointer.of(to), from);
         decrementWord(to, cpu);
         return 8;
     }
 
     static int writeInc(Cpu cpu, Word.Register to, Byte from) {
+        logOp("LDI {}, {}", hex(cpu, Pointer.of(to)), from);
         cpu.writeTo(Pointer.of(to), from);
         incrementWord(to, cpu);
         return 8;
     }
 
     static int writePartial(Cpu cpu, Byte toLsb, Byte from) {
+        logOp("LDI (0xff00+{}), {}", toLsb, from);
         Pointer to = Pointer.literal(0xff00 + cpu.read(toLsb));
         cpu.writeTo(to, from);
         return 12;
     }
 
     static int copy(Cpu cpu, Word.Register to, Word.Argument from) {
+        logOp("LD {}, {}", to, hex(cpu, from));
         cpu.set(to, from);
         return 12;
     }
 
     static int copy(Cpu cpu, Word.Register to, Word.Register from) {
+        logOp("LD {}, {}", to, from);
         cpu.set(to, from);
         return 8;
     }
 
     static int copyWithOffset(Cpu cpu, Word.Register to, Word.Register from, Byte offset) {
+        logOp("LD {}, {}+{}", to, from, hex(cpu, offset));
         int fromValue = cpu.read(from);
         int offsetValue = cpu.read(offset);
         Word newValue = Word.literal((fromValue + offsetValue) & 0xffff);
@@ -161,11 +185,13 @@ class Operations {
     }
 
     static int push(Cpu cpu, Word.Register from) {
+        logOp("PUSH {}", from);
         doPush(cpu, cpu.read(from));
         return 16;
     }
 
     static int pop(Cpu cpu, Word.Register to) {
+        logOp("POP {}", to);
         cpu.set(to, Word.literal(doPop(cpu)));
         return 12;
     }
@@ -190,12 +216,14 @@ class Operations {
     }
 
     private static void decrementWord(Word.Register r, Cpu cpu) {
+        logOp("DEC {}", r);
         int current = cpu.read(r);
         Word next = Word.literal((current - 1) & 0xffff);
         cpu.set(r, next);
     }
 
     private static void incrementWord(Word.Register r, Cpu cpu) {
+        logOp("INC {}", r);
         int current = cpu.read(r);
         Word next = Word.literal((current + 1) & 0xffff);
         cpu.set(r, next);
@@ -209,21 +237,24 @@ class Operations {
         return (((original & 0x0f) + (offset & 0x0f)) & 0x10) > 0;
     }
 
-    static Integer add(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
+    static int add(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
+        logOp("ADD {}, {}", destOperand, otherOperand);
         int a = cpu.read(destOperand);
         int b = cpu.read(otherOperand);
         do8BitAdd(cpu, destOperand, a, b);
         return 4;
     }
 
-    static Integer add(Cpu cpu, Byte.Register destOperand, Byte.Argument otherOperand) {
+    static int add(Cpu cpu, Byte.Register destOperand, Byte.Argument otherOperand) {
+        logOp("ADD {}, {}", destOperand, hex(cpu, otherOperand));
         int a = cpu.read(destOperand);
         int b = cpu.read(otherOperand);
         do8BitAdd(cpu, destOperand, a, b);
         return 8;
     }
 
-    static Integer add(Cpu cpu, Byte.Register destOperand, Pointer ptrToOtherOperand) {
+    static int add(Cpu cpu, Byte.Register destOperand, Pointer ptrToOtherOperand) {
+        logOp("ADD {}, {}", destOperand, hex(cpu, ptrToOtherOperand));
         int a = cpu.read(destOperand);
         int b = cpu.readFrom(ptrToOtherOperand);
         do8BitAdd(cpu, destOperand, a, b);
@@ -239,42 +270,48 @@ class Operations {
         cpu.set(Flag.CARRY, shouldSetCarry(a, b));
     }
 
-    static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
+    static int addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
+        logOp("ADC {}, {} - carry is {}", destOperand, otherOperand, cpu.isSet(Flag.CARRY));
         int a = cpu.read(destOperand);
         int b = cpu.read(otherOperand) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
         do8BitAdd(cpu, destOperand, a, b);
         return 4;
     }
 
-    static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Pointer otherOperandPtr) {
+    static int addWithCarry(Cpu cpu, Byte.Register destOperand, Pointer otherOperandPtr) {
+        logOp("ADC {}, {} - carry is {}", destOperand, hex(cpu, otherOperandPtr), cpu.isSet(Flag.CARRY));
         int a = cpu.read(destOperand);
         int b = cpu.readFrom(otherOperandPtr) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
         do8BitAdd(cpu, destOperand, a, b);
         return 8;
     }
 
-    static Integer addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Argument arg) {
+    static int addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Argument arg) {
+        logOp("ADC {}, {} - carry is {}", destOperand, hex(cpu, arg), cpu.isSet(Flag.CARRY));
         int a = cpu.read(destOperand);
         int b = cpu.read(arg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
         do8BitAdd(cpu, destOperand, a, b);
         return 8;
     }
 
-    static Integer subtract(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
+    static int subtract(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
+        logOp("SUB {}, {}", leftArg, rightArg);
         int a = cpu.read(leftArg);
         int b = cpu.read(rightArg);
         doSubtract(cpu, leftArg, a, b);
         return 4;
     }
 
-    static Integer subtract(Cpu cpu, Byte.Register leftArg, Pointer rightArgPtr) {
+    static int subtract(Cpu cpu, Byte.Register leftArg, Pointer rightArgPtr) {
+        logOp("SUB {}, {}", leftArg, hex(cpu, rightArgPtr));
         int a = cpu.read(leftArg);
         int b = cpu.readFrom(rightArgPtr);
         doSubtract(cpu, leftArg, a, b);
         return 8;
     }
 
-    static Integer subtract(Cpu cpu, Byte.Register leftArg, Byte.Argument rightArg) {
+    static int subtract(Cpu cpu, Byte.Register leftArg, Byte.Argument rightArg) {
+        logOp("SUB {}, {}", leftArg, hex(cpu, rightArg));
         int a = cpu.read(leftArg);
         int b = cpu.read(rightArg);
         doSubtract(cpu, leftArg, a, b);
@@ -291,6 +328,7 @@ class Operations {
     }
 
     static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
+        logOp("SBC {}, {}", leftArg, rightArg);
         int a = cpu.read(leftArg);
         int b = cpu.read(rightArg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
         doSubtract(cpu, leftArg, a, b);
@@ -298,6 +336,7 @@ class Operations {
     }
 
     static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Pointer rightArgPtr) {
+        logOp("SBC {}, {}", leftArg, hex(cpu, rightArgPtr));
         int a = cpu.read(leftArg);
         int b = cpu.readFrom(rightArgPtr) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
         doSubtract(cpu, leftArg, a, b);
@@ -305,6 +344,7 @@ class Operations {
     }
 
     static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Byte.Argument rightArg) {
+        logOp("SBC {}, {}", leftArg, hex(cpu, rightArg));
         int a = cpu.read(leftArg);
         int b = cpu.read(rightArg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
         doSubtract(cpu, leftArg, a, b);
@@ -321,6 +361,7 @@ class Operations {
     }
 
     static int and(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
+        logOp("AND {}, {}", destArg, otherArg);
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         doAnd(cpu, destArg, a, b);
@@ -328,6 +369,7 @@ class Operations {
     }
 
     static int and(Cpu cpu, Byte.Register destArg, Pointer otherArgPtr) {
+        logOp("AND {}, {}", destArg, hex(cpu, otherArgPtr));
         int a = cpu.read(destArg);
         int b = cpu.readFrom(otherArgPtr);
         doAnd(cpu, destArg, a, b);
@@ -335,6 +377,7 @@ class Operations {
     }
 
     static int and(Cpu cpu, Byte.Register destArg, Byte.Argument otherArg) {
+        logOp("AND {}, {}", destArg, hex(cpu, otherArg));
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         doAnd(cpu, destArg, a, b);
@@ -351,6 +394,7 @@ class Operations {
     }
 
     static int or(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
+        logOp("OR {}, {}", destArg, otherArg);
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         doOr(cpu, destArg, a, b);
@@ -358,6 +402,7 @@ class Operations {
     }
 
     static int or(Cpu cpu, Byte.Register destArg, Pointer otherArgPtr) {
+        logOp("OR {}, {}", destArg, hex(cpu, otherArgPtr));
         int a = cpu.read(destArg);
         int b = cpu.readFrom(otherArgPtr);
         doOr(cpu, destArg, a, b);
@@ -365,6 +410,7 @@ class Operations {
     }
 
     static int or(Cpu cpu, Byte.Register destArg, Byte.Argument otherArg) {
+        logOp("OR {}, {}", destArg, hex(cpu, otherArg));
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         doOr(cpu, destArg, a, b);
@@ -381,6 +427,7 @@ class Operations {
     }
 
     static int xor(Cpu cpu, Byte.Register destArg, Byte.Register otherArg) {
+        logOp("XOR {}, {}", destArg, otherArg);
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         doXor(cpu, destArg, a, b);
@@ -388,6 +435,7 @@ class Operations {
     }
 
     static int xor(Cpu cpu, Byte.Register destArg, Pointer otherArgPtr) {
+        logOp("XOR {}, {}", destArg, hex(cpu, otherArgPtr));
         int a = cpu.read(destArg);
         int b = cpu.readFrom(otherArgPtr);
         doXor(cpu, destArg, a, b);
@@ -395,6 +443,7 @@ class Operations {
     }
 
     static int xor(Cpu cpu, Byte.Register destArg, Byte.Argument otherArg) {
+        logOp("XOR {}, {}", destArg, hex(cpu, otherArg));
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         doXor(cpu, destArg, a, b);
@@ -409,6 +458,7 @@ class Operations {
     }
 
     static int compare(Cpu cpu, Byte.Register left, Byte.Register right) {
+        logOp("CMP {}, {} ({}={}, {}={})", left, right, left, hex(cpu, left), right, hex(cpu, right));
         int leftVal = cpu.read(left);
         int rightVal = cpu.read(right);
         compare(cpu, leftVal, rightVal);
@@ -416,6 +466,8 @@ class Operations {
     }
 
     static int compare(Cpu cpu, Byte.Register left, Pointer rightPtr) {
+        logOp("CMP {}, {} ({}={}, {}={})", left, hex(cpu, rightPtr), left, hex(cpu, left), hex(cpu, rightPtr),
+                ("0x" + Integer.toHexString(cpu.readFrom(rightPtr))));
         int leftVal = cpu.read(left);
         int rightVal = cpu.readFrom(rightPtr);
         compare(cpu, leftVal, rightVal);
@@ -423,6 +475,7 @@ class Operations {
     }
 
     static int compare(Cpu cpu, Byte.Register left, Byte.Argument right) {
+        logOp("CMP {}, arg ({}={}, arg={})", left, left, hex(cpu, left), hex(cpu, right));
         int leftVal = cpu.read(left);
         int rightVal = cpu.read(right);
         compare(cpu, leftVal, rightVal);
@@ -439,6 +492,7 @@ class Operations {
     }
 
     static int add(Cpu cpu, Word.Register destArg, Word.Register otherArg) {
+        logOp("ADD {}, {}", destArg, otherArg);
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         do16BitAdd(cpu, destArg, a, b);
@@ -446,6 +500,7 @@ class Operations {
     }
 
     static int add(Cpu cpu, Word.Register destArg, Byte.Argument otherArg) {
+        logOp("ADD {}, {}", destArg, hex(cpu, otherArg));
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
         do16BitAdd(cpu, destArg, a, b);
@@ -453,6 +508,7 @@ class Operations {
     }
 
     static int increment(Cpu cpu, Word.Register register) {
+        logOp("INC {}", register);
         int oldValue = cpu.read(register);
         int newValue = (oldValue + 1) % 0x010000;
         cpu.set(register, Word.literal(newValue));
@@ -460,6 +516,7 @@ class Operations {
     }
 
     static int decrement(Cpu cpu, Word.Register register) {
+        logOp("DEC {}", register);
         int oldValue = cpu.read(register);
         int newValue = (oldValue + 0xffff) % 0x010000;
         cpu.set(register, Word.literal(newValue));
@@ -467,12 +524,14 @@ class Operations {
     }
 
     static int swap(Cpu cpu, Byte.Register register) {
+        logOp("SWAP {}", register);
         int oldValue = cpu.read(register);
         cpu.set(register, Byte.literal(doSwap(cpu, oldValue)));
         return 8;
     }
 
     static int swap(Cpu cpu, Pointer ptr) {
+        logOp("SWAP {}", hex(cpu, ptr));
         int oldValue = cpu.readFrom(ptr);
         cpu.writeTo(ptr, Byte.literal(doSwap(cpu, oldValue)));
         return 16;
@@ -485,6 +544,8 @@ class Operations {
     }
 
     static int bcdAdjust(Cpu cpu, Byte.Register register) {
+        logOp("DAA {} - current value is {}, nibble={}, operation={}",
+                register, hex(cpu, register), cpu.isSet(Flag.NIBBLE), cpu.isSet(Flag.OPERATION));
         logInvalidDaaContexts(cpu, register);
         int result = cpu.read(register);
         boolean shouldSetCarry = false;
@@ -526,14 +587,14 @@ class Operations {
         int rightNibble = cpu.read(register) & 0x0f;
         if (cpu.isSet(Flag.OPERATION)) {
             if (cpu.isSet(Flag.NIBBLE) && rightNibble < 0x06) {
-                log.warning("Invalid context during DAA operation at position " +
+                log.warn("Invalid context during DAA operation at position " +
                         cpu.getProgramCounter() +
                         ": right nibble is <0x06 (0x" + Integer.toHexString(rightNibble) +
                         "), but operation and nibble are set");
             } else if (cpu.isSet(Flag.CARRY)) {
                 int leftLimit = 0x70 - (cpu.isSet(Flag.NIBBLE) ? 0x10 : 0x00);
                 if (leftNibble < leftLimit) {
-                    log.warning("Invalid context during DAA operation at position " +
+                    log.warn("Invalid context during DAA operation at position " +
                         cpu.getProgramCounter() +
                         ": left nibble is <0x" + Integer.toHexString(leftLimit) +
                         " (0x" + Integer.toHexString(leftNibble) +
@@ -543,7 +604,7 @@ class Operations {
         } else {
             int leftLimit = 0x20 + (cpu.isSet(Flag.NIBBLE) ? 0x10 : 0x00);
             if ((leftNibble > leftLimit) && cpu.isSet(Flag.CARRY)) {
-                log.warning("Invalid context during DAA operation at position " +
+                log.warn("Invalid context during DAA operation at position " +
                         cpu.getProgramCounter() +
                         ":　left nibble is >0x" + Integer.toHexString(leftLimit) +
                         " (0x" + Integer.toHexString(leftNibble) +
@@ -551,7 +612,7 @@ class Operations {
             }
 
             if ((rightNibble > 0x03) && cpu.isSet(Flag.NIBBLE)) {
-                log.warning("Invalid context during DAA operation at position " +
+                log.warn("Invalid context during DAA operation at position " +
                         cpu.getProgramCounter() +
                         ":　right nibble is >0x03 (0x" + Integer.toHexString(rightNibble) +
                         "), but nibble flag is set");
@@ -560,6 +621,7 @@ class Operations {
     }
 
     static int complement(Cpu cpu, Byte.Register register) {
+        logOp("CPL {}", register);
         int newValue = 0xff & ~cpu.read(Byte.Register.A);
         cpu.set(register, Byte.literal(newValue));
         cpu.set(Flag.OPERATION, true);
@@ -568,6 +630,7 @@ class Operations {
     }
 
     static int complementCarryFlag(Cpu cpu) {
+        logOp("CCF");
         cpu.set(Flag.CARRY, !cpu.isSet(Flag.CARRY));
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.OPERATION, false);
@@ -575,6 +638,7 @@ class Operations {
     }
 
     static int setCarryFlag(Cpu cpu) {
+        logOp("SCF");
         cpu.set(Flag.CARRY, true);
         cpu.set(Flag.NIBBLE, false);
         cpu.set(Flag.OPERATION, false);
@@ -582,11 +646,13 @@ class Operations {
     }
 
     static int halt(Cpu cpu) {
+        logOp("HALT");
         cpu.isHalted = true;
         return 4;
     }
 
     static int stop(Cpu cpu, Byte.Argument nextByte) {
+        logOp("STOP");
         final int nextByteVal = nextByte.getValue(cpu);
         if (nextByteVal == 0x00) {
             throw new UnsupportedOperationException("CPU stop not yet implemented");
@@ -599,11 +665,13 @@ class Operations {
     }
 
     static int disableInterrupts(Cpu cpu) {
+        logOp("DI");
         cpu.setInterruptsEnabled(false);
         return 4;
     }
 
     static int enableInterrupts(Cpu cpu) {
+        logOp("EI");
         cpu.setInterruptsEnabled(true);
         return 4;
     }
@@ -647,42 +715,49 @@ class Operations {
     }
 
     static int rotateLeft(Cpu cpu, Byte.Register r, RotateMode mode) {
+        logOp("ROTATE LEFT {} - rotate mode {}", r, mode);
         int newValue = rotateLeft(cpu, cpu.read(r), mode);
         cpu.set(r, Byte.literal(newValue));
         return 8;
     }
 
     static int rotateLeft(Cpu cpu, Pointer p, RotateMode mode) {
+        logOp("ROTATE LEFT {} - rotate mode {}", hex(cpu, p), mode);
         int newValue = rotateLeft(cpu, cpu.readFrom(p), mode);
         cpu.writeTo(p, Byte.literal(newValue));
         return 16;
     }
 
     static int rotateRight(Cpu cpu, Byte.Register r, RotateMode mode) {
+        logOp("ROTATE RIGHT {} - rotate mode {}", r, mode);
         int newValue = rotateRight(cpu, cpu.read(r), mode);
         cpu.set(r, Byte.literal(newValue));
         return 8;
     }
 
     static int rotateRight(Cpu cpu, Pointer p, RotateMode mode) {
+        logOp("ROTATE RIGHT {} - rotate mode {}", hex(cpu, p), mode);
         int newValue = rotateRight(cpu, cpu.readFrom(p), mode);
         cpu.writeTo(p, Byte.literal(newValue));
         return 16;
     }
 
     static int rotateALeft(Cpu cpu, RotateMode mode) {
+        logOp("ROTATE LEFT A (fast) - rotate mode {}",  mode);
         rotateLeft(cpu, Byte.Register.A, mode);
         cpu.set(Flag.ZERO, false); // Unlike RL/RLC, RLA/RLCA always reset ZERO
         return 4; // RLCA and RLA are 4 cycles even though RLC A and RL A are 8
     }
 
     static int rotateARight(Cpu cpu, RotateMode mode) {
+        logOp("ROTATE RIGHT A (fast) - rotate mode {}",  mode);
         rotateRight(cpu, Byte.Register.A, mode);
         cpu.set(Flag.ZERO, false); // Unlike RR/RRC, RRA/RRCA always reset ZERO
         return 4; // RRCA is 4 cycles even though RRC A is 8
     }
 
     static int leftShift(Cpu cpu, Byte.Register r) {
+        logOp("SLA {}", r);
         final int oldValue = cpu.read(r);
         final int newValue = (oldValue << 1) & 0xff;
         cpu.set(r, Byte.literal(newValue));
@@ -694,6 +769,7 @@ class Operations {
     }
 
     static int leftShift(Cpu cpu, Pointer p) {
+        logOp("SLA {}", hex(cpu, p));
         final int oldValue = cpu.readFrom(p);
         final int newValue = (oldValue << 1) & 0xff;
         cpu.writeTo(p, Byte.literal(newValue));
@@ -716,12 +792,14 @@ class Operations {
     }
 
     static int rightShift(Cpu cpu, Byte.Register r, ShiftMode mode) {
+        logOp("RIGHT SHIFT {} - shift mode {}", r, mode);
         final int newValue = rightShift(cpu, cpu.read(r), mode);
         cpu.set(r, Byte.literal(newValue));
         return 8;
     }
 
     static int rightShift(Cpu cpu, Pointer p, ShiftMode mode) {
+        logOp("RIGHT SHIFT {} - shift mode {}", hex(cpu, p), mode);
         final int newValue = rightShift(cpu, cpu.readFrom(p), mode);
         cpu.writeTo(p, Byte.literal(newValue));
         return 16;
@@ -738,11 +816,13 @@ class Operations {
     }
 
     static int bitTest(Cpu cpu, Byte.Register r, int bitIndex) {
+        logOp("BIT {}, {} ({} is {})", bitIndex, r, r, hex(cpu, r));
         bitTest(cpu, bitIndex, cpu.read(r));
         return 8;
     }
 
     static int bitTest(Cpu cpu, Pointer p, int bitIndex) {
+        logOp("BIT {}, {} ({} is 0x{})", bitIndex, hex(cpu, p), hex(cpu, p), Integer.toHexString(cpu.readFrom(p)));
         bitTest(cpu, bitIndex, cpu.readFrom(p));
         return 12;
     }
@@ -757,12 +837,14 @@ class Operations {
     }
 
     static int bitSet(Cpu cpu, Byte.Argument bitIndex, Byte.Register r) {
+        logOp("SET {}, {}", hex(cpu, bitIndex), r);
         final int newValue = bitSet(cpu.read(r), cpu.read(bitIndex));
         cpu.set(r, Byte.literal(newValue));
         return 8;
     }
 
     static int bitSet(Cpu cpu, Byte.Argument bitIndex, Pointer p) {
+        logOp("SET {}, {}", hex(cpu, bitIndex), hex(cpu, p));
         final int newValue = bitSet(cpu.readFrom(p), cpu.read(bitIndex));
         cpu.writeTo(p, Byte.literal(newValue));
         return 16;
@@ -777,32 +859,38 @@ class Operations {
     }
 
     static int bitReset(Cpu cpu, Byte.Argument bitIndex, Byte.Register r) {
+        logOp("RES {}, {}", hex(cpu, bitIndex), r);
         final int newValue = bitReset(cpu.read(r), cpu.read(bitIndex));
         cpu.set(r, Byte.literal(newValue));
         return 8;
     }
 
     static int bitReset(Cpu cpu, Byte.Argument bitIndex, Pointer p) {
+        logOp("RES {}, {}", hex(cpu, bitIndex), hex(cpu, p));
         final int newValue = bitReset(cpu.readFrom(p), cpu.read(bitIndex));
         cpu.writeTo(p, Byte.literal(newValue));
         return 16;
     }
 
     private static void doJump(Cpu cpu, int address) {
+        log.debug("Jumping to 0x" + Integer.toHexString(address));
         cpu.pc = address;
     }
 
     static int jump(Cpu cpu, Word.Argument address) {
+        logOp("JMP {}", hex(cpu, address));
         doJump(cpu, cpu.read(address));
         return 16;
     }
 
     static int jump(Cpu cpu, Word.Register r) {
+        logOp("JMP {} (={})", r, hex(cpu, r));
         doJump(cpu, cpu.read(r));
         return 4;
     }
 
     static int jumpIfNotSet(Cpu cpu, Word.Argument address, Flag flag) {
+        logOp("JMP IF NOT {}, {} - {} is {}", flag, hex(cpu, address), flag, cpu.isSet(flag));
         final int targetAddress = cpu.read(address);
         if (!cpu.isSet(flag)) {
             doJump(cpu, targetAddress);
@@ -813,6 +901,7 @@ class Operations {
     }
 
     static int jumpIfSet(Cpu cpu, Word.Argument address, Flag flag) {
+        logOp("JMP IF {}, {} - {} is {}", flag, hex(cpu, address), flag, cpu.isSet(flag));
         final int targetAddress = cpu.read(address);
         if (cpu.isSet(flag)) {
             doJump(cpu, targetAddress);
@@ -833,11 +922,13 @@ class Operations {
         // We have to make sure we call cpu.read(offsetArg) before trying to access cpu.pc.
         // This is because reading the argument triggers the cpu to move pc past the argument and onto the next
         // instruction.
+        logOp("JR {}", hex(cpu, offsetArg));
         doRelativeJump(cpu, cpu.read(offsetArg));
         return 12;
     }
 
     static int jumpRelativeIfNotSet(Cpu cpu, Byte.Argument offsetArg, Flag flag) {
+        logOp("JR IF NOT {}, {} - {} is {}", flag, hex(cpu, offsetArg), flag, cpu.isSet(flag));
         final int offsetByte = cpu.read(offsetArg);
         if (!cpu.isSet(flag)) {
             doRelativeJump(cpu, offsetByte);
@@ -847,6 +938,7 @@ class Operations {
     }
 
     static int jumpRelativeIfSet(Cpu cpu, Byte.Argument offsetArg, Flag flag) {
+        logOp("JR IF {}, {} - {} is {}", flag, hex(cpu, offsetArg), flag, cpu.isSet(flag));
         final int offsetByte = cpu.read(offsetArg);
         if (cpu.isSet(flag)) {
             doRelativeJump(cpu, offsetByte);
@@ -861,11 +953,13 @@ class Operations {
     }
 
     static int call(Cpu cpu, Word.Argument address) {
+        logOp("CALL {}", hex(cpu, address));
         doCall(cpu, cpu.read(address));
         return 24;
     }
 
     static int callIfNotSet(Cpu cpu, Word.Argument address, Flag flag) {
+        logOp("CALL IF NOT {}, {} - {} is {}", flag, hex(cpu, address), flag, cpu.isSet(flag));
         final int targetAddress = cpu.read(address);
         if (!cpu.isSet(flag)) {
             doCall(cpu, targetAddress);
@@ -876,6 +970,7 @@ class Operations {
     }
 
     static int callIfSet(Cpu cpu, Word.Argument address, Flag flag) {
+        logOp("CALL IF {}, {} - {} is {}", flag, hex(cpu, address), flag, cpu.isSet(flag));
         final int targetAddress = cpu.read(address);
         if (cpu.isSet(flag)) {
             doCall(cpu, targetAddress);
@@ -886,17 +981,20 @@ class Operations {
     }
 
     static int reset(Cpu cpu, Word address) {
+        logOp("RST {}", hex(cpu, address));
         doCall(cpu, cpu.read(address));
         return 16;
     }
 
     static int returnFromCall(Cpu cpu) {
+        logOp("RET");
         final int returnAddress = doPop(cpu);
         doJump(cpu, returnAddress);
         return 16;
     }
 
     static int returnIfNotSet(Cpu cpu, Flag flag) {
+        logOp("RET IF NOT {} - {} is {}", flag, flag, cpu.isSet(flag));
         if (!cpu.isSet(flag)) {
             doJump(cpu, doPop(cpu));
             return 20;
@@ -905,6 +1003,7 @@ class Operations {
     }
 
     static int returnIfSet(Cpu cpu, Flag flag) {
+        logOp("RET IF {} - {} is {}", flag, flag, cpu.isSet(flag));
         if (cpu.isSet(flag)) {
             doJump(cpu, doPop(cpu));
             return 20;
@@ -913,6 +1012,7 @@ class Operations {
     }
 
     public static int returnWithInterrupt(Cpu cpu) {
+        logOp("RETI");
         doJump(cpu, doPop(cpu));
         cpu.interruptsEnabled = true;
         return 16;
@@ -926,5 +1026,21 @@ class Operations {
     enum ShiftMode {
         ARITHMETIC,
         LOGICAL
+    }
+
+    private static void logOp(String msg, Object... args) {
+        log.debug("Executing " + msg, args);
+    }
+
+    private static String hex(Cpu cpu, Byte b) {
+        return "0x" + Integer.toHexString(cpu.read(b));
+    }
+
+    private static String hex(Cpu cpu, Word w) {
+        return "0x" + Integer.toHexString(cpu.read(w));
+    }
+
+    private static String hex(Cpu cpu, Pointer p) {
+        return "0x" + Integer.toHexString(cpu.read(p.address));
     }
 }

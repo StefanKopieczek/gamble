@@ -4,20 +4,29 @@ import com.kopieczek.gamble.cpu.Cpu;
 import com.kopieczek.gamble.graphics.Gpu;
 import com.kopieczek.gamble.memory.MemoryManagementUnit;
 import com.kopieczek.gamble.ui.GambleUi;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 
 public class Gamble {
     private static final int CYCLE_DELAY = 0;
+    private static final Logger log = LogManager.getLogger(Gamble.class);
+
     public static void main(String[] args) {
+        log.info("Gamble has started");
+
+        log.debug("Setting up hardware");
         MemoryManagementUnit mmu = MemoryManagementUnit.build();
         setBios(mmu);
         Cpu cpu = new Cpu(mmu);
         Gpu gpu = new Gpu(mmu);
 
+        log.debug("Initializing UI");
         GambleUi gb = new GambleUi(gpu.getScreenBuffer());
         SwingUtilities.invokeLater(gb::init);
 
+        log.debug("Starting program loop");
         while (true) {
             sleep(CYCLE_DELAY);
 
@@ -44,6 +53,8 @@ public class Gamble {
                 0x03, 0x73, 0x00, 0x83, 0x00, 0x0C, 0x00, 0x0D, 0x00, 0x08, 0x11, 0x1F, 0x88, 0x89, 0x00, 0x0E,
                 0xDC, 0xCC, 0x6E, 0xE6, 0xDD, 0xDD, 0xD9, 0x99, 0xBB, 0xBB, 0x67, 0x63, 0x6E, 0x0E, 0xEC, 0xCC,
                 0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E, 0x3c, 0x42, 0xB9, 0xA5, 0xB9, 0xA5, 0x42, 0x4C,
+
+
                 0x21, 0x04, 0x01, 0x11, 0xA8, 0x00, 0x1A, 0x13, 0xBE, 0x20, 0xFE, 0x23, 0x7D, 0xFE, 0x34, 0x20,
                 0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
         };
