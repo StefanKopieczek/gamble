@@ -7,7 +7,7 @@ public class GambleUi extends JFrame {
     private final Color[][] screenBuffer;
 
     public GambleUi(Color[][] screenBuffer) {
-        super("Gamble Gameboy Emulator");
+        super("Gamble");
         this.screenBuffer = screenBuffer;
     }
 
