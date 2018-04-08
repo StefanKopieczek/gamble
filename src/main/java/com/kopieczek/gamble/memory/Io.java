@@ -21,6 +21,7 @@ public interface Io {
     int getScrollX();
     int getLcdCurrentLine();
     void setLcdCurrentLine(int i);
+    int getLyCompare();
 
     enum LcdControllerMode {
         HBLANK,

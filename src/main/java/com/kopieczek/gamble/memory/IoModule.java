@@ -4,15 +4,16 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
-class IoModule extends SimpleMemoryModule implements Io {
+class IoModule extends TriggeringMemoryModule implements Io {
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
     private static final int SCROLL_X_ADDR = 0x0043;
     private static final int LCD_CURRENT_LINE_ADDR = 0x0044;
+    private static final int LCD_LY_COMPARE_ADDR = 0x0045;
     private static final int LCD_MAX_LINE = 153;
 
-    private static final Map<LcdControllerMode, Integer> lcdControllerModeBits = ImmutableMap.of(
+    private static final Map<Io.LcdControllerMode, Integer> lcdControllerModeBits = ImmutableMap.of(
             LcdControllerMode.HBLANK, 0x00,
             LcdControllerMode.VBLANK, 0x01,
             LcdControllerMode.OAM_READ, 0x02,
@@ -21,6 +22,15 @@ class IoModule extends SimpleMemoryModule implements Io {
 
     IoModule() {
         super(Mmu.IO_AREA_SIZE);
+    }
+
+    @Override
+    Map<Integer, Runnable> loadWriteTriggers() {
+        // Bespoke runnables to fire when specific memory locations are written to.
+        return ImmutableMap.<Integer, Runnable>builder()
+                .put(LCD_LY_COMPARE_ADDR, this::updateCoincidenceFlag)
+                .put(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag)
+                .build();
     }
 
     @Override
@@ -129,6 +139,15 @@ class IoModule extends SimpleMemoryModule implements Io {
             throw new IllegalArgumentException("LCD current line cannot be greater than 153 (is " +
                     value + ")");
         }
+    }
+
+    @Override
+    public int getLyCompare() {
+        return readByte(LCD_LY_COMPARE_ADDR);
+    }
+
+    private void updateCoincidenceFlag() {
+        setBit(LCD_STATUS_ADDR, 2,getLcdCurrentLine() == getLyCompare());
     }
 
     private boolean isHigh(int address, int bitIdx) {

@@ -205,6 +205,39 @@ public class TestIoModule {
         );
     }
 
+    @Test
+    public void test_get_ly_compare_returns_0xff45() {
+        doRangeTest(0xff45, mmu ->
+                assertEquals(mmu.readByte(0xff45), mmu.getIo().getLyCompare())
+        );
+    }
+
+    @Test
+    public void test_setting_ly_compare_equal_to_lcd_current_line_sets_coincidence_flag() {
+        Mmu mmu = Mmu.build();
+        for (int lcdLine = 0; lcdLine < 154; lcdLine++) {
+            mmu.getIo().setLcdCurrentLine(lcdLine);
+            for (int lyCompare = 0x00; lyCompare < 0xff; lyCompare++) {
+                mmu.setByte(0xff45, lyCompare);
+                boolean coincidenceFlag = (mmu.readByte(0xff41)  & 0x04) > 0;
+                assertEquals(lcdLine == lyCompare, coincidenceFlag);
+            }
+        }
+    }
+
+    @Test
+    public void test_setting_lcd_current_line_equal_to_ly_compare_sets_coincidence_flag() {
+         Mmu mmu = Mmu.build();
+        for (int lyCompare = 0x00; lyCompare < 0xff; lyCompare++) {
+            mmu.setByte(0xff45, lyCompare);
+            for (int lcdLine = 0; lcdLine < 154; lcdLine++) {
+                mmu.getIo().setLcdCurrentLine(lcdLine);
+                boolean coincidenceFlag = (mmu.readByte(0xff41) & 0x04) > 0;
+                assertEquals(lcdLine == lyCompare, coincidenceFlag);
+            }
+        }
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         Mmu mmu = Mmu.build();
         for (int value = 0x00; value < 0xff; value++) {
