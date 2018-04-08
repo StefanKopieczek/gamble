@@ -391,9 +391,16 @@ public class TestIoModule {
         mmu.setByte(0xff46, 0x00);
     }
 
+    @Test
+    public void test_write_to_0xff50_disables_bios() {
+        doRangeTest(0xff50, mmu ->
+                assertFalse(mmu.isBiosEnabled())
+        );
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
-        Mmu mmu = Mmu.build();
         for (int value = 0x00; value < 0xff; value++) {
+            Mmu mmu = Mmu.build();
             mmu.setByte(address, value);
             test.accept(mmu);
         }

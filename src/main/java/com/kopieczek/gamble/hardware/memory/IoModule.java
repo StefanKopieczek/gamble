@@ -19,6 +19,7 @@ class IoModule extends TriggeringMemoryModule implements Io {
     private static final int SPRITE_PALETTE_1_ADDR = 0x0049;
     private static final int WINDOW_Y_POSITION_ADDR = 0x004a;
     private static final int WINDOW_X_POSITION_ADDR = 0x004b;
+    private static final int BIOS_DISABLE_ADDR = 0x0050;
     private static final int LCD_MAX_LINE = 153;
 
     private static final Map<Io.LcdControllerMode, Integer> lcdControllerModeBits = ImmutableMap.of(
@@ -53,7 +54,12 @@ class IoModule extends TriggeringMemoryModule implements Io {
                 .put(LCD_LY_COMPARE_ADDR, this::updateCoincidenceFlag)
                 .put(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag)
                 .put(DMA_TRANSFER_ADDR, this::doDmaTransfer)
+                .put(BIOS_DISABLE_ADDR, this::disableBios)
                 .build();
+    }
+
+    private void disableBios() {
+        globalMemory.setBiosEnabled(false);
     }
 
     @Override

@@ -4,6 +4,11 @@ import com.kopieczek.gamble.hardware.cpu.Interrupt;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+
 public class Mmu {
     private static final Logger log = LogManager.getLogger(Mmu.class);
     public static final int BIOS_START       = 0x0000;
@@ -108,6 +113,10 @@ public class Mmu {
         shouldReadBios = isEnabled;
     }
 
+    boolean isBiosEnabled() {
+        return shouldReadBios;
+    }
+
     public int readByte(int address) {
         MemoryModule module = getModuleForAddress(address);
         int localAddress = getLocalAddress(address, module);
@@ -149,10 +158,8 @@ public class Mmu {
         } else if (globalAddress < DEAD_AREA_START) {
             return sprites;
         } else if (globalAddress < IO_AREA_START) {
-            throw new IllegalArgumentException("Cannot access address " + globalAddress +
-                    ": memory in range " + Integer.toHexString(DEAD_AREA_START) +
-                    "-" + Integer.toHexString(IO_AREA_START - 1) +
-                    " is inaccessible");
+            log.warn("Program attempted to access invalid address 0x" + Integer.toHexString(globalAddress));
+            return new DummyModule(0x60);
         } else if (globalAddress < ZRAM_START) {
             return io;
         } else {
@@ -186,5 +193,17 @@ public class Mmu {
 
     public int checkInterrupts() {
         return readByte(INTERRUPT_FLAG_ADDRESS);
+    }
+
+    public void loadRom(File f) throws IOException {
+        byte[] data = Files.readAllBytes(f.toPath());
+        log.info("Loading rom with {} bytes", data.length);
+        for (int addr = 0; addr < data.length; addr++) {
+            if (addr < 0x4000) {
+                rom0.setByte(addr, 0xff & (int) data[addr]);
+            } else {
+                rom1.setByte(addr - 0x4000, 0xff & (int)data[addr]);
+            }
+        }
     }
 }
