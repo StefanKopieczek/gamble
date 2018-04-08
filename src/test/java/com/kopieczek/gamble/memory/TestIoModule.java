@@ -350,6 +350,12 @@ public class TestIoModule {
         });
     }
 
+    @Test(expected=UnsupportedOperationException.class)
+    public void test_write_to_0xff46_throws_unsupported_operation_exception() {
+        Mmu mmu = Mmu.build();
+        mmu.setByte(0xff46, 0x00);
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         Mmu mmu = Mmu.build();
         for (int value = 0x00; value < 0xff; value++) {

@@ -12,6 +12,7 @@ class IoModule extends TriggeringMemoryModule implements Io {
     private static final int SCROLL_X_ADDR = 0x0043;
     private static final int LCD_CURRENT_LINE_ADDR = 0x0044;
     private static final int LCD_LY_COMPARE_ADDR = 0x0045;
+    private static final int DMA_TRANSFER_ADDR = 0x0046;
     private static final int BACKGROUND_PALETTE_ADDR = 0x0047;
     private static final int SPRITE_PALETTE_0_ADDR = 0x0048;
     private static final int SPRITE_PALETTE_1_ADDR = 0x0049;
@@ -43,6 +44,7 @@ class IoModule extends TriggeringMemoryModule implements Io {
         return ImmutableMap.<Integer, Runnable>builder()
                 .put(LCD_LY_COMPARE_ADDR, this::updateCoincidenceFlag)
                 .put(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag)
+                .put(DMA_TRANSFER_ADDR, this::doDmaTransfer)
                 .build();
     }
 
@@ -203,6 +205,11 @@ class IoModule extends TriggeringMemoryModule implements Io {
 
     private void updateCoincidenceFlag() {
         setBit(LCD_STATUS_ADDR, 2,getLcdCurrentLine() == getLyCompare());
+    }
+
+    private void doDmaTransfer() {
+        // NB: When implemented, this needs to take 8 CPU cycles
+        throw new UnsupportedOperationException("DMA transfers are not currently supported");
     }
 
     private boolean isHigh(int address, int bitIdx) {
