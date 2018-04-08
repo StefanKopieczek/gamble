@@ -70,7 +70,7 @@ public class Gpu {
             }
         } else if (mode == Mode.VBLANK) {
             float progress = ((float)modeClock) / mode.duration;
-            currentLine = (int)(DISPLAY_HEIGHT + progress * (VIRTUAL_TOTAL_HEIGHT - DISPLAY_HEIGHT));
+            currentLine = DISPLAY_HEIGHT + modeClock / 456;
         }
 
         mmu.getIo().setLcdCurrentLine(currentLine);
@@ -150,7 +150,7 @@ public class Gpu {
         OAM_READ(80),
         VRAM_READ(172),
         HBLANK(204),
-        VBLANK(456 * DISPLAY_HEIGHT);
+        VBLANK(4560);
 
         public final int duration;
 

@@ -7,7 +7,7 @@ public class Governor {
     private static final Logger log = LogManager.getLogger(Governor.log);
     private static final double FREQUENCY_KHZ = 4194.304;
     private static final int MAXIMUM_SKEW_PERMITTED_MS = 10;
-    private static final float SPEED_MULTIPLIER = 1.0f;
+    private static final float SPEED_MULTIPLIER = 1f;
     private long lastSnapshotTime = -1;
     private long cyclesSinceLastSnapshot = -1;
 
