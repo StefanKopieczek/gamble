@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.*;
 
 public class Gamble {
-    private static final int CYCLE_DELAY = 0;
     private static final Logger log = LogManager.getLogger(Gamble.class);
 
     public static void main(String[] args) {
@@ -28,9 +27,9 @@ public class Gamble {
 
         log.debug("Starting program loop");
         while (true) {
-            sleep(CYCLE_DELAY);
+            // Todo, replace this with a proper governor.
             int i;
-            for (i = 0; i < 1000L; i++) {}
+            for (i = 0; i < 2500L; i++) {}
             System.out.println(i);
 
             int cyclesBefore = cpu.getCycles();
@@ -69,17 +68,6 @@ public class Gamble {
         }
         for (int idx = 0x0104; idx < cartridgeHeader.length + 0x0104; idx ++) {
             mmu.setByte(idx, cartridgeHeader[idx - 0x0104]);
-        }
-    }
-
-    private static void sleep(int ns) {
-        if (ns <= 0) {
-            return;
-        }
-        try {
-            Thread.sleep(0, ns);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 }
