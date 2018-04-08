@@ -13,6 +13,8 @@ class IoModule extends TriggeringMemoryModule implements Io {
     private static final int LCD_CURRENT_LINE_ADDR = 0x0044;
     private static final int LCD_LY_COMPARE_ADDR = 0x0045;
     private static final int BACKGROUND_PALETTE_ADDR = 0x0047;
+    private static final int SPRITE_PALETTE_0_ADDR = 0x0048;
+    private static final int SPRITE_PALETTE_1_ADDR = 0x0049;
     private static final int WINDOW_Y_POSITION_ADDR = 0x004a;
     private static final int WINDOW_X_POSITION_ADDR = 0x004b;
     private static final int LCD_MAX_LINE = 153;
@@ -174,6 +176,29 @@ class IoModule extends TriggeringMemoryModule implements Io {
         int colorMask = 0x03 << (colorId * 2);
         int shadeId = readByte(BACKGROUND_PALETTE_ADDR) & colorMask;
         return shadeMap.get(shadeId);
+    }
+
+    @Override
+    public Color getShadeForPalette0Color(int colorId) {
+        return getShadeForPaletteColor(0, colorId);
+    }
+
+    @Override
+    public Color getShadeForPalette1Color(int colorId) {
+        return getShadeForPaletteColor(1, colorId);
+    }
+
+    private Color getShadeForPaletteColor(int paletteId, int colorId) {
+        if (colorId == 0) {
+            // Color 0 is always full transparency regardless of palette
+            return new Color(255, 255, 255, 255);
+        } else {
+            // Bits 1-0 are unused; bits 3-2 are color 1; ... ; bits 7-6 are color 3
+            int colorMask = 0x03 << (colorId * 2);
+            int paletteAddress = (paletteId == 0) ? SPRITE_PALETTE_0_ADDR : SPRITE_PALETTE_1_ADDR;
+            int shadeId = readByte(paletteAddress) & colorMask;
+            return shadeMap.get(shadeId);
+        }
     }
 
     private void updateCoincidenceFlag() {

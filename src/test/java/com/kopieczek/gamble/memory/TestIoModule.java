@@ -12,6 +12,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class TestIoModule {
+    private static final ImmutableMap<Integer, Color> paletteMappings = ImmutableMap.of(
+            0, Color.WHITE,
+            1, Color.LIGHT_GRAY,
+            2, Color.DARK_GRAY,
+            3, Color.BLACK
+    );
 
     @Test
     public void test_lcd_is_disabled_when_0xff40_bit_7_is_low() {
@@ -254,62 +260,95 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_get_shade_for_color_0_returns_bits_0_and_1_of_0xff47() {
-        ImmutableMap<Integer, Color> colorMap = ImmutableMap.of(
-                0, Color.WHITE,
-                1, Color.LIGHT_GRAY,
-                2, Color.DARK_GRAY,
-                3, Color.BLACK
-        );
+    public void test_get_background_shade_for_color_0_returns_bits_0_and_1_of_0xff47() {
         doRangeTest(0xff47, mmu -> {
-            Color expected = colorMap.get(mmu.readByte(0xff47)  & 0x03);
+            Color expected = paletteMappings.get(mmu.readByte(0xff47) & 0x03);
             assertEquals(expected, mmu.getIo().getShadeForBackgroundColor(0));
         });
     }
 
     @Test
-    public void test_get_shade_for_color_1_returns_bits_2_and_3_of_0xff47() {
-        ImmutableMap<Integer, Color> colorMap = ImmutableMap.of(
-                0, Color.WHITE,
-                1, Color.LIGHT_GRAY,
-                2, Color.DARK_GRAY,
-                3, Color.BLACK
-        );
+    public void test_get_background_shade_for_color_1_returns_bits_2_and_3_of_0xff47_as_color() {
         doRangeTest(0xff47, mmu -> {
-            Color expected = colorMap.get(mmu.readByte(0xff47)  & 0x0c);
+            Color expected = paletteMappings.get(mmu.readByte(0xff47) & 0x0c);
             assertEquals(expected, mmu.getIo().getShadeForBackgroundColor(1));
         });
     }
 
     @Test
-    public void test_get_shade_for_color_2_returns_bits_4_and_5_of_0xff47() {
-        ImmutableMap<Integer, Color> colorMap = ImmutableMap.of(
-                0, Color.WHITE,
-                1, Color.LIGHT_GRAY,
-                2, Color.DARK_GRAY,
-                3, Color.BLACK
-        );
+    public void test_get_background_shade_for_color_2_returns_bits_4_and_5_of_0xff47_as_color() {
         doRangeTest(0xff47, mmu -> {
-            Color expected = colorMap.get(mmu.readByte(0xff47)  & 0x30);
+            Color expected = paletteMappings.get(mmu.readByte(0xff47) & 0x30);
             assertEquals(expected, mmu.getIo().getShadeForBackgroundColor(2));
         });
     }
 
     @Test
-    public void test_get_shade_for_color_3_returns_bits_6_and_7_of_0xff47() {
-        ImmutableMap<Integer, Color> colorMap = ImmutableMap.of(
-                0, Color.WHITE,
-                1, Color.LIGHT_GRAY,
-                2, Color.DARK_GRAY,
-                3, Color.BLACK
-        );
+    public void test_get_background_shade_for_color_3_returns_bits_6_and_7_of_0xff47_as_color() {
         doRangeTest(0xff47, mmu -> {
-            Color expected = colorMap.get(mmu.readByte(0xff47)  & 0xc0);
+            Color expected = paletteMappings.get(mmu.readByte(0xff47) & 0xc0);
             assertEquals(expected, mmu.getIo().getShadeForBackgroundColor(3));
         });
     }
 
+    @Test
+    public void test_get_sprite_palette_0_shade_for_color_0_returns_transparency() {
+        doRangeTest(0xff48, mmu ->
+        assertEquals(0xff, mmu.getIo().getShadeForBackgroundColor(0).getAlpha()));
+    }
 
+    @Test
+    public void test_get_sprite_palette_0_shade_for_color_1_returns_bits_2_and_3_of_0xff48_as_color() {
+        doRangeTest(0xff48, mmu -> {
+            Color expected = paletteMappings.get(mmu.readByte(0xff48) & 0x0c);
+            assertEquals(expected, mmu.getIo().getShadeForPalette0Color(1));
+        });
+    }
+
+    @Test
+    public void test_get_sprite_palette_0_shade_for_color_2_returns_bits_4_and_5_of_0xff48_as_color() {
+        doRangeTest(0xff48, mmu -> {
+            Color expected = paletteMappings.get(mmu.readByte(0xff48) & 0x30);
+            assertEquals(expected, mmu.getIo().getShadeForPalette0Color(2));
+        });
+    }
+
+    @Test
+    public void test_get_sprite_palette_0_shade_for_color_3_returns_bits_6_and_7_of_0xff48_as_color() {
+        doRangeTest(0xff48, mmu -> {
+            Color expected = paletteMappings.get(mmu.readByte(0xff48) & 0xc0);
+            assertEquals(expected, mmu.getIo().getShadeForPalette0Color(3));
+        });
+    }
+    @Test
+    public void test_get_sprite_palette_1_shade_for_color_0_returns_transparency() {
+        doRangeTest(0xff49, mmu ->
+        assertEquals(0xff, mmu.getIo().getShadeForBackgroundColor(0).getAlpha()));
+    }
+
+    @Test
+    public void test_get_sprite_palette_1_shade_for_color_1_returns_bits_2_and_3_of_0xff48_as_color() {
+        doRangeTest(0xff49, mmu -> {
+            Color expected = paletteMappings.get(mmu.readByte(0xff49) & 0x0c);
+            assertEquals(expected, mmu.getIo().getShadeForPalette1Color(1));
+        });
+    }
+
+    @Test
+    public void test_get_sprite_palette_1_shade_for_color_2_returns_bits_4_and_5_of_0xff48_as_color() {
+        doRangeTest(0xff49, mmu -> {
+            Color expected = paletteMappings.get(mmu.readByte(0xff49) & 0x30);
+            assertEquals(expected, mmu.getIo().getShadeForPalette1Color(2));
+        });
+    }
+
+    @Test
+    public void test_get_sprite_palette_1_shade_for_color_3_returns_bits_6_and_7_of_0xff48_as_color() {
+        doRangeTest(0xff49, mmu -> {
+            Color expected = paletteMappings.get(mmu.readByte(0xff49) & 0xc0);
+            assertEquals(expected, mmu.getIo().getShadeForPalette1Color(3));
+        });
+    }
 
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         Mmu mmu = Mmu.build();

@@ -26,7 +26,9 @@ public interface Io {
     int getLyCompare();
     int getWindowY();
     int getWindowX();
-    Color getShadeForBackgroundColor(int i);
+    Color getShadeForBackgroundColor(int colorId);
+    Color getShadeForPalette0Color(int colorId);
+    Color getShadeForPalette1Color(int colorId);
 
     enum LcdControllerMode {
         HBLANK,
