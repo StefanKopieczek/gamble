@@ -1,5 +1,6 @@
 package com.kopieczek.gamble.hardware.graphics;
 
+import com.kopieczek.gamble.hardware.cpu.Interrupt;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 
 import java.awt.*;
@@ -49,7 +50,7 @@ public class Gpu {
                 case HBLANK:
                     currentLine++;
                     if (currentLine == DISPLAY_HEIGHT - 1) {
-                        // TODO: Fire V_BLANK interrupt
+                        mmu.setInterrupt(Interrupt.V_BLANK);
                         changeMode(Mode.VBLANK);
                     } else {
                         changeMode(Mode.OAM_READ);
