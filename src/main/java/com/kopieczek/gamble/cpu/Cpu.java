@@ -2,7 +2,7 @@ package com.kopieczek.gamble.cpu;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.kopieczek.gamble.memory.MemoryManagementUnit;
+import com.kopieczek.gamble.memory.Mmu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,7 +18,7 @@ public class Cpu {
     private static final int INTERRUPT_HANDLERS_START = 0x0040;
     private static final int INTERRUPT_HANDLERS_OFFSET = 0x0008;
 
-    final MemoryManagementUnit mmu;
+    final Mmu mmu;
     static final Map<Integer, Function<Cpu, Integer>> operations = loadOperations();
     static final Map<Integer, Function<Cpu, Integer>> extendedOperations = loadExtendedOperations();
     int pc = 0;
@@ -27,7 +27,7 @@ public class Cpu {
     boolean interruptsEnabled = false;
     boolean isHalted = false;
 
-    public Cpu(MemoryManagementUnit mmu) {
+    public Cpu(Mmu mmu) {
         this.mmu = mmu;
         this.registers = new int[Byte.Register.values().length];
     }

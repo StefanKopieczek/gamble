@@ -1,8 +1,5 @@
 package com.kopieczek.gamble.ui;
 
-import com.kopieczek.gamble.cpu.Cpu;
-import com.kopieczek.gamble.memory.MemoryManagementUnit;
-
 import javax.swing.*;
 import java.awt.*;
 

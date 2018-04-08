@@ -1,6 +1,6 @@
 package com.kopieczek.gamble.graphics;
 
-import com.kopieczek.gamble.memory.MemoryManagementUnit;
+import com.kopieczek.gamble.memory.Mmu;
 
 import java.awt.*;
 
@@ -8,13 +8,13 @@ public class Gpu {
     public static final int DISPLAY_WIDTH = 160;
     public static final int DISPLAY_HEIGHT= 144;
     public static final int VIRTUAL_TOTAL_HEIGHT = 153; // Including VBlank
-    private final MemoryManagementUnit mmu;
+    private final Mmu mmu;
     private final Color[][] screenBuffer = initScreenBuffer();
     private Mode mode = Mode.OAM_READ;
     private int modeClock = 0;
     private int currentLine = 0;
 
-    public Gpu(MemoryManagementUnit mmu) {
+    public Gpu(Mmu mmu) {
         this.mmu = mmu;
     }
 
