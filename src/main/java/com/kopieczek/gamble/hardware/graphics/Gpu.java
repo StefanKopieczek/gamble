@@ -130,7 +130,6 @@ public class Gpu {
     private int getTileDataAddress(int tileMapIdx) {
         int tileDataIdx = mmu.readByte(mmu.getIo().getBackgroundTileMapStartAddress() + tileMapIdx);
         if (mmu.getIo().areTileMapEntriesSigned()) {
-            log.error(mmu.getIo().areTileMapEntriesSigned());
             // Slightly magic.
             // If tile map entries are signed then 0x00 indicates tile 0, 0x80 indicates tile 128,
             // 0xff indicates tile -1, etc.
