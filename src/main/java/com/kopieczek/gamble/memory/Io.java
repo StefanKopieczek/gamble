@@ -17,6 +17,8 @@ public interface Io {
     void setVBlankInterrupt(boolean isInterrupted);
     void setHBlankInterrupt(boolean isInterrupted);
     void setLcdControllerMode(LcdControllerMode mode);
+    int getScrollY();
+    int getScrollX();
 
     enum LcdControllerMode {
         HBLANK,

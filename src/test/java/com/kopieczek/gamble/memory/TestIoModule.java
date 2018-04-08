@@ -157,6 +157,20 @@ public class TestIoModule {
         }
     }
 
+    @Test
+    public void test_get_scroll_y_returns_0xff42() {
+        doRangeTest(0xff42, mmu ->
+                assertEquals(mmu.readByte(0xff42), mmu.getIo().getScrollY())
+        );
+    }
+
+    @Test
+    public void test_get_scroll_x_returns_0xff43() {
+        doRangeTest(0xff43, mmu ->
+                assertEquals(mmu.readByte(0xff43), mmu.getIo().getScrollX())
+        );
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         Mmu mmu = Mmu.build();
         for (int value = 0x00; value < 0xff; value++) {

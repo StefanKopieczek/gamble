@@ -7,6 +7,8 @@ import java.util.Map;
 class IoModule extends SimpleMemoryModule implements Io {
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
+    private static final int SCROLL_Y_ADDR = 0x0042;
+    private static final int SCROLL_X_ADDR = 0x0043;
 
     private static final Map<LcdControllerMode, Integer> lcdControllerModeBits = ImmutableMap.of(
             LcdControllerMode.HBLANK, 0x00,
@@ -100,6 +102,16 @@ class IoModule extends SimpleMemoryModule implements Io {
         final int modeBits = lcdControllerModeBits.get(mode);
         final int newValue = (oldValue & 0xfc) + modeBits;
         setByte(LCD_STATUS_ADDR, newValue);
+    }
+
+    @Override
+    public int getScrollY() {
+        return readByte(SCROLL_Y_ADDR);
+    }
+
+    @Override
+    public int getScrollX() {
+        return readByte(SCROLL_X_ADDR);
     }
 
     private boolean isHigh(int address, int bitIdx) {
