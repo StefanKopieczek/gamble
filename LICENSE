@@ -1,7 +1,7 @@
 Forenote: The following license applies to the entire of the
-Gamble project, except for the program code of the BIOS, to which
-I neither claim nor confer any rights, permissions, privileges,
-or license.
+Gamble project, except for the program code of the BIOS (which is
+located in BiosModule.java), to which I neither claim nor confer
+any rights, permissions, privileges, or license.
 
 
                   GNU LESSER GENERAL PUBLIC LICENSE

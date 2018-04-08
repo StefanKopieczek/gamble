@@ -67,7 +67,7 @@ public class Mmu {
 
     public static Mmu build() {
         return new Mmu(
-                new SimpleMemoryModule(BIOS_SIZE),
+                new BiosModule(),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
                 new SimpleMemoryModule(VRAM_SIZE),
