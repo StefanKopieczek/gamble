@@ -1,6 +1,6 @@
 package com.kopieczek.gamble.ui;
 
-import com.kopieczek.gamble.graphics.Gpu;
+import com.kopieczek.gamble.hardware.graphics.Gpu;
 
 import javax.swing.*;
 import java.awt.*;

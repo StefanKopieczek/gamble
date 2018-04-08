@@ -1,4 +1,4 @@
-package com.kopieczek.gamble.cpu;
+package com.kopieczek.gamble.hardware.cpu;
 
 public enum Interrupt {
     V_BLANK,

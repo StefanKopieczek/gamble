@@ -1,6 +1,6 @@
-package com.kopieczek.gamble.graphics;
+package com.kopieczek.gamble.hardware.graphics;
 
-import com.kopieczek.gamble.memory.Mmu;
+import com.kopieczek.gamble.hardware.memory.Mmu;
 
 import java.awt.*;
 

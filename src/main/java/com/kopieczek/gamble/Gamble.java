@@ -1,8 +1,8 @@
 package com.kopieczek.gamble;
 
-import com.kopieczek.gamble.cpu.Cpu;
-import com.kopieczek.gamble.graphics.Gpu;
-import com.kopieczek.gamble.memory.Mmu;
+import com.kopieczek.gamble.hardware.cpu.Cpu;
+import com.kopieczek.gamble.hardware.graphics.Gpu;
+import com.kopieczek.gamble.hardware.memory.Mmu;
 import com.kopieczek.gamble.ui.GambleUi;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

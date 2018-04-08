@@ -1,6 +1,11 @@
-package com.kopieczek.gamble.memory;
+package com.kopieczek.gamble.hardware.memory;
+
+import com.kopieczek.gamble.hardware.cpu.Interrupt;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Mmu {
+    private static final Logger log = LogManager.getLogger(Mmu.class);
     public static final int BIOS_START       = 0x0000;
     public static final int BIOS_SIZE        = 0x0100;
     public static final int ROM_0_START      = 0x0000;
@@ -22,6 +27,8 @@ public class Mmu {
     public static final int IO_AREA_SIZE     = 0x0080;
     public static final int ZRAM_START       = 0xff80;
     public static final int ZRAM_SIZE        = 0x0080;
+
+    private static final int INTERRUPT_FLAG_ADDRESS = 0xff0f;
 
     private final MemoryModule bios;
     private final MemoryModule rom0;
@@ -154,5 +161,29 @@ public class Mmu {
 
     public Io getIo() {
         return io;
+    }
+
+    public void setInterrupt(Interrupt interrupt) {
+        log.debug("Interupt line {} fired", interrupt);
+        final int currentValue = readByte(INTERRUPT_FLAG_ADDRESS);
+        final int bitMask = (0x01 << interrupt.ordinal());
+        setByte(INTERRUPT_FLAG_ADDRESS, currentValue | bitMask);
+    }
+
+    public boolean checkInterrupt(Interrupt interrupt) {
+        final int flagValue = readByte(INTERRUPT_FLAG_ADDRESS);
+        final int bitMask = (0x01 << interrupt.ordinal());
+        return (flagValue & bitMask) > 0;
+    }
+
+    public void resetInterrupt(Interrupt interrupt) {
+        log.trace("Interrupt {} reset by CPU", interrupt);
+        final int currentValue = readByte(INTERRUPT_FLAG_ADDRESS);
+        final int bitMask = ~(0x01 << interrupt.ordinal());
+        setByte(INTERRUPT_FLAG_ADDRESS, currentValue & bitMask);
+    }
+
+    public int checkInterrupts() {
+        return readByte(INTERRUPT_FLAG_ADDRESS);
     }
 }

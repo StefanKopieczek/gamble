@@ -1,4 +1,4 @@
-package com.kopieczek.gamble.memory;
+package com.kopieczek.gamble.hardware.memory;
 
 import java.awt.*;
 

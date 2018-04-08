@@ -1,4 +1,4 @@
-package com.kopieczek.gamble.cpu;
+package com.kopieczek.gamble.hardware.cpu;
 
 public interface Word {
     int getValue(Cpu cpu);
