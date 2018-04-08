@@ -6,6 +6,14 @@ import java.util.Map;
 
 class IoModule extends SimpleMemoryModule implements Io {
     private static final int LCD_CONTROL_ADDR = 0x0040;
+    private static final int LCD_STATUS_ADDR = 0x0041;
+
+    private static final Map<LcdControllerMode, Integer> lcdControllerModeBits = ImmutableMap.of(
+            LcdControllerMode.HBLANK, 0x00,
+            LcdControllerMode.VBLANK, 0x01,
+            LcdControllerMode.OAM_READ, 0x02,
+            LcdControllerMode.DATA_TRANSFER, 0x03
+    );
 
     IoModule() {
         super(Mmu.IO_AREA_SIZE);
@@ -71,7 +79,41 @@ class IoModule extends SimpleMemoryModule implements Io {
         return isHigh(LCD_CONTROL_ADDR, 0);
     }
 
+    @Override
+    public void setOamInterrupt(boolean isInterrupted) {
+        setBit(LCD_STATUS_ADDR, 5, isInterrupted);
+    }
+
+    @Override
+    public void setVBlankInterrupt(boolean isInterrupted) {
+        setBit(LCD_STATUS_ADDR, 4, isInterrupted);
+    }
+
+    @Override
+    public void setHBlankInterrupt(boolean isInterrupted) {
+        setBit(LCD_STATUS_ADDR, 3, isInterrupted);
+    }
+
+    @Override
+    public void setLcdControllerMode(LcdControllerMode mode) {
+        final int oldValue = readByte(LCD_STATUS_ADDR);
+        final int modeBits = lcdControllerModeBits.get(mode);
+        final int newValue = (oldValue & 0xfc) + modeBits;
+        setByte(LCD_STATUS_ADDR, newValue);
+    }
+
     private boolean isHigh(int address, int bitIdx) {
         return (readByte(address) & (0x01 << bitIdx)) > 0;
+    }
+
+    private void setBit(int address, int bitIdx, boolean isSet) {
+        final int oldValue = readByte(address);
+        final int newValue;
+        if (isSet) {
+            newValue = oldValue | (0x01 << bitIdx);
+        } else {
+            newValue = oldValue & ~(0x01 << bitIdx);
+        }
+        setByte(address, newValue);
     }
 }

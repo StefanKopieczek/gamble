@@ -13,4 +13,15 @@ public interface Io {
     int getSpriteHeight();
     boolean isSpriteDisplayEnabled();
     boolean isBackgroundDisplayEnabled();
+    void setOamInterrupt(boolean isInterrupted);
+    void setVBlankInterrupt(boolean isInterrupted);
+    void setHBlankInterrupt(boolean isInterrupted);
+    void setLcdControllerMode(LcdControllerMode mode);
+
+    enum LcdControllerMode {
+        HBLANK,
+        VBLANK,
+        OAM_READ,
+        DATA_TRANSFER;
+    }
 }

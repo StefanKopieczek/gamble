@@ -1,7 +1,9 @@
 package com.kopieczek.gamble.memory;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -101,6 +103,60 @@ public class TestIoModule {
         );
     }
 
+    @Test
+    public void test_set_oam_interrupt_changes_bit_5_of_0xff41() {
+        doRangedBitSetTest(0xff41, 5, true, mmu ->
+                mmu.getIo().setOamInterrupt(true)
+        );
+        doRangedBitSetTest(0xff41, 5, false, mmu ->
+                mmu.getIo().setOamInterrupt(false)
+        );
+    }
+
+    @Test
+    public void test_set_v_blank_interrupt_changes_bit_4_of_0xff41() {
+        doRangedBitSetTest(0xff41, 4, true, mmu ->
+                mmu.getIo().setVBlankInterrupt(true)
+        );
+        doRangedBitSetTest(0xff41, 4, false, mmu ->
+                mmu.getIo().setVBlankInterrupt(false)
+        );
+    }
+
+    @Test
+    public void test_set_v_blank_interrupt_changes_bit_3_of_0xff41() {
+        doRangedBitSetTest(0xff41, 3, true, mmu ->
+                mmu.getIo().setHBlankInterrupt(true)
+        );
+        doRangedBitSetTest(0xff41, 3, false, mmu ->
+                mmu.getIo().setHBlankInterrupt(false)
+        );
+    }
+
+    // *** TODO *** - test coincidence flag (0xff41 bit 2)
+
+    @Test
+    public void test_set_lcd_controller_mode_changes_bits_0_and_1_of_0xff41() {
+        final Map<Io.LcdControllerMode, Integer> expectedBits = ImmutableMap.of(
+            Io.LcdControllerMode.HBLANK, 0x00,
+            Io.LcdControllerMode.VBLANK, 0x01,
+            Io.LcdControllerMode.OAM_READ, 0x02,
+            Io.LcdControllerMode.DATA_TRANSFER, 0x03
+        );
+
+        for (Io.LcdControllerMode mode : Io.LcdControllerMode.values()) {
+            doRangeTest(0xff41, mmu -> {
+                int oldValue = mmu.readByte(0xff41);
+                mmu.getIo().setLcdControllerMode(mode);
+                int newValue = mmu.readByte(0xff41);
+                int modeBits = newValue & 0x03;
+                assertEquals("Unexpected mode bits", (Object)expectedBits.get(mode), modeBits);
+                boolean otherBitsChanged = (0xfc & (oldValue ^ newValue)) > 0;
+                assertFalse(otherBitsChanged);
+            });
+        }
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         Mmu mmu = Mmu.build();
         for (int value = 0x00; value < 0xff; value++) {
@@ -114,6 +170,19 @@ public class TestIoModule {
         doRangeTest(address, mmu -> {
            boolean bitState = (mmu.readByte(address) & mask) > 0;
            test.accept(mmu, bitState);
+        });
+    }
+
+    private static void doRangedBitSetTest(int address, int bitIdx, boolean expected, Consumer<Mmu> setup) {
+        final int mask = 0x01 << bitIdx;
+        doRangeTest(address, mmu -> {
+            int oldValue = mmu.readByte(address);
+            setup.accept(mmu);
+            int newValue = mmu.readByte(address);
+            boolean isTargetBitHigh = (newValue & mask) > 0;
+            assertEquals("Target bit had unexpected value", expected, isTargetBitHigh);
+            boolean otherBitsChanged = ((oldValue ^ newValue) & ~mask) > 0;
+            assertFalse(otherBitsChanged);
         });
     }
 }
