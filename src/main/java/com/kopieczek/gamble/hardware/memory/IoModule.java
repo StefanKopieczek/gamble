@@ -88,7 +88,7 @@ class IoModule extends TriggeringMemoryModule implements Io {
 
     @Override
     public boolean areTileMapEntriesSigned() {
-        return isHigh(LCD_CONTROL_ADDR, 4);
+        return !isHigh(LCD_CONTROL_ADDR, 4);
     }
 
     @Override

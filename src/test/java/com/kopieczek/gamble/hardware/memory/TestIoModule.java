@@ -68,9 +68,9 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_are_tile_map_entries_signed_returns_true_if_0xff40_bit_4_is_high() {
+    public void test_are_tile_map_entries_signed_returns_false_when_0xff40_bit_4_is_high() {
         doRangedBitCheckTest(0xff40, 4, (mmu, isBit4High) ->
-            assertEquals(isBit4High, mmu.getIo().areTileMapEntriesSigned())
+            assertEquals(!isBit4High, mmu.getIo().areTileMapEntriesSigned())
         );
     }
 

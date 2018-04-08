@@ -2,10 +2,13 @@ package com.kopieczek.gamble.hardware.graphics;
 
 import com.kopieczek.gamble.hardware.cpu.Interrupt;
 import com.kopieczek.gamble.hardware.memory.Mmu;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 
 public class Gpu {
+    private static final Logger log = LogManager.getLogger(Gpu.class);
     public static final int DISPLAY_WIDTH = 160;
     public static final int DISPLAY_HEIGHT= 144;
     public static final int VIRTUAL_TOTAL_HEIGHT = 153; // Including VBlank
@@ -72,16 +75,15 @@ public class Gpu {
     }
 
     private void renderLine(int currentLine) {
-        final int tileY = currentLine / 8;
+        final int tileY = ((currentLine + mmu.getIo().getScrollY()) / 8) % 32;
         synchronized (screenBuffer) {
-            for (int tileX = 0; tileX < DISPLAY_WIDTH / 8; tileX++) {
+            for (int currentColumn = 0; currentColumn < DISPLAY_WIDTH; currentColumn++) {
+                int tileX = ((currentColumn + mmu.getIo().getScrollX()) / 8) % 32;
                 int tileMapIdx = 32 * tileY + tileX;
                 int tileDataStart = getTileDataAddress(tileMapIdx);
                 int[] rowData = getRowData(tileDataStart, currentLine % 8);
                 Color[] rowPixels = extractPixels(rowData);
-                for (int subX = 0; subX < 8; subX++) {
-                    screenBuffer[currentLine][tileX * 8 + subX] = rowPixels[subX];
-                }
+                screenBuffer[currentLine][currentColumn] = rowPixels[currentColumn % 8];
             }
         }
     }
@@ -116,8 +118,9 @@ public class Gpu {
     }
 
     private int getTileDataAddress(int tileMapIdx) {
-        int tileDataIdx = mmu.readByte(mmu.getIo().getBackgroundTileMapStartAddress() + tileMapIdx); // TODO should use tileset rather than hard coding
+        int tileDataIdx = mmu.readByte(mmu.getIo().getBackgroundTileMapStartAddress() + tileMapIdx);
         if (mmu.getIo().areTileMapEntriesSigned()) {
+            log.error(mmu.getIo().areTileMapEntriesSigned());
             // Slightly magic.
             // If tile map entries are signed then 0x00 indicates tile 0, 0x80 indicates tile 128,
             // 0xff indicates tile -1, etc.

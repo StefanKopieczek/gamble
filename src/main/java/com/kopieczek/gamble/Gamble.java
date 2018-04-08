@@ -29,6 +29,9 @@ public class Gamble {
         log.debug("Starting program loop");
         while (true) {
             sleep(CYCLE_DELAY);
+            int i;
+            for (i = 0; i < 1000L; i++) {}
+            System.out.println(i);
 
             int cyclesBefore = cpu.getCycles();
             cpu.tick();
@@ -69,12 +72,12 @@ public class Gamble {
         }
     }
 
-    private static void sleep(int ms) {
-        if (ms <= 0) {
+    private static void sleep(int ns) {
+        if (ns <= 0) {
             return;
         }
         try {
-            Thread.sleep(ms);
+            Thread.sleep(0, ns);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

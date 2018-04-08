@@ -12,6 +12,7 @@ public class GambleUi extends JFrame {
     }
 
     public void init() {
+        setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setDefaultLookAndFeelDecorated(true);
         getContentPane().setLayout(new BorderLayout());
