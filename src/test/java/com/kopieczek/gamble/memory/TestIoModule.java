@@ -3,6 +3,7 @@ package com.kopieczek.gamble.memory;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
+import java.awt.*;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -251,6 +252,64 @@ public class TestIoModule {
                 assertEquals(mmu.readByte(0xff4b) + 7, mmu.getIo().getWindowX())
         );
     }
+
+    @Test
+    public void test_get_shade_for_color_0_returns_bits_0_and_1_of_0xff47() {
+        ImmutableMap<Integer, Color> colorMap = ImmutableMap.of(
+                0, Color.WHITE,
+                1, Color.LIGHT_GRAY,
+                2, Color.DARK_GRAY,
+                3, Color.BLACK
+        );
+        doRangeTest(0xff47, mmu -> {
+            Color expected = colorMap.get(mmu.readByte(0xff47)  & 0x03);
+            assertEquals(expected, mmu.getIo().getShadeForBackgroundColor(0));
+        });
+    }
+
+    @Test
+    public void test_get_shade_for_color_1_returns_bits_2_and_3_of_0xff47() {
+        ImmutableMap<Integer, Color> colorMap = ImmutableMap.of(
+                0, Color.WHITE,
+                1, Color.LIGHT_GRAY,
+                2, Color.DARK_GRAY,
+                3, Color.BLACK
+        );
+        doRangeTest(0xff47, mmu -> {
+            Color expected = colorMap.get(mmu.readByte(0xff47)  & 0x0c);
+            assertEquals(expected, mmu.getIo().getShadeForBackgroundColor(1));
+        });
+    }
+
+    @Test
+    public void test_get_shade_for_color_2_returns_bits_4_and_5_of_0xff47() {
+        ImmutableMap<Integer, Color> colorMap = ImmutableMap.of(
+                0, Color.WHITE,
+                1, Color.LIGHT_GRAY,
+                2, Color.DARK_GRAY,
+                3, Color.BLACK
+        );
+        doRangeTest(0xff47, mmu -> {
+            Color expected = colorMap.get(mmu.readByte(0xff47)  & 0x30);
+            assertEquals(expected, mmu.getIo().getShadeForBackgroundColor(2));
+        });
+    }
+
+    @Test
+    public void test_get_shade_for_color_3_returns_bits_6_and_7_of_0xff47() {
+        ImmutableMap<Integer, Color> colorMap = ImmutableMap.of(
+                0, Color.WHITE,
+                1, Color.LIGHT_GRAY,
+                2, Color.DARK_GRAY,
+                3, Color.BLACK
+        );
+        doRangeTest(0xff47, mmu -> {
+            Color expected = colorMap.get(mmu.readByte(0xff47)  & 0xc0);
+            assertEquals(expected, mmu.getIo().getShadeForBackgroundColor(3));
+        });
+    }
+
+
 
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         Mmu mmu = Mmu.build();

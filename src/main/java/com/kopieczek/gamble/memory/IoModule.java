@@ -2,6 +2,7 @@ package com.kopieczek.gamble.memory;
 
 import com.google.common.collect.ImmutableMap;
 
+import java.awt.*;
 import java.util.Map;
 
 class IoModule extends TriggeringMemoryModule implements Io {
@@ -11,6 +12,7 @@ class IoModule extends TriggeringMemoryModule implements Io {
     private static final int SCROLL_X_ADDR = 0x0043;
     private static final int LCD_CURRENT_LINE_ADDR = 0x0044;
     private static final int LCD_LY_COMPARE_ADDR = 0x0045;
+    private static final int BACKGROUND_PALETTE_ADDR = 0x0047;
     private static final int WINDOW_Y_POSITION_ADDR = 0x004a;
     private static final int WINDOW_X_POSITION_ADDR = 0x004b;
     private static final int LCD_MAX_LINE = 153;
@@ -20,6 +22,13 @@ class IoModule extends TriggeringMemoryModule implements Io {
             LcdControllerMode.VBLANK, 0x01,
             LcdControllerMode.OAM_READ, 0x02,
             LcdControllerMode.DATA_TRANSFER, 0x03
+    );
+
+    private static final Map<Integer, Color> shadeMap = ImmutableMap.of(
+            0, Color.WHITE,
+            1, Color.LIGHT_GRAY,
+            2, Color.DARK_GRAY,
+            3, Color.BLACK
     );
 
     IoModule() {
@@ -157,6 +166,14 @@ class IoModule extends TriggeringMemoryModule implements Io {
     public int getWindowX() {
         // 0xff4b holds the x position minus 7 pixels
         return readByte(WINDOW_X_POSITION_ADDR) + 7;
+    }
+
+    @Override
+    public Color getShadeForBackgroundColor(int colorId) {
+        // Bits 1-0 are color 0; bits 3-2 are color 1; ... ; bits 7-6 are color 3
+        int colorMask = 0x03 << (colorId * 2);
+        int shadeId = readByte(BACKGROUND_PALETTE_ADDR) & colorMask;
+        return shadeMap.get(shadeId);
     }
 
     private void updateCoincidenceFlag() {

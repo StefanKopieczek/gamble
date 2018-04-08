@@ -1,5 +1,7 @@
 package com.kopieczek.gamble.memory;
 
+import java.awt.*;
+
 public interface Io {
     boolean isLcdDisplayEnabled();
     int getWindowTileMapStartAddress();
@@ -24,6 +26,7 @@ public interface Io {
     int getLyCompare();
     int getWindowY();
     int getWindowX();
+    Color getShadeForBackgroundColor(int i);
 
     enum LcdControllerMode {
         HBLANK,
