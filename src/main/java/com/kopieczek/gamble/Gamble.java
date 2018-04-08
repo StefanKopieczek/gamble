@@ -1,6 +1,7 @@
 package com.kopieczek.gamble;
 
 import com.kopieczek.gamble.hardware.cpu.Cpu;
+import com.kopieczek.gamble.hardware.governor.Governor;
 import com.kopieczek.gamble.hardware.graphics.Gpu;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 import com.kopieczek.gamble.ui.GambleUi;
@@ -24,18 +25,15 @@ public class Gamble {
         log.debug("Initializing UI");
         GambleUi gb = new GambleUi(gpu.getScreenBuffer());
         SwingUtilities.invokeLater(gb::init);
+        Governor governor = new Governor();
 
         log.debug("Starting program loop");
         while (true) {
-            // Todo, replace this with a proper governor.
-            int i;
-            for (i = 0; i < 2500L; i++) {}
-            System.out.println(i);
-
             int cyclesBefore = cpu.getCycles();
             cpu.tick();
             int cycleDelta = cpu.getCycles() - cyclesBefore;
             gpu.stepAhead(cycleDelta);
+            governor.sleepIfNeeded(cycleDelta);
         }
     }
 
