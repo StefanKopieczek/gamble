@@ -11,6 +11,8 @@ class IoModule extends TriggeringMemoryModule implements Io {
     private static final int SCROLL_X_ADDR = 0x0043;
     private static final int LCD_CURRENT_LINE_ADDR = 0x0044;
     private static final int LCD_LY_COMPARE_ADDR = 0x0045;
+    private static final int WINDOW_Y_POSITION_ADDR = 0x004a;
+    private static final int WINDOW_X_POSITION_ADDR = 0x004b;
     private static final int LCD_MAX_LINE = 153;
 
     private static final Map<Io.LcdControllerMode, Integer> lcdControllerModeBits = ImmutableMap.of(
@@ -144,6 +146,17 @@ class IoModule extends TriggeringMemoryModule implements Io {
     @Override
     public int getLyCompare() {
         return readByte(LCD_LY_COMPARE_ADDR);
+    }
+
+    @Override
+    public int getWindowY() {
+        return readByte(WINDOW_Y_POSITION_ADDR);
+    }
+
+    @Override
+    public int getWindowX() {
+        // 0xff4b holds the x position minus 7 pixels
+        return readByte(WINDOW_X_POSITION_ADDR) + 7;
     }
 
     private void updateCoincidenceFlag() {

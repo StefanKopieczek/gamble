@@ -22,6 +22,8 @@ public interface Io {
     int getLcdCurrentLine();
     void setLcdCurrentLine(int i);
     int getLyCompare();
+    int getWindowY();
+    int getWindowX();
 
     enum LcdControllerMode {
         HBLANK,

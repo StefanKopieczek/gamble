@@ -238,6 +238,20 @@ public class TestIoModule {
         }
     }
 
+    @Test
+    public void test_get_window_y_position_returns_0xff4a() {
+        doRangeTest(0xff4a, mmu ->
+                assertEquals(mmu.readByte(0xff4a), mmu.getIo().getWindowY())
+        );
+    }
+
+    @Test
+    public void test_get_window_x_position_returns_0xff4b_plus_7() {
+        doRangeTest(0xff4b, mmu ->
+                assertEquals(mmu.readByte(0xff4b) + 7, mmu.getIo().getWindowX())
+        );
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         Mmu mmu = Mmu.build();
         for (int value = 0x00; value < 0xff; value++) {
