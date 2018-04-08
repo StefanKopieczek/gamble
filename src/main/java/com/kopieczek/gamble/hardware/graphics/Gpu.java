@@ -14,6 +14,7 @@ public class Gpu {
     public static final int VIRTUAL_TOTAL_HEIGHT = 153; // Including VBlank
     private final Mmu mmu;
     private final Color[][] screenBuffer = initScreenBuffer();
+    private final Color[][] scratchBuffer = initScreenBuffer();
     private Mode mode = Mode.OAM_READ;
     private int modeClock = 0;
     private int currentLine = 0;
@@ -54,6 +55,7 @@ public class Gpu {
                     currentLine++;
                     if (currentLine == DISPLAY_HEIGHT - 1) {
                         mmu.setInterrupt(Interrupt.V_BLANK);
+                        flushBuffer();
                         changeMode(Mode.VBLANK);
                     } else {
                         changeMode(Mode.OAM_READ);
@@ -74,17 +76,25 @@ public class Gpu {
         mmu.getIo().setLcdCurrentLine(currentLine);
     }
 
+    private void flushBuffer() {
+        synchronized (screenBuffer){
+            for (int y = 0; y < screenBuffer.length; y++) {
+                for (int x = 0; x < screenBuffer[0].length; x++) {
+                    screenBuffer[y][x] = scratchBuffer[y][x];
+                }
+            }
+        }
+    }
+
     private void renderLine(int currentLine) {
         final int tileY = ((currentLine + mmu.getIo().getScrollY()) / 8) % 32;
-        synchronized (screenBuffer) {
-            for (int currentColumn = 0; currentColumn < DISPLAY_WIDTH; currentColumn++) {
-                int tileX = ((currentColumn + mmu.getIo().getScrollX()) / 8) % 32;
-                int tileMapIdx = 32 * tileY + tileX;
-                int tileDataStart = getTileDataAddress(tileMapIdx);
-                int[] rowData = getRowData(tileDataStart, currentLine % 8);
-                Color[] rowPixels = extractPixels(rowData);
-                screenBuffer[currentLine][currentColumn] = rowPixels[currentColumn % 8];
-            }
+        for (int currentColumn = 0; currentColumn < DISPLAY_WIDTH; currentColumn++) {
+            int tileX = ((currentColumn + mmu.getIo().getScrollX()) / 8) % 32;
+            int tileMapIdx = 32 * tileY + tileX;
+            int tileDataStart = getTileDataAddress(tileMapIdx);
+            int[] rowData = getRowData(tileDataStart, currentLine % 8);
+            Color[] rowPixels = extractPixels(rowData);
+            scratchBuffer[currentLine][currentColumn] = rowPixels[currentColumn % 8];
         }
     }
 
