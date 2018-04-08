@@ -1,6 +1,7 @@
 package com.kopieczek.gamble.hardware.memory;
 
 import com.google.common.collect.ImmutableMap;
+import com.kopieczek.gamble.hardware.cpu.Interrupt;
 import org.junit.Test;
 
 import java.awt.*;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -234,13 +236,39 @@ public class TestIoModule {
 
     @Test
     public void test_setting_lcd_current_line_equal_to_ly_compare_sets_coincidence_flag() {
-         Mmu mmu = Mmu.build();
+        Mmu mmu = Mmu.build();
         for (int lyCompare = 0x00; lyCompare < 0xff; lyCompare++) {
             mmu.setByte(0xff45, lyCompare);
             for (int lcdLine = 0; lcdLine < 154; lcdLine++) {
                 mmu.getIo().setLcdCurrentLine(lcdLine);
                 boolean coincidenceFlag = (mmu.readByte(0xff41) & 0x04) > 0;
                 assertEquals(lcdLine == lyCompare, coincidenceFlag);
+            }
+        }
+    }
+
+    @Test
+    public void test_setting_ly_compare_equal_to_lcd_current_line_fires_stat_interrupt() {
+        Mmu mmu = Mmu.build();
+        for (int lcdLine = 0; lcdLine < 154; lcdLine++) {
+            mmu.getIo().setLcdCurrentLine(lcdLine);
+            for (int lyCompare = 0x00; lyCompare < 0xff; lyCompare++) {
+                mmu.resetInterrupt(Interrupt.LCD_STAT);
+                mmu.setByte(0xff45, lyCompare);
+                assertEquals(lcdLine == lyCompare, mmu.checkInterrupt(Interrupt.LCD_STAT));
+            }
+        }
+    }
+
+    @Test
+    public void test_setting_lcd_current_line_equal_to_ly_compare_fires_stat_interrupt() {
+        Mmu mmu = Mmu.build();
+        for (int lyCompare = 0x00; lyCompare < 0xff; lyCompare++) {
+            mmu.setByte(0xff45, lyCompare);
+            for (int lcdLine = 0; lcdLine < 154; lcdLine++) {
+                mmu.resetInterrupt(Interrupt.LCD_STAT);
+                mmu.getIo().setLcdCurrentLine(lcdLine);
+                assertEquals(lcdLine == lyCompare, mmu.checkInterrupt(Interrupt.LCD_STAT));
             }
         }
     }

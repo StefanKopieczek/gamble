@@ -60,6 +60,7 @@ public class Mmu {
         this.sprites = sprites;
         this.io = io;
         this.zram = zram;
+        this.io.linkGlobalMemory(this);
         shouldReadBios = true;
         validateMemoryModuleSizes();
     }

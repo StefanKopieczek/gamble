@@ -1,6 +1,7 @@
 package com.kopieczek.gamble.hardware.memory;
 
 import com.google.common.collect.ImmutableMap;
+import com.kopieczek.gamble.hardware.cpu.Interrupt;
 
 import java.awt.*;
 import java.util.Map;
@@ -34,8 +35,15 @@ class IoModule extends TriggeringMemoryModule implements Io {
             3, Color.BLACK
     );
 
+    // Used for OAM DMA copy and for setting interrupts
+    private Mmu globalMemory;
+
     IoModule() {
         super(Mmu.IO_AREA_SIZE);
+    }
+
+    void linkGlobalMemory(Mmu mmu) {
+        globalMemory = mmu;
     }
 
     @Override
@@ -204,11 +212,16 @@ class IoModule extends TriggeringMemoryModule implements Io {
     }
 
     private void updateCoincidenceFlag() {
-        setBit(LCD_STATUS_ADDR, 2,getLcdCurrentLine() == getLyCompare());
+        final boolean isEnabled = (getLcdCurrentLine() == getLyCompare());
+        setBit(LCD_STATUS_ADDR, 2, isEnabled);
+
+        if (isEnabled) {
+            globalMemory.setInterrupt(Interrupt.LCD_STAT);
+        }
     }
 
     private void doDmaTransfer() {
-        // NB: When implemented, this needs to take 8 CPU cycles
+        // NB: When implemented, this needs to take 8 CPU cycles (or is that 32 cycles?)
         throw new UnsupportedOperationException("DMA transfers are not currently supported");
     }
 
