@@ -117,9 +117,14 @@ public class Gpu {
 
     private int getTileDataAddress(int tileMapIdx) {
         int tileDataIdx = mmu.readByte(mmu.getIo().getBackgroundTileMapStartAddress() + tileMapIdx); // TODO should use tileset rather than hard coding
-//        if (tileSet.isDataIndexSigned) -- TODO --
-//            tileDataIdx = (tileDataIdx + 128) % 256;
-//        }
+        if (mmu.getIo().areTileMapEntriesSigned()) {
+            // Slightly magic.
+            // If tile map entries are signed then 0x00 indicates tile 0, 0x80 indicates tile 128,
+            // 0xff indicates tile -1, etc.
+            // Since tile -127 is at the start of the tile data area, what we're doing in effect is treating 0x00 as
+            // tile 128, 0x80 as tile 0, 0xff as tile -127, etc.
+            tileDataIdx = (tileDataIdx + 128) % 256;
+        }
 
         return mmu.getIo().getTileDataStartAddress() + tileDataIdx * 16;
     }

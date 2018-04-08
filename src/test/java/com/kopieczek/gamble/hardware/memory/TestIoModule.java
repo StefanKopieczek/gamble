@@ -68,6 +68,13 @@ public class TestIoModule {
     }
 
     @Test
+    public void test_are_tile_map_entries_signed_returns_true_if_0xff40_bit_4_is_high() {
+        doRangedBitCheckTest(0xff40, 4, (mmu, isBit4High) ->
+            assertEquals(isBit4High, mmu.getIo().areTileMapEntriesSigned())
+        );
+    }
+
+    @Test
     public void test_background_tile_map_start_address_is_0x9c00_when_0xff40_bit_3_is_high_else_0x9800() {
         doRangedBitCheckTest(0xff40, 3, (mmu, isBit3High) -> {
             final int expectedAddr = isBit3High ? 0x9c00 : 0x9800;

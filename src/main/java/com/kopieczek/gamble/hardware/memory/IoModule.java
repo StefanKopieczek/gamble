@@ -87,6 +87,11 @@ class IoModule extends TriggeringMemoryModule implements Io {
     }
 
     @Override
+    public boolean areTileMapEntriesSigned() {
+        return isHigh(LCD_CONTROL_ADDR, 4);
+    }
+
+    @Override
     public int getBackgroundTileMapStartAddress() {
         return isHigh(LCD_CONTROL_ADDR, 3) ? 0x9c00 : 0x9800;
     }

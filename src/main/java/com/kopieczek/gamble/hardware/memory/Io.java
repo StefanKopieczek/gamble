@@ -29,6 +29,7 @@ public interface Io {
     Color getShadeForBackgroundColor(int colorId);
     Color getShadeForPalette0Color(int colorId);
     Color getShadeForPalette1Color(int colorId);
+    boolean areTileMapEntriesSigned();
 
     enum LcdControllerMode {
         HBLANK,
