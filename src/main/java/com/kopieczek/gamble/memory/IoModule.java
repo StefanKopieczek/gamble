@@ -9,6 +9,8 @@ class IoModule extends SimpleMemoryModule implements Io {
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
     private static final int SCROLL_X_ADDR = 0x0043;
+    private static final int LCD_CURRENT_LINE_ADDR = 0x0044;
+    private static final int LCD_MAX_LINE = 153;
 
     private static final Map<LcdControllerMode, Integer> lcdControllerModeBits = ImmutableMap.of(
             LcdControllerMode.HBLANK, 0x00,
@@ -112,6 +114,21 @@ class IoModule extends SimpleMemoryModule implements Io {
     @Override
     public int getScrollX() {
         return readByte(SCROLL_X_ADDR);
+    }
+
+    @Override
+    public int getLcdCurrentLine() {
+        return readByte(LCD_CURRENT_LINE_ADDR);
+    }
+
+    @Override
+    public void setLcdCurrentLine(int value) {
+        if (value <= LCD_MAX_LINE) {
+            setByte(LCD_CURRENT_LINE_ADDR, value);
+        } else {
+            throw new IllegalArgumentException("LCD current line cannot be greater than 153 (is " +
+                    value + ")");
+        }
     }
 
     private boolean isHigh(int address, int bitIdx) {

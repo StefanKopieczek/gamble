@@ -19,6 +19,8 @@ public interface Io {
     void setLcdControllerMode(LcdControllerMode mode);
     int getScrollY();
     int getScrollX();
+    int getLcdCurrentLine();
+    void setLcdCurrentLine(int i);
 
     enum LcdControllerMode {
         HBLANK,

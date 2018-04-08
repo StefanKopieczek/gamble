@@ -171,6 +171,40 @@ public class TestIoModule {
         );
     }
 
+    @Test
+    public void test_set_lcd_current_line_sets_0xff44() {
+        Mmu mmu = Mmu.build();
+        for (int line = 0; line < 153; line++) {
+            mmu.getIo().setLcdCurrentLine(line);
+            assertEquals(line, mmu.readByte(0xff44));
+        }
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_setting_lcd_current_line_to_154_throws_illegal_argument_exception() {
+        Mmu mmu = Mmu.build();
+        mmu.getIo().setLcdCurrentLine(154);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_setting_lcd_current_line_to_200_throws_illegal_argument_exception() {
+        Mmu mmu = Mmu.build();
+        mmu.getIo().setLcdCurrentLine(200);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_setting_lcd_current_line_to_255_throws_illegal_argument_exception() {
+        Mmu mmu = Mmu.build();
+        mmu.getIo().setLcdCurrentLine(255);
+    }
+
+    @Test
+    public void test_get_lcd_current_line_returns_0xff44() {
+        doRangeTest(0xff44, mmu ->
+                assertEquals(mmu.readByte(0xff44), mmu.getIo().getLcdCurrentLine())
+        );
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         Mmu mmu = Mmu.build();
         for (int value = 0x00; value < 0xff; value++) {
