@@ -92,7 +92,7 @@ public class Gpu {
             int tileX = ((currentColumn + mmu.getIo().getScrollX()) / 8) % 32;
             int tileMapIdx = 32 * tileY + tileX;
             int tileDataStart = getTileDataAddress(tileMapIdx);
-            int[] rowData = getRowData(tileDataStart, currentLine % 8);
+            int[] rowData = getRowData(tileDataStart, (currentLine + mmu.getIo().getScrollY()) % 8);
             Color[] rowPixels = extractPixels(rowData);
             scratchBuffer[currentLine][currentColumn] = rowPixels[currentColumn % 8];
         }
