@@ -1,8 +1,8 @@
-package com.kopieczek.gamble.cpu;
+package com.kopieczek.gamble.hardware.cpu;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.kopieczek.gamble.memory.MemoryManagementUnit;
+import com.kopieczek.gamble.hardware.memory.Mmu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,11 +14,10 @@ public class Cpu {
     private static final Logger log = LogManager.getLogger(Cpu.class);
 
     private static final int INTERRUPT_ENABLED_FLAG_ADDRESS = 0xffff;
-    private static final int INTERRUPT_FLAG_ADDRESS = 0xff0f;
     private static final int INTERRUPT_HANDLERS_START = 0x0040;
     private static final int INTERRUPT_HANDLERS_OFFSET = 0x0008;
 
-    final MemoryManagementUnit mmu;
+    final Mmu mmu;
     static final Map<Integer, Function<Cpu, Integer>> operations = loadOperations();
     static final Map<Integer, Function<Cpu, Integer>> extendedOperations = loadExtendedOperations();
     int pc = 0;
@@ -27,7 +26,7 @@ public class Cpu {
     boolean interruptsEnabled = false;
     boolean isHalted = false;
 
-    public Cpu(MemoryManagementUnit mmu) {
+    public Cpu(Mmu mmu) {
         this.mmu = mmu;
         this.registers = new int[Byte.Register.values().length];
     }
@@ -86,7 +85,7 @@ public class Cpu {
     public void tick() {
         log.trace("Cpu cycle starts");
         if (isHalted) {
-            isHalted = (unsafeRead(INTERRUPT_ENABLED_FLAG_ADDRESS) & unsafeRead(INTERRUPT_FLAG_ADDRESS) & 0x1f) == 0;
+            isHalted = (unsafeRead(INTERRUPT_ENABLED_FLAG_ADDRESS) & mmu.checkInterrupts() & 0x1f) == 0;
             log.debug("CPU is halted. Stay halted? " + isHalted);
             cycles += 4;
             return;
@@ -115,11 +114,11 @@ public class Cpu {
         log.trace("Checking for interrupts needing handling");
         for (Interrupt interrupt : Lists.reverse(Arrays.asList(Interrupt.values()))) {
             log.trace("Examining interrupt {}", interrupt);
-            if (isEnabled(interrupt) && checkInterrupt(interrupt)) {
+            if (isEnabled(interrupt) && mmu.checkInterrupt(interrupt)) {
                 log.debug("Interrupt {} triggered", interrupt);
                 final int handlerAddress = INTERRUPT_HANDLERS_START + interrupt.ordinal() * INTERRUPT_HANDLERS_OFFSET;
                 Operations.doCall(this, handlerAddress);
-                resetInterrupt(interrupt);
+                mmu.resetInterrupt(interrupt);
                 interruptsEnabled = false;
             }
         }
@@ -169,23 +168,7 @@ public class Cpu {
     }
 
     public void interrupt(Interrupt interrupt) {
-        log.debug("Interupt line {} fired", interrupt);
-        final int currentValue = unsafeRead(INTERRUPT_FLAG_ADDRESS);
-        final int bitMask = (0x01 << interrupt.ordinal());
-        unsafeSet(INTERRUPT_FLAG_ADDRESS, currentValue | bitMask);
-    }
-
-    boolean checkInterrupt(Interrupt interrupt) {
-        final int flagValue = unsafeRead(INTERRUPT_FLAG_ADDRESS);
-        final int bitMask = (0x01 << interrupt.ordinal());
-        return (flagValue & bitMask) > 0;
-    }
-
-    void resetInterrupt(Interrupt interrupt) {
-        log.trace("Interrupt {} reset by CPU", interrupt);
-        final int currentValue = unsafeRead(INTERRUPT_FLAG_ADDRESS);
-        final int bitMask = ~(0x01 << interrupt.ordinal());
-        unsafeSet(INTERRUPT_FLAG_ADDRESS, currentValue & bitMask);
+        mmu.setInterrupt(interrupt);
     }
 
     boolean isEnabled(Interrupt interrupt) {

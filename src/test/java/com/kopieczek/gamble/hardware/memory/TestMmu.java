@@ -1,10 +1,10 @@
-package com.kopieczek.gamble.memory;
+package com.kopieczek.gamble.hardware.memory;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestMemoryManagementUnit {
+public class TestMmu {
     private static final int BIOS_SIZE = 0x100;
     private static final int ROM_0_SIZE = 0x4000;
     private static final int ROM_1_SIZE = 0x4000;
@@ -31,7 +31,7 @@ public class TestMemoryManagementUnit {
 
     @Test
     public void test_valid_memory_modules_accepted() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -39,14 +39,14 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void test_incorrect_bios_size_rejected() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE - 1),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -54,14 +54,14 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void test_incorrect_rom0_size_rejected() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE + 1),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -69,14 +69,14 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void test_incorrect_rom1_size_rejected() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE - 100),
@@ -84,14 +84,14 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void test_incorrect_vram_size_rejected() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -99,14 +99,14 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void test_incorrect_extram_size_rejected() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -114,14 +114,14 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE - 8),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void test_incorrect_ram_size_rejected() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -129,14 +129,14 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE + 16),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void test_incorrect_sprites_size_rejected() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -144,14 +144,14 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE - 10),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void test_incorrect_io_size_rejected() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -159,14 +159,14 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE + 11),
+                new DummyIoModule(IO_SIZE + 11),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void test_incorrect_zram_size_rejected() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -174,7 +174,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE - 99)
         );
     }
@@ -182,7 +182,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_read_from_bios() {
         SimpleMemoryModule bios = new SimpleMemoryModule(BIOS_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 bios,
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -190,7 +190,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -200,7 +200,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_read_from_rom1() {
         SimpleMemoryModule rom1 = new SimpleMemoryModule(ROM_1_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 rom1,
@@ -208,7 +208,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -219,7 +219,7 @@ public class TestMemoryManagementUnit {
     public void test_read_with_bios_switch() {
         SimpleMemoryModule bios = new SimpleMemoryModule(BIOS_SIZE);
         SimpleMemoryModule rom0 = new SimpleMemoryModule(ROM_0_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 bios,
                 rom0,
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -227,7 +227,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -252,7 +252,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_read_from_rom0() {
         SimpleMemoryModule rom0 = new SimpleMemoryModule(ROM_0_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 rom0,
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -260,7 +260,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -271,7 +271,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_read_from_rom0_with_bios_enabled() {
         SimpleMemoryModule rom0 = new SimpleMemoryModule(ROM_0_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 rom0,
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -279,7 +279,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -292,7 +292,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_read_from_gpu_vram() {
         SimpleMemoryModule vram = new SimpleMemoryModule(VRAM_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -300,7 +300,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -310,7 +310,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_read_from_extram() {
         SimpleMemoryModule extram = new SimpleMemoryModule(EXTRAM_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -318,7 +318,7 @@ public class TestMemoryManagementUnit {
                 extram,
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -328,7 +328,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_read_from_ram() {
         SimpleMemoryModule ram = new SimpleMemoryModule(RAM_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -336,7 +336,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 ram,
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -346,7 +346,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_read_from_shadow_ram() {
         SimpleMemoryModule ram = new SimpleMemoryModule(RAM_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -354,7 +354,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 ram,
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -364,7 +364,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_read_from_sprite_area() {
         SimpleMemoryModule sprites = new SimpleMemoryModule(SPRITES_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -372,7 +372,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 sprites,
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -381,7 +381,7 @@ public class TestMemoryManagementUnit {
 
     @Test(expected=IllegalArgumentException.class)
     public void test_read_from_unused_area_start() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -389,7 +389,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -398,7 +398,7 @@ public class TestMemoryManagementUnit {
 
     @Test(expected=IllegalArgumentException.class)
     public void test_read_from_unused_area_end() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -406,7 +406,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -415,8 +415,8 @@ public class TestMemoryManagementUnit {
 
     @Test
     public void test_read_from_io_area() {
-        SimpleMemoryModule io = new SimpleMemoryModule(IO_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        IoModule io = new IoModule();
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -434,7 +434,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_read_from_zram() {
         SimpleMemoryModule zram = new SimpleMemoryModule(ZRAM_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -442,7 +442,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(ZRAM_SIZE),
+                new IoModule(),
                 zram
         );
 
@@ -452,7 +452,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_write_to_bios() {
         SimpleMemoryModule bios = new SimpleMemoryModule(BIOS_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 bios,
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -460,7 +460,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -470,7 +470,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_write_to_rom1() {
         SimpleMemoryModule rom1 = new SimpleMemoryModule(ROM_1_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 rom1,
@@ -478,7 +478,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -489,7 +489,7 @@ public class TestMemoryManagementUnit {
     public void test_write_with_bios_switch() {
         SimpleMemoryModule bios = new SimpleMemoryModule(BIOS_SIZE);
         SimpleMemoryModule rom0 = new SimpleMemoryModule(ROM_0_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 bios,
                 rom0,
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -497,7 +497,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -527,7 +527,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_write_to_rom0() {
         SimpleMemoryModule rom0 = new SimpleMemoryModule(ROM_0_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 rom0,
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -535,7 +535,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -546,7 +546,7 @@ public class TestMemoryManagementUnit {
 //    @Test
 //    public void test_write_to_rom0_with_bios_enabled() {
 //        SimpleMemoryModule rom0 = new SimpleMemoryModule(ROM_0_SIZE);
-//        MemoryManagementUnit mmu = new MemoryManagementUnit(
+//        Mmu mmu = new Mmu(
 //                new SimpleMemoryModule(BIOS_SIZE),
 //                rom0,
 //                new SimpleMemoryModule(ROM_1_SIZE),
@@ -554,7 +554,7 @@ public class TestMemoryManagementUnit {
 //                new SimpleMemoryModule(EXTRAM_SIZE),
 //                new SimpleMemoryModule(RAM_SIZE),
 //                new SimpleMemoryModule(SPRITES_SIZE),
-//                new SimpleMemoryModule(IO_SIZE),
+//                new IoModule(),
 //                new SimpleMemoryModule(ZRAM_SIZE)
 //        );
 //
@@ -567,7 +567,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_write_to_gpu_vram() {
         SimpleMemoryModule vram = new SimpleMemoryModule(VRAM_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -575,7 +575,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -585,7 +585,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_write_to_extram() {
         SimpleMemoryModule extram = new SimpleMemoryModule(EXTRAM_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -593,7 +593,7 @@ public class TestMemoryManagementUnit {
                 extram,
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -603,7 +603,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_write_to_ram() {
         SimpleMemoryModule ram = new SimpleMemoryModule(RAM_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -611,7 +611,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 ram,
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -621,7 +621,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_write_to_shadow_ram() {
         SimpleMemoryModule ram = new SimpleMemoryModule(RAM_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -629,7 +629,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 ram,
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -639,7 +639,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_write_to_sprite_area() {
         SimpleMemoryModule sprites = new SimpleMemoryModule(SPRITES_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -647,7 +647,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 sprites,
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -656,7 +656,7 @@ public class TestMemoryManagementUnit {
 
     @Test(expected=IllegalArgumentException.class)
     public void test_write_to_unused_area_start() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -664,7 +664,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -673,7 +673,7 @@ public class TestMemoryManagementUnit {
 
     @Test(expected=IllegalArgumentException.class)
     public void test_write_to_unused_area_end() {
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -681,7 +681,7 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
 
@@ -690,8 +690,8 @@ public class TestMemoryManagementUnit {
 
     @Test
     public void test_write_to_io_area() {
-        SimpleMemoryModule io = new SimpleMemoryModule(IO_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        IoModule io = new IoModule();
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -709,7 +709,7 @@ public class TestMemoryManagementUnit {
     @Test
     public void test_write_to_zram() {
         SimpleMemoryModule zram = new SimpleMemoryModule(ZRAM_SIZE);
-        MemoryManagementUnit mmu = new MemoryManagementUnit(
+        Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -717,14 +717,14 @@ public class TestMemoryManagementUnit {
                 new SimpleMemoryModule(EXTRAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(ZRAM_SIZE),
+                new IoModule(),
                 zram
         );
 
         testMmuWrite(mmu, zram, ZRAM_START);
     }
 
-    private void testMmuRead(MemoryManagementUnit mmu, MemoryModule module, int addressOffset, int maxSize) {
+    private void testMmuRead(Mmu mmu, MemoryModule module, int addressOffset, int maxSize) {
         int start = 0;
         int mid = module.getSizeInBytes() / 2;
         int end = maxSize - 1;
@@ -739,11 +739,11 @@ public class TestMemoryManagementUnit {
         assertEquals(endVal, mmu.readByte(addressOffset + end));
     }
 
-    private void testMmuRead(MemoryManagementUnit mmu, MemoryModule module, int addressOffset) {
+    private void testMmuRead(Mmu mmu, MemoryModule module, int addressOffset) {
         testMmuRead(mmu, module, addressOffset, module.getSizeInBytes());
     }
 
-    private void testMmuWrite(MemoryManagementUnit mmu, MemoryModule module, int addressOffset, int maxSize) {
+    private void testMmuWrite(Mmu mmu, MemoryModule module, int addressOffset, int maxSize) {
         int start = 0;
         int mid = module.getSizeInBytes() / 2;
         int end = maxSize - 1;
@@ -758,7 +758,20 @@ public class TestMemoryManagementUnit {
         assertEquals(endVal, module.readByte(end));
     }
 
-    private void testMmuWrite(MemoryManagementUnit mmu, MemoryModule module, int addressOffset) {
+    private void testMmuWrite(Mmu mmu, MemoryModule module, int addressOffset) {
         testMmuWrite(mmu, module, addressOffset, module.getSizeInBytes());
+    }
+
+    private static class DummyIoModule extends IoModule {
+        private final int size;
+
+        DummyIoModule(int size) {
+            this.size = size;
+        }
+
+        @Override
+        public int getSizeInBytes() {
+            return size;
+        }
     }
 }

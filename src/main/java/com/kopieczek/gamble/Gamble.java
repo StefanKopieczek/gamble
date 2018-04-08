@@ -1,8 +1,8 @@
 package com.kopieczek.gamble;
 
-import com.kopieczek.gamble.cpu.Cpu;
-import com.kopieczek.gamble.graphics.Gpu;
-import com.kopieczek.gamble.memory.MemoryManagementUnit;
+import com.kopieczek.gamble.hardware.cpu.Cpu;
+import com.kopieczek.gamble.hardware.graphics.Gpu;
+import com.kopieczek.gamble.hardware.memory.Mmu;
 import com.kopieczek.gamble.ui.GambleUi;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +17,7 @@ public class Gamble {
         log.info("Gamble has started");
 
         log.debug("Setting up hardware");
-        MemoryManagementUnit mmu = MemoryManagementUnit.build();
+        Mmu mmu = Mmu.build();
         setBios(mmu);
         Cpu cpu = new Cpu(mmu);
         Gpu gpu = new Gpu(mmu);
@@ -37,7 +37,7 @@ public class Gamble {
         }
     }
 
-    private static void setBios(MemoryManagementUnit mmu) {
+    private static void setBios(Mmu mmu) {
         final int[] bios = {
                 0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32, 0xCB, 0x7C, 0x20, 0xFB, 0x21, 0x26, 0xFF, 0x0E,
                 0x11, 0x3E, 0x80, 0x32, 0xE2, 0x0C, 0x3E, 0xF3, 0xE2, 0x32, 0x3E, 0x77, 0x77, 0x3E, 0xFC, 0xE0,

@@ -1,4 +1,4 @@
-package com.kopieczek.gamble.cpu;
+package com.kopieczek.gamble.hardware.cpu;
 
 public enum Flag {
     // Note that the CPU relies on the order of these flags to build the F register.

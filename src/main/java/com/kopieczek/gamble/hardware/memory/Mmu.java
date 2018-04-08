@@ -1,6 +1,11 @@
-package com.kopieczek.gamble.memory;
+package com.kopieczek.gamble.hardware.memory;
 
-public class MemoryManagementUnit {
+import com.kopieczek.gamble.hardware.cpu.Interrupt;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+public class Mmu {
+    private static final Logger log = LogManager.getLogger(Mmu.class);
     public static final int BIOS_START       = 0x0000;
     public static final int BIOS_SIZE        = 0x0100;
     public static final int ROM_0_START      = 0x0000;
@@ -23,6 +28,8 @@ public class MemoryManagementUnit {
     public static final int ZRAM_START       = 0xff80;
     public static final int ZRAM_SIZE        = 0x0080;
 
+    private static final int INTERRUPT_FLAG_ADDRESS = 0xff0f;
+
     private final MemoryModule bios;
     private final MemoryModule rom0;
     private final MemoryModule rom1;
@@ -30,20 +37,20 @@ public class MemoryManagementUnit {
     private final MemoryModule extRam;
     private final MemoryModule ram;
     private final MemoryModule sprites;
-    private final MemoryModule io;
+    private final IoModule io;
     private final MemoryModule zram;
 
     private boolean shouldReadBios;
 
-    public MemoryManagementUnit(MemoryModule bios,
-                                MemoryModule rom0,
-                                MemoryModule rom1,
-                                MemoryModule gpuVram,
-                                MemoryModule extRam,
-                                MemoryModule ram,
-                                MemoryModule sprites,
-                                MemoryModule io,
-                                MemoryModule zram) {
+    public Mmu(MemoryModule bios,
+               MemoryModule rom0,
+               MemoryModule rom1,
+               MemoryModule gpuVram,
+               MemoryModule extRam,
+               MemoryModule ram,
+               MemoryModule sprites,
+               IoModule io,
+               MemoryModule zram) {
         this.bios = bios;
         this.rom0 = rom0;
         this.rom1 = rom1;
@@ -53,12 +60,13 @@ public class MemoryManagementUnit {
         this.sprites = sprites;
         this.io = io;
         this.zram = zram;
+        this.io.linkGlobalMemory(this);
         shouldReadBios = true;
         validateMemoryModuleSizes();
     }
 
-    public static MemoryManagementUnit build() {
-        return new MemoryManagementUnit(
+    public static Mmu build() {
+        return new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
                 new SimpleMemoryModule(ROM_1_SIZE),
@@ -66,7 +74,7 @@ public class MemoryManagementUnit {
                 new SimpleMemoryModule(EXT_RAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
-                new SimpleMemoryModule(IO_AREA_SIZE),
+                new IoModule(),
                 new SimpleMemoryModule(ZRAM_SIZE)
         );
     }
@@ -150,5 +158,33 @@ public class MemoryManagementUnit {
         } else {
             return zram;
         }
+    }
+
+    public Io getIo() {
+        return io;
+    }
+
+    public void setInterrupt(Interrupt interrupt) {
+        log.debug("Interupt line {} fired", interrupt);
+        final int currentValue = readByte(INTERRUPT_FLAG_ADDRESS);
+        final int bitMask = (0x01 << interrupt.ordinal());
+        setByte(INTERRUPT_FLAG_ADDRESS, currentValue | bitMask);
+    }
+
+    public boolean checkInterrupt(Interrupt interrupt) {
+        final int flagValue = readByte(INTERRUPT_FLAG_ADDRESS);
+        final int bitMask = (0x01 << interrupt.ordinal());
+        return (flagValue & bitMask) > 0;
+    }
+
+    public void resetInterrupt(Interrupt interrupt) {
+        log.trace("Interrupt {} reset by CPU", interrupt);
+        final int currentValue = readByte(INTERRUPT_FLAG_ADDRESS);
+        final int bitMask = ~(0x01 << interrupt.ordinal());
+        setByte(INTERRUPT_FLAG_ADDRESS, currentValue & bitMask);
+    }
+
+    public int checkInterrupts() {
+        return readByte(INTERRUPT_FLAG_ADDRESS);
     }
 }

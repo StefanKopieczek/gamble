@@ -1,6 +1,6 @@
-package com.kopieczek.gamble.cpu;
+package com.kopieczek.gamble.hardware.cpu;
 
-import com.kopieczek.gamble.memory.MemoryManagementUnit;
+import com.kopieczek.gamble.hardware.memory.Mmu;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 public class TestCpu {
     @Test
     public void test_simple_read() {
-        MemoryManagementUnit mmu = MemoryManagementUnit.build();
+        Mmu mmu = Mmu.build();
         mmu.setByte(0xdead, 0xf0);
         Cpu cpu = new Cpu(mmu);
         assertEquals(0xf0, cpu.readFrom(Pointer.of(Word.literal(0xdead))));
@@ -20,7 +20,7 @@ public class TestCpu {
 
     @Test
     public void test_simple_write() {
-        MemoryManagementUnit mmu = MemoryManagementUnit.build();
+        Mmu mmu = Mmu.build();
         Cpu cpu = new Cpu(mmu);
         cpu.writeTo(Pointer.of(Word.literal(0xdead)), Byte.literal(0xf0));
         assertEquals(0xf0, mmu.readByte(0xdead));
@@ -28,7 +28,7 @@ public class TestCpu {
 
     @Test
     public void test_initial_state() {
-        Cpu cpu = new Cpu(MemoryManagementUnit.build());
+        Cpu cpu = new Cpu(Mmu.build());
         assertEquals(0, cpu.getCycles());
         assertFalse(cpu.isSet(Flag.ZERO));
         assertFalse(cpu.isSet(Flag.OPERATION));
@@ -10015,35 +10015,35 @@ public class TestCpu {
     @Test
     public void test_check_interrupt_vblank_returns_false_when_0xff0f_is_0x00() {
         Cpu cpu = cpuWithProgram();
-        assertFalse(cpu.checkInterrupt(Interrupt.V_BLANK));
+        assertFalse(cpu.mmu.checkInterrupt(Interrupt.V_BLANK));
     }
 
     @Test
     public void test_check_interrupt_vblank_returns_false_when_0xff0f_is_0xfe() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0xfe);
-        assertFalse(cpu.checkInterrupt(Interrupt.V_BLANK));
+        assertFalse(cpu.mmu.checkInterrupt(Interrupt.V_BLANK));
     }
 
     @Test
     public void test_check_interrupt_vblank_returns_true_when_0xff0f_is_0x01() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0x01);
-        assertTrue(cpu.checkInterrupt(Interrupt.V_BLANK));
+        assertTrue(cpu.mmu.checkInterrupt(Interrupt.V_BLANK));
     }
 
     @Test
     public void test_check_interrupt_vblank_returns_true_when_0xff0f_is_0xff() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0xff);
-        assertTrue(cpu.checkInterrupt(Interrupt.V_BLANK));
+        assertTrue(cpu.mmu.checkInterrupt(Interrupt.V_BLANK));
     }
 
     @Test
     public void test_reset_interrupt_vblank_sets_0xff0f_from_0x01_to_0x00() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0x01);
-        cpu.resetInterrupt(Interrupt.V_BLANK);
+        cpu.mmu.resetInterrupt(Interrupt.V_BLANK);
         assertEquals(0x00, cpu.unsafeRead(0xff0f));
     }
 
@@ -10051,7 +10051,7 @@ public class TestCpu {
     public void test_reset_interrupt_vblank_sets_0xff0f_from_0xff_to_0xfe() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0xff);
-        cpu.resetInterrupt(Interrupt.V_BLANK);
+        cpu.mmu.resetInterrupt(Interrupt.V_BLANK);
         assertEquals(0xfe, cpu.unsafeRead(0xff0f));
     }
 
@@ -10059,7 +10059,7 @@ public class TestCpu {
     public void test_reset_interrupt_vblank_has_no_effect_when_0xff0f_is_0x00() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0x00);
-        cpu.resetInterrupt(Interrupt.V_BLANK);
+        cpu.mmu.resetInterrupt(Interrupt.V_BLANK);
         assertEquals(0x00, cpu.unsafeRead(0xff0f));
     }
 
@@ -10067,7 +10067,7 @@ public class TestCpu {
     public void test_reset_interrupt_vblank_has_no_effect_when_0xff0f_is_0xfe() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0xfe);
-        cpu.resetInterrupt(Interrupt.V_BLANK);
+        cpu.mmu.resetInterrupt(Interrupt.V_BLANK);
         assertEquals(0xfe, cpu.unsafeRead(0xff0f));
     }
 
@@ -10153,7 +10153,7 @@ public class TestCpu {
         memset(cpu, 0xffff, 0x01); // Enable V_BLANK
         cpu.interrupt(Interrupt.V_BLANK);
         cpu.tick();
-        assertFalse(cpu.checkInterrupt(Interrupt.V_BLANK));
+        assertFalse(cpu.mmu.checkInterrupt(Interrupt.V_BLANK));
     }
 
     @Test
@@ -10265,35 +10265,35 @@ public class TestCpu {
     @Test
     public void test_check_interrupt_lcd_stat_returns_false_when_0xff0f_is_0x00() {
         Cpu cpu = cpuWithProgram();
-        assertFalse(cpu.checkInterrupt(Interrupt.LCD_STAT));
+        assertFalse(cpu.mmu.checkInterrupt(Interrupt.LCD_STAT));
     }
 
     @Test
     public void test_check_interrupt_lcd_stat_returns_false_when_0xff0f_is_0xfd() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0xfd);
-        assertFalse(cpu.checkInterrupt(Interrupt.LCD_STAT));
+        assertFalse(cpu.mmu.checkInterrupt(Interrupt.LCD_STAT));
     }
 
     @Test
     public void test_check_interrupt_lcd_stat_returns_true_when_0xff0f_is_0x02() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0x02);
-        assertTrue(cpu.checkInterrupt(Interrupt.LCD_STAT));
+        assertTrue(cpu.mmu.checkInterrupt(Interrupt.LCD_STAT));
     }
 
     @Test
     public void test_check_interrupt_lcd_stat_returns_true_when_0xff0f_is_0xff() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0xff);
-        assertTrue(cpu.checkInterrupt(Interrupt.LCD_STAT));
+        assertTrue(cpu.mmu.checkInterrupt(Interrupt.LCD_STAT));
     }
 
     @Test
     public void test_reset_interrupt_lcd_stat_sets_0xff0f_from_0x02_to_0x00() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0x02);
-        cpu.resetInterrupt(Interrupt.LCD_STAT);
+        cpu.mmu.resetInterrupt(Interrupt.LCD_STAT);
         assertEquals(0x00, cpu.unsafeRead(0xff0f));
     }
 
@@ -10301,7 +10301,7 @@ public class TestCpu {
     public void test_reset_interrupt_lcd_stat_sets_0xff0f_from_0xff_to_0xfd() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0xff);
-        cpu.resetInterrupt(Interrupt.LCD_STAT);
+        cpu.mmu.resetInterrupt(Interrupt.LCD_STAT);
         assertEquals(0xfd, cpu.unsafeRead(0xff0f));
     }
 
@@ -10309,7 +10309,7 @@ public class TestCpu {
     public void test_reset_interrupt_lcd_stat_has_no_effect_when_0xff0f_is_0x00() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0x00);
-        cpu.resetInterrupt(Interrupt.LCD_STAT);
+        cpu.mmu.resetInterrupt(Interrupt.LCD_STAT);
         assertEquals(0x00, cpu.unsafeRead(0xff0f));
     }
 
@@ -10317,10 +10317,11 @@ public class TestCpu {
     public void test_reset_interrupt_lcd_stat_has_no_effect_when_0xff0f_is_0xfd() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xff0f, 0xfd);
-        cpu.resetInterrupt(Interrupt.LCD_STAT);
+        cpu.mmu.resetInterrupt(Interrupt.LCD_STAT);
         assertEquals(0xfd, cpu.unsafeRead(0xff0f));
     }
 
+    @Test
     public void test_is_enabled_lcd_stat_returns_false_when_0xffff_is_0x00() {
         Cpu cpu = cpuWithProgram();
         memset(cpu, 0xffff, 0x00);
@@ -10403,7 +10404,7 @@ public class TestCpu {
         memset(cpu, 0xffff, 0x02); // Enable LCD STAT
         cpu.interrupt(Interrupt.LCD_STAT);
         cpu.tick();
-        assertFalse(cpu.checkInterrupt(Interrupt.V_BLANK));
+        assertFalse(cpu.mmu.checkInterrupt(Interrupt.V_BLANK));
     }
 
     @Test
@@ -10536,7 +10537,7 @@ public class TestCpu {
     }
 
     private static Cpu cpuWithProgram(int... program) {
-        MemoryManagementUnit mmu = MemoryManagementUnit.build();
+        Mmu mmu = Mmu.build();
         mmu.setBiosEnabled(false);
         for (int idx = 0; idx < program.length; idx++) {
             mmu.setByte(idx, program[idx]);

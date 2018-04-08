@@ -1,4 +1,4 @@
-package com.kopieczek.gamble.cpu;
+package com.kopieczek.gamble.hardware.cpu;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
