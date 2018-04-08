@@ -68,7 +68,7 @@ public class Gpu {
             currentLine = (int)(DISPLAY_HEIGHT + progress * (VIRTUAL_TOTAL_HEIGHT - DISPLAY_HEIGHT));
         }
 
-        mmu.setByte(0xff44, currentLine);
+        mmu.getIo().setLcdCurrentLine(currentLine);
     }
 
     private void renderLine(int currentLine) {
@@ -115,22 +115,13 @@ public class Gpu {
         return new int[] {mmu.readByte(rowDataStart), mmu.readByte(rowDataStart + 1)};
     }
 
-    private TileSet getTileSet() {
-        if ((mmu.readByte(0xff40) & 0x08) == 0) {
-            return TileSet.SECONDARY; //TileSet.PRIMARY; -- TODO remove this hack --
-        } else {
-            return TileSet.SECONDARY;
-        }
-    }
-
     private int getTileDataAddress(int tileMapIdx) {
-        TileSet tileSet = getTileSet();
-        int tileDataIdx = mmu.readByte(0x9800 + tileMapIdx); // TODO should use tileset rather than hard coding
-        if (tileSet.isDataIndexSigned && tileDataIdx > 128) {
-            tileDataIdx -= 256;
-        }
+        int tileDataIdx = mmu.readByte(mmu.getIo().getBackgroundTileMapStartAddress() + tileMapIdx); // TODO should use tileset rather than hard coding
+//        if (tileSet.isDataIndexSigned) -- TODO --
+//            tileDataIdx = (tileDataIdx + 128) % 256;
+//        }
 
-        return tileSet.dataZeroAddress + tileDataIdx * 16;
+        return mmu.getIo().getTileDataStartAddress() + tileDataIdx * 16;
     }
 
     private void changeMode(Mode newMode) {
@@ -148,21 +139,6 @@ public class Gpu {
 
         Mode(int ticks) {
             duration = ticks;
-        }
-    }
-
-    private enum TileSet {
-        PRIMARY(0x9800, 0x9000, true),
-        SECONDARY(0x9c00, 0x8000, false);
-
-        public final int mapStartAddress;
-        public final int dataZeroAddress;
-        public final boolean isDataIndexSigned;
-
-        TileSet(int mapStartAddress, int dataZeroAddress, boolean isDataIndexSigned) {
-            this.mapStartAddress = mapStartAddress;
-            this.dataZeroAddress = dataZeroAddress;
-            this.isDataIndexSigned = isDataIndexSigned;
         }
     }
 }
