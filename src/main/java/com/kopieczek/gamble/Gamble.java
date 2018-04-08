@@ -14,20 +14,27 @@ public class Gamble {
     private static final Logger log = LogManager.getLogger(Gamble.class);
 
     public static void main(String[] args) {
-        log.info("Gamble has started");
+        log.info("Gamble is starting up");
 
-        log.debug("Setting up hardware");
+        log.info("Setting up hardware");
         Mmu mmu = Mmu.build();
         setBios(mmu);
         Cpu cpu = new Cpu(mmu);
         Gpu gpu = new Gpu(mmu);
 
-        log.debug("Initializing UI");
+        log.info("Initializing UI");
         GambleUi gb = new GambleUi(gpu.getScreenBuffer());
         SwingUtilities.invokeLater(gb::init);
         Governor governor = new Governor();
 
-        log.debug("Starting program loop");
+        log.info("UI ready. Waiting 3s before starting program execution");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        log.info("Gamble started");
         while (true) {
             int cyclesBefore = cpu.getCycles();
             cpu.tick();
