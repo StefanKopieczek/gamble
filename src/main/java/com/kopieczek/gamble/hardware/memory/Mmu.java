@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Mmu {
     private static final Logger log = LogManager.getLogger(Mmu.class);
@@ -46,6 +48,7 @@ public class Mmu {
     private final MemoryModule zram;
 
     private boolean shouldReadBios;
+    private List<DmaProcess> ongoingDmas = new LinkedList<DmaProcess>();
 
     public Mmu(MemoryModule bios,
                MemoryModule rom0,
@@ -68,6 +71,12 @@ public class Mmu {
         this.io.linkGlobalMemory(this);
         shouldReadBios = true;
         validateMemoryModuleSizes();
+    }
+
+    public void stepAhead(int cycles) {
+        // MMU clock is only used to correctly time ongoing DMAs.
+        ongoingDmas.forEach(dma -> dma.tick(this, cycles));
+        ongoingDmas.removeIf(DmaProcess::isFinished);
     }
 
     public static Mmu build() {
@@ -206,4 +215,10 @@ public class Mmu {
             }
         }
     }
+
+    void doDmaTransfer(int startIndicator) {
+        int startAddress = startIndicator << 8;
+        ongoingDmas.add(new DmaProcess(startAddress, SPRITES_START));
+    }
 }
+

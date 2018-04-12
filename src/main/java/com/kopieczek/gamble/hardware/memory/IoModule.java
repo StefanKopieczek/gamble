@@ -232,8 +232,7 @@ class IoModule extends TriggeringMemoryModule implements Io {
     }
 
     private void doDmaTransfer() {
-        // NB: When implemented, this needs to take 8 CPU cycles (or is that 32 cycles?)
-        throw new UnsupportedOperationException("DMA transfers are not currently supported");
+        globalMemory.doDmaTransfer(readByte(DMA_TRANSFER_ADDR));
     }
 
     private boolean isHigh(int address, int bitIdx) {

@@ -8,10 +8,12 @@ import java.awt.*;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 
 public class TestIoModule {
     private static final ImmutableMap<Integer, Color> paletteMappings = ImmutableMap.of(
@@ -385,17 +387,107 @@ public class TestIoModule {
         });
     }
 
-    @Test(expected=UnsupportedOperationException.class)
-    public void test_write_to_0xff46_throws_unsupported_operation_exception() {
-        Mmu mmu = Mmu.build();
-        mmu.setByte(0xff46, 0x00);
-    }
-
     @Test
     public void test_write_to_0xff50_disables_bios() {
         doRangeTest(0xff50, mmu ->
                 assertFalse(mmu.isBiosEnabled())
         );
+    }
+
+    @Test
+    public void test_write_of_00_to_0xff46_when_source_memory_is_zeroed_leaves_oam_zeroed() {
+        Mmu mmu = Mmu.build();
+        setRange(mmu, 0x0000, 0xa0, idx -> 0x00);
+        mmu.setByte(0xff46, 0x00);
+        mmu.stepAhead(1000); // Much more time than we need - but will test precise tick timings later.
+        assertMemoryValues(mmu, 0xfe00, 0xa0, idx -> 0x00);
+    }
+
+    @Test
+    public void test_write_of_0x00_to_0xff46_copies_range_0x0000_0x009f_to_0xfe00() {
+        Mmu mmu = Mmu.build();
+        setRange(mmu, 0x0000, 0xa0, idx -> (idx * 2) % 0x0100); // Set source memory to a regular pattern
+        mmu.setByte(0xff46, 0x00);
+        mmu.stepAhead(1000); // More time than we need - precise timings tested elsewhere.
+        assertMemoryValues(mmu, 0xfe00, 0xa0, idx -> (idx * 2) % 0x0100);
+    }
+
+    @Test
+    public void test_write_of_0x01_to_0xff46_copies_range_0x0100_0x019f_to_0xfe00() {
+        Mmu mmu = Mmu.build();
+        setRange(mmu, 0x0100, 0xa0, idx -> (idx * 7) % 0x0100);
+        mmu.setByte(0xff46, 0x01);
+        mmu.stepAhead(1000);
+        assertMemoryValues(mmu, 0xfe00, 0xa0, idx -> (idx * 7) % 0x0100);
+    }
+
+    @Test
+    public void test_write_of_0xb7_to_0xff46_copies_range_0xb700_0xb79f_to_0xfe00() {
+        Mmu mmu = Mmu.build();
+        setRange(mmu, 0xb700, 0xa0, idx -> (idx * 6) % 0x0100);
+        mmu.setByte(0xff46, 0xb7);
+        mmu.stepAhead(1000);
+        assertMemoryValues(mmu, 0xfe00, 0xa0, idx -> (idx * 6) % 0x0100);
+    }
+
+    @Test
+    public void test_dma_oam_completes_in_162_cycles() {
+        Mmu mmu = Mmu.build();
+        setRange(mmu, 0x6b00, 0xa0, idx -> idx % 0x0100);
+        mmu.setByte(0xff46, 0x6b);
+        mmu.stepAhead(162);
+        assertMemoryValues(mmu, 0xfe00, 0xa0, idx -> idx % 0x0100);
+    }
+
+    @Test
+    public void test_dma_oam_not_completed_after_161_cycles() {
+        Mmu mmu = Mmu.build();
+        setRange(mmu, 0x0000, 0xa0, idx -> 0xde);
+        mmu.setByte(0xff46, 0x00);
+        mmu.stepAhead(161);
+        assertNotEquals(0xde, mmu.readByte(0xfe9f));
+    }
+
+    @Test
+    public void test_dma_oam_doesnt_write_outside_range() {
+        Mmu mmu = Mmu.build();
+        setRange(mmu, 0x0000, 0x2000, idx -> 0xde);
+        mmu.setByte(0xff46, 0x01);
+        mmu.stepAhead(1000);
+        assertNotEquals(0xde, mmu.readByte(0xfdff));
+        assertNotEquals(0xde, mmu.readByte(0xfea0));
+    }
+
+    @Test
+    public void test_two_simultaneous_oams() {
+        Mmu mmu = Mmu.build();
+        setRange(mmu, 0x0000, 0xa0, idx->0xaa);
+        setRange(mmu, 0x0100, 0xa0, idx->0xbb);
+        mmu.setByte(0xff46, 0x00);
+        mmu.stepAhead(80);
+        mmu.setByte(0xff46, 0x01);
+        mmu.stepAhead(82);
+        assertEquals(0xaa, mmu.readByte(0xfe9f)); // First OAM has finished but second hasn't yet reached end
+        assertEquals(0xbb, mmu.readByte(0xfe20)); // However second OAM should have covered some ground
+        mmu.stepAhead(80);
+        assertEquals(0xbb, mmu.readByte(0xfe9f)); // Second OAM should now be finished
+    }
+
+    @Test
+    public void test_three_simultaneous_oams() {
+        Mmu mmu = Mmu.build();
+        setRange(mmu, 0x0000, 0xa0, idx->0xaa);
+        setRange(mmu, 0x2000, 0xa0, idx->0xbb);
+        setRange(mmu, 0x1700, 0xa0, idx->0xcd);
+        mmu.setByte(0xff46, 0x00);
+        mmu.stepAhead(1);
+        mmu.setByte(0xff46, 0x20);
+        mmu.stepAhead(1);
+        mmu.setByte(0xff46, 0x17);
+        mmu.stepAhead(1);
+        assertEquals(0xaa, mmu.readByte(0xfe00));
+        mmu.stepAhead(161);
+        assertEquals(0xcd, mmu.readByte(0xfe9f));
     }
 
     private static void doRangeTest(int address, Consumer<Mmu> test) {
@@ -425,5 +517,23 @@ public class TestIoModule {
             boolean otherBitsChanged = ((oldValue ^ newValue) & ~mask) > 0;
             assertFalse(otherBitsChanged);
         });
+    }
+
+    private static void setRange(Mmu mmu, int startAddr, int length,
+                                 Function<Integer, Integer> valueGenerator) {
+
+        for (int idx = 0 ; idx < length; idx++) {
+            mmu.setByte(startAddr + idx, valueGenerator.apply(idx));
+        }
+    }
+
+    private static void assertMemoryValues(Mmu mmu, int startAddr, int length,
+            Function<Integer, Integer> getExpectedValue) {
+        for (int idx = 0; idx < length; idx++) {
+            final int address = startAddr + idx;
+            assertEquals("Unexpected value at address 0x" + Integer.toHexString(address),
+                (long)getExpectedValue.apply(address),
+                mmu.readByte(address));
+        }
     }
 }

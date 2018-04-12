@@ -43,6 +43,7 @@ public class Gamble {
             int cyclesBefore = cpu.getCycles();
             cpu.tick();
             int cycleDelta = cpu.getCycles() - cyclesBefore;
+            mmu.stepAhead(cycleDelta);
             gpu.stepAhead(cycleDelta);
             governor.sleepIfNeeded(cycleDelta);
         }
