@@ -1,10 +1,7 @@
 package com.kopieczek.gamble.hardware.graphics;
 
 import com.kopieczek.gamble.hardware.cpu.Interrupt;
-import com.kopieczek.gamble.hardware.memory.InterruptLine;
-import com.kopieczek.gamble.hardware.memory.Io;
-import com.kopieczek.gamble.hardware.memory.Memory;
-import com.kopieczek.gamble.hardware.memory.Mmu;
+import com.kopieczek.gamble.hardware.memory.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,16 +15,18 @@ public class Gpu {
     private final Memory memory;
     private final Io io;
     private final InterruptLine interrupts;
+    private final GraphicsAccessController graphicsAccessController;
     private final Color[][] screenBuffer = initScreenBuffer();
     private final Color[][] scratchBuffer = initScreenBuffer();
     private Mode mode = Mode.OAM_READ;
     private int modeClock = 0;
     private int currentLine = 0;
 
-    public Gpu(Memory memory, Io io, InterruptLine interrupts) {
+    public Gpu(Memory memory, Io io, InterruptLine interrupts, GraphicsAccessController graphicsAccessController) {
         this.memory = memory;
         this.io = io;
         this.interrupts = interrupts;
+        this.graphicsAccessController = graphicsAccessController;
     }
 
     private static Color[][] initScreenBuffer() {
@@ -57,6 +56,8 @@ public class Gpu {
                 case VRAM_READ:
                     renderLine(currentLine);
                     changeMode(Mode.HBLANK);
+                    graphicsAccessController.setVramAccessible(true);
+                    graphicsAccessController.setOamAccessible(true);
                     break;
                 case HBLANK:
                     currentLine++;
@@ -66,21 +67,23 @@ public class Gpu {
                         changeMode(Mode.VBLANK);
                     } else {
                         changeMode(Mode.OAM_READ);
+                        graphicsAccessController.setOamAccessible(false);
                     }
                     break;
                 case VBLANK:
                     currentLine = 0;
                     changeMode(Mode.OAM_READ);
+                    graphicsAccessController.setOamAccessible(false);
                     break;
                 default:
                     throw new IllegalStateException("Unknown GPU mode " + mode);
             }
         } else if (mode == Mode.VBLANK) {
-            float progress = ((float)modeClock) / mode.duration;
             currentLine = DISPLAY_HEIGHT + modeClock / 456;
         }
 
         io.setLcdCurrentLine(currentLine);
+        io.setLcdControllerMode(mode.toLcdMode());
     }
 
     private void flushBuffer() {
@@ -163,6 +166,21 @@ public class Gpu {
 
         Mode(int ticks) {
             duration = ticks;
+        }
+
+        Io.LcdControllerMode toLcdMode() {
+            switch(this) {
+                case OAM_READ:
+                    return Io.LcdControllerMode.OAM_READ;
+                case VRAM_READ:
+                    return Io.LcdControllerMode.DATA_TRANSFER;
+                case HBLANK:
+                    return Io.LcdControllerMode.HBLANK;
+                case VBLANK:
+                    return Io.LcdControllerMode.VBLANK;
+                default:
+                    throw new IllegalArgumentException("Unknown Gpu mode " + this);
+            }
         }
     }
 }

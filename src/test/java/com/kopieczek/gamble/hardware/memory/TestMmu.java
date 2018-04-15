@@ -379,40 +379,6 @@ public class TestMmu {
         testMmuRead(mmu, sprites, SPRITES_START);
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void test_read_from_unused_area_start() {
-        Mmu mmu = new Mmu(
-                new SimpleMemoryModule(BIOS_SIZE),
-                new SimpleMemoryModule(ROM_0_SIZE),
-                new SimpleMemoryModule(ROM_1_SIZE),
-                new SimpleMemoryModule(VRAM_SIZE),
-                new SimpleMemoryModule(EXTRAM_SIZE),
-                new SimpleMemoryModule(RAM_SIZE),
-                new SimpleMemoryModule(SPRITES_SIZE),
-                new IoModule(),
-                new SimpleMemoryModule(ZRAM_SIZE)
-        );
-
-        mmu.readByte(DEAD_AREA_START);
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void test_read_from_unused_area_end() {
-        Mmu mmu = new Mmu(
-                new SimpleMemoryModule(BIOS_SIZE),
-                new SimpleMemoryModule(ROM_0_SIZE),
-                new SimpleMemoryModule(ROM_1_SIZE),
-                new SimpleMemoryModule(VRAM_SIZE),
-                new SimpleMemoryModule(EXTRAM_SIZE),
-                new SimpleMemoryModule(RAM_SIZE),
-                new SimpleMemoryModule(SPRITES_SIZE),
-                new IoModule(),
-                new SimpleMemoryModule(ZRAM_SIZE)
-        );
-
-        mmu.readByte(DEAD_AREA_START + DEAD_AREA_SIZE - 1);
-    }
-
     @Test
     public void test_read_from_io_area() {
         IoModule io = new IoModule();
@@ -652,40 +618,6 @@ public class TestMmu {
         );
 
         testMmuWrite(mmu, sprites, SPRITES_START);
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void test_write_to_unused_area_start() {
-        Mmu mmu = new Mmu(
-                new SimpleMemoryModule(BIOS_SIZE),
-                new SimpleMemoryModule(ROM_0_SIZE),
-                new SimpleMemoryModule(ROM_1_SIZE),
-                new SimpleMemoryModule(VRAM_SIZE),
-                new SimpleMemoryModule(EXTRAM_SIZE),
-                new SimpleMemoryModule(RAM_SIZE),
-                new SimpleMemoryModule(SPRITES_SIZE),
-                new IoModule(),
-                new SimpleMemoryModule(ZRAM_SIZE)
-        );
-
-        mmu.setByte(DEAD_AREA_START, 0xff);
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void test_write_to_unused_area_end() {
-        Mmu mmu = new Mmu(
-                new SimpleMemoryModule(BIOS_SIZE),
-                new SimpleMemoryModule(ROM_0_SIZE),
-                new SimpleMemoryModule(ROM_1_SIZE),
-                new SimpleMemoryModule(VRAM_SIZE),
-                new SimpleMemoryModule(EXTRAM_SIZE),
-                new SimpleMemoryModule(RAM_SIZE),
-                new SimpleMemoryModule(SPRITES_SIZE),
-                new IoModule(),
-                new SimpleMemoryModule(ZRAM_SIZE)
-        );
-
-        mmu.setByte(DEAD_AREA_START + DEAD_AREA_SIZE - 1, 0xff);
     }
 
     @Test

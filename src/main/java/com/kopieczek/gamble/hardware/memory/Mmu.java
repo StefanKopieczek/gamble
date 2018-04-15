@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Mmu implements Memory, InterruptLine {
+public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
     private static final Logger log = LogManager.getLogger(Mmu.class);
     public static final int BIOS_START       = 0x0000;
     public static final int BIOS_SIZE        = 0x0100;
@@ -47,6 +47,8 @@ public class Mmu implements Memory, InterruptLine {
     private final MemoryModule zram;
 
     private boolean shouldReadBios;
+    private boolean isVramAccessible = true;
+    private boolean isOamAccessible = true;
     private List<DmaProcess> ongoingDmas = new LinkedList<DmaProcess>();
 
     public Mmu(MemoryModule bios,
@@ -130,10 +132,48 @@ public class Mmu implements Memory, InterruptLine {
     }
 
     public Memory getShieldedMemoryAccess() {
-        return this;
+        return new Memory() {
+            @Override
+            public int readByte(int address) {
+                if (isAccessible(address)) {
+                    return Mmu.this.readByte(address);
+                } else {
+                    log.warn("Program tried to read from address {} while it was read only",
+                        Integer.toHexString(address));
+                    return 0xff;
+                }
+            }
+
+            @Override
+            public void setByte(int address, int value) {
+                if (isAccessible(address)) {
+                    Mmu.this.setByte(address, value);
+                } else {
+                    log.warn("Program tried to write to address {} while it was read only",
+                        Integer.toHexString(address));
+                }
+            }
+
+            private boolean isAccessible(int address) {
+                MemoryModule module = getModuleForAddress(address);
+/*                if (ongoingDmas.size() > 0) {
+                    return module == zram;
+                } else */if (module == gpuVram) {
+                    return isVramAccessible;
+                } else if (module == sprites) {
+                    return isOamAccessible;
+                } else {
+                    return true;
+                }
+            }
+        };
     }
 
     public InterruptLine getInterruptLine() {
+        return this;
+    }
+
+    public GraphicsAccessController getGraphicsAccessController() {
         return this;
     }
 
@@ -236,6 +276,16 @@ public class Mmu implements Memory, InterruptLine {
     void doDmaTransfer(int startIndicator) {
         int startAddress = startIndicator << 8;
         ongoingDmas.add(new DmaProcess(startAddress, SPRITES_START));
+    }
+
+    @Override
+    public void setVramAccessible(boolean isAccessible) {
+        isVramAccessible = isAccessible;
+    }
+
+    @Override
+    public void setOamAccessible(boolean isAccessible) {
+        isOamAccessible = isAccessible;
     }
 }
 

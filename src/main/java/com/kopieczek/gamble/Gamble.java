@@ -23,7 +23,8 @@ public class Gamble {
         log.info("Setting up hardware");
         Mmu mmu = Mmu.build();
         Cpu cpu = new Cpu(mmu.getShieldedMemoryAccess(), mmu.getInterruptLine());
-        Gpu gpu = new Gpu(mmu.getDirectMemoryAccess(), mmu.getIo(), mmu.getInterruptLine());
+        Gpu gpu = new Gpu(mmu.getDirectMemoryAccess(), mmu.getIo(), mmu.getInterruptLine(),
+                          mmu.getGraphicsAccessController());
 
         log.info("Loading ROM");
         loadRom(mmu, new File(args[0]));
