@@ -4,7 +4,6 @@ import com.kopieczek.gamble.hardware.cpu.Cpu;
 import com.kopieczek.gamble.hardware.cpu.Interrupt;
 import com.kopieczek.gamble.hardware.governor.Governor;
 import com.kopieczek.gamble.hardware.graphics.Gpu;
-import com.kopieczek.gamble.hardware.memory.InterruptLine;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 import com.kopieczek.gamble.ui.GambleUi;
 import org.apache.logging.log4j.LogManager;
