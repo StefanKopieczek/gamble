@@ -858,16 +858,16 @@ class Operations {
         return oldValue & ~bitToReset;
     }
 
-    static int bitReset(Cpu cpu, Byte.Argument bitIndex, Byte.Register r) {
-        logOp("RES {}, {}", hex(cpu, bitIndex), r);
-        final int newValue = bitReset(cpu.read(r), cpu.read(bitIndex));
+    static int bitReset(Cpu cpu, Byte.Register r, int bitIndex) {
+        logOp("RES {}, {}", bitIndex, r);
+        final int newValue = bitReset(cpu.read(r), bitIndex);
         cpu.set(r, Byte.literal(newValue));
         return 8;
     }
 
-    static int bitReset(Cpu cpu, Byte.Argument bitIndex, Pointer p) {
-        logOp("RES {}, {}", hex(cpu, bitIndex), hex(cpu, p));
-        final int newValue = bitReset(cpu.readFrom(p), cpu.read(bitIndex));
+    static int bitReset(Cpu cpu, Pointer p, int bitIndex) {
+        logOp("RES {}, {}", bitIndex, hex(cpu, p));
+        final int newValue = bitReset(cpu.readFrom(p), bitIndex);
         cpu.writeTo(p, Byte.literal(newValue));
         return 16;
     }
