@@ -58,22 +58,30 @@ public class Gpu {
                     changeMode(Mode.HBLANK);
                     graphicsAccessController.setVramAccessible(true);
                     graphicsAccessController.setOamAccessible(true);
+                    io.setHBlankInterrupt(true);
+                    interrupts.setInterrupt(Interrupt.LCD_STAT);
                     break;
                 case HBLANK:
                     currentLine++;
                     if (currentLine == DISPLAY_HEIGHT - 1) {
                         interrupts.setInterrupt(Interrupt.V_BLANK);
+                        io.setVBlankInterrupt(true);
+                        interrupts.setInterrupt(Interrupt.LCD_STAT);
                         flushBuffer();
                         changeMode(Mode.VBLANK);
                     } else {
                         changeMode(Mode.OAM_READ);
                         graphicsAccessController.setOamAccessible(false);
+                        io.setOamInterrupt(true);
+                        interrupts.setInterrupt(Interrupt.LCD_STAT);
                     }
                     break;
                 case VBLANK:
                     currentLine = 0;
                     changeMode(Mode.OAM_READ);
                     graphicsAccessController.setOamAccessible(false);
+                    io.setOamInterrupt(true);
+                    interrupts.setInterrupt(Interrupt.LCD_STAT);
                     break;
                 default:
                     throw new IllegalStateException("Unknown GPU mode " + mode);
