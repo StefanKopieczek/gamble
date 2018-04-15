@@ -1,8 +1,10 @@
 package com.kopieczek.gamble;
 
 import com.kopieczek.gamble.hardware.cpu.Cpu;
+import com.kopieczek.gamble.hardware.cpu.Interrupt;
 import com.kopieczek.gamble.hardware.governor.Governor;
 import com.kopieczek.gamble.hardware.graphics.Gpu;
+import com.kopieczek.gamble.hardware.memory.InterruptLine;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 import com.kopieczek.gamble.ui.GambleUi;
 import org.apache.logging.log4j.LogManager;
@@ -20,8 +22,8 @@ public class Gamble {
 
         log.info("Setting up hardware");
         Mmu mmu = Mmu.build();
-        Cpu cpu = new Cpu(mmu);
-        Gpu gpu = new Gpu(mmu);
+        Cpu cpu = new Cpu(mmu.getShieldedMemoryAccess(), mmu.getInterruptLine());
+        Gpu gpu = new Gpu(mmu.getDirectMemoryAccess(), mmu.getIo(), mmu.getInterruptLine());
 
         log.info("Loading ROM");
         loadRom(mmu, new File(args[0]));

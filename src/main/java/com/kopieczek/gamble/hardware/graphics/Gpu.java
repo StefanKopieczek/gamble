@@ -1,6 +1,9 @@
 package com.kopieczek.gamble.hardware.graphics;
 
 import com.kopieczek.gamble.hardware.cpu.Interrupt;
+import com.kopieczek.gamble.hardware.memory.InterruptLine;
+import com.kopieczek.gamble.hardware.memory.Io;
+import com.kopieczek.gamble.hardware.memory.Memory;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,15 +15,19 @@ public class Gpu {
     public static final int DISPLAY_WIDTH = 160;
     public static final int DISPLAY_HEIGHT= 144;
     public static final int VIRTUAL_TOTAL_HEIGHT = 153; // Including VBlank
-    private final Mmu mmu;
+    private final Memory memory;
+    private final Io io;
+    private final InterruptLine interrupts;
     private final Color[][] screenBuffer = initScreenBuffer();
     private final Color[][] scratchBuffer = initScreenBuffer();
     private Mode mode = Mode.OAM_READ;
     private int modeClock = 0;
     private int currentLine = 0;
 
-    public Gpu(Mmu mmu) {
-        this.mmu = mmu;
+    public Gpu(Memory memory, Io io, InterruptLine interrupts) {
+        this.memory = memory;
+        this.io = io;
+        this.interrupts = interrupts;
     }
 
     private static Color[][] initScreenBuffer() {
@@ -54,7 +61,7 @@ public class Gpu {
                 case HBLANK:
                     currentLine++;
                     if (currentLine == DISPLAY_HEIGHT - 1) {
-                        mmu.setInterrupt(Interrupt.V_BLANK);
+                        interrupts.setInterrupt(Interrupt.V_BLANK);
                         flushBuffer();
                         changeMode(Mode.VBLANK);
                     } else {
@@ -73,7 +80,7 @@ public class Gpu {
             currentLine = DISPLAY_HEIGHT + modeClock / 456;
         }
 
-        mmu.getIo().setLcdCurrentLine(currentLine);
+        io.setLcdCurrentLine(currentLine);
     }
 
     private void flushBuffer() {
@@ -87,12 +94,12 @@ public class Gpu {
     }
 
     private void renderLine(int currentLine) {
-        final int tileY = ((currentLine + mmu.getIo().getScrollY()) / 8) % 32;
+        final int tileY = ((currentLine + io.getScrollY()) / 8) % 32;
         for (int currentColumn = 0; currentColumn < DISPLAY_WIDTH; currentColumn++) {
-            int tileX = ((currentColumn + mmu.getIo().getScrollX()) / 8) % 32;
+            int tileX = ((currentColumn + io.getScrollX()) / 8) % 32;
             int tileMapIdx = 32 * tileY + tileX;
             int tileDataStart = getTileDataAddress(tileMapIdx);
-            int[] rowData = getRowData(tileDataStart, (currentLine + mmu.getIo().getScrollY()) % 8);
+            int[] rowData = getRowData(tileDataStart, (currentLine + io.getScrollY()) % 8);
             Color[] rowPixels = extractPixels(rowData);
             scratchBuffer[currentLine][currentColumn] = rowPixels[currentColumn % 8];
         }
@@ -124,12 +131,12 @@ public class Gpu {
 
     private int[] getRowData(int tileDataStart, int rowIdx) {
         int rowDataStart = tileDataStart + rowIdx * 2;
-        return new int[] {mmu.readByte(rowDataStart), mmu.readByte(rowDataStart + 1)};
+        return new int[] {memory.readByte(rowDataStart), memory.readByte(rowDataStart + 1)};
     }
 
     private int getTileDataAddress(int tileMapIdx) {
-        int tileDataIdx = mmu.readByte(mmu.getIo().getBackgroundTileMapStartAddress() + tileMapIdx);
-        if (mmu.getIo().areTileMapEntriesSigned()) {
+        int tileDataIdx = memory.readByte(io.getBackgroundTileMapStartAddress() + tileMapIdx);
+        if (io.areTileMapEntriesSigned()) {
             // Slightly magic.
             // If tile map entries are signed then 0x00 indicates tile 0, 0x80 indicates tile 128,
             // 0xff indicates tile -1, etc.
@@ -138,7 +145,7 @@ public class Gpu {
             tileDataIdx = (tileDataIdx + 128) % 256;
         }
 
-        return mmu.getIo().getTileDataStartAddress() + tileDataIdx * 16;
+        return io.getTileDataStartAddress() + tileDataIdx * 16;
     }
 
     private void changeMode(Mode newMode) {

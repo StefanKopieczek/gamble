@@ -5,13 +5,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Mmu {
+public class Mmu implements Memory, InterruptLine {
     private static final Logger log = LogManager.getLogger(Mmu.class);
     public static final int BIOS_START       = 0x0000;
     public static final int BIOS_SIZE        = 0x0100;
@@ -126,12 +125,26 @@ public class Mmu {
         return shouldReadBios;
     }
 
+    public Memory getDirectMemoryAccess() {
+        return this;
+    }
+
+    public Memory getShieldedMemoryAccess() {
+        return this;
+    }
+
+    public InterruptLine getInterruptLine() {
+        return this;
+    }
+
+    @Override
     public int readByte(int address) {
         MemoryModule module = getModuleForAddress(address);
         int localAddress = getLocalAddress(address, module);
         return module.readByte(localAddress);
     }
 
+    @Override
     public void setByte(int address, int value) {
         MemoryModule module = getModuleForAddress(address);
         int localAddress = getLocalAddress(address, module);
@@ -180,6 +193,7 @@ public class Mmu {
         return io;
     }
 
+    @Override
     public void setInterrupt(Interrupt interrupt) {
         log.debug("Interupt line {} fired", interrupt);
         final int currentValue = readByte(INTERRUPT_FLAG_ADDRESS);
@@ -187,12 +201,14 @@ public class Mmu {
         setByte(INTERRUPT_FLAG_ADDRESS, currentValue | bitMask);
     }
 
+    @Override
     public boolean checkInterrupt(Interrupt interrupt) {
         final int flagValue = readByte(INTERRUPT_FLAG_ADDRESS);
         final int bitMask = (0x01 << interrupt.ordinal());
         return (flagValue & bitMask) > 0;
     }
 
+    @Override
     public void resetInterrupt(Interrupt interrupt) {
         log.trace("Interrupt {} reset by CPU", interrupt);
         final int currentValue = readByte(INTERRUPT_FLAG_ADDRESS);
@@ -200,6 +216,7 @@ public class Mmu {
         setByte(INTERRUPT_FLAG_ADDRESS, currentValue & bitMask);
     }
 
+    @Override
     public int checkInterrupts() {
         return readByte(INTERRUPT_FLAG_ADDRESS);
     }
