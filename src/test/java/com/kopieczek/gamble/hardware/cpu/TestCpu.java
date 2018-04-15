@@ -7950,164 +7950,858 @@ public class TestCpu {
     }
 
     @Test
-    public void test_bit_set_register_a_bit_0() {
-        Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
-        assertEquals(0x01, cpu.read(Byte.Register.A));
+    public void test_bit_set_register_a_bit_0_when_bit_is_low() {
+        Cpu cpu = runProgram(0x3e, 0x38, 0xcb, 0xc7);
+        assertEquals(0x39, cpu.read(Byte.Register.A));
     }
 
     @Test
-    public void test_bit_set_register_a_bit_1() {
-        Cpu cpu = runProgram(0xcb, 0xc7, 0x01);
-        assertEquals(0x02, cpu.read(Byte.Register.A));
+    public void test_bit_set_register_a_bit_0_when_bit_is_high() {
+        Cpu cpu = runProgram(0x3e, 0xeb, 0xcb, 0xc7);
+        assertEquals(0xeb, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_1_when_bit_is_low() {
+        Cpu cpu = runProgram(0x3e, 0xdc, 0xcb, 0xcf);
+        assertEquals(0xde, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_1_when_bit_is_high() {
+        Cpu cpu = runProgram(0x3e, 0x0a, 0xcb, 0xcf);
+        assertEquals(0x0a, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_2_when_bit_is_low() {
+        Cpu cpu = runProgram(0x3e, 0xca, 0xcb, 0xd7);
+        assertEquals(0xce, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_2_when_bit_is_high() {
+        Cpu cpu = runProgram(0x3e, 0xf6, 0xcb, 0xd7);
+        assertEquals(0xf6, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_3_when_bit_is_low() {
+        Cpu cpu = runProgram(0x3e, 0xf6, 0xcb, 0xdf);
+        assertEquals(0xfe, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_3_when_bit_is_high() {
+        Cpu cpu = runProgram(0x3e, 0xcc, 0xcb, 0xdf);
+        assertEquals(0xcc, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_4_when_bit_is_low() {
+        Cpu cpu = runProgram(0x3e, 0x8d, 0xcb, 0xe7);
+        assertEquals(0x9d, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_4_when_bit_is_high() {
+        Cpu cpu = runProgram(0x3e, 0x1f, 0xcb, 0xe7);
+        assertEquals(0x1f, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_5_when_bit_is_low() {
+        Cpu cpu = runProgram(0x3e, 0xcd, 0xcb, 0xef);
+        assertEquals(0xed, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_5_when_bit_is_high() {
+        Cpu cpu = runProgram(0x3e, 0x63, 0xcb, 0xef);
+        assertEquals(0x63, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_6_when_bit_is_low() {
+        Cpu cpu = runProgram(0x3e, 0x39, 0xcb, 0xf7);
+        assertEquals(0x79, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_6_when_bit_is_high() {
+        Cpu cpu = runProgram(0x3e, 0x52, 0xcb, 0xf7);
+        assertEquals(0x52, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_7_when_bit_is_low() {
+        Cpu cpu = runProgram(0x3e, 0xc, 0xcb, 0xff);
+        assertEquals(0x8c, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_bit_set_register_a_bit_7_when_bit_is_high() {
+        Cpu cpu = runProgram(0x3e, 0xb9, 0xcb, 0xff);
+        assertEquals(0xb9, cpu.read(Byte.Register.A));
     }
 
     @Test
     public void test_bit_set_register_a_takes_8_cycles() {
-        Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
+        Cpu cpu = runProgram(0xcb, 0xc7);
         assertEquals(8, cpu.getCycles());
     }
 
     @Test
-    public void test_bit_set_register_a_bit_7() {
-        Cpu cpu = runProgram(0xcb, 0xc7, 0x07);
-        assertEquals(0x80, cpu.read(Byte.Register.A));
-    }
-
-    @Test
     public void test_bit_set_register_a_preserves_existing_bits() {
-        Cpu cpu = runProgram(0x3e, 0xfe, 0xcb, 0xc7, 0x00);
+        Cpu cpu = runProgram(0x3e, 0xfd, 0xcb, 0xcf);
         assertEquals(0xff, cpu.read(Byte.Register.A));
     }
 
     @Test
     public void test_successive_bit_sets_on_register_a() {
         Cpu cpu = runProgram(
-                0xcb, 0xc7, 0x00,
-                0xcb, 0xc7, 0x02,
-                0xcb, 0xc7, 0x04
+                0xcb, 0xc7,
+                0xcb, 0xd7,
+                0xcb, 0xe7
         );
         assertEquals(0x15, cpu.read(Byte.Register.A));
     }
 
     @Test
     public void test_bit_set_on_register_a_is_idempotent() {
-        Cpu cpu = runProgram(0xcb, 0xc7, 0x03, 0xcb, 0xc7, 0x03);
+        Cpu cpu = runProgram(0xcb, 0xdf, 0xcb, 0xdf);
         assertEquals(0x08, cpu.read(Byte.Register.A));
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void test_bit_set_on_register_a_bit_8_throws_illegal_argument_exception() {
-        Cpu cpu = runProgram(0xcb, 0xc7, 0x08);
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void test_bit_set_on_register_a_bit_19_throws_illegal_argument_exception() {
-        Cpu cpu = runProgram(0xcb, 0xc7, 0x13);
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void test_bit_set_on_register_a_bit_255_throws_illegal_argument_exception() {
-        Cpu cpu = runProgram(0xcb, 0xc7, 0xff);
     }
 
     @Test
     public void test_bit_set_on_register_a_does_not_set_zero_flag() {
-        Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
+        Cpu cpu = runProgram(0xcb, 0xc7);
         assertFalse(cpu.isSet(Flag.ZERO));
     }
 
     @Test
     public void test_bit_set_on_register_a_does_not_reset_zero_flag() {
-        Cpu cpu = cpuWithProgram(0xcb, 0xc7, 0x00);
+        Cpu cpu = cpuWithProgram(0xcb, 0xc7);
         cpu.set(Flag.ZERO, true);
-        runProgram(cpu, 3);
+        runProgram(cpu, 2);
         assertTrue(cpu.isSet(Flag.ZERO));
     }
+
     @Test
     public void test_bit_set_on_register_a_does_not_set_carry_flag() {
-        Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
+        Cpu cpu = runProgram(0xcb, 0xc7);
         assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
     public void test_bit_set_on_register_a_does_not_reset_carry_flag() {
-        Cpu cpu = cpuWithProgram(0xcb, 0xc7, 0x00);
+        Cpu cpu = cpuWithProgram(0xcb, 0xc7);
         cpu.set(Flag.CARRY, true);
         runProgram(cpu, 3);
         assertTrue(cpu.isSet(Flag.CARRY));
     }
     @Test
     public void test_bit_set_on_register_a_does_not_set_nibble_flag() {
-        Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
+        Cpu cpu = runProgram(0xcb, 0xe7);
         assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
     public void test_bit_set_on_register_a_does_not_reset_nibble_flag() {
-        Cpu cpu = cpuWithProgram(0xcb, 0xc7, 0x00);
+        Cpu cpu = cpuWithProgram(0xcb, 0xe7);
         cpu.set(Flag.NIBBLE, true);
-        runProgram(cpu, 3);
+        runProgram(cpu, 2);
         assertTrue(cpu.isSet(Flag.NIBBLE));
     }
     @Test
     public void test_bit_set_on_register_a_does_not_set_operation_flag() {
-        Cpu cpu = runProgram(0xcb, 0xc7, 0x00);
+        Cpu cpu = runProgram(0xcb, 0xff);
         assertFalse(cpu.isSet(Flag.OPERATION));
     }
 
     @Test
     public void test_bit_set_on_register_a_does_not_reset_operation_flag() {
-        Cpu cpu = cpuWithProgram(0xcb, 0xc7, 0x00);
+        Cpu cpu = cpuWithProgram(0xcb, 0xff);
         cpu.set(Flag.OPERATION, true);
-        runProgram(cpu, 3);
+        runProgram(cpu, 2);
         assertTrue(cpu.isSet(Flag.OPERATION));
     }
 
     @Test
-    public void test_bit_set_on_register_b() {
-        Cpu cpu = runProgram(0x06, 0xb1, 0xcb, 0xc0, 0x02);
-        assertEquals(0xb5, cpu.read(Byte.Register.B));
+    public void test_bit_set_register_b_bit_0_when_bit_is_low() {
+        Cpu cpu = runProgram(0x06, 0x2a, 0xcb, 0xc0);
+        assertEquals(0x2b, cpu.read(Byte.Register.B));
     }
 
     @Test
-    public void test_bit_set_on_register_c() {
-        Cpu cpu = runProgram(0x0e, 0x5a, 0xcb, 0xc1, 0x07);
-        assertEquals(0xda, cpu.read(Byte.Register.C));
+    public void test_bit_set_register_b_bit_0_when_bit_is_high() {
+        Cpu cpu = runProgram(0x06, 0x01, 0xcb, 0xc0);
+        assertEquals(0x01, cpu.read(Byte.Register.B));
     }
 
     @Test
-    public void test_bit_set_on_register_d() {
-        Cpu cpu = runProgram(0x16, 0x28, 0xcb, 0xc2, 0x07);
-        assertEquals(0xa8, cpu.read(Byte.Register.D));
+    public void test_bit_set_register_b_bit_1_when_bit_is_low() {
+        Cpu cpu = runProgram(0x06, 0xd5, 0xcb, 0xc8);
+        assertEquals(0xd7, cpu.read(Byte.Register.B));
     }
 
     @Test
-    public void test_bit_set_on_register_e() {
-        Cpu cpu = runProgram(0x1e, 0x2e, 0xcb, 0xc3, 0x04);
-        assertEquals(0x3e, cpu.read(Byte.Register.E));
+    public void test_bit_set_register_b_bit_1_when_bit_is_high() {
+        Cpu cpu = runProgram(0x06, 0xb6, 0xcb, 0xc8);
+        assertEquals(0xb6, cpu.read(Byte.Register.B));
     }
 
     @Test
-    public void test_bit_set_on_register_h() {
-        Cpu cpu = runProgram(0x26, 0x45, 0xcb, 0xc4, 0x01);
-        assertEquals(0x47, cpu.read(Byte.Register.H));
+    public void test_bit_set_register_b_bit_2_when_bit_is_low() {
+        Cpu cpu = runProgram(0x06, 0xb8, 0xcb, 0xd0);
+        assertEquals(0xbc, cpu.read(Byte.Register.B));
     }
 
     @Test
-    public void test_bit_set_on_register_l() {
-        Cpu cpu = runProgram(0x2e, 0x09, 0xcb, 0xc5, 0x01);
-        assertEquals(0x0b, cpu.read(Byte.Register.L));
+    public void test_bit_set_register_b_bit_2_when_bit_is_high() {
+        Cpu cpu = runProgram(0x06, 0xcd, 0xcb, 0xd0);
+        assertEquals(0xcd, cpu.read(Byte.Register.B));
     }
 
     @Test
-    public void test_bit_set_on_register_hl_indirect() {
-        Cpu cpu = runProgram(0xcb, 0xc6, 0x05);
-        assertEquals(0xeb, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    public void test_bit_set_register_b_bit_3_when_bit_is_low() {
+        Cpu cpu = runProgram(0x06, 0x11, 0xcb, 0xd8);
+        assertEquals(0x19, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_bit_set_register_b_bit_3_when_bit_is_high() {
+        Cpu cpu = runProgram(0x06, 0xff, 0xcb, 0xd8);
+        assertEquals(0xff, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_bit_set_register_b_bit_4_when_bit_is_low() {
+        Cpu cpu = runProgram(0x06, 0x2c, 0xcb, 0xe0);
+        assertEquals(0x3c, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_bit_set_register_b_bit_4_when_bit_is_high() {
+        Cpu cpu = runProgram(0x06, 0x37, 0xcb, 0xe0);
+        assertEquals(0x37, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_bit_set_register_b_bit_5_when_bit_is_low() {
+        Cpu cpu = runProgram(0x06, 0x09, 0xcb, 0xe8);
+        assertEquals(0x29, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_bit_set_register_b_bit_5_when_bit_is_high() {
+        Cpu cpu = runProgram(0x06, 0x2a, 0xcb, 0xe8);
+        assertEquals(0x2a, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_bit_set_register_b_bit_6_when_bit_is_low() {
+        Cpu cpu = runProgram(0x06, 0x2a, 0xcb, 0xf0);
+        assertEquals(0x6a, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_bit_set_register_b_bit_6_when_bit_is_high() {
+        Cpu cpu = runProgram(0x06, 0x49, 0xcb, 0xf0);
+        assertEquals(0x49, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_bit_set_register_b_bit_7_when_bit_is_low() {
+        Cpu cpu = runProgram(0x06, 0x64, 0xcb, 0xf8);
+        assertEquals(0xe4, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_bit_set_register_b_bit_7_when_bit_is_high() {
+        Cpu cpu = runProgram(0x06, 0xe8, 0xcb, 0xf8);
+        assertEquals(0xe8, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_0_when_bit_is_low() {
+        Cpu cpu = runProgram(0x0e, 0x2a, 0xcb, 0xc1);
+        assertEquals(0x2b, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_0_when_bit_is_high() {
+        Cpu cpu = runProgram(0x0e, 0x01, 0xcb, 0xc1);
+        assertEquals(0x01, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_1_when_bit_is_low() {
+        Cpu cpu = runProgram(0x0e, 0xd5, 0xcb, 0xc9);
+        assertEquals(0xd7, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_1_when_bit_is_high() {
+        Cpu cpu = runProgram(0x0e, 0xb6, 0xcb, 0xc9);
+        assertEquals(0xb6, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_2_when_bit_is_low() {
+        Cpu cpu = runProgram(0x0e, 0xb8, 0xcb, 0xd1);
+        assertEquals(0xbc, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_2_when_bit_is_high() {
+        Cpu cpu = runProgram(0x0e, 0xcd, 0xcb, 0xd1);
+        assertEquals(0xcd, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_3_when_bit_is_low() {
+        Cpu cpu = runProgram(0x0e, 0x11, 0xcb, 0xd9);
+        assertEquals(0x19, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_3_when_bit_is_high() {
+        Cpu cpu = runProgram(0x0e, 0xff, 0xcb, 0xd9);
+        assertEquals(0xff, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_4_when_bit_is_low() {
+        Cpu cpu = runProgram(0x0e, 0x2c, 0xcb, 0xe1);
+        assertEquals(0x3c, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_4_when_bit_is_high() {
+        Cpu cpu = runProgram(0x0e, 0x37, 0xcb, 0xe1);
+        assertEquals(0x37, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_5_when_bit_is_low() {
+        Cpu cpu = runProgram(0x0e, 0x09, 0xcb, 0xe9);
+        assertEquals(0x29, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_5_when_bit_is_high() {
+        Cpu cpu = runProgram(0x0e, 0x2a, 0xcb, 0xe9);
+        assertEquals(0x2a, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_6_when_bit_is_low() {
+        Cpu cpu = runProgram(0x0e, 0x2a, 0xcb, 0xf1);
+        assertEquals(0x6a, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_6_when_bit_is_high() {
+        Cpu cpu = runProgram(0x0e, 0x49, 0xcb, 0xf1);
+        assertEquals(0x49, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_7_when_bit_is_low() {
+        Cpu cpu = runProgram(0x0e, 0x64, 0xcb, 0xf9);
+        assertEquals(0xe4, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_c_bit_7_when_bit_is_high() {
+        Cpu cpu = runProgram(0x0e, 0xe8, 0xcb, 0xf9);
+        assertEquals(0xe8, cpu.read(Byte.Register.C));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_0_when_bit_is_low() {
+        Cpu cpu = runProgram(0x16, 0x2a, 0xcb, 0xc2);
+        assertEquals(0x2b, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_0_when_bit_is_high() {
+        Cpu cpu = runProgram(0x16, 0x01, 0xcb, 0xc2);
+        assertEquals(0x01, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_1_when_bit_is_low() {
+        Cpu cpu = runProgram(0x16, 0xd5, 0xcb, 0xca);
+        assertEquals(0xd7, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_1_when_bit_is_high() {
+        Cpu cpu = runProgram(0x16, 0xb6, 0xcb, 0xca);
+        assertEquals(0xb6, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_2_when_bit_is_low() {
+        Cpu cpu = runProgram(0x16, 0xb8, 0xcb, 0xd2);
+        assertEquals(0xbc, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_2_when_bit_is_high() {
+        Cpu cpu = runProgram(0x16, 0xcd, 0xcb, 0xd2);
+        assertEquals(0xcd, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_3_when_bit_is_low() {
+        Cpu cpu = runProgram(0x16, 0x11, 0xcb, 0xda);
+        assertEquals(0x19, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_3_when_bit_is_high() {
+        Cpu cpu = runProgram(0x16, 0xff, 0xcb, 0xda);
+        assertEquals(0xff, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_4_when_bit_is_low() {
+        Cpu cpu = runProgram(0x16, 0x2c, 0xcb, 0xe2);
+        assertEquals(0x3c, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_4_when_bit_is_high() {
+        Cpu cpu = runProgram(0x16, 0x37, 0xcb, 0xe2);
+        assertEquals(0x37, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_5_when_bit_is_low() {
+        Cpu cpu = runProgram(0x16, 0x09, 0xcb, 0xea);
+        assertEquals(0x29, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_5_when_bit_is_high() {
+        Cpu cpu = runProgram(0x16, 0x2a, 0xcb, 0xea);
+        assertEquals(0x2a, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_6_when_bit_is_low() {
+        Cpu cpu = runProgram(0x16, 0x2a, 0xcb, 0xf2);
+        assertEquals(0x6a, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_6_when_bit_is_high() {
+        Cpu cpu = runProgram(0x16, 0x49, 0xcb, 0xf2);
+        assertEquals(0x49, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_7_when_bit_is_low() {
+        Cpu cpu = runProgram(0x16, 0x64, 0xcb, 0xfa);
+        assertEquals(0xe4, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_d_bit_7_when_bit_is_high() {
+        Cpu cpu = runProgram(0x16, 0xe8, 0xcb, 0xfa);
+        assertEquals(0xe8, cpu.read(Byte.Register.D));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_0_when_bit_is_low() {
+        Cpu cpu = runProgram(0x1e, 0x2a, 0xcb, 0xc3);
+        assertEquals(0x2b, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_0_when_bit_is_high() {
+        Cpu cpu = runProgram(0x1e, 0x01, 0xcb, 0xc3);
+        assertEquals(0x01, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_1_when_bit_is_low() {
+        Cpu cpu = runProgram(0x1e, 0xd5, 0xcb, 0xcb);
+        assertEquals(0xd7, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_1_when_bit_is_high() {
+        Cpu cpu = runProgram(0x1e, 0xb6, 0xcb, 0xcb);
+        assertEquals(0xb6, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_2_when_bit_is_low() {
+        Cpu cpu = runProgram(0x1e, 0xb8, 0xcb, 0xd3);
+        assertEquals(0xbc, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_2_when_bit_is_high() {
+        Cpu cpu = runProgram(0x1e, 0xcd, 0xcb, 0xd3);
+        assertEquals(0xcd, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_3_when_bit_is_low() {
+        Cpu cpu = runProgram(0x1e, 0x11, 0xcb, 0xdb);
+        assertEquals(0x19, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_3_when_bit_is_high() {
+        Cpu cpu = runProgram(0x1e, 0xff, 0xcb, 0xdb);
+        assertEquals(0xff, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_4_when_bit_is_low() {
+        Cpu cpu = runProgram(0x1e, 0x2c, 0xcb, 0xe3);
+        assertEquals(0x3c, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_4_when_bit_is_high() {
+        Cpu cpu = runProgram(0x1e, 0x37, 0xcb, 0xe3);
+        assertEquals(0x37, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_5_when_bit_is_low() {
+        Cpu cpu = runProgram(0x1e, 0x09, 0xcb, 0xeb);
+        assertEquals(0x29, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_5_when_bit_is_high() {
+        Cpu cpu = runProgram(0x1e, 0x2a, 0xcb, 0xeb);
+        assertEquals(0x2a, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_6_when_bit_is_low() {
+        Cpu cpu = runProgram(0x1e, 0x2a, 0xcb, 0xf3);
+        assertEquals(0x6a, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_6_when_bit_is_high() {
+        Cpu cpu = runProgram(0x1e, 0x49, 0xcb, 0xf3);
+        assertEquals(0x49, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_7_when_bit_is_low() {
+        Cpu cpu = runProgram(0x1e, 0x64, 0xcb, 0xfb);
+        assertEquals(0xe4, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_e_bit_7_when_bit_is_high() {
+        Cpu cpu = runProgram(0x1e, 0xe8, 0xcb, 0xfb);
+        assertEquals(0xe8, cpu.read(Byte.Register.E));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_0_when_bit_is_low() {
+        Cpu cpu = runProgram(0x26, 0x2a, 0xcb, 0xc4);
+        assertEquals(0x2b, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_0_when_bit_is_high() {
+        Cpu cpu = runProgram(0x26, 0x01, 0xcb, 0xc4);
+        assertEquals(0x01, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_1_when_bit_is_low() {
+        Cpu cpu = runProgram(0x26, 0xd5, 0xcb, 0xcc);
+        assertEquals(0xd7, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_1_when_bit_is_high() {
+        Cpu cpu = runProgram(0x26, 0xb6, 0xcb, 0xcc);
+        assertEquals(0xb6, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_2_when_bit_is_low() {
+        Cpu cpu = runProgram(0x26, 0xb8, 0xcb, 0xd4);
+        assertEquals(0xbc, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_2_when_bit_is_high() {
+        Cpu cpu = runProgram(0x26, 0xcd, 0xcb, 0xd4);
+        assertEquals(0xcd, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_3_when_bit_is_low() {
+        Cpu cpu = runProgram(0x26, 0x11, 0xcb, 0xdc);
+        assertEquals(0x19, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_3_when_bit_is_high() {
+        Cpu cpu = runProgram(0x26, 0xff, 0xcb, 0xdc);
+        assertEquals(0xff, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_4_when_bit_is_low() {
+        Cpu cpu = runProgram(0x26, 0x2c, 0xcb, 0xe4);
+        assertEquals(0x3c, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_4_when_bit_is_high() {
+        Cpu cpu = runProgram(0x26, 0x37, 0xcb, 0xe4);
+        assertEquals(0x37, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_5_when_bit_is_low() {
+        Cpu cpu = runProgram(0x26, 0x09, 0xcb, 0xec);
+        assertEquals(0x29, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_5_when_bit_is_high() {
+        Cpu cpu = runProgram(0x26, 0x2a, 0xcb, 0xec);
+        assertEquals(0x2a, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_6_when_bit_is_low() {
+        Cpu cpu = runProgram(0x26, 0x2a, 0xcb, 0xf4);
+        assertEquals(0x6a, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_6_when_bit_is_high() {
+        Cpu cpu = runProgram(0x26, 0x49, 0xcb, 0xf4);
+        assertEquals(0x49, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_7_when_bit_is_low() {
+        Cpu cpu = runProgram(0x26, 0x64, 0xcb, 0xfc);
+        assertEquals(0xe4, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_h_bit_7_when_bit_is_high() {
+        Cpu cpu = runProgram(0x26, 0xe8, 0xcb, 0xfc);
+        assertEquals(0xe8, cpu.read(Byte.Register.H));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_0_when_bit_is_low() {
+        Cpu cpu = runProgram(0x2e, 0x2a, 0xcb, 0xc5);
+        assertEquals(0x2b, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_0_when_bit_is_high() {
+        Cpu cpu = runProgram(0x2e, 0x01, 0xcb, 0xc5);
+        assertEquals(0x01, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_1_when_bit_is_low() {
+        Cpu cpu = runProgram(0x2e, 0xd5, 0xcb, 0xcd);
+        assertEquals(0xd7, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_1_when_bit_is_high() {
+        Cpu cpu = runProgram(0x2e, 0xb6, 0xcb, 0xcd);
+        assertEquals(0xb6, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_2_when_bit_is_low() {
+        Cpu cpu = runProgram(0x2e, 0xb8, 0xcb, 0xd5);
+        assertEquals(0xbc, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_2_when_bit_is_high() {
+        Cpu cpu = runProgram(0x2e, 0xcd, 0xcb, 0xd5);
+        assertEquals(0xcd, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_3_when_bit_is_low() {
+        Cpu cpu = runProgram(0x2e, 0x11, 0xcb, 0xdd);
+        assertEquals(0x19, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_3_when_bit_is_high() {
+        Cpu cpu = runProgram(0x2e, 0xff, 0xcb, 0xdd);
+        assertEquals(0xff, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_4_when_bit_is_low() {
+        Cpu cpu = runProgram(0x2e, 0x2c, 0xcb, 0xe5);
+        assertEquals(0x3c, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_4_when_bit_is_high() {
+        Cpu cpu = runProgram(0x2e, 0x37, 0xcb, 0xe5);
+        assertEquals(0x37, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_5_when_bit_is_low() {
+        Cpu cpu = runProgram(0x2e, 0x09, 0xcb, 0xed);
+        assertEquals(0x29, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_5_when_bit_is_high() {
+        Cpu cpu = runProgram(0x2e, 0x2a, 0xcb, 0xed);
+        assertEquals(0x2a, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_6_when_bit_is_low() {
+        Cpu cpu = runProgram(0x2e, 0x2a, 0xcb, 0xf5);
+        assertEquals(0x6a, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_6_when_bit_is_high() {
+        Cpu cpu = runProgram(0x2e, 0x49, 0xcb, 0xf5);
+        assertEquals(0x49, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_7_when_bit_is_low() {
+        Cpu cpu = runProgram(0x2e, 0x64, 0xcb, 0xfd);
+        assertEquals(0xe4, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_l_bit_7_when_bit_is_high() {
+        Cpu cpu = runProgram(0x2e, 0xe8, 0xcb, 0xfd);
+        assertEquals(0xe8, cpu.read(Byte.Register.L));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_0_when_bit_is_low() {
+        Cpu cpu = runProgram(0x36, 0x2a, 0xcb, 0xc6);
+        assertEquals(0x2b, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_0_when_bit_is_high() {
+        Cpu cpu = runProgram(0x36, 0x01, 0xcb, 0xc6);
+        assertEquals(0x01, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_1_when_bit_is_low() {
+        Cpu cpu = runProgram(0x36, 0xd5, 0xcb, 0xce);
+        assertEquals(0xd7, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_1_when_bit_is_high() {
+        Cpu cpu = runProgram(0x36, 0xb6, 0xcb, 0xce);
+        assertEquals(0xb6, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_2_when_bit_is_low() {
+        Cpu cpu = runProgram(0x36, 0xb8, 0xcb, 0xd6);
+        assertEquals(0xbc, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_2_when_bit_is_high() {
+        Cpu cpu = runProgram(0x36, 0xcd, 0xcb, 0xd6);
+        assertEquals(0xcd, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_3_when_bit_is_low() {
+        Cpu cpu = runProgram(0x36, 0x11, 0xcb, 0xde);
+        assertEquals(0x19, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_3_when_bit_is_high() {
+        Cpu cpu = runProgram(0x36, 0xff, 0xcb, 0xde);
+        assertEquals(0xff, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_4_when_bit_is_low() {
+        Cpu cpu = runProgram(0x36, 0x2c, 0xcb, 0xe6);
+        assertEquals(0x3c, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_4_when_bit_is_high() {
+        Cpu cpu = runProgram(0x36, 0x37, 0xcb, 0xe6);
+        assertEquals(0x37, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_5_when_bit_is_low() {
+        Cpu cpu = runProgram(0x36, 0x09, 0xcb, 0xee);
+        assertEquals(0x29, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_5_when_bit_is_high() {
+        Cpu cpu = runProgram(0x36, 0x2a, 0xcb, 0xee);
+        assertEquals(0x2a, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_6_when_bit_is_low() {
+        Cpu cpu = runProgram(0x36, 0x2a, 0xcb, 0xf6);
+        assertEquals(0x6a, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_6_when_bit_is_high() {
+        Cpu cpu = runProgram(0x36, 0x49, 0xcb, 0xf6);
+        assertEquals(0x49, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_7_when_bit_is_low() {
+        Cpu cpu = runProgram(0x36, 0x64, 0xcb, 0xfe);
+        assertEquals(0xe4, cpu.readFrom(Pointer.of(Word.Register.HL)));
+    }
+
+    @Test
+    public void test_bit_set_register_hl_indirect_bit_7_when_bit_is_high() {
+        Cpu cpu = runProgram(0x36, 0xe8, 0xcb, 0xfe);
+        assertEquals(0xe8, cpu.readFrom(Pointer.of(Word.Register.HL)));
     }
 
     @Test
     public void test_bit_set_on_register_hl_indirect_uses_16_cycles() {
-        Cpu cpu = runProgram(0xcb, 0xc6, 0x05);
+        Cpu cpu = runProgram(0xcb, 0xc6);
         assertEquals(16, cpu.getCycles());
     }
 
@@ -8164,7 +8858,7 @@ public class TestCpu {
 
     @Test(expected=IllegalArgumentException.class)
     public void test_bit_reset_on_register_a_bit_255_throws_illegal_argument_exception() {
-        Cpu cpu = runProgram(0xcb, 0xff, 0x22);
+        Cpu cpu = runProgram(0xcb, 0x87, 0x22);
     }
 
     @Test

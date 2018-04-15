@@ -836,16 +836,16 @@ class Operations {
         return newValue;
     }
 
-    static int bitSet(Cpu cpu, Byte.Argument bitIndex, Byte.Register r) {
-        logOp("SET {}, {}", hex(cpu, bitIndex), r);
-        final int newValue = bitSet(cpu.read(r), cpu.read(bitIndex));
+    static int bitSet(Cpu cpu, Byte.Register r, int bitIndex) {
+        logOp("SET {}, {}", bitIndex, r);
+        final int newValue = bitSet(cpu.read(r), bitIndex);
         cpu.set(r, Byte.literal(newValue));
         return 8;
     }
 
-    static int bitSet(Cpu cpu, Byte.Argument bitIndex, Pointer p) {
-        logOp("SET {}, {}", hex(cpu, bitIndex), hex(cpu, p));
-        final int newValue = bitSet(cpu.readFrom(p), cpu.read(bitIndex));
+    static int bitSet(Cpu cpu, Pointer p, int bitIndex) {
+        logOp("SET {}, {}", bitIndex, hex(cpu, p));
+        final int newValue = bitSet(cpu.readFrom(p), bitIndex);
         cpu.writeTo(p, Byte.literal(newValue));
         return 16;
     }
