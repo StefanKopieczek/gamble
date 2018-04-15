@@ -26,7 +26,7 @@ class Operations {
     static int load(Cpu cpu, Byte.Register to, Pointer from) {
         logOp("LD {}, {}", to, hex(cpu, from));
         cpu.set(to, from);
-        return 8;
+        return (from.address instanceof Word.Argument) ? 16 : 8;
     }
 
     static int write(Cpu cpu, Pointer to, Byte.Register from) {
