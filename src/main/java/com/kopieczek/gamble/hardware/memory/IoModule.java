@@ -7,6 +7,7 @@ import java.awt.*;
 import java.util.Map;
 
 class IoModule extends TriggeringMemoryModule implements Io {
+    private static final int JOYPAD_ADDR = 0x0000;
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -41,6 +42,15 @@ class IoModule extends TriggeringMemoryModule implements Io {
 
     IoModule() {
         super(Mmu.IO_AREA_SIZE);
+    }
+
+    @Override
+    public int readByte(int address) {
+        if (address == JOYPAD_ADDR) {
+            return 0x3f; // Bind all keys 'off' for now.
+        } else {
+            return super.readByte(address);
+        }
     }
 
     void linkGlobalMemory(Mmu mmu) {
