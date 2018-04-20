@@ -29,7 +29,7 @@ public class Gamble {
         loadRom(mmu, new File(args[0]));
 
         log.info("Initializing UI");
-        GambleUi gb = new GambleUi(gpu.getScreenBuffer());
+        GambleUi gb = new GambleUi(gpu.getScreenBuffer(), mmu.getIo());
         SwingUtilities.invokeLater(gb::init);
         Governor governor = new Governor();
 

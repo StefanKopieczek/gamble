@@ -12,11 +12,12 @@ public class Screen extends JPanel implements ActionListener {
     private final float DEFAULT_SCREEN_SCALE = 2;
     private final Color[][] screenBuffer;
 
-    public Screen(Color[][] screenBuffer) {
+    Screen(Color[][] screenBuffer) {
+        super();
         this.screenBuffer = screenBuffer;
     }
 
-    public void init() {
+    void init() {
         setPreferredSize(new Dimension((int)(Gpu.DISPLAY_WIDTH * DEFAULT_SCREEN_SCALE),
                                        (int)(Gpu.DISPLAY_HEIGHT * DEFAULT_SCREEN_SCALE)));
         repaintTimer.start();

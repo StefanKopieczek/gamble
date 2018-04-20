@@ -1,25 +1,33 @@
 package com.kopieczek.gamble.ui;
 
+import com.kopieczek.gamble.hardware.memory.Io;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class GambleUi extends JFrame {
     private final Color[][] screenBuffer;
+    private final Io io;
 
-    public GambleUi(Color[][] screenBuffer) {
+    public GambleUi(Color[][] screenBuffer, Io io) {
         super("Gamble");
         this.screenBuffer = screenBuffer;
+        this.io = io;
     }
 
     public void init() {
         setResizable(false);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setDefaultLookAndFeelDecorated(true);
         getContentPane().setLayout(new BorderLayout());
 
         Screen screen = new Screen(screenBuffer);
         screen.init();
         getContentPane().add(screen, BorderLayout.CENTER);
+
+        Controls controls = new Controls(io);
+        controls.init();
+        getContentPane().add(controls, BorderLayout.SOUTH);
 
         pack();
         setVisible(true);
