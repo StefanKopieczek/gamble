@@ -1271,7 +1271,7 @@ public class TestCpu {
 
     @Test
     public void test_load_indirect_bc_to_a_with_0_overwrites_a() {
-        Cpu cpu = runProgram(0x06, 0xff, 0x78, 0x0a);
+        Cpu cpu = runProgram(0x06, 0xef, 0x78, 0x0a);
         assertEquals(0x00, cpu.read(Byte.Register.A));
     }
 

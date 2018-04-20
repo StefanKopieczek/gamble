@@ -2,6 +2,8 @@ package com.kopieczek.gamble.hardware.memory;
 
 import org.junit.Test;
 
+import java.awt.*;
+
 import static org.junit.Assert.assertEquals;
 
 public class TestMmu {
@@ -44,7 +46,7 @@ public class TestMmu {
         );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void test_incorrect_bios_size_rejected() {
         Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE - 1),
@@ -59,7 +61,7 @@ public class TestMmu {
         );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void test_incorrect_rom0_size_rejected() {
         Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
@@ -74,7 +76,7 @@ public class TestMmu {
         );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void test_incorrect_rom1_size_rejected() {
         Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
@@ -89,7 +91,7 @@ public class TestMmu {
         );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void test_incorrect_vram_size_rejected() {
         Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
@@ -104,7 +106,7 @@ public class TestMmu {
         );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void test_incorrect_extram_size_rejected() {
         Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
@@ -119,7 +121,7 @@ public class TestMmu {
         );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void test_incorrect_ram_size_rejected() {
         Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
@@ -134,7 +136,7 @@ public class TestMmu {
         );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void test_incorrect_sprites_size_rejected() {
         Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
@@ -149,7 +151,7 @@ public class TestMmu {
         );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void test_incorrect_io_size_rejected() {
         Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
@@ -164,7 +166,7 @@ public class TestMmu {
         );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void test_incorrect_zram_size_rejected() {
         Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
@@ -381,7 +383,7 @@ public class TestMmu {
 
     @Test
     public void test_read_from_io_area() {
-        IoModule io = new IoModule();
+        IoModule io = new DummyIoModule(IO_SIZE);
         Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
@@ -622,7 +624,7 @@ public class TestMmu {
 
     @Test
     public void test_write_to_io_area() {
-        IoModule io = new IoModule();
+        IoModule io = new DummyIoModule(IO_SIZE);
         Mmu mmu = new Mmu(
                 new SimpleMemoryModule(BIOS_SIZE),
                 new SimpleMemoryModule(ROM_0_SIZE),
@@ -695,15 +697,29 @@ public class TestMmu {
     }
 
     private static class DummyIoModule extends IoModule {
-        private final int size;
+        // IO has a lot of memory mapped weirdness.
+        // For the purpose of MMU testing, delegate to a more simple store
+        // so we can make sure the MMU triggers the right reads and writes
+        // without dealing with IO complexities.
+        private final SimpleMemoryModule delegate;
 
         DummyIoModule(int size) {
-            this.size = size;
+            delegate = new SimpleMemoryModule(size);
         }
 
         @Override
         public int getSizeInBytes() {
-            return size;
+            return delegate.getSizeInBytes();
+        }
+
+        @Override
+        public int readByte(int address) {
+            return delegate.readByte(address);
+        }
+
+        @Override
+        public void setByte(int address, int value) {
+            delegate.setByte(address, value);
         }
     }
 }
