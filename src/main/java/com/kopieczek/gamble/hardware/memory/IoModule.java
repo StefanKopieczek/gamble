@@ -2,11 +2,15 @@ package com.kopieczek.gamble.hardware.memory;
 
 import com.google.common.collect.ImmutableMap;
 import com.kopieczek.gamble.hardware.cpu.Interrupt;
+import jdk.nashorn.internal.scripts.JO;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.function.IntBinaryOperator;
+import java.util.stream.Collectors;
 
-class IoModule extends TriggeringMemoryModule implements Io {
+class IoModule extends ReactiveMemoryModule implements Io {
     private static final int JOYPAD_ADDR = 0x0000;
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
@@ -37,35 +41,39 @@ class IoModule extends TriggeringMemoryModule implements Io {
             3, Color.BLACK
     );
 
+    private static final Map<Button, Integer> buttonMasks = ImmutableMap.<Button, Integer>builder()
+            .put(Button.A, 0x01)
+            .put(Button.B, 0x02)
+            .put(Button.SELECT, 0x04)
+            .put(Button.START, 0x08)
+            .put(Button.RIGHT, 0x01)
+            .put(Button.LEFT, 0x02)
+            .put(Button.UP, 0x04)
+            .put(Button.DOWN, 0x08)
+            .build();
+
+    private final boolean[] buttonStates = new boolean[Button.values().length];
+
     // Used for OAM DMA copy and for setting interrupts
     private Mmu globalMemory;
 
     IoModule() {
         super(Mmu.IO_AREA_SIZE);
+        initTriggersAndFilters();
+        setByteDirectly(JOYPAD_ADDR, 0x0f);  // No buttons pressed
     }
 
-    @Override
-    public int readByte(int address) {
-        if (address == JOYPAD_ADDR) {
-            return 0x3f; // Bind all keys 'off' for now.
-        } else {
-            return super.readByte(address);
-        }
+    private void initTriggersAndFilters() {
+        addFilter(JOYPAD_ADDR, readOnlyBitsFilter(JOYPAD_ADDR, 0b00001111));
+        addTrigger(JOYPAD_ADDR, this::recalculateJoypadRegister);
+        addTrigger(LCD_LY_COMPARE_ADDR, this::updateCoincidenceFlag);
+        addTrigger(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag);
+        addTrigger(DMA_TRANSFER_ADDR, this::doDmaTransfer);
+        addTrigger(BIOS_DISABLE_ADDR, this::disableBios);
     }
 
     void linkGlobalMemory(Mmu mmu) {
         globalMemory = mmu;
-    }
-
-    @Override
-    Map<Integer, Runnable> loadWriteTriggers() {
-        // Bespoke runnables to fire when specific memory locations are written to.
-        return ImmutableMap.<Integer, Runnable>builder()
-                .put(LCD_LY_COMPARE_ADDR, this::updateCoincidenceFlag)
-                .put(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag)
-                .put(DMA_TRANSFER_ADDR, this::doDmaTransfer)
-                .put(BIOS_DISABLE_ADDR, this::disableBios)
-                .build();
     }
 
     private void disableBios() {
@@ -105,6 +113,42 @@ class IoModule extends TriggeringMemoryModule implements Io {
     @Override
     public boolean areTileMapEntriesSigned() {
         return !isHigh(LCD_CONTROL_ADDR, 4);
+    }
+
+    @Override
+    public boolean isButtonPressed(Button button) {
+        return buttonStates[button.ordinal()];
+    }
+
+    @Override
+    public void setButtonPressed(Button button, boolean isPressed) {
+        boolean wasPressed = buttonStates[button.ordinal()];
+        if (wasPressed != isPressed) {
+            buttonStates[button.ordinal()] = isPressed;
+            recalculateJoypadRegister();
+        }
+    }
+
+    private void recalculateJoypadRegister() {
+        int oldJoypadValue = readByte(JOYPAD_ADDR);
+        boolean shouldSelectButtons = (oldJoypadValue & 0x20) > 0;
+        boolean shouldSelectDirections = (oldJoypadValue & 0x10) > 0;
+
+        // Bring low any bit corresponding to a pressed button that we're
+        // currently selecting on.
+        int newJoypadValue = Arrays.stream(Button.values())
+                .filter(this::isButtonPressed)
+                .filter(button ->
+                    (shouldSelectDirections && button.isDirectional()) ||
+                    (shouldSelectButtons && !button.isDirectional())
+                )
+                .mapToInt(buttonMasks::get)
+                .reduce(0x0f, (a, b) -> a & ~b);
+
+        // Leave selectButtons / selectDirections control bits unchanged.
+        newJoypadValue += (0xf0 & oldJoypadValue);
+
+        setByteDirectly(JOYPAD_ADDR, newJoypadValue);
     }
 
     @Override

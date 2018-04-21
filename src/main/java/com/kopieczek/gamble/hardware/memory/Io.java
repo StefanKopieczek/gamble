@@ -30,11 +30,34 @@ public interface Io {
     Color getShadeForPalette0Color(int colorId);
     Color getShadeForPalette1Color(int colorId);
     boolean areTileMapEntriesSigned();
+    boolean isButtonPressed(Button button);
+    void setButtonPressed(Button button, boolean isPressed);
 
     enum LcdControllerMode {
         HBLANK,
         VBLANK,
         OAM_READ,
         DATA_TRANSFER;
+    }
+
+    enum Button {
+        A(false),
+        B(false),
+        START(false),
+        SELECT(false),
+        UP(true),
+        DOWN(true),
+        LEFT(true),
+        RIGHT(true);
+
+        final boolean isDirectional;
+
+        Button(boolean isDirectional) {
+            this.isDirectional = isDirectional;
+        }
+
+        public boolean isDirectional() {
+            return isDirectional;
+        }
     }
 }
