@@ -14,7 +14,6 @@ public class GameCartridge implements Cartridge {
     private final MemoryBankController mbc;
     private final MemoryModule rom0;
     private final MemoryModule rom1;
-    private final MemoryModule ram;
 
     public GameCartridge(File f) throws IOException {
         this(Files.readAllBytes(f.toPath()));
@@ -31,8 +30,6 @@ public class GameCartridge implements Cartridge {
         mbc = initMbc();
         rom0 = new FixedRom(Mmu.ROM_0_START, Mmu.ROM_0_SIZE);
         rom1 = new BankedRom(Mmu.ROM_1_START, Mmu.ROM_1_SIZE);
-        ram = new RamModule(Mmu.EXT_RAM_SIZE);
-        mbc.initControlBytes(ram);
     }
 
     private MemoryBankController initMbc() {
@@ -64,7 +61,7 @@ public class GameCartridge implements Cartridge {
     @Override
     public MemoryModule getRam() {
         // While nominally the RAM is stored on the cartridge, that's irrelevant for emulation purposes.
-        return ram;
+        return mbc.getRam();
     }
 
     private class FixedRom extends MemoryModule {
