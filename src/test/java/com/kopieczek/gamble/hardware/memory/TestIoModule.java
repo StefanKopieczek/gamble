@@ -1096,6 +1096,7 @@ public class TestIoModule {
 
     private static Mmu getTestMmu() {
         Mmu mmu = Mmu.build();
+        mmu.setBiosEnabled(false);
 
         // Cartridge ROM usually isn't writeable.
         // For simplicity of testing, replace it with RAM banks.

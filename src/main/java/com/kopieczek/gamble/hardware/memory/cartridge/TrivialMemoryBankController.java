@@ -1,10 +1,10 @@
 package com.kopieczek.gamble.hardware.memory.cartridge;
 
-import com.kopieczek.gamble.hardware.memory.ReactiveRamModule;
+import com.kopieczek.gamble.hardware.memory.MemoryModule;
 
 public class TrivialMemoryBankController implements MemoryBankController {
     @Override
-    public void initControlBytes(ReactiveRamModule module) {
+    public void initControlBytes(MemoryModule module) {
         // The trivial controller has no control bytes.
     }
 

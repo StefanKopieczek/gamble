@@ -94,11 +94,11 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
         return new Mmu(
                 new BiosModule(),
                 cartridge,
-                new SimpleRamModule(VRAM_SIZE),
-                new SimpleRamModule(RAM_SIZE),
-                new SimpleRamModule(SPRITES_SIZE),
+                new RamModule(VRAM_SIZE),
+                new RamModule(RAM_SIZE),
+                new RamModule(SPRITES_SIZE),
                 new IoModule(),
-                new SimpleRamModule(ZRAM_SIZE)
+                new RamModule(ZRAM_SIZE)
         );
     }
 

@@ -1,8 +1,8 @@
 package com.kopieczek.gamble.hardware.memory.cartridge;
 
-import com.kopieczek.gamble.hardware.memory.ReactiveRamModule;
+import com.kopieczek.gamble.hardware.memory.MemoryModule;
 
 interface MemoryBankController {
-    void initControlBytes(ReactiveRamModule module);
+    void initControlBytes(MemoryModule module);
     int mapAddress(int busAddress);
 }

@@ -14,7 +14,7 @@ public class GameCartridge implements Cartridge {
     private final MemoryBankController mbc;
     private final MemoryModule rom0;
     private final MemoryModule rom1;
-    private final ReactiveRamModule ram;
+    private final MemoryModule ram;
 
     public GameCartridge(File f) throws IOException {
         this(Files.readAllBytes(f.toPath()));
@@ -31,7 +31,7 @@ public class GameCartridge implements Cartridge {
         mbc = initMbc();
         rom0 = new FixedRom(Mmu.ROM_0_START, Mmu.ROM_0_SIZE);
         rom1 = new BankedRom(Mmu.ROM_1_START, Mmu.ROM_1_SIZE);
-        ram = new ReactiveRamModule(Mmu.EXT_RAM_SIZE);
+        ram = new RamModule(Mmu.EXT_RAM_SIZE);
         mbc.initControlBytes(ram);
     }
 
@@ -64,16 +64,15 @@ public class GameCartridge implements Cartridge {
     @Override
     public MemoryModule getRam() {
         // While nominally the RAM is stored on the cartridge, that's irrelevant for emulation purposes.
-        return new SimpleRamModule(Mmu.EXT_RAM_SIZE);
+        return ram;
     }
 
-    private class FixedRom implements MemoryModule {
+    private class FixedRom extends MemoryModule {
         private final int startAddr;
-        private final int size;
 
         FixedRom(int startAddr, int size) {
+            super(size);
             this.startAddr = startAddr;
-            this.size = size;
         }
 
         @Override
@@ -82,24 +81,18 @@ public class GameCartridge implements Cartridge {
         }
 
         @Override
-        public void setByte(int address, int value) {
+        public void setByteDirect(int address, int value) {
             // ROM is read only, so do nothing.
             log.warn("Program attempted to write to game ROM at address 0x{}", Integer.toHexString(address));
         }
-
-        @Override
-        public int getSizeInBytes() {
-            return size;
-        }
     }
 
-    private class BankedRom implements MemoryModule {
+    private class BankedRom extends MemoryModule {
         private final int startAddr;
-        private final int size;
 
         BankedRom(int startAddr, int size) {
+            super(size);
             this.startAddr = startAddr;
-            this.size = size;
         }
 
         @Override
@@ -110,14 +103,9 @@ public class GameCartridge implements Cartridge {
         }
 
         @Override
-        public void setByte(int address, int value) {
+        public void setByteDirect(int address, int value) {
             // ROM is read only, so do nothing.
             log.warn("Program attempted to write to game ROM at address 0x{}", Integer.toHexString(address));
-        }
-
-        @Override
-        public int getSizeInBytes() {
-            return size;
         }
     }
 }

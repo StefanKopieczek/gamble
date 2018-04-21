@@ -9,7 +9,7 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.Map;
 
-class IoModule extends ReactiveRamModule implements Io {
+class IoModule extends RamModule implements Io {
     private static final Logger log = LogManager.getLogger(IoModule.class);
 
     private static final int JOYPAD_ADDR = 0x0000;
@@ -61,11 +61,11 @@ class IoModule extends ReactiveRamModule implements Io {
     IoModule() {
         super(Mmu.IO_AREA_SIZE);
         initTriggersAndFilters();
-        setByteDirectly(JOYPAD_ADDR, 0x0f);  // No buttons pressed
+        setByteDirect(JOYPAD_ADDR, 0x0f);  // No buttons pressed
     }
 
     private void initTriggersAndFilters() {
-        addFilter(JOYPAD_ADDR, readOnlyBitsFilter(JOYPAD_ADDR, 0b00001111));
+        addFilter(JOYPAD_ADDR, Filter.readOnlyFilter(this, JOYPAD_ADDR, 0b00001111));
         addTrigger(JOYPAD_ADDR, this::recalculateJoypadRegister);
         addTrigger(LCD_LY_COMPARE_ADDR, this::updateCoincidenceFlag);
         addTrigger(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag);
@@ -155,7 +155,7 @@ class IoModule extends ReactiveRamModule implements Io {
             globalMemory.setInterrupt(Interrupt.JOYPAD);
         }
 
-        setByteDirectly(JOYPAD_ADDR, newJoypadValue);
+        setByteDirect(JOYPAD_ADDR, newJoypadValue);
     }
 
     @Override

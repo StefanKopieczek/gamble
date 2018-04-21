@@ -23,11 +23,9 @@ public class EmptyCartridge implements Cartridge {
         return ram;
     }
 
-    private static class VoidMemory implements MemoryModule {
-        private final int size;
-
+    private static class VoidMemory extends MemoryModule {
         VoidMemory(int size) {
-            this.size = size;
+            super(size);
         }
 
         @Override
@@ -36,13 +34,8 @@ public class EmptyCartridge implements Cartridge {
         }
 
         @Override
-        public void setByte(int address, int value) {
+        public void setByteDirect(int address, int value) {
             // Do nothing
-        }
-
-        @Override
-        public int getSizeInBytes() {
-            return size;
         }
     }
 }

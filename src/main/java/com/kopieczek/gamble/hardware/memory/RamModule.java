@@ -1,14 +1,15 @@
 package com.kopieczek.gamble.hardware.memory;
 
-public class SimpleRamModule implements MemoryModule {
+public class RamModule extends MemoryModule {
     public static final int DEFAULT_SIZE = 0xffff;
     private int[] memory;
 
-    public SimpleRamModule() {
+    public RamModule() {
         this(DEFAULT_SIZE);
     }
 
-    public SimpleRamModule(int size) {
+    public RamModule(int size) {
+        super(size);
         memory = new int[size];
     }
 
@@ -22,7 +23,7 @@ public class SimpleRamModule implements MemoryModule {
     }
 
     @Override
-    public void setByte(int address, int value) {
+    public void setByteDirect(int address, int value) {
         if (value < 0) {
             throw new IllegalArgumentException("Cannot loadPartial negative value to memory: " + value);
         } else if (value > 0xff) {
@@ -34,10 +35,5 @@ public class SimpleRamModule implements MemoryModule {
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Invalid memory address: " + address, e);
         }
-    }
-
-    @Override
-    public int getSizeInBytes() {
-        return memory.length;
     }
 }
