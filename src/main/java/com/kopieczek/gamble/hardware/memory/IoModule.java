@@ -2,15 +2,16 @@ package com.kopieczek.gamble.hardware.memory;
 
 import com.google.common.collect.ImmutableMap;
 import com.kopieczek.gamble.hardware.cpu.Interrupt;
-import jdk.nashorn.internal.scripts.JO;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.IntBinaryOperator;
-import java.util.stream.Collectors;
 
 class IoModule extends ReactiveMemoryModule implements Io {
+    private static final Logger log = LogManager.getLogger(IoModule.class);
+
     private static final int JOYPAD_ADDR = 0x0000;
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
@@ -124,6 +125,7 @@ class IoModule extends ReactiveMemoryModule implements Io {
     public void setButtonPressed(Button button, boolean isPressed) {
         boolean wasPressed = buttonStates[button.ordinal()];
         if (wasPressed != isPressed) {
+            log.error("Button {} was {}", button, isPressed ? "pressed" : "released");
             buttonStates[button.ordinal()] = isPressed;
             recalculateJoypadRegister();
         }

@@ -6,6 +6,6 @@ import javax.swing.*;
 
 public class SelectButton extends LozengeButton {
     public SelectButton(Io io) {
-        super("Select");
+        super("Select", io, Io.Button.SELECT);
     }
 }

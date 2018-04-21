@@ -6,6 +6,6 @@ import javax.swing.*;
 
 public class AButton extends RoundButton {
     public AButton(Io io) {
-        super("A");
+        super("A", io, Io.Button.A);
     }
 }

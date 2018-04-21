@@ -6,6 +6,6 @@ import javax.swing.*;
 
 public class StartButton extends LozengeButton {
     public StartButton(Io io) {
-        super("Start");
+        super("Start", io, Io.Button.START);
     }
 }

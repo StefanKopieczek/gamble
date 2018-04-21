@@ -8,15 +8,15 @@ import java.awt.*;
 public class DPad extends JPanel {
     public DPad(Io io) {
         super(new BorderLayout());
-        add(new ArrowButton("▲"), BorderLayout.NORTH);
-        add(new ArrowButton("▼"), BorderLayout.SOUTH);
-        add(new ArrowButton("◀"), BorderLayout.WEST);
-        add(new ArrowButton("▶"), BorderLayout.EAST);
+        add(new ArrowButton("▲", io, Io.Button.UP), BorderLayout.NORTH);
+        add(new ArrowButton("▼", io, Io.Button.DOWN), BorderLayout.SOUTH);
+        add(new ArrowButton("◀", io, Io.Button.LEFT), BorderLayout.WEST);
+        add(new ArrowButton("▶", io, Io.Button.RIGHT), BorderLayout.EAST);
     }
 
-    private static class ArrowButton extends JButton {
-        ArrowButton(String label) {
-            super(label);
+    private static class ArrowButton extends IoMappedButton {
+        ArrowButton(String label, Io io, Io.Button buttonType) {
+            super(label, io, buttonType);
             setOpaque(false);
             setContentAreaFilled(false);
             setBorderPainted(false);
