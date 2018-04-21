@@ -3,13 +3,12 @@ package com.kopieczek.gamble.hardware.memory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.IntFunction;
-import java.util.function.IntSupplier;
 
-class ReactiveMemoryModule extends SimpleMemoryModule {
+public class ReactiveRamModule extends SimpleRamModule {
     private Map<Integer, Trigger> triggers = new HashMap<>();
     private Map<Integer, Filter> filters = new HashMap<>();
 
-    ReactiveMemoryModule(int size) {
+    public ReactiveRamModule(int size) {
         super(size);
     }
 
@@ -26,15 +25,15 @@ class ReactiveMemoryModule extends SimpleMemoryModule {
         }
     }
 
-    void setByteDirectly(int address, int value) {
+    public void setByteDirectly(int address, int value) {
         super.setByte(address, value);
     }
 
-    void addTrigger(int address, Trigger trigger) {
+    public void addTrigger(int address, Trigger trigger) {
         triggers.put(address, trigger);
     }
 
-    void addFilter(int address, Filter filter) {
+    public void addFilter(int address, Filter filter) {
         filters.put(address, filter);
     }
 
@@ -47,6 +46,6 @@ class ReactiveMemoryModule extends SimpleMemoryModule {
         return proposedValue -> ((readByte(address) & bitMask) + (proposedValue & ~bitMask));
     }
 
-    interface Trigger extends Runnable {}
-    interface Filter extends IntFunction<Integer> {}
+    public interface Trigger extends Runnable {}
+    public interface Filter extends IntFunction<Integer> {}
 }

@@ -1,6 +1,6 @@
 package com.kopieczek.gamble.hardware.memory;
 
-class BiosModule extends SimpleMemoryModule {
+class BiosModule extends SimpleRamModule {
     BiosModule() {
         super(Mmu.BIOS_SIZE);
         init();

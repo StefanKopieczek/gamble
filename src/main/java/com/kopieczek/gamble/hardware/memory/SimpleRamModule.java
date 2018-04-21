@@ -1,14 +1,14 @@
 package com.kopieczek.gamble.hardware.memory;
 
-public class SimpleMemoryModule implements MemoryModule {
+public class SimpleRamModule implements MemoryModule {
     public static final int DEFAULT_SIZE = 0xffff;
     private int[] memory;
 
-    public SimpleMemoryModule() {
+    public SimpleRamModule() {
         this(DEFAULT_SIZE);
     }
 
-    public SimpleMemoryModule(int size) {
+    public SimpleRamModule(int size) {
         memory = new int[size];
     }
 

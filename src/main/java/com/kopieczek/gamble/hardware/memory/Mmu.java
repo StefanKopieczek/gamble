@@ -6,9 +6,6 @@ import com.kopieczek.gamble.hardware.memory.cartridge.EmptyCartridge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -97,11 +94,11 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
         return new Mmu(
                 new BiosModule(),
                 cartridge,
-                new SimpleMemoryModule(VRAM_SIZE),
-                new SimpleMemoryModule(RAM_SIZE),
-                new SimpleMemoryModule(SPRITES_SIZE),
+                new SimpleRamModule(VRAM_SIZE),
+                new SimpleRamModule(RAM_SIZE),
+                new SimpleRamModule(SPRITES_SIZE),
                 new IoModule(),
-                new SimpleMemoryModule(ZRAM_SIZE)
+                new SimpleRamModule(ZRAM_SIZE)
         );
     }
 

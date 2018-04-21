@@ -9,7 +9,7 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.Map;
 
-class IoModule extends ReactiveMemoryModule implements Io {
+class IoModule extends ReactiveRamModule implements Io {
     private static final Logger log = LogManager.getLogger(IoModule.class);
 
     private static final int JOYPAD_ADDR = 0x0000;

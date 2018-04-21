@@ -1,10 +1,7 @@
 package com.kopieczek.gamble.hardware.cpu;
 
 import com.kopieczek.gamble.hardware.memory.InterruptLine;
-import com.kopieczek.gamble.hardware.memory.MemoryModule;
 import com.kopieczek.gamble.hardware.memory.Mmu;
-import com.kopieczek.gamble.hardware.memory.SimpleMemoryModule;
-import com.kopieczek.gamble.hardware.memory.cartridge.Cartridge;
 import com.kopieczek.gamble.hardware.memory.cartridge.RamBackedTestCartridge;
 import org.junit.Test;
 
