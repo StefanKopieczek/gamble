@@ -125,7 +125,7 @@ class IoModule extends ReactiveMemoryModule implements Io {
     public void setButtonPressed(Button button, boolean isPressed) {
         boolean wasPressed = buttonStates[button.ordinal()];
         if (wasPressed != isPressed) {
-            log.error("Button {} was {}", button, isPressed ? "pressed" : "released");
+            log.info("Button {} was {}", button, isPressed ? "pressed" : "released");
             buttonStates[button.ordinal()] = isPressed;
             recalculateJoypadRegister();
         }
