@@ -1,7 +1,11 @@
 package com.kopieczek.gamble.hardware.cpu;
 
 import com.kopieczek.gamble.hardware.memory.InterruptLine;
+import com.kopieczek.gamble.hardware.memory.MemoryModule;
 import com.kopieczek.gamble.hardware.memory.Mmu;
+import com.kopieczek.gamble.hardware.memory.SimpleMemoryModule;
+import com.kopieczek.gamble.hardware.memory.cartridge.Cartridge;
+import com.kopieczek.gamble.hardware.memory.cartridge.RamBackedTestCartridge;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -13,7 +17,7 @@ import static org.junit.Assert.*;
 public class TestCpu {
     @Test
     public void test_simple_read() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         mmu.setByte(0xdead, 0xf0);
         Cpu cpu = new Cpu(mmu, mmu.getInterruptLine());
         assertEquals(0xf0, cpu.readFrom(Pointer.of(Word.literal(0xdead))));
@@ -21,7 +25,7 @@ public class TestCpu {
 
     @Test
     public void test_simple_write() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         Cpu cpu = new Cpu(mmu, mmu.getInterruptLine());
         cpu.writeTo(Pointer.of(Word.literal(0xdead)), Byte.literal(0xf0));
         assertEquals(0xf0, mmu.readByte(0xdead));
@@ -29,7 +33,7 @@ public class TestCpu {
 
     @Test
     public void test_initial_state() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         Cpu cpu = new Cpu(mmu, mmu.getInterruptLine());
         assertEquals(0, cpu.getCycles());
         assertFalse(cpu.isSet(Flag.ZERO));
@@ -11421,14 +11425,14 @@ public class TestCpu {
 
     @Test
     public void test_check_interrupt_vblank_returns_false_when_0xff0f_is_0x00() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         Cpu cpu = new Cpu(mmu, mmu.getInterruptLine());
         assertFalse(mmu.checkInterrupt(Interrupt.V_BLANK));
     }
 
     @Test
     public void test_check_interrupt_vblank_returns_false_when_0xff0f_is_0xfe() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         Cpu cpu = new Cpu(mmu, mmu.getInterruptLine());
         memset(cpu, 0xff0f, 0xfe);
         assertFalse(mmu.checkInterrupt(Interrupt.V_BLANK));
@@ -11436,7 +11440,7 @@ public class TestCpu {
 
     @Test
     public void test_check_interrupt_vblank_returns_true_when_0xff0f_is_0x01() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         Cpu cpu = new Cpu(mmu, mmu.getInterruptLine());
         memset(cpu, 0xff0f, 0x01);
         assertTrue(mmu.checkInterrupt(Interrupt.V_BLANK));
@@ -11444,7 +11448,7 @@ public class TestCpu {
 
     @Test
     public void test_check_interrupt_vblank_returns_true_when_0xff0f_is_0xff() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         Cpu cpu = new Cpu(mmu, mmu.getInterruptLine());
         memset(cpu, 0xff0f, 0xff);
         assertTrue(mmu.checkInterrupt(Interrupt.V_BLANK));
@@ -11452,7 +11456,7 @@ public class TestCpu {
 
     @Test
     public void test_reset_interrupt_vblank_sets_0xff0f_from_0x01_to_0x00() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         Cpu cpu = new Cpu(mmu, mmu.getInterruptLine());
         memset(cpu, 0xff0f, 0x01);
         mmu.resetInterrupt(Interrupt.V_BLANK);
@@ -11461,7 +11465,7 @@ public class TestCpu {
 
     @Test
     public void test_reset_interrupt_vblank_sets_0xff0f_from_0xff_to_0xfe() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         Cpu cpu = new Cpu(mmu, mmu.getInterruptLine());
         memset(cpu, 0xff0f, 0xff);
         mmu.resetInterrupt(Interrupt.V_BLANK);
@@ -11470,7 +11474,7 @@ public class TestCpu {
 
     @Test
     public void test_reset_interrupt_vblank_has_no_effect_when_0xff0f_is_0x00() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         Cpu cpu = new Cpu(mmu, mmu.getInterruptLine());
         memset(cpu, 0xff0f, 0x00);
         mmu.resetInterrupt(Interrupt.V_BLANK);
@@ -11479,7 +11483,7 @@ public class TestCpu {
 
     @Test
     public void test_reset_interrupt_vblank_has_no_effect_when_0xff0f_is_0xfe() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         Cpu cpu = new Cpu(mmu, mmu.getInterruptLine());
         memset(cpu, 0xff0f, 0xfe);
         mmu.resetInterrupt(Interrupt.V_BLANK);
@@ -11563,7 +11567,7 @@ public class TestCpu {
 
     @Test
     public void test_vblank_interrupt_is_reset_when_handler_is_called() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         Cpu cpu = new Cpu(mmu, mmu.getInterruptLine());
         cpu.setInterruptsEnabled(true);
         setupStack(cpu, 0xeeee);
@@ -11681,7 +11685,7 @@ public class TestCpu {
 
     @Test
     public void test_check_interrupt_lcd_stat_returns_false_when_0xff0f_is_0x00() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         InterruptLine interrupts = mmu.getInterruptLine();
         Cpu cpu = new Cpu(mmu, interrupts);
         assertFalse(interrupts.checkInterrupt(Interrupt.LCD_STAT));
@@ -11689,7 +11693,7 @@ public class TestCpu {
 
     @Test
     public void test_check_interrupt_lcd_stat_returns_false_when_0xff0f_is_0xfd() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         InterruptLine interrupts = mmu.getInterruptLine();
         Cpu cpu = new Cpu(mmu, interrupts);
         memset(cpu, 0xff0f, 0xfd);
@@ -11698,7 +11702,7 @@ public class TestCpu {
 
     @Test
     public void test_check_interrupt_lcd_stat_returns_true_when_0xff0f_is_0x02() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         InterruptLine interrupts = mmu.getInterruptLine();
         Cpu cpu = new Cpu(mmu, interrupts);
         memset(cpu, 0xff0f, 0x02);
@@ -11707,7 +11711,7 @@ public class TestCpu {
 
     @Test
     public void test_check_interrupt_lcd_stat_returns_true_when_0xff0f_is_0xff() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         InterruptLine interrupts = mmu.getInterruptLine();
         Cpu cpu = new Cpu(mmu, interrupts);
         memset(cpu, 0xff0f, 0xff);
@@ -11716,7 +11720,7 @@ public class TestCpu {
 
     @Test
     public void test_reset_interrupt_lcd_stat_sets_0xff0f_from_0x02_to_0x00() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         InterruptLine interrupts = mmu.getInterruptLine();
         Cpu cpu = new Cpu(mmu, interrupts);
         memset(cpu, 0xff0f, 0x02);
@@ -11726,7 +11730,7 @@ public class TestCpu {
 
     @Test
     public void test_reset_interrupt_lcd_stat_sets_0xff0f_from_0xff_to_0xfd() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         InterruptLine interrupts = mmu.getInterruptLine();
         Cpu cpu = new Cpu(mmu, interrupts);
         memset(cpu, 0xff0f, 0xff);
@@ -11736,7 +11740,7 @@ public class TestCpu {
 
     @Test
     public void test_reset_interrupt_lcd_stat_has_no_effect_when_0xff0f_is_0x00() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         InterruptLine interrupts = mmu.getInterruptLine();
         Cpu cpu = new Cpu(mmu, interrupts);
         memset(cpu, 0xff0f, 0x00);
@@ -11746,7 +11750,7 @@ public class TestCpu {
 
     @Test
     public void test_reset_interrupt_lcd_stat_has_no_effect_when_0xff0f_is_0xfd() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         InterruptLine interrupts = mmu.getInterruptLine();
         Cpu cpu = new Cpu(mmu, interrupts);
         memset(cpu, 0xff0f, 0xfd);
@@ -11831,7 +11835,7 @@ public class TestCpu {
 
     @Test
     public void test_lcd_stat_interrupt_is_reset_when_handler_is_called() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         InterruptLine interrupts = mmu.getInterruptLine();
         Cpu cpu = new Cpu(mmu, interrupts);
         cpu.setInterruptsEnabled(true);
@@ -11972,7 +11976,7 @@ public class TestCpu {
     }
 
     private static Cpu cpuWithProgram(int... program) {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = getTestMmu();
         InterruptLine interrupts = mmu.getInterruptLine();
         mmu.setBiosEnabled(false);
         for (int idx = 0; idx < program.length; idx++) {
@@ -12018,5 +12022,15 @@ public class TestCpu {
             cpu.set(Word.Register.SP, Word.literal(cpu.read(Word.Register.SP) - 1));
             cpu.writeTo(Pointer.of(Word.Register.SP), Byte.literal(dataByte));
         }
+    }
+
+    private static Mmu getTestMmu() {
+        Mmu mmu = Mmu.build();
+
+        // Cartridge ROM usually isn't writeable.
+        // For simplicity of testing, replace it with RAM banks.
+        mmu.loadCartridge(new RamBackedTestCartridge());
+
+        return mmu;
     }
 }

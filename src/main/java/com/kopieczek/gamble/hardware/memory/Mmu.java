@@ -1,6 +1,8 @@
 package com.kopieczek.gamble.hardware.memory;
 
 import com.kopieczek.gamble.hardware.cpu.Interrupt;
+import com.kopieczek.gamble.hardware.memory.cartridge.Cartridge;
+import com.kopieczek.gamble.hardware.memory.cartridge.EmptyCartridge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,10 +39,10 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
     private static final int INTERRUPT_FLAG_ADDRESS = 0xff0f;
 
     private final MemoryModule bios;
-    private final MemoryModule rom0;
-    private final MemoryModule rom1;
+    private MemoryModule rom0;
+    private MemoryModule rom1;
     private final MemoryModule gpuVram;
-    private final MemoryModule extRam;
+    private MemoryModule extRam;
     private final MemoryModule ram;
     private final MemoryModule sprites;
     private final IoModule io;
@@ -51,7 +53,17 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
     private boolean isOamAccessible = true;
     private List<DmaProcess> ongoingDmas = new LinkedList<DmaProcess>();
 
-    public Mmu(MemoryModule bios,
+    Mmu(MemoryModule bios,
+               Cartridge cartridge,
+               MemoryModule gpuVram,
+               MemoryModule ram,
+               MemoryModule sprites,
+               IoModule io,
+               MemoryModule zram) {
+        this(bios, cartridge.getRom0(), cartridge.getRom1(), gpuVram, cartridge.getRam(), ram, sprites, io, zram);
+    }
+
+    Mmu(MemoryModule bios,
                MemoryModule rom0,
                MemoryModule rom1,
                MemoryModule gpuVram,
@@ -81,12 +93,11 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
     }
 
     public static Mmu build() {
+        Cartridge cartridge = new EmptyCartridge();
         return new Mmu(
                 new BiosModule(),
-                new SimpleMemoryModule(ROM_0_SIZE),
-                new SimpleMemoryModule(ROM_1_SIZE),
+                cartridge,
                 new SimpleMemoryModule(VRAM_SIZE),
-                new SimpleMemoryModule(EXT_RAM_SIZE),
                 new SimpleMemoryModule(RAM_SIZE),
                 new SimpleMemoryModule(SPRITES_SIZE),
                 new IoModule(),
@@ -261,16 +272,11 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
         return readByte(INTERRUPT_FLAG_ADDRESS);
     }
 
-    public void loadRom(File f) throws IOException {
-        byte[] data = Files.readAllBytes(f.toPath());
-        log.info("Loading rom with {} bytes", data.length);
-        for (int addr = 0; addr < data.length; addr++) {
-            if (addr < 0x4000) {
-                rom0.setByte(addr, 0xff & (int) data[addr]);
-            } else {
-                rom1.setByte(addr - 0x4000, 0xff & (int)data[addr]);
-            }
-        }
+    public void loadCartridge(Cartridge cartridge) {
+        rom0 = cartridge.getRom0();
+        rom1 = cartridge.getRom1();
+        extRam = cartridge.getRam();
+        validateMemoryModuleSizes();
     }
 
     void doDmaTransfer(int startIndicator) {
