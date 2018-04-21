@@ -49,7 +49,12 @@ public class Cpu {
 
     public void set(Byte.Register to, Byte from) {
         final int oldValue = to.getValue(this);
-        final int newValue = from.getValue(this);
+        int newValue = from.getValue(this);
+        if (to == Byte.Register.F) {
+            // Bottom four bits of flag register are unused and inaccessible
+            newValue &= 0xf0;
+        }
+
         registers[to.ordinal()] = newValue;
         log.trace("Setting register {} to 0x{} (was 0x{})",
                   to, Integer.toHexString(newValue), Integer.toHexString(oldValue)) ;

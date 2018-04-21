@@ -1903,13 +1903,31 @@ public class TestCpu {
                 0xf1              // POP AF
         );
         assertEquals(0xb8, cpu.read(Byte.Register.A));
-        assertEquals(0xc2, cpu.read(Byte.Register.F));
+        assertEquals(0xc0, cpu.read(Byte.Register.F));
     }
 
     @Test
     public void test_pop_af_uses_12_cycles() {
         Cpu cpu = runProgram(0xf1);
         assertEquals(12, cpu.getCycles());
+    }
+
+    @Test
+    public void test_pop_af_blargg() {
+        for (int c = 0x00; c < 0x0100; c++) {
+            int b = (c + 0x12) % 0x0100;
+            Cpu cpu = runProgram(
+                    0x01, c, b,        // LD BC, 0x'bc'
+                    0xc5,              // PUSH BC
+                    0xf1,              // POP AF
+                    0xf5,              // PUSH AF
+                    0xd1,              // POP DE
+                    0x79,              // LOAD A, C
+                    0xe6, 0xf0,        // AND $F0
+                    0xbb               // CP E
+            );
+            assertTrue("Blargg test for BC=0x" + Integer.toHexString((b<<8)+c), cpu.isSet(Flag.ZERO));
+        }
     }
 
     @Test
