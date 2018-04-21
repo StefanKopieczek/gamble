@@ -150,6 +150,11 @@ class IoModule extends ReactiveMemoryModule implements Io {
         // Leave selectButtons / selectDirections control bits unchanged.
         newJoypadValue += (0xf0 & oldJoypadValue);
 
+        boolean newButtonsPressed = ((oldJoypadValue ^ newJoypadValue) & oldJoypadValue) > 0;
+        if (newButtonsPressed) {
+            globalMemory.setInterrupt(Interrupt.JOYPAD);
+        }
+
         setByteDirectly(JOYPAD_ADDR, newJoypadValue);
     }
 

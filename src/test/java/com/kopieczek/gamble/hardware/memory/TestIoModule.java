@@ -1001,6 +1001,51 @@ public class TestIoModule {
         assertEquals(0x03, 0x0f & mmu.readByte(0xff00));
     }
 
+    @Test
+    public void test_pressing_a_selected_button_fires_joypad_interrupt() {
+        Mmu mmu = Mmu.build();
+        mmu.setByte(0xff00, 0x20);
+        assertFalse("No interrupt should be fired at the start", mmu.checkInterrupt(Interrupt.JOYPAD));
+        mmu.getIo().setButtonPressed(Io.Button.START, true);
+        assertTrue("Joypad interrupt should now have fired", mmu.checkInterrupt(Interrupt.JOYPAD));
+    }
+
+    @Test
+    public void test_pressing_an_unselected_button_does_not_fire_joypad_interrupt() {
+        Mmu mmu = Mmu.build();
+        mmu.setByte(0xff00, 0x10);
+        mmu.getIo().setButtonPressed(Io.Button.B, true);
+        assertFalse(mmu.checkInterrupt(Interrupt.JOYPAD));
+    }
+
+    @Test
+    public void test_resetting_a_selected_button_does_not_fire_an_interrupt() {
+        Mmu mmu = Mmu.build();
+        mmu.setByte(0xff00, 0x10);
+        mmu.getIo().setButtonPressed(Io.Button.LEFT, true);
+        mmu.resetInterrupt(Interrupt.JOYPAD);
+        mmu.getIo().setButtonPressed(Io.Button.LEFT, false);
+        assertFalse(mmu.checkInterrupt(Interrupt.JOYPAD));
+    }
+
+    @Test
+    public void test_resetting_a_selected_button_does_not_clear_the_existing_interrupt() {
+        Mmu mmu = Mmu.build();
+        mmu.setByte(0xff00, 0x10);
+        mmu.getIo().setButtonPressed(Io.Button.DOWN, true);
+        mmu.getIo().setButtonPressed(Io.Button.DOWN, false);
+        assertTrue(mmu.checkInterrupt(Interrupt.JOYPAD));
+    }
+
+    @Test
+    public void test_selecting_a_pressed_button_fires_an_interrupt() {
+        Mmu mmu = Mmu.build();
+        mmu.getIo().setButtonPressed(Io.Button.SELECT, true);
+        assertFalse("At this point no interrupt should have fired", mmu.checkInterrupt(Interrupt.JOYPAD));
+        mmu.setByte(0xff00, 0x20);
+        assertTrue(mmu.checkInterrupt(Interrupt.JOYPAD));
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = Mmu.build();
