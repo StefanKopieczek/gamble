@@ -6,3 +6,5 @@ Gamble - Gameboy Lovingly Emulated
 Gamble is a Java-based emulator for the original black and white Gameboy.
 
 Still a work in progress!
+
+![Screenshot of Tetris main screen](/gamble.png?raw=true)
