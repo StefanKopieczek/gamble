@@ -655,13 +655,13 @@ class Operations {
         logOp("STOP");
         final int nextByteVal = nextByte.getValue(cpu);
         if (nextByteVal == 0x00) {
-            throw new UnsupportedOperationException("CPU stop not yet implemented");
+            log.warn("CPU stop invoked, but not yet implemented");
+            return 4;
         } else {
             throw new IllegalArgumentException("Unexpected opcode 0x" +
                     Integer.toHexString(nextByteVal) +
                     " following 0x10");
         }
-        // return 4;
     }
 
     static int disableInterrupts(Cpu cpu) {

@@ -5872,11 +5872,6 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.OPERATION));
     }
 
-    @Test(expected=UnsupportedOperationException.class)
-    public void test_stop_is_unsupported() {
-        runProgram(0x10, 0x00);
-    }
-
     @Test(expected=IllegalArgumentException.class)
     public void test_0x10_is_not_stop_when_followed_by_0x01() {
         runProgram(0x10, 0x01);
