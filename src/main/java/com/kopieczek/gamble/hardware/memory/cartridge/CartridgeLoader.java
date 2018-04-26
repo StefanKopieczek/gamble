@@ -30,7 +30,7 @@ public class CartridgeLoader {
             case 1:
                 return new MbcType1Cartridge(data);
             default:
-                throw new IllegalArgumentException("Unknown MBC type " + data);
+                throw new IllegalArgumentException("Unknown MBC type " + mbcType);
         }
     }
 
