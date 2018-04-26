@@ -27,6 +27,8 @@ public class CartridgeLoader {
         switch (mbcType) {
             case 0:
                 return new MbcType0Cartridge(data);
+            case 1:
+                return new MbcType1Cartridge(data);
             default:
                 throw new IllegalArgumentException("Unknown MBC type " + data);
         }

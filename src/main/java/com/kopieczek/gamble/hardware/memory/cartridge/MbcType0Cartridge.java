@@ -7,29 +7,23 @@ import com.kopieczek.gamble.hardware.memory.RomModule;
 
 import java.util.Arrays;
 
-class MbcType0Cartridge implements Cartridge {
-    private final RomModule rom0;
-    private final RomModule rom1;
-    private final RamModule ram;
-
+class MbcType0Cartridge extends GameCartridge {
     MbcType0Cartridge(int[] data) {
-        rom0 = new RomModule(Arrays.copyOfRange(data, Mmu.ROM_0_START, Mmu.ROM_0_START + Mmu.ROM_0_SIZE));
-        rom1 = new RomModule(Arrays.copyOfRange(data, Mmu.ROM_1_START, Mmu.ROM_1_START + Mmu.ROM_1_SIZE));
-        ram = new RamModule(Mmu.EXT_RAM_SIZE);
+        super(data);
     }
 
     @Override
-    public MemoryModule getRom0() {
-        return rom0;
+    protected MemoryModule buildRom0(int[] data) {
+        return new RomModule(Arrays.copyOfRange(data, Mmu.ROM_0_START, Mmu.ROM_0_START + Mmu.ROM_0_SIZE));
     }
 
     @Override
-    public MemoryModule getRom1() {
-        return rom1;
+    protected MemoryModule buildRom1(int[] data) {
+        return new RomModule(Arrays.copyOfRange(data, Mmu.ROM_1_START, Mmu.ROM_1_START + Mmu.ROM_1_SIZE));
     }
 
     @Override
-    public MemoryModule getRam() {
-        return ram;
+    protected MemoryModule buildRam(int[] data) {
+        return new RamModule(Mmu.EXT_RAM_SIZE);
     }
 }
