@@ -5,7 +5,7 @@ import com.kopieczek.gamble.hardware.governor.Governor;
 import com.kopieczek.gamble.hardware.graphics.Gpu;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 import com.kopieczek.gamble.hardware.memory.cartridge.Cartridge;
-import com.kopieczek.gamble.hardware.memory.cartridge.GameCartridge;
+import com.kopieczek.gamble.hardware.memory.cartridge.CartridgeLoader;
 import com.kopieczek.gamble.ui.GambleUi;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,7 +54,7 @@ public class Gamble {
 
     private static void loadRom(Mmu mmu, File file) {
         try {
-            Cartridge cartridge = new GameCartridge(file);
+            Cartridge cartridge = CartridgeLoader.loadFrom(file);
             mmu.loadCartridge(cartridge);
         } catch (IOException e) {
             log.error("Failed to load rom", e);
