@@ -89,10 +89,11 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
         ongoingDmas.removeIf(DmaProcess::isFinished);
     }
 
-    public static Mmu build() {
+    public static Mmu build(boolean skipBios) {
         Cartridge cartridge = new EmptyCartridge();
+        RomModule bios = (skipBios) ? new FastBiosModule() : new BiosModule();
         return new Mmu(
-                new BiosModule(),
+                bios,
                 cartridge,
                 new RamModule(VRAM_SIZE),
                 new RamModule(RAM_SIZE),

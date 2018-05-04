@@ -12017,7 +12017,7 @@ public class TestCpu {
     }
 
     private static Mmu getTestMmu() {
-        Mmu mmu = Mmu.build();
+        Mmu mmu = Mmu.build(false);
 
         // Cartridge ROM usually isn't writeable.
         // For simplicity of testing, replace it with RAM banks.

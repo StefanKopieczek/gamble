@@ -19,6 +19,7 @@ public class RomModule extends MemoryModule {
 
     @Override
     protected void setByteDirect(int address, int value) {
-        log.warn("Program attempted to write to ROM in module {} at address {}", this, address);
+        log.warn("Program attempted to write to ROM in module {} at address {}",
+                this, Integer.toHexString(address));
     }
 }
