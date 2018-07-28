@@ -1,12 +1,15 @@
 package com.kopieczek.gamble;
 
+import com.kopieczek.gamble.execution.ExecutionController;
 import com.kopieczek.gamble.hardware.cpu.Cpu;
 import com.kopieczek.gamble.hardware.governor.Governor;
 import com.kopieczek.gamble.hardware.graphics.Gpu;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 import com.kopieczek.gamble.hardware.memory.cartridge.Cartridge;
 import com.kopieczek.gamble.hardware.memory.cartridge.CartridgeLoader;
-import com.kopieczek.gamble.ui.GambleUi;
+import com.kopieczek.gamble.ui.DebuggerUi;
+import com.kopieczek.gamble.ui.StandardUi;
+import com.kopieczek.gamble.ui.Ui;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,6 +20,7 @@ import java.io.IOException;
 public class Gamble {
     private static final Logger log = LogManager.getLogger(Gamble.class);
     private static final boolean SHOULD_SKIP_BIOS = false;
+    private static final boolean USE_DEBUGGER = false;
 
     public static void main(String[] args) {
         log.info("Gamble is starting up");
@@ -31,9 +35,9 @@ public class Gamble {
         loadRom(mmu, new File(args[0]));
 
         log.info("Initializing UI");
-        GambleUi gb = new GambleUi(gpu.getScreenBuffer(), mmu.getIo());
-        SwingUtilities.invokeLater(gb::init);
-        Governor governor = new Governor();
+        ExecutionController controller = new ExecutionController(cpu, mmu, gpu);
+        Ui ui = buildUi(cpu, gpu, mmu, controller);
+        SwingUtilities.invokeLater(ui::init);
 
         log.info("UI ready. Waiting 3s before starting program execution");
         try {
@@ -43,13 +47,14 @@ public class Gamble {
         }
 
         log.info("Gamble started");
-        while (true) {
-            int cyclesBefore = cpu.getCycles();
-            cpu.tick();
-            int cycleDelta = cpu.getCycles() - cyclesBefore;
-            mmu.stepAhead(cycleDelta);
-            gpu.stepAhead(cycleDelta);
-            governor.sleepIfNeeded(cycleDelta);
+        controller.runBlocking();
+    }
+
+    private static Ui buildUi(Cpu cpu, Gpu gpu, Mmu mmu, ExecutionController controller) {
+        if (USE_DEBUGGER) {
+            return new DebuggerUi(cpu, mmu, gpu, controller);
+        } else {
+            return new StandardUi(gpu.getScreenBuffer(), mmu.getIo());
         }
     }
 

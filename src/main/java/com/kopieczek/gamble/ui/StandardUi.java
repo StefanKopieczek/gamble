@@ -5,11 +5,11 @@ import com.kopieczek.gamble.hardware.memory.Io;
 import javax.swing.*;
 import java.awt.*;
 
-public class GambleUi extends JFrame {
+public class StandardUi extends JFrame implements Ui {
     private final Color[][] screenBuffer;
     private final Io io;
 
-    public GambleUi(Color[][] screenBuffer, Io io) {
+    public StandardUi(Color[][] screenBuffer, Io io) {
         super("Gamble");
         this.screenBuffer = screenBuffer;
         this.io = io;
