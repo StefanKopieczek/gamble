@@ -5,7 +5,7 @@ import com.kopieczek.gamble.hardware.memory.Io;
 import javax.swing.*;
 import java.awt.*;
 
-public class StandardUi extends JFrame implements Ui {
+public class StandardUi extends Ui {
     private final Color[][] screenBuffer;
     private final Io io;
 
@@ -15,12 +15,8 @@ public class StandardUi extends JFrame implements Ui {
         this.io = io;
     }
 
-    public void init() {
-        setResizable(false);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setDefaultLookAndFeelDecorated(true);
-        getContentPane().setLayout(new BorderLayout());
-
+    @Override
+    protected void setupUi() {
         Screen screen = new Screen(screenBuffer);
         screen.init();
         getContentPane().add(screen, BorderLayout.CENTER);
@@ -29,7 +25,5 @@ public class StandardUi extends JFrame implements Ui {
         controls.init();
         getContentPane().add(controls, BorderLayout.SOUTH);
 
-        pack();
-        setVisible(true);
     }
 }

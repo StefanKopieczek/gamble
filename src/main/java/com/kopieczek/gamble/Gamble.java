@@ -20,7 +20,7 @@ import java.io.IOException;
 public class Gamble {
     private static final Logger log = LogManager.getLogger(Gamble.class);
     private static final boolean SHOULD_SKIP_BIOS = false;
-    private static final boolean USE_DEBUGGER = false;
+    private static final boolean USE_DEBUGGER = true;
 
     public static void main(String[] args) {
         log.info("Gamble is starting up");
