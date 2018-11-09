@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 class Operations {
     private static final Logger log = LogManager.getLogger(Operations.class);
+    private static final Logger jumpLog = LogManager.getLogger("jumpLog");
 
     static int nop(Cpu cpu) {
         logOp("NOP");
@@ -874,6 +875,7 @@ class Operations {
 
     private static void doJump(Cpu cpu, int address) {
         log.debug("Jumping to 0x" + Integer.toHexString(address));
+        jumpLog.debug("Now {}; was {}", Integer.toHexString(address), Integer.toHexString(cpu.pc));
         cpu.pc = address;
     }
 

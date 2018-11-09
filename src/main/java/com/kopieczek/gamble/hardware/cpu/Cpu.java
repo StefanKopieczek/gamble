@@ -14,6 +14,7 @@ import java.util.function.Function;
 
 public class Cpu {
     private static final Logger log = LogManager.getLogger(Cpu.class);
+    private static final Logger traceLog = LogManager.getLogger("cpuTrace");
 
     private static final int INTERRUPT_ENABLED_FLAG_ADDRESS = 0xffff;
     private static final int INTERRUPT_HANDLERS_START = 0x0040;
@@ -110,6 +111,18 @@ public class Cpu {
 
         Function<Cpu, Integer> op = operations.get(opcode);
         if (op != null) {
+            if (traceLog.isTraceEnabled()) {
+                String msg = String.format("Executing 0x%02x with registers AF=%02x%02x, BC=%02x%02x, " +
+                                "DE=%02x%02x, HL=%02x%02x, SP=%02x%02x, PC=%04x, %s",
+                        opcode, registers[Byte.Register.A.ordinal()], registers[Byte.Register.F.ordinal()],
+                        registers[Byte.Register.B.ordinal()], registers[Byte.Register.C.ordinal()],
+                        registers[Byte.Register.D.ordinal()], registers[Byte.Register.E.ordinal()],
+                        registers[Byte.Register.H.ordinal()], registers[Byte.Register.L.ordinal()],
+                        registers[Byte.Register.S.ordinal()], registers[Byte.Register.P.ordinal()],
+                        pc,
+                        getFlagString());
+                traceLog.trace(msg);
+            }
             cycles += op.apply(this);
             log.trace("CPU progressed {} cycles", cycles);
         } else {
@@ -707,5 +720,15 @@ public class Cpu {
         m.put(0xfe, cpu -> Operations.bitSet(cpu, Pointer.of(Word.Register.HL), 7));
         m.put(0xff, cpu -> Operations.bitSet(cpu, Byte.Register.A, 7));
         return m.build();
+    }
+
+    private String getFlagString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(isSet(Flag.ZERO) ? "Z" : "-");
+        sb.append(isSet(Flag.NIBBLE) ? "N" : "-");
+        sb.append(isSet(Flag.OPERATION) ? "H" : "-");
+        sb.append(isSet(Flag.CARRY) ? "C" : "-");
+        sb.append("----");
+        return sb.toString();
     }
 }
