@@ -324,7 +324,7 @@ class Operations {
         cpu.set(dest, Byte.literal(result));
         cpu.set(Flag.OPERATION, true);
         cpu.set(Flag.ZERO, (result == 0x00));
-        cpu.set(Flag.CARRY, ((~leftArg) & rightArg) > 0x00);
+        cpu.set(Flag.CARRY, (rightArg > leftArg));
         cpu.set(Flag.NIBBLE, (rightArg & 0x0f) > (leftArg & 0x0f));
     }
 

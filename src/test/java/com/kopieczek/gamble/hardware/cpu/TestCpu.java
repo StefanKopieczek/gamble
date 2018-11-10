@@ -3073,9 +3073,11 @@ public class TestCpu {
     }
 
     @Test
-    public void test_subtract_b_from_a_sets_carry_flag_on_borrow_from_bit_1() {
-        Cpu cpu = runProgram(0x3e, 0x02, 0x06, 0x01, 0x90);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_resets_carry_flag_on_borrow_from_bit_1() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x02, 0x06, 0x01, 0x90);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
@@ -3087,39 +3089,51 @@ public class TestCpu {
     }
 
     @Test
-    public void test_subtract_b_from_a_sets_carry_flag_on_borrow_from_bit_2() {
-        Cpu cpu = runProgram(0x3e, 0x04, 0x06, 0x02, 0x90);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_resets_carry_flag_on_borrow_from_bit_2() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x04, 0x06, 0x02, 0x90);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
     public void test_subtract_b_from_a_sets_carry_flag_on_borrow_from_bit_3() {
-        Cpu cpu = runProgram(0x3e, 0x08, 0x06, 0x04, 0x90);
-        assertTrue(cpu.isSet(Flag.CARRY));
+        Cpu cpu = cpuWithProgram(0x3e, 0x08, 0x06, 0x04, 0x90);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_b_from_a_sets_carry_flag_on_borrow_from_bit_4() {
-        Cpu cpu = runProgram(0x3e, 0x10, 0x06, 0x08, 0x90);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_resets_carry_flag_on_borrow_from_bit_4() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x10, 0x06, 0x08, 0x90);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_b_from_a_sets_carry_flag_on_borrow_from_bit_5() {
-        Cpu cpu = runProgram(0x3e, 0x20, 0x06, 0x10, 0x90);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_resets_carry_flag_on_borrow_from_bit_5() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x20, 0x06, 0x10, 0x90);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_b_from_a_sets_carry_flag_on_borrow_from_bit_6() {
-        Cpu cpu = runProgram(0x3e, 0x40, 0x06, 0x20, 0x90);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_resets_carry_flag_on_borrow_from_bit_6() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x40, 0x06, 0x20, 0x90);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_b_from_a_sets_carry_flag_on_borrow_from_bit_7() {
-        Cpu cpu = runProgram(0x3e, 0x80, 0x06, 0x40, 0x90);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_resets_carry_flag_on_borrow_from_bit_7() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x80, 0x06, 0x40, 0x90);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
@@ -3289,9 +3303,11 @@ public class TestCpu {
     }
 
     @Test
-    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_1() {
-        Cpu cpu = runProgram(0x3e, 0xfe, 0x36, 0x01, 0x96);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_indirect_hl_from_a_resets_carry_flag_on_borrow_from_bit_1() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xfe, 0x36, 0x01, 0x96);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
@@ -3303,39 +3319,51 @@ public class TestCpu {
     }
 
     @Test
-    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_2() {
-        Cpu cpu = runProgram(0x3e, 0x04, 0x36, 0x02, 0x96);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_indirect_hl_from_a_resets_carry_flag_on_borrow_from_bit_2() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x04, 0x36, 0x02, 0x96);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_3() {
-        Cpu cpu = runProgram(0x3e, 0x08, 0x36, 0x04, 0x96);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_indirect_hl_from_a_resets_carry_flag_on_borrow_from_bit_3() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x08, 0x36, 0x04, 0x96);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_4() {
-        Cpu cpu = runProgram(0x3e, 0x10, 0x36, 0x08, 0x96);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_indirect_hl_from_a_resets_carry_flag_on_borrow_from_bit_4() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x10, 0x36, 0x08, 0x96);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_5() {
-        Cpu cpu = runProgram(0x3e, 0x20, 0x36, 0x10, 0x96);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_indirect_hl_from_a_resets_carry_flag_on_borrow_from_bit_5() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x20, 0x36, 0x10, 0x96);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_6() {
-        Cpu cpu = runProgram(0x3e, 0x40, 0x36, 0x20, 0x96);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_indirect_hl_from_a_resets_carry_flag_on_borrow_from_bit_6() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x40, 0x36, 0x20, 0x96);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_indirect_hl_from_a_sets_carry_flag_on_borrow_from_bit_7() {
-        Cpu cpu = runProgram(0x3e, 0x80, 0x36, 0x40, 0x96);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_indirect_hl_from_a_resets_carry_flag_on_borrow_from_bit_7() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x80, 0x36, 0x40, 0x96);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
@@ -3427,9 +3455,11 @@ public class TestCpu {
     }
 
     @Test
-    public void test_subtract_arg_from_a_sets_carry_flag_on_borrow_from_bit_1() {
-        Cpu cpu = runProgram(0x3e, 0x02, 0xd6, 0x01);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_arg_from_a_resets_carry_flag_on_borrow_from_bit_1() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x02, 0xd6, 0x01);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
@@ -3441,39 +3471,51 @@ public class TestCpu {
     }
 
     @Test
-    public void test_subtract_arg_from_a_sets_carry_flag_on_borrow_from_bit_2() {
-        Cpu cpu = runProgram(0x3e, 0x04, 0xd6, 0x02);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_arg_from_a_resets_carry_flag_on_borrow_from_bit_2() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x04, 0xd6, 0x02);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_arg_from_a_sets_carry_flag_on_borrow_from_bit_3() {
-        Cpu cpu = runProgram(0x3e, 0x08, 0xd6, 0x04);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_arg_from_a_resets_carry_flag_on_borrow_from_bit_3() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x08, 0xd6, 0x04);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_arg_from_a_sets_carry_flag_on_borrow_from_bit_4() {
-        Cpu cpu = runProgram(0x3e, 0x10, 0xd6, 0x08);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_arg_from_a_resets_carry_flag_on_borrow_from_bit_4() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x10, 0xd6, 0x08);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_arg_from_a_sets_carry_flag_on_borrow_from_bit_5() {
-        Cpu cpu = runProgram(0x3e, 0x20, 0xd6, 0x10);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_arg_from_a_resets_carry_flag_on_borrow_from_bit_5() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x20, 0xd6, 0x10);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_arg_from_a_sets_carry_flag_on_borrow_from_bit_6() {
-        Cpu cpu = runProgram(0x3e, 0x40, 0xd6, 0x20);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_arg_from_a_resets_carry_flag_on_borrow_from_bit_6() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x40, 0xd6, 0x20);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_arg_from_a_sets_carry_flag_on_borrow_from_bit_7() {
-        Cpu cpu = runProgram(0x3e, 0x80, 0xd6, 0x40);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_arg_from_a_resets_carry_flag_on_borrow_from_bit_7() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x80, 0xd6, 0x40);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
@@ -3602,9 +3644,11 @@ public class TestCpu {
     }
 
     @Test
-    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_1() {
-        Cpu cpu = runProgram(0x3e, 0x02, 0x06, 0x01, 0x98);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_with_carry_resets_carry_flag_on_borrow_from_bit_1() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x02, 0x06, 0x01, 0x98);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
@@ -3616,39 +3660,51 @@ public class TestCpu {
     }
 
     @Test
-    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_2() {
-        Cpu cpu = runProgram(0x3e, 0x04, 0x06, 0x02, 0x98);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_with_carry_resets_carry_flag_on_borrow_from_bit_2() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x04, 0x06, 0x02, 0x98);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_3() {
-        Cpu cpu = runProgram(0x3e, 0x08, 0x06, 0x04, 0x98);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_with_carry_resets_carry_flag_on_borrow_from_bit_3() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x08, 0x06, 0x04, 0x98);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_4() {
-        Cpu cpu = runProgram(0x3e, 0x10, 0x06, 0x08, 0x98);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_with_carry_resets_carry_flag_on_borrow_from_bit_4() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x10, 0x06, 0x08, 0x98);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_5() {
-        Cpu cpu = runProgram(0x3e, 0x20, 0x06, 0x10, 0x98);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_with_carry_resets_carry_flag_on_borrow_from_bit_5() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x20, 0x06, 0x10, 0x98);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_6() {
-        Cpu cpu = runProgram(0x3e, 0x40, 0x06, 0x20, 0x98);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_with_carry_resets_carry_flag_on_borrow_from_bit_6() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x40, 0x06, 0x20, 0x98);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_subtract_b_from_a_with_carry_sets_carry_flag_on_borrow_from_bit_7() {
-        Cpu cpu = runProgram(0x3e, 0x80, 0x06, 0x40, 0x98);
-        assertTrue(cpu.isSet(Flag.CARRY));
+    public void test_subtract_b_from_a_with_carry_resets_carry_flag_on_borrow_from_bit_7() {
+        Cpu cpu = cpuWithProgram(0x3e, 0x80, 0x06, 0x40, 0x98);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
