@@ -2,6 +2,7 @@ package com.kopieczek.gamble.hardware.cpu;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.kopieczek.gamble.hardware.memory.InputLine;
 import com.kopieczek.gamble.hardware.memory.InterruptLine;
 import com.kopieczek.gamble.hardware.memory.Memory;
 import com.kopieczek.gamble.hardware.memory.Mmu;
@@ -29,11 +30,16 @@ public class Cpu {
     int[] registers;
     boolean interruptsEnabled = false;
     boolean isHalted = false;
+    boolean isStopped = false;
 
     public Cpu(Memory memory, InterruptLine interrupts) {
         this.mem = memory;
         this.interrupts = interrupts;
         this.registers = new int[Byte.Register.values().length];
+    }
+
+    public boolean isStopped() {
+        return isStopped;
     }
 
     public int read(Byte b) {
@@ -99,6 +105,13 @@ public class Cpu {
         if (isHalted) {
             isHalted = (unsafeRead(INTERRUPT_ENABLED_FLAG_ADDRESS) & interrupts.checkInterrupts() & 0x1f) == 0;
             log.debug("CPU is halted. Stay halted? " + isHalted);
+            cycles += 4;
+            return;
+        }
+
+        if (isStopped) {
+            isStopped = (unsafeRead(INTERRUPT_ENABLED_FLAG_ADDRESS) & interrupts.checkInterrupts() & 0x1f) == 0;
+            log.debug("CPU is stopped. Stay stopped? " + isStopped);
             cycles += 4;
             return;
         }

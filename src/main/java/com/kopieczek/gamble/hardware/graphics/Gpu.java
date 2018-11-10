@@ -94,6 +94,19 @@ public class Gpu {
         io.setLcdControllerMode(mode.toLcdMode());
     }
 
+    public void stop() {
+        for (int y = 0; y < scratchBuffer.length; y++) {
+            for (int x = 0; x < scratchBuffer[0].length; x++) {
+                scratchBuffer[y][x] = Color.WHITE;
+            }
+        }
+
+        flushBuffer();
+        modeClock = 0;
+        currentLine = 0;
+        mode = Mode.OAM_READ;
+    }
+
     private void flushBuffer() {
         synchronized (screenBuffer){
             for (int y = 0; y < screenBuffer.length; y++) {

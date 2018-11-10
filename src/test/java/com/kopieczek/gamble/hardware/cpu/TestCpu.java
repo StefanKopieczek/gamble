@@ -1,6 +1,7 @@
 package com.kopieczek.gamble.hardware.cpu;
 
 import com.kopieczek.gamble.hardware.memory.InterruptLine;
+import com.kopieczek.gamble.hardware.memory.Io;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 import com.kopieczek.gamble.hardware.memory.cartridge.RamBackedTestCartridge;
 import org.junit.Test;
@@ -11990,6 +11991,7 @@ public class TestCpu {
         Cpu cpu = cpuWithProgram(0x76, 0x3c, 0x3c);
         setupStack(cpu, 0xeeee);
         memset(cpu, 0xffff, 0xfe); // Enable everything except VBLANK
+        cpu.interrupt(Interrupt.V_BLANK);
         step(cpu, 10);
         assertEquals(0x00, cpu.read(Byte.Register.A));
     }
@@ -12011,16 +12013,61 @@ public class TestCpu {
     }
 
     @Test
-    public void test_interrupt_is_fired_after_halt_abort_if_master_interrupt_flag_and_vblank_are_enabled() {
-        Cpu cpu = cpuWithProgram(0x76, 0x3c, 0x3c);
-        cpu.setInterruptsEnabled(true);
+    public void test_stop_ignores_subsequent_operations() {
+        Cpu cpu = cpuWithProgram(0x10, 0x00, 0x3c, 0x3c, 0x3c, 0x3c);
         setupStack(cpu, 0xeeee);
-        memset(cpu, 0xffff, 0x01);
-        memset(cpu, 0x0040, 0x04, 0x04);
-        cpu.interrupt(Interrupt.V_BLANK);
         step(cpu, 5);
         assertEquals(0x00, cpu.read(Byte.Register.A));
-        assertEquals(0x02, cpu.read(Byte.Register.B));
+    }
+
+    @Test
+    public void test_stop_is_aborted_after_vblank_if_vblank_is_enabled() {
+        Cpu cpu = cpuWithProgram(0x10, 0x00, 0x3c, 0x3c, 0x3c, 0x3c);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x01);
+        step(cpu, 10);
+        assertEquals(0x00, cpu.read(Byte.Register.A)); // At this point we are still halted
+        cpu.interrupt(Interrupt.V_BLANK);
+        step(cpu, 5);
+        assertEquals(0x04, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_stop_is_aborted_after_timer_if_timer_is_enabled() {
+        Cpu cpu = cpuWithProgram(0x10, 0x00, 0x3c, 0x3c);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0x04);
+        step(cpu, 10);
+        assertEquals(0x00, cpu.read(Byte.Register.A)); // Should still be halted here
+        cpu.interrupt(Interrupt.TIMER);
+        step(cpu, 3);
+        assertEquals(0x02, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_stop_is_not_aborted_after_vblank_if_vblank_is_not_enabled() {
+        Cpu cpu = cpuWithProgram(0x10, 0x00, 0x3c, 0x3c);
+        setupStack(cpu, 0xeeee);
+        memset(cpu, 0xffff, 0xfe); // Enable everything except VBLANK
+        cpu.interrupt(Interrupt.V_BLANK);
+        step(cpu, 10);
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+    }
+
+    @Test
+    public void test_stop_uses_4_cycles() {
+        Cpu cpu = cpuWithProgram(0x10, 0x00);
+        cpu.tick();
+        assertEquals(4, cpu.getCycles());
+    }
+
+    @Test
+    public void test_stopped_cycles_use_4_cycles() {
+        Cpu cpu = cpuWithProgram(0x10, 0x00);
+        cpu.tick();
+        int initialCycles = cpu.getCycles();
+        step(cpu, 10);
+        assertEquals(40, cpu.getCycles() - initialCycles);
     }
 
     private static Cpu cpuWithProgram(int... program) {
