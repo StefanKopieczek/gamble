@@ -1,6 +1,7 @@
 package com.kopieczek.gamble;
 
 import com.kopieczek.gamble.hardware.cpu.Cpu;
+import com.kopieczek.gamble.hardware.cpu.Word;
 import com.kopieczek.gamble.hardware.governor.Governor;
 import com.kopieczek.gamble.hardware.graphics.Gpu;
 import com.kopieczek.gamble.hardware.memory.Mmu;
@@ -40,6 +41,16 @@ public class Gamble {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+
+        if (SHOULD_SKIP_BIOS) {
+            mmu.setBiosEnabled(false);
+            cpu.setProgramCounter(0x100);
+            cpu.set(Word.Register.AF, Word.literal(0x11b0));
+            cpu.set(Word.Register.BC, Word.literal(0x0013));
+            cpu.set(Word.Register.DE, Word.literal(0x00d8));
+            cpu.set(Word.Register.HL, Word.literal(0x014d));
+            cpu.set(Word.Register.SP, Word.literal((0xfffe)));
         }
 
         log.info("Gamble started");

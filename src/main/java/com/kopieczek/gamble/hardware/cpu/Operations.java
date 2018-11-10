@@ -656,7 +656,7 @@ class Operations {
         logOp("STOP");
         final int nextByteVal = nextByte.getValue(cpu);
         if (nextByteVal == 0x00) {
-            log.warn("CPU stop invoked, but not yet implemented");
+            log.warn("CPU stop invoked at PC 0x{}, but not yet implemented", Integer.toHexString(cpu.pc - 1));
             return 4;
         } else {
             throw new IllegalArgumentException("Unexpected opcode 0x" +

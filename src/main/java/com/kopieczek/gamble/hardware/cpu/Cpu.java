@@ -55,7 +55,6 @@ public class Cpu {
             // Bottom four bits of flag register are unused and inaccessible
             newValue &= 0xf0;
         }
-
         registers[to.ordinal()] = newValue;
         log.trace("Setting register {} to 0x{} (was 0x{})",
                   to, Integer.toHexString(newValue), Integer.toHexString(oldValue)) ;
@@ -73,9 +72,11 @@ public class Cpu {
 
     public void writeTo(Pointer ptr, Byte from) {
         ptr.set(read(from), this);
-        log.trace("Wrote 0x{} to 0x{}",
-                Integer.toHexString(read(from)),
-                Integer.toHexString(read(ptr.address)));
+        if (traceLog.isTraceEnabled() || log.isTraceEnabled()) {
+            String msg = String.format("Wrote 0x%x to 0x%x", read(from), read(ptr.address));
+            traceLog.trace(msg);
+            log.trace((msg));
+        }
     }
 
     int unsafeRead(int address) {
@@ -88,6 +89,7 @@ public class Cpu {
 
     int readNextArg() {
         int result = unsafeRead(pc);
+        traceLog.trace("Read operand 0x" + Integer.toHexString(result));
         pc += 1;
         return result;
     }
@@ -111,6 +113,7 @@ public class Cpu {
 
         Function<Cpu, Integer> op = operations.get(opcode);
         if (op != null) {
+            cycles += op.apply(this);
             if (traceLog.isTraceEnabled()) {
                 String msg = String.format("Executing 0x%02x with registers AF=%02x%02x, BC=%02x%02x, " +
                                 "DE=%02x%02x, HL=%02x%02x, SP=%02x%02x, PC=%04x, %s",
@@ -123,7 +126,6 @@ public class Cpu {
                         getFlagString());
                 traceLog.trace(msg);
             }
-            cycles += op.apply(this);
             log.trace("CPU progressed {} cycles", cycles);
         } else {
             throw new IllegalArgumentException(Integer.toHexString(pc) +
@@ -162,6 +164,10 @@ public class Cpu {
 
     public int getProgramCounter() {
         return pc;
+    }
+
+    public void setProgramCounter(int pc) {
+        this.pc = pc;
     }
 
     public int getCycles() {
@@ -725,8 +731,8 @@ public class Cpu {
     private String getFlagString() {
         StringBuilder sb = new StringBuilder();
         sb.append(isSet(Flag.ZERO) ? "Z" : "-");
-        sb.append(isSet(Flag.NIBBLE) ? "N" : "-");
-        sb.append(isSet(Flag.OPERATION) ? "H" : "-");
+        sb.append(isSet(Flag.OPERATION) ? "N" : "-");
+        sb.append(isSet(Flag.NIBBLE) ? "H" : "-");
         sb.append(isSet(Flag.CARRY) ? "C" : "-");
         sb.append("----");
         return sb.toString();
