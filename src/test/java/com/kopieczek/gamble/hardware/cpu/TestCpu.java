@@ -4943,9 +4943,56 @@ public class TestCpu {
     }
 
     @Test
-    public void test_sp_efff_add_arg_0x01_resets_carry_flag() {
-        Cpu cpu = cpuWithProgram(
+    public void test_sp_efff_add_arg_0x01_sets_carry_flag() {
+        Cpu cpu = runProgram(
                 0x31, 0xff, 0xef,
+                0xe8, 0x01
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_sp_00ff_add_arg_0x01_sets_carry_flag() {
+        Cpu cpu = runProgram(
+                0x31, 0xff, 0x00,
+                0xe8, 0x01
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_sp_0001_add_arg_0xff_sets_carry_flag() {
+        Cpu cpu = runProgram(
+                0x31, 0xff, 0x00,
+                0xe8, 0xff
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_sp_00fe_add_arg_0x03_sets_carry_flag() {
+        Cpu cpu = runProgram(
+                0x31, 0xfe, 0x00,
+                0xe8, 0x03
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_sp_ff00_add_arg_ff_resets_carry_flag() {
+        Cpu cpu = cpuWithProgram(
+                0x31, 0x00, 0xff,
+                0xe8, 0xff
+        );
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_sp_007f_add_arg_0x01_resets_carry_flag() {
+        Cpu cpu = cpuWithProgram(
+                0x31, 0x7f, 0x00,
                 0xe8, 0x01
         );
         cpu.set(Flag.CARRY, true);
