@@ -502,15 +502,15 @@ class Operations {
 
     static int add(Cpu cpu, Word.Register destArg, Byte.Argument otherArg) {
         logOp("ADD {}, {}", destArg, hex(cpu, otherArg));
-        int a = cpu.read(destArg);
-        int b = cpu.read(otherArg);
-        int rawResult = a + b;
-        int boundedResult = rawResult % 0x10000;
-        cpu.set(destArg, Word.literal(boundedResult));
+        int lhs = cpu.read(destArg);
+        int rhsUnsigned = cpu.read(otherArg);
+        int rhs = (rhsUnsigned <= 128) ? rhsUnsigned : rhsUnsigned - 256;
+        int result = (lhs + rhs + 0x10000) % 0x10000;
+        cpu.set(destArg, Word.literal(result));
         cpu.set(Flag.OPERATION, false);
-        cpu.set(Flag.CARRY, (((a & 0x00ff) + (b & 0x00ff)) & 0x1100) > 0);
-        cpu.set(Flag.NIBBLE, (((a & 0x000f) + (b & 0x000f)) & 0x1110) > 0);
         cpu.set(Flag.ZERO, false);
+        cpu.set(Flag.CARRY, (((lhs & 0xff) + (rhsUnsigned & 0xff)) & 0x100) > 0);
+        cpu.set(Flag.NIBBLE, (((lhs & 0xf) + (rhsUnsigned & 0xf)) & 0x10) > 0);
         return 16;
     }
 

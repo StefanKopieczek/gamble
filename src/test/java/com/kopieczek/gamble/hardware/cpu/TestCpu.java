@@ -4900,10 +4900,55 @@ public class TestCpu {
     @Test
     public void test_sp_add_argument() {
         Cpu cpu = runProgram(
-                0x31, 0xb7, 0x6c,
-                0xe8, 0xf3
+                0x31, 0x9c, 0x6c,
+                0xe8, 0x79
         );
-        assertEquals(0x6daa, cpu.read(Word.Register.SP));
+        assertEquals(0x6d15, cpu.read(Word.Register.SP));
+    }
+
+    @Test
+    public void test_sp_add_argument_interprets_arg_as_signed() {
+        Cpu cpu = runProgram(
+                0x31, 0x01, 0x80,
+                0xe8, 0xff
+        );
+        assertEquals(0x8000, cpu.read(Word.Register.SP));
+    }
+
+    @Test
+    public void test_sp_add_arg_rolls_msb_on_add() {
+        Cpu cpu = runProgram(
+                0x31, 0xff, 0x80,
+                0xe8, 0x01
+        );
+        assertEquals(0x8100, cpu.read(Word.Register.SP));
+    }
+
+    @Test
+    public void test_sp_add_arg_rolls_msb_on_subtract() {
+        Cpu cpu = runProgram(
+                0x31, 0x01, 0x80,
+                0xe8, 0xfe
+        );
+        assertEquals(0x7fff, cpu.read(Word.Register.SP));
+    }
+
+    @Test
+    public void test_sp_add_arg_rolls_word_on_add() {
+        Cpu cpu = runProgram(
+                0x31, 0xfe, 0xff,
+                0xe8, 0x02
+        );
+        assertEquals(0x0000, cpu.read(Word.Register.SP));
+    }
+
+    @Test
+    public void test_sp_add_arg_rolls_word_on_subtract() {
+        Cpu cpu = runProgram(
+                0x31, 0x02, 0x00,
+                0xe8, 0xfd
+        );
+        assertEquals(0xffff, cpu.read(Word.Register.SP));
     }
 
     @Test
@@ -4911,6 +4956,26 @@ public class TestCpu {
         Cpu cpu = runProgram(
                 0x31, 0x0f, 0x00,
                 0xe8, 0x01
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_sp_0x80f1_add_arg_0xfe_resets_nibble_flag() {
+        Cpu cpu = cpuWithProgram(
+                0x31, 0xf1, 0x80,
+                0xe8, 0xfe
+        );
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_sp_0x80f1_add_arg_0xff_sets_nibble_flag() {
+        Cpu cpu = runProgram(
+                0x31, 0xf1, 0x80,
+                0xe8, 0xff
         );
         assertTrue(cpu.isSet(Flag.NIBBLE));
     }
@@ -4925,19 +4990,19 @@ public class TestCpu {
     }
 
     @Test
-    public void test_0xff01_add_arg_0xff_sets_carry_flag() {
+    public void test_0xff81_add_arg_0x7f_sets_carry_flag() {
         Cpu cpu = runProgram(
-                0x31, 0x01, 0xff,
-                0xe8, 0xff
+                0x31, 0x81, 0xff,
+                0xe8, 0x7f
         );
         assertTrue(cpu.isSet(Flag.CARRY));
     }
 
     @Test
-    public void test_sp_ff02_add_arg_0xff_sets_carry_flag() {
+    public void test_sp_ff82_add_arg_0x7f_sets_carry_flag() {
         Cpu cpu = runProgram(
-                0x31, 0x02, 0xff,
-                0xe8, 0xff
+                0x31, 0x82, 0xff,
+                0xe8, 0x7f
         );
         assertTrue(cpu.isSet(Flag.CARRY));
     }
@@ -4961,10 +5026,10 @@ public class TestCpu {
     }
 
     @Test
-    public void test_sp_0001_add_arg_0xff_sets_carry_flag() {
+    public void test_sp_0081_add_arg_0x7f_sets_carry_flag() {
         Cpu cpu = runProgram(
-                0x31, 0xff, 0x00,
-                0xe8, 0xff
+                0x31, 0x81, 0x00,
+                0xe8, 0x7f
         );
         assertTrue(cpu.isSet(Flag.CARRY));
     }
@@ -4974,6 +5039,26 @@ public class TestCpu {
         Cpu cpu = runProgram(
                 0x31, 0xfe, 0x00,
                 0xe8, 0x03
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_sp_0003_add_arg_0xfc_resets_carry_flag() {
+        Cpu cpu = cpuWithProgram(
+                0x31, 0x03, 0x00,
+                0xe8, 0xfc
+        );
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_sp_0003_add_arg_0xfd_sets_carry_flag() {
+        Cpu cpu = runProgram(
+                0x31, 0x03, 0x00,
+                0xe8, 0xfd
         );
         assertTrue(cpu.isSet(Flag.CARRY));
     }
@@ -4990,6 +5075,15 @@ public class TestCpu {
     }
 
     @Test
+    public void test_sp_ff01_add_arg_ff_sets_carry_flag() {
+        Cpu cpu = runProgram(
+                0x31, 0x01, 0xff,
+                0xe8, 0xff
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
     public void test_sp_007f_add_arg_0x01_resets_carry_flag() {
         Cpu cpu = cpuWithProgram(
                 0x31, 0x7f, 0x00,
@@ -4998,6 +5092,15 @@ public class TestCpu {
         cpu.set(Flag.CARRY, true);
         runProgram(cpu, 5);
         assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_sp_007f_add_arg_0xff_sets_carry_flag() {
+        Cpu cpu = runProgram(
+                0x31, 0x7f, 0x00,
+                0xe8, 0xff
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
     }
 
     @Test
