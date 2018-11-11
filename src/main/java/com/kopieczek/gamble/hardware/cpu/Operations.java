@@ -172,15 +172,8 @@ class Operations {
 
     static int copyWithOffset(Cpu cpu, Word.Register to, Word.Register from, Byte offset) {
         logOp("LD {}, {}+{}", to, from, hex(cpu, offset));
-        int fromValue = cpu.read(from);
-        int offsetValue = cpu.read(offset);
-        Word newValue = Word.literal((fromValue + offsetValue) & 0xffff);
-        cpu.set(to, newValue);
-
-        cpu.set(Flag.CARRY, shouldSetCarry(fromValue, offsetValue));
-        cpu.set(Flag.NIBBLE, shouldSetNibble(fromValue, offsetValue));
-        cpu.set(Flag.ZERO, false);
-        cpu.set(Flag.OPERATION, false);
+        cpu.set(to, from);
+        add(cpu, to, offset);
 
         return 12;
     }
@@ -500,7 +493,7 @@ class Operations {
         return 8;
     }
 
-    static int add(Cpu cpu, Word.Register destArg, Byte.Argument otherArg) {
+    static int add(Cpu cpu, Word.Register destArg, Byte otherArg) {
         logOp("ADD {}, {}", destArg, hex(cpu, otherArg));
         int lhs = cpu.read(destArg);
         int rhsUnsigned = cpu.read(otherArg);
