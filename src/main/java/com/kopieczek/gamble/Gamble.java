@@ -46,7 +46,7 @@ public class Gamble {
         if (SHOULD_SKIP_BIOS) {
             mmu.setBiosEnabled(false);
             cpu.setProgramCounter(0x100);
-            cpu.set(Word.Register.AF, Word.literal(0x11b0));
+            cpu.set(Word.Register.AF, Word.literal(0x01b0));
             cpu.set(Word.Register.BC, Word.literal(0x0013));
             cpu.set(Word.Register.DE, Word.literal(0x00d8));
             cpu.set(Word.Register.HL, Word.literal(0x014d));
