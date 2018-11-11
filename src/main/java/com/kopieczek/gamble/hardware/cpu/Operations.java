@@ -504,7 +504,12 @@ class Operations {
         logOp("ADD {}, {}", destArg, hex(cpu, otherArg));
         int a = cpu.read(destArg);
         int b = cpu.read(otherArg);
-        do16BitAdd(cpu, destArg, a, b);
+        int rawResult = a + b;
+        int boundedResult = rawResult % 0x10000;
+        cpu.set(destArg, Word.literal(boundedResult));
+        cpu.set(Flag.OPERATION, false);
+        cpu.set(Flag.CARRY, (boundedResult < rawResult));
+        cpu.set(Flag.NIBBLE, (((a & 0x000f) + (b & 0x000f)) & 0x1110) > 0);
         return 16;
     }
 

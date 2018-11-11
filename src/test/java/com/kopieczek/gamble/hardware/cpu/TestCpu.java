@@ -4907,6 +4907,106 @@ public class TestCpu {
     }
 
     @Test
+    public void test_sp_0x000f_add_arg_0x01_sets_nibble_flag() {
+        Cpu cpu = runProgram(
+                0x31, 0x0f, 0x00,
+                0xe8, 0x01
+        );
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_sp_0xffff_add_arg_0x01_sets_carry_flag() {
+        Cpu cpu = runProgram(
+                0x31, 0xff, 0xff,
+                0xe8, 0x01
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_0xff01_add_arg_0xff_sets_carry_flag() {
+        Cpu cpu = runProgram(
+                0x31, 0x01, 0xff,
+                0xe8, 0xff
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_sp_ff02_add_arg_0xff_sets_carry_flag() {
+        Cpu cpu = runProgram(
+                0x31, 0x02, 0xff,
+                0xe8, 0xff
+        );
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_sp_efff_add_arg_0x01_resets_carry_flag() {
+        Cpu cpu = cpuWithProgram(
+                0x31, 0xff, 0xef,
+                0xe8, 0x01
+        );
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
+    public void test_sp_00f0_add_arg_0x10_resets_nibble_flag() {
+        Cpu cpu = cpuWithProgram(
+                0x31, 0xf0, 0x00,
+                0xe8, 0x10
+        );
+        cpu.set(Flag.NIBBLE, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_sp_0xffff_add_arg_0x01_does_not_set_zero_flag() {
+        Cpu cpu = runProgram(
+                0x31, 0xff, 0xff,
+                0xe8, 0x01
+        );
+        assertFalse(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_sp_0xffff_add_arg_0x01_does_not_reset_zero_flag() {
+        Cpu cpu = cpuWithProgram(
+                0x31, 0xff, 0xff,
+                0xe8, 0x01
+        );
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 5);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_sp_0xfffe_add_arg_0x01_does_not_reset_zero_flag() {
+        Cpu cpu = cpuWithProgram(
+                0x31, 0xfe, 0xff,
+                0xe8, 0x01
+        );
+        cpu.set(Flag.ZERO, true);
+        runProgram(cpu, 5);
+        assertTrue(cpu.isSet(Flag.ZERO));
+    }
+
+    @Test
+    public void test_sp_add_arg_resets_operation_flag() {
+        Cpu cpu = cpuWithProgram(
+                0x31, 0xab, 0xcd,
+                0xe8, 0xcd
+        );
+        cpu.set(Flag.OPERATION, true);
+        runProgram(cpu, 5);
+        assertFalse(cpu.isSet(Flag.OPERATION));
+    }
+
+    @Test
     public void test_sp_add_argument_uses_16_cycles() {
         Cpu cpu = runProgram(0xe8, 0x00);
         assertEquals(16, cpu.getCycles());
