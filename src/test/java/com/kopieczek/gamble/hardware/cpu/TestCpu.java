@@ -2651,6 +2651,18 @@ public class TestCpu {
     }
 
     @Test
+    public void test_adding_b_to_a_with_carry_can_trigger_carry_solely_due_to_operand_and_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0x00,       // LD A, 0x00
+                0x06, 0xff,       // LD B, 0xff
+                0x88              // ADC A, B
+        );
+        assertEquals(0x00, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.CARRY));
+    }
+
+    @Test
     public void test_adding_b_to_a_with_carry_can_trigger_nibble_carry_due_to_carry_bit() {
         Cpu cpu = runProgram(
                 0x3e, 0x80, 0x87, // (Set carry)

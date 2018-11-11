@@ -288,13 +288,18 @@ class Operations {
         return 8;
     }
 
-    private static void doAddWithCarry(Cpu cpu, Byte.Register destOperand, int otherOperand, int carry) {
+    private static void doAddWithCarry(Cpu cpu, Byte.Register destOperand, int b, int carry) {
         int a = cpu.read(destOperand);
-        do8BitAdd(cpu, destOperand, a, otherOperand + carry);
         int aLsb = a & 0x0f;
-        int bLsb = otherOperand & 0x0f;
-        boolean halfCarry = ((aLsb + bLsb + carry) & 0xf0) > 0;
-        cpu.set(Flag.NIBBLE, halfCarry);
+        int bLsb = b & 0x0f;
+        boolean newNibble = ((aLsb + bLsb + carry) & 0xf0) > 0;
+        boolean newCarry = ((a + b + carry) & 0xf00) > 0;
+        int sum = (a + b + carry) & 0xff;
+        cpu.set(destOperand, Byte.literal(sum));
+        cpu.set(Flag.ZERO, (sum == 0x00));
+        cpu.set(Flag.OPERATION, false);
+        cpu.set(Flag.NIBBLE, newNibble);
+        cpu.set(Flag.CARRY, newCarry);
     }
 
     static int subtract(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
