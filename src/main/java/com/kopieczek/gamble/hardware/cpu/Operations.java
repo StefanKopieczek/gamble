@@ -510,6 +510,7 @@ class Operations {
         cpu.set(Flag.OPERATION, false);
         cpu.set(Flag.CARRY, (((a & 0x00ff) + (b & 0x00ff)) & 0x1100) > 0);
         cpu.set(Flag.NIBBLE, (((a & 0x000f) + (b & 0x000f)) & 0x1110) > 0);
+        cpu.set(Flag.ZERO, false);
         return 16;
     }
 

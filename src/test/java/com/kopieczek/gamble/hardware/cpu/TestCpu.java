@@ -5012,34 +5012,25 @@ public class TestCpu {
     }
 
     @Test
-    public void test_sp_0xffff_add_arg_0x01_does_not_set_zero_flag() {
-        Cpu cpu = runProgram(
-                0x31, 0xff, 0xff,
-                0xe8, 0x01
-        );
-        assertFalse(cpu.isSet(Flag.ZERO));
-    }
-
-    @Test
-    public void test_sp_0xffff_add_arg_0x01_does_not_reset_zero_flag() {
+    public void test_sp_0xffff_add_arg_0x01_resets_zero_flag() {
         Cpu cpu = cpuWithProgram(
                 0x31, 0xff, 0xff,
                 0xe8, 0x01
         );
         cpu.set(Flag.ZERO, true);
         runProgram(cpu, 5);
-        assertTrue(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.ZERO));
     }
 
     @Test
-    public void test_sp_0xfffe_add_arg_0x01_does_not_reset_zero_flag() {
+    public void test_sp_0xfffe_add_arg_0x01_resets_zero_flag() {
         Cpu cpu = cpuWithProgram(
                 0x31, 0xfe, 0xff,
                 0xe8, 0x01
         );
         cpu.set(Flag.ZERO, true);
         runProgram(cpu, 5);
-        assertTrue(cpu.isSet(Flag.ZERO));
+        assertFalse(cpu.isSet(Flag.ZERO));
     }
 
     @Test
