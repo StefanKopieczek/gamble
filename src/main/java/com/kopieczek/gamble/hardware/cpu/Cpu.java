@@ -2,10 +2,8 @@ package com.kopieczek.gamble.hardware.cpu;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.kopieczek.gamble.hardware.memory.InputLine;
 import com.kopieczek.gamble.hardware.memory.InterruptLine;
 import com.kopieczek.gamble.hardware.memory.Memory;
-import com.kopieczek.gamble.hardware.memory.Mmu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
