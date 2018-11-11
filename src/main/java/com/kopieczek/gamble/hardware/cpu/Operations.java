@@ -266,26 +266,35 @@ class Operations {
 
     static int addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Register otherOperand) {
         logOp("ADC {}, {} - carry is {}", destOperand, otherOperand, cpu.isSet(Flag.CARRY));
-        int a = cpu.read(destOperand);
-        int b = cpu.read(otherOperand) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
-        do8BitAdd(cpu, destOperand, a, b);
+        int arg = cpu.read(otherOperand);
+        int carry = cpu.isSet(Flag.CARRY) ? 1 : 0;
+        doAddWithCarry(cpu, destOperand, arg, carry);
         return 4;
     }
 
     static int addWithCarry(Cpu cpu, Byte.Register destOperand, Pointer otherOperandPtr) {
         logOp("ADC {}, {} - carry is {}", destOperand, hex(cpu, otherOperandPtr), cpu.isSet(Flag.CARRY));
-        int a = cpu.read(destOperand);
-        int b = cpu.readFrom(otherOperandPtr) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
-        do8BitAdd(cpu, destOperand, a, b);
+        int arg = cpu.readFrom(otherOperandPtr);
+        int carry = cpu.isSet(Flag.CARRY) ? 1 : 0;
+        doAddWithCarry(cpu, destOperand, arg, carry);
         return 8;
     }
 
-    static int addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Argument arg) {
-        logOp("ADC {}, {} - carry is {}", destOperand, hex(cpu, arg), cpu.isSet(Flag.CARRY));
-        int a = cpu.read(destOperand);
-        int b = cpu.read(arg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
-        do8BitAdd(cpu, destOperand, a, b);
+    static int addWithCarry(Cpu cpu, Byte.Register destOperand, Byte.Argument otherOperand) {
+        logOp("ADC {}, {} - carry is {}", destOperand, hex(cpu, otherOperand), cpu.isSet(Flag.CARRY));
+        int arg = cpu.read(otherOperand);
+        int carry = cpu.isSet(Flag.CARRY) ? 1 : 0;
+        doAddWithCarry(cpu, destOperand, arg, carry);
         return 8;
+    }
+
+    private static void doAddWithCarry(Cpu cpu, Byte.Register destOperand, int otherOperand, int carry) {
+        int a = cpu.read(destOperand);
+        do8BitAdd(cpu, destOperand, a, otherOperand + carry);
+        int aLsb = a & 0x0f;
+        int bLsb = otherOperand & 0x0f;
+        boolean halfCarry = ((aLsb + bLsb + carry) & 0xf0) > 0;
+        cpu.set(Flag.NIBBLE, halfCarry);
     }
 
     static int subtract(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {

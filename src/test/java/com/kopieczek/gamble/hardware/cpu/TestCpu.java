@@ -2663,6 +2663,18 @@ public class TestCpu {
     }
 
     @Test
+    public void test_adding_b_to_a_with_carry_can_trigger_nibble_carry_solely_due_to_operand_and_carry() {
+        Cpu cpu = runProgram(
+                0x3e, 0x80, 0x87, // (Set carry)
+                0x3e, 0x00,       // LD A, 0x00
+                0x06, 0x0f,       // LD B, 0x0f
+                0x88              // ADC A, B
+        );
+        assertEquals(0x10, cpu.read(Byte.Register.A));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
     public void test_adding_b_to_a_with_carry_uses_4_cycles() {
         Cpu cpu = runProgram(0x88);
         assertEquals(4, cpu.getCycles());
