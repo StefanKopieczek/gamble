@@ -5722,7 +5722,7 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.CARRY));
         assertFalse(cpu.isSet(Flag.OPERATION));
         assertFalse(cpu.isSet(Flag.ZERO));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5734,7 +5734,7 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.CARRY));
         assertFalse(cpu.isSet(Flag.OPERATION));
         assertFalse(cpu.isSet(Flag.ZERO));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5746,7 +5746,7 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.CARRY));
         assertFalse(cpu.isSet(Flag.OPERATION));
         assertFalse(cpu.isSet(Flag.ZERO));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5758,7 +5758,7 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.CARRY));
         assertFalse(cpu.isSet(Flag.OPERATION));
         assertFalse(cpu.isSet(Flag.ZERO));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5770,7 +5770,7 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.CARRY));
         assertFalse(cpu.isSet(Flag.OPERATION));
         assertFalse(cpu.isSet(Flag.ZERO));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5782,7 +5782,7 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.CARRY));
         assertFalse(cpu.isSet(Flag.OPERATION));
         assertFalse(cpu.isSet(Flag.ZERO));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5795,7 +5795,7 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.CARRY));
         assertFalse(cpu.isSet(Flag.OPERATION));
         assertFalse(cpu.isSet(Flag.ZERO));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5808,7 +5808,7 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.CARRY));
         assertFalse(cpu.isSet(Flag.OPERATION));
         assertFalse(cpu.isSet(Flag.ZERO));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5821,7 +5821,7 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.CARRY));
         assertFalse(cpu.isSet(Flag.OPERATION));
         assertFalse(cpu.isSet(Flag.ZERO));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5834,7 +5834,7 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.ZERO));
         assertFalse(cpu.isSet(Flag.CARRY));
         assertTrue(cpu.isSet(Flag.OPERATION));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5847,7 +5847,7 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.ZERO));
         assertFalse(cpu.isSet(Flag.CARRY));
         assertTrue(cpu.isSet(Flag.OPERATION));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5860,7 +5860,7 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.ZERO));
         assertFalse(cpu.isSet(Flag.CARRY));
         assertTrue(cpu.isSet(Flag.OPERATION));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5913,7 +5913,7 @@ public class TestCpu {
         assertTrue(cpu.isSet(Flag.ZERO));
         assertTrue(cpu.isSet(Flag.CARRY));
         assertTrue(cpu.isSet(Flag.OPERATION));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5927,7 +5927,7 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.ZERO));
         assertTrue(cpu.isSet(Flag.CARRY));
         assertTrue(cpu.isSet(Flag.OPERATION));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5941,7 +5941,7 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.ZERO));
         assertTrue(cpu.isSet(Flag.CARRY));
         assertTrue(cpu.isSet(Flag.OPERATION));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5955,7 +5955,7 @@ public class TestCpu {
         assertFalse(cpu.isSet(Flag.ZERO));
         assertTrue(cpu.isSet(Flag.CARRY));
         assertTrue(cpu.isSet(Flag.OPERATION));
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -6009,17 +6009,11 @@ public class TestCpu {
     }
 
     @Test
-    public void test_daa_doesnt_set_nibble_flag() {
-        Cpu cpu = runProgram(0x3e, 0xf2, 0x27);
-        assertFalse(cpu.isSet(Flag.NIBBLE));
-    }
-
-    @Test
-    public void test_daa_doesnt_reset_nibble_flag() {
+    public void test_daa_resets_nibble_flag() {
         Cpu cpu = cpuWithProgram(0x3e, 0xf2, 0x27);
         cpu.set(Flag.NIBBLE, true);
         runProgram(cpu, 3);
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test

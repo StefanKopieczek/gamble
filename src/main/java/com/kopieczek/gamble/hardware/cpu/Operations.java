@@ -579,6 +579,7 @@ class Operations {
         cpu.set(register, Byte.literal(result));
         cpu.set(Flag.ZERO, result == 0x00);
         cpu.set(Flag.CARRY, shouldSetCarry);
+        cpu.set(Flag.NIBBLE, false);
         return 4;
     }
 
