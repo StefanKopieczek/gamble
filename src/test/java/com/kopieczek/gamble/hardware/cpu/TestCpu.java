@@ -3882,6 +3882,22 @@ public class TestCpu {
     }
 
     @Test
+    public void test_subtract_arg_from_a_with_carry_sets_nibble_flag_if_arg_is_0xf_and_carry_is_high() {
+        Cpu cpu = cpuWithProgram(0xde, 0x0f);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 2);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
+    public void test_subtract_arg_from_a_with_carry_sets_nibble_flag_if_arg_is_0xf_carry_is_high_and_a_is_nonzero() {
+        Cpu cpu = cpuWithProgram(0x3e, 0xd0, 0xde, 0x0f);
+        cpu.set(Flag.CARRY, true);
+        runProgram(cpu, 4);
+        assertTrue(cpu.isSet(Flag.NIBBLE));
+    }
+
+    @Test
     public void test_a_and_a_when_a_is_zero_returns_zero() {
         Cpu cpu = runProgram(0xa7);
         assertEquals(0x00, cpu.read(Byte.Register.A));

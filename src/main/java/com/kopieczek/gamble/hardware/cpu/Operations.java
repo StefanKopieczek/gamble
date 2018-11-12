@@ -337,26 +337,27 @@ class Operations {
 
     static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Byte.Register rightArg) {
         logOp("SBC {}, {}", leftArg, rightArg);
-        int a = cpu.read(leftArg);
-        int b = cpu.read(rightArg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
-        doSubtract(cpu, leftArg, a, b);
+        doSubtractWithCarry(cpu, leftArg, cpu.read(rightArg));
         return 4;
     }
 
     static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Pointer rightArgPtr) {
         logOp("SBC {}, {}", leftArg, hex(cpu, rightArgPtr));
-        int a = cpu.read(leftArg);
-        int b = cpu.readFrom(rightArgPtr) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
-        doSubtract(cpu, leftArg, a, b);
+        doSubtractWithCarry(cpu, leftArg, cpu.readFrom(rightArgPtr));
         return 8;
     }
 
     static int subtractWithCarry(Cpu cpu, Byte.Register leftArg, Byte.Argument rightArg) {
         logOp("SBC {}, {}", leftArg, hex(cpu, rightArg));
-        int a = cpu.read(leftArg);
-        int b = cpu.read(rightArg) + (cpu.isSet(Flag.CARRY) ? 1 : 0);
-        doSubtract(cpu, leftArg, a, b);
+        doSubtractWithCarry(cpu, leftArg, cpu.read(rightArg));
         return 8;
+    }
+
+    private static void doSubtractWithCarry(Cpu cpu, Byte.Register dest, int other) {
+        int a = cpu.read(dest);
+        int carry = cpu.isSet(Flag.CARRY) ? 1 : 0;
+        doSubtract(cpu, dest, a, other + carry);
+        cpu.set(Flag.NIBBLE, (a & 0x0f) < ((other & 0x0f) + carry));
     }
 
     private static void doAnd(Cpu cpu, Byte.Register dest, int arg1, int arg2) {
