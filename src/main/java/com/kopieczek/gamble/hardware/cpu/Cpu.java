@@ -125,7 +125,7 @@ public class Cpu {
         Function<Cpu, Integer> op = operations.get(opcode);
         if (op != null) {
             cycles += op.apply(this);
-            if (traceLog.isTraceEnabled()) {
+            if (traceLog.isTraceEnabled() && opcode != 0xcb) {
                 String msg = String.format("Executing 0x%02x with registers AF=%02x%02x, BC=%02x%02x, " +
                                 "DE=%02x%02x, HL=%02x%02x, SP=%02x%02x, PC=%04x, %s",
                         opcode, registers[Byte.Register.A.ordinal()], registers[Byte.Register.F.ordinal()],
@@ -167,7 +167,20 @@ public class Cpu {
 
         Function<Cpu, Integer> op = extendedOperations.get(extOpcode);
         if (op != null) {
-            return op.apply(this);
+            int result = op.apply(this);
+            if (traceLog.isTraceEnabled()) {
+                String msg = String.format("Executing 0xcb 0x%02x with registers AF=%02x%02x, BC=%02x%02x, " +
+                                "DE=%02x%02x, HL=%02x%02x, SP=%02x%02x, PC=%04x, %s",
+                        extOpcode, registers[Byte.Register.A.ordinal()], registers[Byte.Register.F.ordinal()],
+                        registers[Byte.Register.B.ordinal()], registers[Byte.Register.C.ordinal()],
+                        registers[Byte.Register.D.ordinal()], registers[Byte.Register.E.ordinal()],
+                        registers[Byte.Register.H.ordinal()], registers[Byte.Register.L.ordinal()],
+                        registers[Byte.Register.S.ordinal()], registers[Byte.Register.P.ordinal()],
+                        pc,
+                        getFlagString());
+                traceLog.trace(msg);
+            }
+            return result;
         } else {
             throw new IllegalArgumentException("Unknown extension opcode 0x" + Integer.toHexString(extOpcode));
         }
