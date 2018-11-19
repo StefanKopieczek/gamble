@@ -5462,12 +5462,12 @@ public class TestCpu {
     }
 
     @Test
-    public void test_swap_a_doesnt_reset_carry_flag() {
+    public void test_swap_a_resets_carry_flag() {
         Cpu cpu = runProgram(
                 0x3e, 0x80, 0x87, // Set carry flag
                 0x3e, 0xf0, 0xcb, 0x37
         );
-        assertTrue(cpu.isSet(Flag.CARRY));
+        assertFalse(cpu.isSet(Flag.CARRY));
     }
 
     @Test
@@ -5477,12 +5477,12 @@ public class TestCpu {
     }
 
     @Test
-    public void test_swap_a_doesnt_reset_nibble_flag() {
+    public void test_swap_a_resets_nibble_flag() {
         Cpu cpu = runProgram(
                 0x3e, 0x08, 0x87, // Set nibble flag
                 0x3e, 0x0f, 0xcb, 0x37
         );
-        assertTrue(cpu.isSet(Flag.NIBBLE));
+        assertFalse(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
@@ -5492,9 +5492,9 @@ public class TestCpu {
     }
 
     @Test
-    public void test_swap_a_doesnt_reset_operation_flag() {
+    public void test_swap_a_resets_operation_flag() {
         Cpu cpu = runProgram(0x97, 0xcb, 0x37);
-        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.OPERATION));
     }
 
     @Test

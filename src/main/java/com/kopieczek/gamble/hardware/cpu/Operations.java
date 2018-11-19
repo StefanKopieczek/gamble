@@ -555,6 +555,9 @@ class Operations {
     private static int doSwap(Cpu cpu, int oldValue) {
         int newValue = ((oldValue << 4) % 0x0100) + (oldValue >> 4);
         cpu.set(Flag.ZERO, newValue == 0);
+        cpu.set(Flag.CARRY, false);
+        cpu.set(Flag.NIBBLE, false);
+        cpu.set(Flag.OPERATION, false);
         return newValue;
     }
 
