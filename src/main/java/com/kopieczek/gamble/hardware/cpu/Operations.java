@@ -830,8 +830,8 @@ class Operations {
         }
         final int bit = (0x01 << bitIndex & value);
         cpu.set(Flag.ZERO, bit == 0);
-        cpu.set(Flag.NIBBLE, false);
-        cpu.set(Flag.OPERATION, true);
+        cpu.set(Flag.NIBBLE, true);
+        cpu.set(Flag.OPERATION, false);
     }
 
     static int bitTest(Cpu cpu, Byte.Register r, int bitIndex) {

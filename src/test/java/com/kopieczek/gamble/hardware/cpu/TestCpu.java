@@ -7928,31 +7928,17 @@ public class TestCpu {
     }
 
     @Test
-    public void test_bit_test_register_a_sets_operation_flag() {
-        Cpu cpu = runProgram(0xcb, 0x47);
-        assertTrue(cpu.isSet(Flag.OPERATION));
-    }
-
-    @Test
-    public void test_bit_test_register_a_does_not_reset_operation_flag() {
+    public void test_bit_test_register_a_resets_operation_flag() {
         Cpu cpu = cpuWithProgram(0xcb, 0x47);
         cpu.set(Flag.OPERATION, true);
         runProgram(cpu, 2);
-        assertTrue(cpu.isSet(Flag.OPERATION));
+        assertFalse(cpu.isSet(Flag.OPERATION));
     }
 
     @Test
-    public void test_bit_test_register_a_does_not_set_nibble_flag() {
+    public void test_bit_test_register_a_sets_nibble_flag() {
         Cpu cpu = runProgram(0xcb, 0x47);
-        assertFalse(cpu.isSet(Flag.NIBBLE));
-    }
-
-    @Test
-    public void test_bit_test_register_a_resets_nibble_flag() {
-        Cpu cpu = cpuWithProgram(0xcb, 0x47);
-        cpu.set(Flag.NIBBLE, true);
-        runProgram(cpu, 3);
-        assertFalse(cpu.isSet(Flag.NIBBLE));
+        assertTrue(cpu.isSet(Flag.NIBBLE));
     }
 
     @Test
