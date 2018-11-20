@@ -36,6 +36,8 @@ public interface Io {
     int getCyclesPerTimerCounterTick();
     int getTimerDiv();
     void setTimerDiv(int newValue);
+    int getTimerCounter();
+    void setTimerCounter(int newValue);
 
     enum LcdControllerMode {
         HBLANK,

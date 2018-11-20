@@ -1104,7 +1104,23 @@ public class TestIoModule {
         for (int val = 0x00; val <= 0xff; val++) {
             Mmu mmu = getTestMmu();
             mmu.getIo().setTimerDiv(val);
-            assertEquals(mmu.readByte(0xff04), val);
+            assertEquals(val, mmu.readByte(0xff04));
+        }
+    }
+
+    @Test
+    public void test_get_timer_counter() {
+        doRangeTest(0xff05, mmu -> {
+            assertEquals(mmu.readByte(0xff05), mmu.getIo().getTimerCounter());
+        });
+    }
+
+    @Test
+    public void test_set_timer_counter() {
+        for (int val = 0x00; val < 0xff; val++) {
+            Mmu mmu = getTestMmu();
+            mmu.getIo().setTimerCounter(val);
+            assertEquals(val, mmu.readByte(0xff05));
         }
     }
 
