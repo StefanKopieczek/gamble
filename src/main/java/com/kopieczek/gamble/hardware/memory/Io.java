@@ -32,6 +32,7 @@ public interface Io {
     boolean areTileMapEntriesSigned();
     boolean isButtonPressed(Button button);
     void setButtonPressed(Button button, boolean isPressed);
+    boolean isTimerEnabled();
 
     enum LcdControllerMode {
         HBLANK,

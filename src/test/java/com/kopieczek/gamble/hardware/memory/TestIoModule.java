@@ -1047,6 +1047,15 @@ public class TestIoModule {
         assertTrue(mmu.checkInterrupt(Interrupt.JOYPAD));
     }
 
+    @Test
+    public void test_timer_enabled_if_and_only_if_ff07_bit_2_is_high() {
+        doRangedBitCheckTest(0xff07,2, (mmu, isBit2High) -> {
+            final boolean timerShouldBeEnabled = isBit2High;
+            assertEquals("Unexpected timer enable state when 0xff07 is 0x" + Integer.toString(mmu.readByte(0xff07)),
+                timerShouldBeEnabled, mmu.getIo().isTimerEnabled());
+        });
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();

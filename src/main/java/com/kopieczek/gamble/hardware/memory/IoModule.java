@@ -13,6 +13,7 @@ class IoModule extends RamModule implements Io {
     private static final Logger log = LogManager.getLogger(IoModule.class);
 
     private static final int JOYPAD_ADDR = 0x0000;
+    private static final int TIMER_CONTROL_ADDR = 0x0007;
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -129,6 +130,11 @@ class IoModule extends RamModule implements Io {
             buttonStates[button.ordinal()] = isPressed;
             recalculateJoypadRegister();
         }
+    }
+
+    @Override
+    public boolean isTimerEnabled() {
+        return isHigh(TIMER_CONTROL_ADDR, 2);
     }
 
     private void recalculateJoypadRegister() {
