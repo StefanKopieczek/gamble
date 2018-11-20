@@ -137,6 +137,21 @@ class IoModule extends RamModule implements Io {
         return isHigh(TIMER_CONTROL_ADDR, 2);
     }
 
+    @Override
+    public int getCyclesPerTimerCounterTick() {
+        int controlBits = readByte(TIMER_CONTROL_ADDR) & 0b11;
+        switch (controlBits) {
+            case 0b00:
+                return 1024;
+            case 0b01:
+                return 16;
+            case 0b10:
+                return 64;
+            default:
+                return 256;
+        }
+    }
+
     private void recalculateJoypadRegister() {
         int oldJoypadValue = readByte(JOYPAD_ADDR);
         boolean shouldSelectButtons = (oldJoypadValue & 0x20) > 0;

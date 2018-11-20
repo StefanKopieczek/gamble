@@ -33,6 +33,7 @@ public interface Io {
     boolean isButtonPressed(Button button);
     void setButtonPressed(Button button, boolean isPressed);
     boolean isTimerEnabled();
+    int getCyclesPerTimerCounterTick();
 
     enum LcdControllerMode {
         HBLANK,

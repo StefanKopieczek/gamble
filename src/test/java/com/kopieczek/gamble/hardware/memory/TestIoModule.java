@@ -1056,6 +1056,28 @@ public class TestIoModule {
         });
     }
 
+    @Test
+    public void test_timer_counter_ticks_per_cycle() {
+        doRangeTest(0xff07, mmu -> {
+            int timerControlByte = mmu.readByte(0xff07);
+            int speedBits = (timerControlByte & 0x03);
+            int expected;
+            if (speedBits == 0b00) {
+                expected = 1024;
+            } else if (speedBits == 0b01) {
+                expected = 16;
+            } else if (speedBits == 0b10) {
+                expected = 64;
+            } else {
+                expected = 256;
+            }
+
+            assertEquals("Unexpected timer speed when control byte was 0x" + Integer.toHexString(mmu.readByte(0xff07)),
+                    expected,
+                    mmu.getIo().getCyclesPerTimerCounterTick());
+        });
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
