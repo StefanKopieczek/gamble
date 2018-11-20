@@ -2,7 +2,7 @@ package com.kopieczek.gamble.hardware.memory;
 
 import java.awt.*;
 
-public interface Io {
+public interface Io extends TimerRegisters {
     boolean isLcdDisplayEnabled();
     int getWindowTileMapStartAddress();
     int getWindowTileMapEndAddress();
@@ -32,13 +32,6 @@ public interface Io {
     boolean areTileMapEntriesSigned();
     boolean isButtonPressed(Button button);
     void setButtonPressed(Button button, boolean isPressed);
-    boolean isTimerEnabled();
-    int getCyclesPerTimerCounterTick();
-    int getTimerDiv();
-    void setTimerDiv(int newValue);
-    int getTimerCounter();
-    void setTimerCounter(int newValue);
-    void resetTimerCounter();
 
     enum LcdControllerMode {
         HBLANK,
