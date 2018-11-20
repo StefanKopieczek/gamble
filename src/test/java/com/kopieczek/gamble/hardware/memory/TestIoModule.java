@@ -1078,10 +1078,50 @@ public class TestIoModule {
         });
     }
 
+    @Test
+    public void test_get_timer_div_returns_0xff04() {
+        doRangeTest(0xff04, mmu -> {
+            assertEquals(mmu.readByte(0xff04), mmu.getIo().getTimerDiv());
+        });
+    }
+
+    @Test
+    public void test_writing_anything_to_timer_div_resets_it() {
+        for (int toWrite = 0x00; toWrite <= 0xff; toWrite++) {
+            final int toWrite2 = toWrite;
+            doRangeTest(0xff04, mmu -> {
+                int oldValue = mmu.readByte(0xff04);
+                mmu.setByte(0xff04, toWrite2);
+                assertEquals("Writing 0x" + Integer.toHexString(toWrite2) + " to 0xff04 should reset it",
+                        0x00,
+                        mmu.readByte(0xff04));
+            });
+        }
+    }
+
+    @Test
+    public void test_setting_timer_div_writes_to_0xff04() {
+        for (int val = 0x00; val <= 0xff; val++) {
+            Mmu mmu = getTestMmu();
+            mmu.getIo().setTimerDiv(val);
+            assertEquals(mmu.readByte(0xff04), val);
+        }
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
             mmu.setByte(address, value);
+            test.accept(mmu);
+        }
+    }
+
+    private static void doDirectRangeTest(int address, Consumer<Mmu> test) {
+        int directAddress = address - Mmu.IO_AREA_START;
+        for (int value = 0x00; value < 0xff; value++) {
+            Mmu mmu = getTestMmu();
+            RamModule unsafeIo = (RamModule) mmu.getIo();
+            unsafeIo.setByteDirect(directAddress, value);
             test.accept(mmu);
         }
     }

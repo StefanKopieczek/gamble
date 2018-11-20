@@ -13,6 +13,7 @@ class IoModule extends RamModule implements Io {
     private static final Logger log = LogManager.getLogger(IoModule.class);
 
     private static final int JOYPAD_ADDR = 0x0000;
+    private static final int TIMER_DIV_ADDR = 0x0004;
     private static final int TIMER_CONTROL_ADDR = 0x0007;
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
@@ -72,6 +73,7 @@ class IoModule extends RamModule implements Io {
         addTrigger(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag);
         addTrigger(DMA_TRANSFER_ADDR, this::doDmaTransfer);
         addTrigger(BIOS_DISABLE_ADDR, this::disableBios);
+        addTrigger(TIMER_DIV_ADDR, () -> setByteDirect(TIMER_DIV_ADDR, 0x00));
     }
 
     void linkGlobalMemory(Mmu mmu) {
@@ -150,6 +152,16 @@ class IoModule extends RamModule implements Io {
             default:
                 return 256;
         }
+    }
+
+    @Override
+    public int getTimerDiv() {
+        return readByte(TIMER_DIV_ADDR);
+    }
+
+    @Override
+    public void setTimerDiv(int newValue) {
+        setByteDirect(TIMER_DIV_ADDR, newValue);
     }
 
     private void recalculateJoypadRegister() {

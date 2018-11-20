@@ -34,6 +34,8 @@ public interface Io {
     void setButtonPressed(Button button, boolean isPressed);
     boolean isTimerEnabled();
     int getCyclesPerTimerCounterTick();
+    int getTimerDiv();
+    void setTimerDiv(int newValue);
 
     enum LcdControllerMode {
         HBLANK,
