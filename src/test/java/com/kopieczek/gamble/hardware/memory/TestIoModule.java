@@ -1124,20 +1124,18 @@ public class TestIoModule {
         }
     }
 
+    @Test
+    public void test_reset_timer_counter() {
+        doRangeTest(0xff06, mmu -> {
+            mmu.getIo().resetTimerCounter();
+            assertEquals(mmu.readByte(0xff06), mmu.getIo().getTimerCounter());
+        });
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
             mmu.setByte(address, value);
-            test.accept(mmu);
-        }
-    }
-
-    private static void doDirectRangeTest(int address, Consumer<Mmu> test) {
-        int directAddress = address - Mmu.IO_AREA_START;
-        for (int value = 0x00; value < 0xff; value++) {
-            Mmu mmu = getTestMmu();
-            RamModule unsafeIo = (RamModule) mmu.getIo();
-            unsafeIo.setByteDirect(directAddress, value);
             test.accept(mmu);
         }
     }

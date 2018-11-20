@@ -15,6 +15,7 @@ class IoModule extends RamModule implements Io {
     private static final int JOYPAD_ADDR = 0x0000;
     private static final int TIMER_DIV_ADDR = 0x0004;
     private static final int TIMER_COUNTER_ADDR = 0x0005;
+    private static final int TIMER_MODULO_ADDR = 0x0006;
     private static final int TIMER_CONTROL_ADDR = 0x0007;
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
@@ -173,6 +174,11 @@ class IoModule extends RamModule implements Io {
     @Override
     public void setTimerCounter(int newValue) {
         setByteDirect(TIMER_COUNTER_ADDR, newValue);
+    }
+
+    @Override
+    public void resetTimerCounter() {
+        setByteDirect(TIMER_COUNTER_ADDR, readByte(TIMER_MODULO_ADDR));
     }
 
     private void recalculateJoypadRegister() {

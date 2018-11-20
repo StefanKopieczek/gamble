@@ -38,6 +38,7 @@ public interface Io {
     void setTimerDiv(int newValue);
     int getTimerCounter();
     void setTimerCounter(int newValue);
+    void resetTimerCounter();
 
     enum LcdControllerMode {
         HBLANK,
