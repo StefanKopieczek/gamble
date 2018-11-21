@@ -3,6 +3,9 @@
 *.class
 *.sw[po]
 
+# Ignore log output
+log/
+
 # Ignore gradle build folder
 .gradle/
 
