@@ -13,6 +13,7 @@ log/
 *.ipr
 *.iws
 *.iml
+.attach_pid*
 
 # Ignore IntelliJ output folder
 out/
