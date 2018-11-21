@@ -2,6 +2,7 @@ package com.kopieczek.gamble;
 
 import com.kopieczek.gamble.hardware.cpu.Cpu;
 import com.kopieczek.gamble.hardware.cpu.Word;
+import com.kopieczek.gamble.hardware.cpu.timer.TimerChip;
 import com.kopieczek.gamble.hardware.governor.Governor;
 import com.kopieczek.gamble.hardware.graphics.Gpu;
 import com.kopieczek.gamble.hardware.memory.Mmu;
@@ -27,6 +28,7 @@ public class Gamble {
         Cpu cpu = new Cpu(mmu.getShieldedMemoryAccess(), mmu.getInterruptLine());
         Gpu gpu = new Gpu(mmu.getDirectMemoryAccess(), mmu.getIo(), mmu.getInterruptLine(),
                           mmu.getGraphicsAccessController());
+        TimerChip timer = new TimerChip(mmu.getIo(), mmu.getInterruptLine());
 
         log.info("Loading ROM");
         loadRom(mmu, new File(args[0]));
@@ -64,6 +66,7 @@ public class Gamble {
                 mmu.stepAhead(cycleDelta);
                 gpu.stepAhead(cycleDelta);
             }
+            timer.tick(cycleDelta);
             governor.sleepIfNeeded(cycleDelta);
         }
     }

@@ -4,14 +4,14 @@ import com.kopieczek.gamble.hardware.cpu.Interrupt;
 import com.kopieczek.gamble.hardware.memory.InterruptLine;
 import com.kopieczek.gamble.hardware.memory.TimerRegisters;
 
-public class Timer {
+public class TimerChip {
     private static final int CYCLES_PER_DIV_TICK = 256;
 
     private final TimerRegisters registers;
     private final InterruptLine interrupts;
     private int ticks;
 
-    public Timer(TimerRegisters registers, InterruptLine interrupts) {
+    public TimerChip(TimerRegisters registers, InterruptLine interrupts) {
         this.registers = registers;
         this.interrupts = interrupts;
     }

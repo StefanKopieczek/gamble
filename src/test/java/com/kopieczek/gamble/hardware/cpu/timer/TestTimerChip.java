@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class TestTimer {
+public class TestTimerChip {
     @Test
     public void test_div_is_initially_zero() {
         timerTest((registers, interrupts, timer) -> {
@@ -263,13 +263,13 @@ public class TestTimer {
 
     @FunctionalInterface
     private interface TimerTest {
-        void apply(MockTimerRegisters registers, MockInterrupts interrupts, Timer timer);
+        void apply(MockTimerRegisters registers, MockInterrupts interrupts, TimerChip timer);
     }
 
     private static void timerTest(TimerTest t) {
         MockTimerRegisters registers = new MockTimerRegisters();
         MockInterrupts interrupts = new MockInterrupts();
-        Timer timer = new Timer(registers, interrupts);
+        TimerChip timer = new TimerChip(registers, interrupts);
         t.apply(registers, interrupts, timer);
     }
 
