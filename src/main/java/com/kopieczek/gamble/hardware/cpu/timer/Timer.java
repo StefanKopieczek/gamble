@@ -20,7 +20,7 @@ public class Timer {
         int cyclesPerCounterTick = registers.getCyclesPerTimerCounterTick();
 
         for (int i = 0; i < clockCycles; i++) {
-            ticks = (ticks + 1) % 1024;
+            ticks++;
             if (ticks % CYCLES_PER_DIV_TICK == 0) {
                 incrementDiv();
             }
@@ -28,6 +28,10 @@ public class Timer {
                 incrementCounter();
             }
         }
+
+        // No value of ticksPerCounter is slower than once per 1024 ticks,
+        // and all possible values are factors of 1024.
+        ticks %= 1024;
     }
 
     private void incrementDiv() {
