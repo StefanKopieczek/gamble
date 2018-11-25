@@ -24,7 +24,7 @@ public class TimerChip {
             if (ticks % CYCLES_PER_DIV_TICK == 0) {
                 incrementDiv();
             }
-            if (ticks % cyclesPerCounterTick == 0) {
+            if (registers.isTimerEnabled() && (ticks % cyclesPerCounterTick == 0)) {
                 incrementCounter();
             }
         }

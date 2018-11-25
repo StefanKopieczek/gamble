@@ -127,6 +127,16 @@ public class TestTimerChip {
     }
 
     @Test
+    public void test_counter_does_not_increment_if_clock_is_disabled() {
+        timerTest((registers, interrupts, timer) -> {
+            registers.setCyclesPerTimerCounterTick(1);
+            registers.setTimerEnabled(false);
+            timer.tick(10);
+            assertEquals(0, registers.getTimerCounter());
+        });
+    }
+
+    @Test
     public void test_counter_increment_on_multi_tick_when_cycles_per_counter_is_one() {
         timerTest((registers, interrupts, timer) -> {
             registers.setCyclesPerTimerCounterTick(1);
@@ -274,7 +284,7 @@ public class TestTimerChip {
     }
 
     private static class MockTimerRegisters implements TimerRegisters {
-        private boolean isTimerEnabled;
+        private boolean isTimerEnabled = true;
         private int cyclesPerTimerCounterTick = 1;
         private int timerDiv;
         private int timerCounter;
