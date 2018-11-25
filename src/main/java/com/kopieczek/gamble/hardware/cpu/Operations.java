@@ -45,7 +45,7 @@ class Operations {
     static int write(Cpu cpu, Word.Argument to, Byte.Register from) {
         logOp("LD {}, {}", hex(cpu, to), from);
         cpu.writeTo(Pointer.of(to), from);
-        return 12;
+        return 16;
     }
 
     static int write(Cpu cpu, Pointer to, Word.Register from) {

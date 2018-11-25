@@ -1234,9 +1234,9 @@ public class TestCpu {
     }
 
     @Test
-    public void test_load_a_to_indirect_arg_uses_12_cycles() {
+    public void test_load_a_to_indirect_arg_uses_16_cycles() {
         Cpu cpu = runProgram(0xea, 0x00, 0x00);
-        assertEquals(12, cpu.getCycles());
+        assertEquals(16, cpu.getCycles());
     }
 
     @Test
