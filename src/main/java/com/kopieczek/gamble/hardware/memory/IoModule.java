@@ -325,6 +325,11 @@ class IoModule extends RamModule implements Io {
         return 0x8000;
     }
 
+    @Override
+    public int getSpritePatternStartAddress() {
+        return 0xfe00;
+    }
+
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
         if (colorId == 0) {
             // Color 0 is always full transparency regardless of palette

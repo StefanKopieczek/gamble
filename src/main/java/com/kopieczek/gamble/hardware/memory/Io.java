@@ -33,6 +33,7 @@ public interface Io extends TimerRegisters {
     boolean isButtonPressed(Button button);
     void setButtonPressed(Button button, boolean isPressed);
     int getSpriteDataStartAddress();
+    int getSpritePatternStartAddress();
 
     enum LcdControllerMode {
         HBLANK,

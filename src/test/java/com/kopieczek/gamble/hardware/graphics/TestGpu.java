@@ -54,6 +54,7 @@ public class TestGpu {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(io.getSpriteDataStartAddress()).thenReturn(0x8000);
+        when(io.getSpritePatternStartAddress()).thenReturn(0xfe00);
     }
 
     @Test
@@ -140,6 +141,53 @@ public class TestGpu {
 
         mockByteRange(0x8f00, LONG_SPRITE_1);
         assertArrayEquals(LONG_SPRITE_1, getTestGpu().getSpriteData(120));
+    }
+
+    @Test
+    public void test_get_sprite_pattern_address_for_short_sprites() {
+        when(io.getSpriteHeight()).thenReturn(8);
+        Gpu gpu = getTestGpu();
+        for (int index = 0; index < 40; index++) {
+            assertEquals("Unexpected pattern address for index " + index,
+                0xfe00 + 4 * index,
+                         gpu.getSpritePatternAddress(index));
+        }
+    }
+
+    @Test
+    public void test_get_sprite_pattern_address_for_long_sprites() {
+        when(io.getSpriteHeight()).thenReturn(16);
+        Gpu gpu = getTestGpu();
+        for (int index = 0; index < 40; index++) {
+            assertEquals("Unexpected pattern address for index " + index,
+                    0xfe00 + 4 * index, // Same as for short sprites!
+                    gpu.getSpritePatternAddress(index));
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_get_sprite_pattern_address_fails_for_negative_1() {
+        getTestGpu().getSpritePatternAddress(-1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_get_sprite_pattern_address_fails_for_negative_17() {
+        getTestGpu().getSpritePatternAddress(-17);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_get_sprite_pattern_address_fails_for_40() {
+        getTestGpu().getSpritePatternAddress(40);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_get_sprite_pattern_address_fails_for_41() {
+        getTestGpu().getSpritePatternAddress(41);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_get_sprite_pattern_address_fails_for_101() {
+        getTestGpu().getSpritePatternAddress(101);
     }
 
     private void mockByteRange(int address, int... data) {

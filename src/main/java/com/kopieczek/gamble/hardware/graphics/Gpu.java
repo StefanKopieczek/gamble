@@ -199,6 +199,14 @@ public class Gpu {
         return result;
     }
 
+    public int getSpritePatternAddress(int spriteIndex) {
+        if ((0 <= spriteIndex) && (spriteIndex < 40)) {
+            return 0xfe00 + 4 * spriteIndex;
+        } else {
+            throw new IllegalArgumentException(Integer.toHexString(spriteIndex));
+        }
+    }
+
     private enum Mode {
         OAM_READ(80),
         VRAM_READ(172),
