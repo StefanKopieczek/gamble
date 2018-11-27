@@ -1132,6 +1132,11 @@ public class TestIoModule {
         });
     }
 
+    @Test
+    public void test_get_sprite_data_start_address_returns_0x8000() {
+        assertEquals(0x8000, getTestMmu().getIo().getSpriteDataStartAddress());
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();

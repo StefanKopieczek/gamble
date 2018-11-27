@@ -177,6 +177,16 @@ public class Gpu {
         mode = newMode;
     }
 
+    int getSpriteDataAddress(int index) {
+        int spriteHeight = io.getSpriteHeight();
+        int maxIndex = (spriteHeight == 8) ? 256 : 128;
+        if ((0 <= index) && (index < maxIndex)) {
+            return 0x8000 + index * 2 * io.getSpriteHeight();
+        } else {
+            throw new IllegalArgumentException("0x" + Integer.toHexString(index));
+        }
+    }
+
     private enum Mode {
         OAM_READ(80),
         VRAM_READ(172),
