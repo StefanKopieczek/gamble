@@ -9,10 +9,35 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 public class TestGpu {
+    private static final int[] SHORT_SPRITE_1 = new int[] {
+            0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0,
+            0x10, 0x2f, 0x3e, 0x4d, 0x5c, 0x6b, 0x7a, 0x89
+    };
+
+    private static final int[] SHORT_SPRITE_2 = new int[] {
+            0x01, 0xf2, 0xe3, 0xd4, 0xc5, 0xb6, 0xa7, 0x98,
+            0x20, 0x43, 0x65, 0x87, 0xa9, 0xcb, 0xed, 0x0f
+    };
+
+    private static final int[] LONG_SPRITE_1 = new int[] {
+            0x01, 0xf2, 0xe3, 0xd4, 0xc5, 0xb6, 0xa7, 0x98,
+            0x20, 0x43, 0x65, 0x87, 0xa9, 0xcb, 0xed, 0x0f,
+            0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0,
+            0x10, 0x2f, 0x3e, 0x4d, 0x5c, 0x6b, 0x7a, 0x89
+    };
+
+    private static final int[] LONG_SPRITE_2 = new int[] {
+            0x20, 0x43, 0x65, 0x87, 0xa9, 0xcb, 0xed, 0x0f,
+            0x10, 0x2f, 0x3e, 0x4d, 0x5c, 0x6b, 0x7a, 0x89,
+            0x01, 0xf2, 0xe3, 0xd4, 0xc5, 0xb6, 0xa7, 0x98,
+            0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0,
+    };
+
     @Mock
     Memory memory;
 
@@ -81,6 +106,47 @@ public class TestGpu {
     @Test(expected=IllegalArgumentException.class)
     public void test_get_sprite_data_address_fails_for_tall_sprite_when_index_is_128() {
         getTestGpu().getSpriteDataAddress(128);
+    }
+
+    @Test
+    public void test_get_short_sprite_data() {
+        when(io.getSpriteHeight()).thenReturn(8);
+
+        mockByteRange(0x8000, SHORT_SPRITE_1);
+        assertArrayEquals(SHORT_SPRITE_1, getTestGpu().getSpriteData(0));
+
+        mockByteRange(0x8010, SHORT_SPRITE_2);
+        assertArrayEquals(SHORT_SPRITE_2, getTestGpu().getSpriteData(1));
+
+        mockByteRange(0x8040, SHORT_SPRITE_2);
+        assertArrayEquals(SHORT_SPRITE_2, getTestGpu().getSpriteData(4));
+
+        mockByteRange(0x8760, SHORT_SPRITE_1);
+        assertArrayEquals(SHORT_SPRITE_1, getTestGpu().getSpriteData(118));
+    }
+
+    @Test
+    public void test_get_tall_sprite_data() {
+        when(io.getSpriteHeight()).thenReturn(16);
+
+        mockByteRange(0x8000, LONG_SPRITE_2);
+        assertArrayEquals(LONG_SPRITE_2, getTestGpu().getSpriteData(0));
+
+        mockByteRange(0x8020, LONG_SPRITE_1);
+        assertArrayEquals(LONG_SPRITE_1, getTestGpu().getSpriteData(1));
+
+        mockByteRange(0x8080, LONG_SPRITE_2);
+        assertArrayEquals(LONG_SPRITE_2, getTestGpu().getSpriteData(4));
+
+        mockByteRange(0x8f00, LONG_SPRITE_1);
+        assertArrayEquals(LONG_SPRITE_1, getTestGpu().getSpriteData(120));
+    }
+
+    private void mockByteRange(int address, int... data) {
+        for (int b : data) {
+            when(memory.readByte(address)).thenReturn(b);
+            address++;
+        }
     }
 
     private Gpu getTestGpu() {

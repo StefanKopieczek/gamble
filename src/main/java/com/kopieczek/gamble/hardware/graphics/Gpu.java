@@ -187,6 +187,18 @@ public class Gpu {
         }
     }
 
+    public int[] getSpriteData(int index) {
+        int address = getSpriteDataAddress(index);
+        int numBytes = 2 * io.getSpriteHeight();
+        int[] result = new int[numBytes];
+        for (int i = 0; i < numBytes; i++) {
+           result[i] = memory.readByte(address);
+           address++;
+        }
+
+        return result;
+    }
+
     private enum Mode {
         OAM_READ(80),
         VRAM_READ(172),
