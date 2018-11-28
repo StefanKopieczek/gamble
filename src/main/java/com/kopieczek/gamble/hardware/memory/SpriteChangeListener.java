@@ -1,6 +1,6 @@
 package com.kopieczek.gamble.hardware.memory;
 
 public interface SpriteChangeListener {
-    void onSpriteDataModified(int spriteIndex);
-    void onSpritePatternModified(int patternIndex);
+    void onSpritePatternModified(int spriteIndex);
+    void onSpriteAttributesModified(int patternIndex);
 }

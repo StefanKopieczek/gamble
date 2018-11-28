@@ -12,9 +12,9 @@ import static org.junit.Assert.fail;
 
 public class TestOamModule {
     @Test
-    public void test_writes_fire_data_modified_events_for_correct_sprites() {
+    public void test_writes_fire_pattern_modified_events_for_correct_sprites() {
         final AtomicInteger lastModified = new AtomicInteger(-1);
-        doSpriteDataChangeTest(
+        doSpritePatternChangeTest(
             oam -> {
                 for (int address = 0x00; address < 0xa0; address++) {
                     oam.setByte(address, 0xff);
@@ -29,15 +29,15 @@ public class TestOamModule {
     }
 
     @Test
-    public void test_writes_do_not_fire_pattern_modified_events() {
+    public void test_writes_do_not_fire_attributes_modified_events() {
         SpriteChangeListener listener = new SpriteChangeListener() {
             @Override
-            public void onSpriteDataModified(int spriteIndex) {
+            public void onSpritePatternModified(int spriteIndex) {
                 // Do nothing
             }
 
             @Override
-            public void onSpritePatternModified(int patternIndex) {
+            public void onSpriteAttributesModified(int patternIndex) {
                 fail();
             }
         };
@@ -50,7 +50,7 @@ public class TestOamModule {
     @Test
     public void test_all_writes_fire_pattern_modified_events() {
         AtomicInteger numEvents = new AtomicInteger(0);
-        doSpriteDataChangeTest(
+        doSpritePatternChangeTest(
             oam -> {
                 for (int val = 0xff; val >= 0; val--) {
                     oam.setByte(0x00, val);
@@ -62,17 +62,17 @@ public class TestOamModule {
     }
 
     @Test
-    public void test_initial_zero_write_does_not_fire_data_modified() {
-        doSpriteDataChangeTest(
+    public void test_initial_zero_write_does_not_fire_pattern_modified() {
+        doSpritePatternChangeTest(
             oam -> oam.setByte(0x00, 0x00),
             changedSprite -> fail()
         );
     }
 
     @Test
-    public void test_repeated_writes_only_fire_data_modified_once() {
+    public void test_repeated_writes_only_fire_pattern_modified_once() {
         AtomicBoolean alreadyFired = new AtomicBoolean(false);
-        doSpriteDataChangeTest(
+        doSpritePatternChangeTest(
             oam -> IntStream.range(0, 1000).forEach(x -> oam.setByte(0x00, 0xff)),
             changedSprite ->  {
                 if (alreadyFired.getAndSet(true)) {
@@ -82,15 +82,15 @@ public class TestOamModule {
         );
     }
 
-    private void doSpriteDataChangeTest(Consumer<OamModule> test, Consumer<Integer> onDataChange) {
+    private void doSpritePatternChangeTest(Consumer<OamModule> test, Consumer<Integer> onDataChange) {
         SpriteChangeListener listener = new SpriteChangeListener() {
             @Override
-            public void onSpriteDataModified(int spriteIndex) {
+            public void onSpritePatternModified(int spriteIndex) {
                 onDataChange.accept(spriteIndex);
             }
 
             @Override
-            public void onSpritePatternModified(int patternIndex) {
+            public void onSpriteAttributesModified(int patternIndex) {
                 // Do nothing
             }
         };

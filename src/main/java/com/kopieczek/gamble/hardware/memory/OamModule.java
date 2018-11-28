@@ -18,11 +18,11 @@ class OamModule extends RamModule {
         int prevValue = readByte(address);
         super.setByte(address, value);
         if (prevValue != value) {
-            fireSpriteDataModified(address / 4);
+            fireSpritePatternModified(address / 4);
         }
     }
 
-    private void fireSpriteDataModified(int spriteIndex) {
-        spriteListeners.forEach(l -> l.onSpriteDataModified(spriteIndex));
+    private void fireSpritePatternModified(int spriteIndex) {
+        spriteListeners.forEach(l -> l.onSpritePatternModified(spriteIndex));
     }
 }
