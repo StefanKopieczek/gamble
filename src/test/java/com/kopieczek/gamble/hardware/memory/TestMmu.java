@@ -37,7 +37,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -52,7 +52,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE - 1),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -67,7 +67,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE + 1),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -82,7 +82,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE - 100),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -97,7 +97,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE + 17),
+                new DummyVramModule(VRAM_SIZE + 17),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -112,7 +112,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE - 8),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -127,7 +127,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE + 16),
                 new OamModule(),
@@ -142,7 +142,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new DummyOamModule(OAM_SIZE - 10),
@@ -157,7 +157,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -172,7 +172,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -188,7 +188,7 @@ public class TestMmu {
                 bios,
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -206,7 +206,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 rom1,
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -225,7 +225,7 @@ public class TestMmu {
                 bios,
                 rom0,
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -258,7 +258,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 rom0,
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -277,7 +277,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 rom0,
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -293,7 +293,7 @@ public class TestMmu {
 
     @Test
     public void test_read_from_gpu_vram() {
-        RamModule vram = new RamModule(VRAM_SIZE);
+        VramModule vram = new VramModule();
         Mmu mmu = new Mmu(
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
@@ -316,7 +316,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 extram,
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -334,7 +334,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 ram,
                 new OamModule(),
@@ -352,7 +352,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 ram,
                 new OamModule(),
@@ -370,7 +370,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 oam,
@@ -388,7 +388,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -406,7 +406,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -424,7 +424,7 @@ public class TestMmu {
                 bios,
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -442,7 +442,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 rom1,
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -461,7 +461,7 @@ public class TestMmu {
                 bios,
                 rom0,
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -499,7 +499,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 rom0,
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -518,7 +518,7 @@ public class TestMmu {
 //                new RamModule(BIOS_SIZE),
 //                rom0,
 //                new RamModule(ROM_1_SIZE),
-//                new RamModule(VRAM_SIZE),
+//                new VramModule(),
 //                new RamModule(EXTRAM_SIZE),
 //                new RamModule(RAM_SIZE),
 //                new OamModule(),
@@ -534,7 +534,7 @@ public class TestMmu {
 
     @Test
     public void test_write_to_gpu_vram() {
-        RamModule vram = new RamModule(VRAM_SIZE);
+        VramModule vram = new VramModule();
         Mmu mmu = new Mmu(
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
@@ -557,7 +557,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 extram,
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -575,7 +575,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 ram,
                 new OamModule(),
@@ -593,7 +593,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 ram,
                 new OamModule(),
@@ -611,7 +611,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 oam,
@@ -629,7 +629,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -647,7 +647,7 @@ public class TestMmu {
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
                 new RamModule(ROM_1_SIZE),
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
@@ -727,6 +727,20 @@ public class TestMmu {
         private final int size;
 
         public DummyOamModule(int size) {
+            super();
+            this.size = size;
+        }
+
+        @Override
+        public int getSizeInBytes() {
+            return size;
+        }
+    }
+
+    private static class DummyVramModule extends VramModule {
+        private final int size;
+
+        public DummyVramModule(int size) {
             super();
             this.size = size;
         }

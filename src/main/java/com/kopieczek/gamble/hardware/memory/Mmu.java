@@ -38,7 +38,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
     private final MemoryModule bios;
     private MemoryModule rom0;
     private MemoryModule rom1;
-    private final MemoryModule gpuVram;
+    private final VramModule vram;
     private MemoryModule extRam;
     private final MemoryModule ram;
     private final OamModule oam;
@@ -52,18 +52,18 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
 
     Mmu(MemoryModule bios,
                Cartridge cartridge,
-               MemoryModule gpuVram,
+               VramModule vram,
                MemoryModule ram,
                OamModule oam,
                IoModule io,
                MemoryModule zram) {
-        this(bios, cartridge.getRom0(), cartridge.getRom1(), gpuVram, cartridge.getRam(), ram, oam, io, zram);
+        this(bios, cartridge.getRom0(), cartridge.getRom1(), vram, cartridge.getRam(), ram, oam, io, zram);
     }
 
     Mmu(MemoryModule bios,
                MemoryModule rom0,
                MemoryModule rom1,
-               MemoryModule gpuVram,
+               VramModule vram,
                MemoryModule extRam,
                MemoryModule ram,
                OamModule oam,
@@ -72,7 +72,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
         this.bios = bios;
         this.rom0 = rom0;
         this.rom1 = rom1;
-        this.gpuVram = gpuVram;
+        this.vram = vram;
         this.extRam = extRam;
         this.ram = ram;
         this.oam = oam;
@@ -95,7 +95,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
         return new Mmu(
                 bios,
                 cartridge,
-                new RamModule(VRAM_SIZE),
+                new VramModule(),
                 new RamModule(RAM_SIZE),
                 new OamModule(),
                 new IoModule(),
@@ -107,7 +107,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
         assertModuleSize("BIOS", bios, BIOS_SIZE);
         assertModuleSize("ROM0", rom0, ROM_0_SIZE);
         assertModuleSize("ROM1", rom1, ROM_1_SIZE);
-        assertModuleSize("GPU VRAM", gpuVram, VRAM_SIZE);
+        assertModuleSize("GPU VRAM", vram, VRAM_SIZE);
         assertModuleSize("External RAM", extRam, EXT_RAM_SIZE);
         assertModuleSize("Working RAM", ram, RAM_SIZE);
         assertModuleSize("Sprite Space", oam, OAM_SIZE);
@@ -167,7 +167,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
                 MemoryModule module = getModuleForAddress(address);
 /*                if (ongoingDmas.size() > 0) {
                     return module == zram;
-                } else */if (module == gpuVram) {
+                } else */if (module == vram) {
                     return isVramAccessible;
                 } else if (module == oam) {
                     return isOamAccessible;
@@ -219,7 +219,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
         } else if (globalAddress < VRAM_START){
             return rom1;
         } else if (globalAddress < EXT_RAM_START) {
-            return gpuVram;
+            return vram;
         } else if (globalAddress < RAM_START){
             return extRam;
         } else if (globalAddress < SHADOW_RAM_START) {
