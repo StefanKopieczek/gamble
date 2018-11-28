@@ -12,16 +12,16 @@ import static org.junit.Assert.fail;
 
 public class TestOamModule {
     @Test
-    public void test_writes_fire_pattern_modified_events_for_correct_sprites() {
+    public void test_writes_fire_attributes_modified_events_for_correct_sprites() {
         final AtomicInteger lastModified = new AtomicInteger(-1);
-        doSpritePatternChangeTest(
+        doSpriteAttributesChangeTest(
             oam -> {
                 for (int address = 0x00; address < 0xa0; address++) {
                     oam.setByte(address, 0xff);
-                    int expectedSprite = address / 4;
-                    assertEquals(String.format("Expected write to 0x%02x to fire change on sprite %d",
-                                               address, expectedSprite),
-                            expectedSprite, lastModified.get());
+                    int expectedPattern = address / 4;
+                    assertEquals(String.format("Expected write to 0x%02x to fire change on pattern %d",
+                                               address, expectedPattern),
+                            expectedPattern, lastModified.get());
                 }
             },
             lastModified::set
@@ -29,16 +29,16 @@ public class TestOamModule {
     }
 
     @Test
-    public void test_writes_do_not_fire_attributes_modified_events() {
+    public void test_writes_do_not_fire_pattern_modified_events() {
         SpriteChangeListener listener = new SpriteChangeListener() {
             @Override
-            public void onSpritePatternModified(int spriteIndex) {
-                // Do nothing
+            public void onSpritePatternModified(int patternIndex) {
+                fail();
             }
 
             @Override
-            public void onSpriteAttributesModified(int patternIndex) {
-                fail();
+            public void onSpriteAttributesModified(int spriteIndex) {
+                // Do nothing
             }
         };
 
@@ -48,9 +48,9 @@ public class TestOamModule {
     }
 
     @Test
-    public void test_all_writes_fire_pattern_modified_events() {
+    public void test_all_writes_fire_attributes_modified_events() {
         AtomicInteger numEvents = new AtomicInteger(0);
-        doSpritePatternChangeTest(
+        doSpriteAttributesChangeTest(
             oam -> {
                 for (int val = 0xff; val >= 0; val--) {
                     oam.setByte(0x00, val);
@@ -62,17 +62,17 @@ public class TestOamModule {
     }
 
     @Test
-    public void test_initial_zero_write_does_not_fire_pattern_modified() {
-        doSpritePatternChangeTest(
+    public void test_initial_zero_write_does_not_fire_attributes_modified() {
+        doSpriteAttributesChangeTest(
             oam -> oam.setByte(0x00, 0x00),
             changedSprite -> fail()
         );
     }
 
     @Test
-    public void test_repeated_writes_only_fire_pattern_modified_once() {
+    public void test_repeated_writes_only_fire_attributes_modified_once() {
         AtomicBoolean alreadyFired = new AtomicBoolean(false);
-        doSpritePatternChangeTest(
+        doSpriteAttributesChangeTest(
             oam -> IntStream.range(0, 1000).forEach(x -> oam.setByte(0x00, 0xff)),
             changedSprite ->  {
                 if (alreadyFired.getAndSet(true)) {
@@ -82,16 +82,16 @@ public class TestOamModule {
         );
     }
 
-    private void doSpritePatternChangeTest(Consumer<OamModule> test, Consumer<Integer> onDataChange) {
+    private void doSpriteAttributesChangeTest(Consumer<OamModule> test, Consumer<Integer> onAttributesChanged) {
         SpriteChangeListener listener = new SpriteChangeListener() {
             @Override
-            public void onSpritePatternModified(int spriteIndex) {
-                onDataChange.accept(spriteIndex);
+            public void onSpritePatternModified(int patternIndex) {
+                // Do nothing
             }
 
             @Override
-            public void onSpriteAttributesModified(int patternIndex) {
-                // Do nothing
+            public void onSpriteAttributesModified(int spriteIndex) {
+                onAttributesChanged.accept(spriteIndex);
             }
         };
 
