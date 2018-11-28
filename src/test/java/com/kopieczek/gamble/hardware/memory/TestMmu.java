@@ -2,6 +2,8 @@ package com.kopieczek.gamble.hardware.memory;
 
 import org.junit.Test;
 
+import javax.crypto.spec.OAEPParameterSpec;
+
 import static org.junit.Assert.assertEquals;
 
 public class TestMmu {
@@ -12,7 +14,7 @@ public class TestMmu {
     private static final int EXTRAM_SIZE = 0x2000;
     private static final int RAM_SIZE = 0x2000;
     private static final int SHADOW_RAM_SIZE = 0x1e00; // Shadow RAM shadows all but last 512 bytes of main RAM.
-    private static final int SPRITES_SIZE = 0xA0;
+    private static final int OAM_SIZE = 0xA0;
     private static final int IO_SIZE = 0x80;
     private static final int ZRAM_SIZE = 0x80;
 
@@ -23,8 +25,8 @@ public class TestMmu {
     private static final int EXTRAM_START = VRAM_START + VRAM_SIZE;
     private static final int RAM_START = EXTRAM_START + EXTRAM_SIZE;
     private static final int SHADOW_RAM_START = RAM_START + RAM_SIZE;
-    private static final int SPRITES_START = SHADOW_RAM_START + SHADOW_RAM_SIZE;
-    private static final int DEAD_AREA_START = SPRITES_START + SPRITES_SIZE;
+    private static final int OAM_START = SHADOW_RAM_START + SHADOW_RAM_SIZE;
+    private static final int DEAD_AREA_START = OAM_START + OAM_SIZE;
     private static final int DEAD_AREA_SIZE = 0x60;
     private static final int IO_START = DEAD_AREA_START + DEAD_AREA_SIZE;
     private static final int ZRAM_START = IO_START + IO_SIZE;
@@ -38,7 +40,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -53,7 +55,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -68,7 +70,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -83,7 +85,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -98,7 +100,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE + 17),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -113,7 +115,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE - 8),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -128,14 +130,14 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE + 16),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void test_incorrect_sprites_size_rejected() {
+    public void test_incorrect_oam_size_rejected() {
         Mmu mmu = new Mmu(
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
@@ -143,7 +145,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE - 10),
+                new DummyOamModule(OAM_SIZE - 10),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -158,7 +160,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new DummyIoModule(IO_SIZE + 11),
                 new RamModule(ZRAM_SIZE)
         );
@@ -173,7 +175,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE - 99)
         );
@@ -189,7 +191,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -207,7 +209,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -226,7 +228,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -259,7 +261,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -278,7 +280,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -299,7 +301,7 @@ public class TestMmu {
                 vram,
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -317,7 +319,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 extram,
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -335,7 +337,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 ram,
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -353,7 +355,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 ram,
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -363,7 +365,7 @@ public class TestMmu {
 
     @Test
     public void test_read_from_sprite_area() {
-        RamModule sprites = new RamModule(SPRITES_SIZE);
+        OamModule oam = new OamModule();
         Mmu mmu = new Mmu(
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
@@ -371,12 +373,12 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                sprites,
+                oam,
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
 
-        testMmuRead(mmu, sprites, SPRITES_START);
+        testMmuRead(mmu, oam, OAM_START);
     }
 
     @Test
@@ -389,7 +391,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 io,
                 new RamModule(ZRAM_SIZE)
         );
@@ -407,7 +409,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 zram
         );
@@ -425,7 +427,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -443,7 +445,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -462,7 +464,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -500,7 +502,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -519,7 +521,7 @@ public class TestMmu {
 //                new RamModule(VRAM_SIZE),
 //                new RamModule(EXTRAM_SIZE),
 //                new RamModule(RAM_SIZE),
-//                new RamModule(SPRITES_SIZE),
+//                new OamModule(),
 //                new IoModule(),
 //                new RamModule(ZRAM_SIZE)
 //        );
@@ -540,7 +542,7 @@ public class TestMmu {
                 vram,
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -558,7 +560,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 extram,
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -576,7 +578,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 ram,
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -594,7 +596,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 ram,
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -603,8 +605,8 @@ public class TestMmu {
     }
 
     @Test
-    public void test_write_to_sprite_area() {
-        RamModule sprites = new RamModule(SPRITES_SIZE);
+    public void test_write_to_oam() {
+        OamModule oam = new OamModule();
         Mmu mmu = new Mmu(
                 new RamModule(BIOS_SIZE),
                 new RamModule(ROM_0_SIZE),
@@ -612,12 +614,12 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                sprites,
+                oam,
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
 
-        testMmuWrite(mmu, sprites, SPRITES_START);
+        testMmuWrite(mmu, oam, OAM_START);
     }
 
     @Test
@@ -630,7 +632,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 io,
                 new RamModule(ZRAM_SIZE)
         );
@@ -648,7 +650,7 @@ public class TestMmu {
                 new RamModule(VRAM_SIZE),
                 new RamModule(EXTRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 zram
         );
@@ -718,6 +720,20 @@ public class TestMmu {
         @Override
         public void setByte(int address, int value) {
             delegate.setByte(address, value);
+        }
+    }
+
+    private static class DummyOamModule extends OamModule {
+        private final int size;
+
+        public DummyOamModule(int size) {
+            super();
+            this.size = size;
+        }
+
+        @Override
+        public int getSizeInBytes() {
+            return size;
         }
     }
 }

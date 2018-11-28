@@ -24,10 +24,10 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
     public static final int RAM_START        = 0xc000;
     public static final int RAM_SIZE         = 0x2000;
     public static final int SHADOW_RAM_START = 0xe000;
-    public static final int SPRITES_START    = 0xfe00;
-    public static final int SPRITES_SIZE     = 0x00a0;
+    public static final int OAM_START        = 0xfe00;
+    public static final int OAM_SIZE         = 0x00a0;
     public static final int DEAD_AREA_START  = 0xfea0;
-    // 0x60 bytes of unusable memory between sprites and IO.
+    // 0x60 bytes of unusable memory between oam and IO.
     public static final int IO_AREA_START    = 0xff00;
     public static final int IO_AREA_SIZE     = 0x0080;
     public static final int ZRAM_START       = 0xff80;
@@ -41,7 +41,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
     private final MemoryModule gpuVram;
     private MemoryModule extRam;
     private final MemoryModule ram;
-    private final MemoryModule sprites;
+    private final OamModule oam;
     private final IoModule io;
     private final MemoryModule zram;
 
@@ -54,10 +54,10 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
                Cartridge cartridge,
                MemoryModule gpuVram,
                MemoryModule ram,
-               MemoryModule sprites,
+               OamModule oam,
                IoModule io,
                MemoryModule zram) {
-        this(bios, cartridge.getRom0(), cartridge.getRom1(), gpuVram, cartridge.getRam(), ram, sprites, io, zram);
+        this(bios, cartridge.getRom0(), cartridge.getRom1(), gpuVram, cartridge.getRam(), ram, oam, io, zram);
     }
 
     Mmu(MemoryModule bios,
@@ -66,7 +66,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
                MemoryModule gpuVram,
                MemoryModule extRam,
                MemoryModule ram,
-               MemoryModule sprites,
+               OamModule oam,
                IoModule io,
                MemoryModule zram) {
         this.bios = bios;
@@ -75,7 +75,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
         this.gpuVram = gpuVram;
         this.extRam = extRam;
         this.ram = ram;
-        this.sprites = sprites;
+        this.oam = oam;
         this.io = io;
         this.zram = zram;
         this.io.linkGlobalMemory(this);
@@ -97,7 +97,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
                 cartridge,
                 new RamModule(VRAM_SIZE),
                 new RamModule(RAM_SIZE),
-                new RamModule(SPRITES_SIZE),
+                new OamModule(),
                 new IoModule(),
                 new RamModule(ZRAM_SIZE)
         );
@@ -110,7 +110,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
         assertModuleSize("GPU VRAM", gpuVram, VRAM_SIZE);
         assertModuleSize("External RAM", extRam, EXT_RAM_SIZE);
         assertModuleSize("Working RAM", ram, RAM_SIZE);
-        assertModuleSize("Sprite Space", sprites, SPRITES_SIZE);
+        assertModuleSize("Sprite Space", oam, OAM_SIZE);
         assertModuleSize("Memory-Mapped IO", io, IO_AREA_SIZE);
         assertModuleSize("High-Page RAM", zram, ZRAM_SIZE);
     }
@@ -169,7 +169,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
                     return module == zram;
                 } else */if (module == gpuVram) {
                     return isVramAccessible;
-                } else if (module == sprites) {
+                } else if (module == oam) {
                     return isOamAccessible;
                 } else {
                     return true;
@@ -224,10 +224,10 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
             return extRam;
         } else if (globalAddress < SHADOW_RAM_START) {
             return ram;
-        } else if (globalAddress < SPRITES_START) {
+        } else if (globalAddress < OAM_START) {
             return ram;
         } else if (globalAddress < DEAD_AREA_START) {
-            return sprites;
+            return oam;
         } else if (globalAddress < IO_AREA_START) {
             log.warn("Program attempted to access invalid address 0x" + Integer.toHexString(globalAddress));
             return new DummyModule(0x60);
@@ -279,7 +279,7 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
 
     void doDmaTransfer(int startIndicator) {
         int startAddress = startIndicator << 8;
-        ongoingDmas.add(new DmaProcess(startAddress, SPRITES_START));
+        ongoingDmas.add(new DmaProcess(startAddress, OAM_START));
     }
 
     @Override
