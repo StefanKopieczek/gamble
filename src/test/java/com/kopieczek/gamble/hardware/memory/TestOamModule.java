@@ -1,16 +1,22 @@
 package com.kopieczek.gamble.hardware.memory;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class TestOamModule {
+    private final int[] TEST_ATTRS_1 = new int[] {0x12, 0x34, 0x56, 0x78};
+    private final int[] TEST_ATTRS_2 = new int[] {0xf4, 0x32, 0xe3, 0x21};
+    private final int[] TEST_ATTRS_3 = new int[] {0xcb, 0x99, 0x6b, 0x79};
+    private final List<int[]> ALL_TEST_ATTRS = ImmutableList.of(TEST_ATTRS_1, TEST_ATTRS_2, TEST_ATTRS_3);
+
     @Test
     public void test_writes_fire_attributes_modified_events_for_correct_sprites() {
         final AtomicInteger lastModified = new AtomicInteger(-1);
@@ -82,6 +88,16 @@ public class TestOamModule {
         );
     }
 
+    @Test
+    public void test_get_attribute_bytes() {
+        assertAttributeReadHitsAddress(0, 0x00);
+        assertAttributeReadHitsAddress(1, 0x04);
+        assertAttributeReadHitsAddress(2, 0x08);
+        assertAttributeReadHitsAddress(5, 0x14);
+        assertAttributeReadHitsAddress(38, 0x98);
+        assertAttributeReadHitsAddress(39, 0x9c);
+    }
+
     private void doSpriteAttributesChangeTest(Consumer<OamModule> test, Consumer<Integer> onAttributesChanged) {
         SpriteChangeListener listener = new SpriteChangeListener() {
             @Override
@@ -98,5 +114,15 @@ public class TestOamModule {
         OamModule oam = new OamModule();
         oam.register(listener);
         test.accept(oam);
+    }
+
+    private void assertAttributeReadHitsAddress(int spriteIndex, int address) {
+        OamModule oam = new OamModule();
+        ALL_TEST_ATTRS.forEach(attributes -> {
+            for (int idx = 0; idx < 4; idx++) {
+                oam.setByte(address + idx, attributes[idx]);
+            }
+            assertArrayEquals(attributes, oam.getAttributeBytes(spriteIndex));
+        });
     }
 }

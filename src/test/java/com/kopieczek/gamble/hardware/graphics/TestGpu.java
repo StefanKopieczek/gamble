@@ -1,9 +1,6 @@
 package com.kopieczek.gamble.hardware.graphics;
 
-import com.kopieczek.gamble.hardware.memory.GraphicsAccessController;
-import com.kopieczek.gamble.hardware.memory.InterruptLine;
-import com.kopieczek.gamble.hardware.memory.Io;
-import com.kopieczek.gamble.hardware.memory.Memory;
+import com.kopieczek.gamble.hardware.memory.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -49,6 +46,12 @@ public class TestGpu {
 
     @Mock
     GraphicsAccessController graphics;
+
+    @Mock
+    Oam oam;
+
+    @Mock
+    Vram vram;
 
     @Before
     public void setUp() throws Exception {
@@ -198,6 +201,6 @@ public class TestGpu {
     }
 
     private Gpu getTestGpu() {
-        return new Gpu(memory, io, interrupts, graphics, mmu.getOam(), mmu.getVram());
+        return new Gpu(memory, io, interrupts, graphics, oam, vram);
     }
 }
