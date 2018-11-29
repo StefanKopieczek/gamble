@@ -180,36 +180,6 @@ public class Gpu {
         mode = newMode;
     }
 
-    int getSpriteDataAddress(int index) {
-        int spriteHeight = io.getSpriteHeight();
-        int maxIndex = (spriteHeight == 8) ? 256 : 128;
-        if ((0 <= index) && (index < maxIndex)) {
-            return 0x8000 + index * 2 * io.getSpriteHeight();
-        } else {
-            throw new IllegalArgumentException("0x" + Integer.toHexString(index));
-        }
-    }
-
-    public int[] getSpriteData(int index) {
-        int address = getSpriteDataAddress(index);
-        int numBytes = 2 * io.getSpriteHeight();
-        int[] result = new int[numBytes];
-        for (int i = 0; i < numBytes; i++) {
-           result[i] = memory.readByte(address);
-           address++;
-        }
-
-        return result;
-    }
-
-    public int getSpritePatternAddress(int spriteIndex) {
-        if ((0 <= spriteIndex) && (spriteIndex < 40)) {
-            return 0xfe00 + 4 * spriteIndex;
-        } else {
-            throw new IllegalArgumentException(Integer.toHexString(spriteIndex));
-        }
-    }
-
     private enum Mode {
         OAM_READ(80),
         VRAM_READ(172),
