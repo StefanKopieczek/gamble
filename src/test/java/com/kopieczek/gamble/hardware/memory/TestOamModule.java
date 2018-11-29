@@ -98,6 +98,26 @@ public class TestOamModule {
         assertAttributeReadHitsAddress(39, 0x9c);
     }
 
+    @Test(expected=IllegalArgumentException.class)
+    public void test_get_attribute_bytes_fails_for_index_negative_one() {
+        new OamModule().getAttributeBytes(-1);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_get_attribute_bytes_fails_for_index_negative_100() {
+        new OamModule().getAttributeBytes(-100);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_get_attribute_bytes_fails_for_index_40() {
+        new OamModule().getAttributeBytes(40);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_get_attribute_bytes_fails_for_index_45() {
+        new OamModule().getAttributeBytes(45);
+    }
+
     private void doSpriteAttributesChangeTest(Consumer<OamModule> test, Consumer<Integer> onAttributesChanged) {
         SpriteChangeListener listener = new SpriteChangeListener() {
             @Override
