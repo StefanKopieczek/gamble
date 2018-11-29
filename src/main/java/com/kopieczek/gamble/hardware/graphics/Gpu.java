@@ -16,17 +16,20 @@ public class Gpu {
     private final Io io;
     private final InterruptLine interrupts;
     private final GraphicsAccessController graphicsAccessController;
+    private final SpriteMap spriteMap;
     private final Color[][] screenBuffer = initScreenBuffer();
     private final Color[][] scratchBuffer = initScreenBuffer();
     private Mode mode = Mode.OAM_READ;
     private int modeClock = 0;
     private int currentLine = 0;
 
-    public Gpu(Memory memory, Io io, InterruptLine interrupts, GraphicsAccessController graphicsAccessController) {
+    public Gpu(Memory memory, Io io, InterruptLine interrupts, GraphicsAccessController graphicsAccessController,
+               Oam oam, Vram vram) {
         this.memory = memory;
         this.io = io;
         this.interrupts = interrupts;
         this.graphicsAccessController = graphicsAccessController;
+        this.spriteMap = new SpriteMap(oam, vram);
     }
 
     private static Color[][] initScreenBuffer() {

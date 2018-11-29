@@ -26,8 +26,12 @@ public class Gamble {
         log.info("Setting up hardware");
         Mmu mmu = Mmu.build(SHOULD_SKIP_BIOS);
         Cpu cpu = new Cpu(mmu.getShieldedMemoryAccess(), mmu.getInterruptLine());
-        Gpu gpu = new Gpu(mmu.getDirectMemoryAccess(), mmu.getIo(), mmu.getInterruptLine(),
-                          mmu.getGraphicsAccessController());
+        Gpu gpu = new Gpu(mmu.getDirectMemoryAccess(),
+                          mmu.getIo(),
+                          mmu.getInterruptLine(),
+                          mmu.getGraphicsAccessController(),
+                          mmu.getOam(),
+                          mmu.getVram());
         TimerChip timer = new TimerChip(mmu.getIo(), mmu.getInterruptLine());
 
         log.info("Loading ROM");

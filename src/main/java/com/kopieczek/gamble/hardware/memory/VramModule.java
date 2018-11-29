@@ -2,13 +2,14 @@ package com.kopieczek.gamble.hardware.memory;
 
 import java.util.ArrayList;
 
-public class VramModule extends RamModule {
+public class VramModule extends RamModule implements Vram {
     private final ArrayList<SpriteChangeListener> spriteListeners = new ArrayList<>();
 
     VramModule() {
         super(Mmu.VRAM_SIZE);
     }
 
+    @Override
     public void register(SpriteChangeListener listener) {
         spriteListeners.add(listener);
     }

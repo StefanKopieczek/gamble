@@ -198,6 +198,6 @@ public class TestGpu {
     }
 
     private Gpu getTestGpu() {
-        return new Gpu(memory, io, interrupts, graphics);
+        return new Gpu(memory, io, interrupts, graphics, mmu.getOam(), mmu.getVram());
     }
 }

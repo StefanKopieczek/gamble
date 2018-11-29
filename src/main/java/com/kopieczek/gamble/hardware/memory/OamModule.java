@@ -2,13 +2,14 @@ package com.kopieczek.gamble.hardware.memory;
 
 import java.util.ArrayList;
 
-class OamModule extends RamModule {
+class OamModule extends RamModule implements Oam {
     private final ArrayList<SpriteChangeListener> spriteListeners = new ArrayList<>();
 
     OamModule() {
         super(Mmu.OAM_SIZE);
     }
 
+    @Override
     public void register(SpriteChangeListener listener) {
         spriteListeners.add(listener);
     }

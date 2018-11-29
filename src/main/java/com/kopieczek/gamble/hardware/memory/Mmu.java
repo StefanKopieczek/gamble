@@ -291,5 +291,13 @@ public class Mmu implements Memory, InterruptLine, GraphicsAccessController {
     public void setOamAccessible(boolean isAccessible) {
         isOamAccessible = isAccessible;
     }
+
+    public Oam getOam() {
+        return oam;
+    }
+
+    public Vram getVram() {
+        return vram;
+    }
 }
 
