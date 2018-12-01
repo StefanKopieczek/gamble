@@ -12,12 +12,24 @@ package com.kopieczek.gamble.hardware.graphics;
  *   - Bit 4:    Palette select
  *   - Bits 3-0: Unused on DMG
  */
-public class SpriteAttributes {
-    public static SpriteAttributes parse(int[] input) {
-        return new SpriteAttributes();
+class SpriteAttributes {
+    private int y;
+
+    private SpriteAttributes(int y) {
+        this.y = y;
     }
 
-    public int getY() {
-        return -16;
+    static SpriteAttributes parse(int[] bytes) {
+        return new SpriteAttributes(
+                parseY(bytes)
+        );
+    }
+
+    int getY() {
+        return y;
+    }
+
+    private static int parseY(int[] bytes) {
+        return bytes[0] - 16;
     }
 }
