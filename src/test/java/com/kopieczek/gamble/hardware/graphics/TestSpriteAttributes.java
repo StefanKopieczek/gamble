@@ -88,6 +88,43 @@ public class TestSpriteAttributes {
             .run();
     }
 
+    @Test
+    public void test_vertical_orientation() {
+        TableTest.of(SpriteAttributes::getVerticalOrientation)
+            .testCase(SpriteAttributes.Orientation.UNCHANGED, 0x00, 0x00, 0x00, 0b00000000)
+            .testCase(SpriteAttributes.Orientation.FLIPPED,   0x00, 0x00, 0x00, 0b01000000)
+            .testCase(SpriteAttributes.Orientation.UNCHANGED, 0xff, 0xff, 0xff, 0b00000000)
+            .testCase(SpriteAttributes.Orientation.FLIPPED,   0xff, 0xff, 0xff, 0b01000000)
+            .testCase(SpriteAttributes.Orientation.UNCHANGED, 0x12, 0x34, 0x56, 0b00000000)
+            .testCase(SpriteAttributes.Orientation.FLIPPED,   0x12, 0x34, 0x56, 0b01000000)
+            .testCase(SpriteAttributes.Orientation.UNCHANGED, 0x00, 0x00, 0x00, 0b10111111)
+            .testCase(SpriteAttributes.Orientation.FLIPPED,   0x00, 0x00, 0x00, 0b11111111)
+            .testCase(SpriteAttributes.Orientation.UNCHANGED, 0x00, 0x00, 0x00, 0b00010101)
+            .testCase(SpriteAttributes.Orientation.FLIPPED,   0x00, 0x00, 0x00, 0b01010101)
+            .testCase(SpriteAttributes.Orientation.UNCHANGED, 0x00, 0x00, 0x00, 0b10101010)
+            .testCase(SpriteAttributes.Orientation.FLIPPED,   0x00, 0x00, 0x00, 0b11101010)
+            .run();
+    }
+
+
+    @Test
+    public void test_horizontal_orientation() {
+        TableTest.of(SpriteAttributes::getHorizontalOrientation)
+            .testCase(SpriteAttributes.Orientation.UNCHANGED, 0x00, 0x00, 0x00, 0b00000000)
+            .testCase(SpriteAttributes.Orientation.FLIPPED,   0x00, 0x00, 0x00, 0b00100000)
+            .testCase(SpriteAttributes.Orientation.UNCHANGED, 0xff, 0xff, 0xff, 0b00000000)
+            .testCase(SpriteAttributes.Orientation.FLIPPED,   0xff, 0xff, 0xff, 0b00100000)
+            .testCase(SpriteAttributes.Orientation.UNCHANGED, 0x12, 0x34, 0x56, 0b00000000)
+            .testCase(SpriteAttributes.Orientation.FLIPPED,   0x12, 0x34, 0x56, 0b00100000)
+            .testCase(SpriteAttributes.Orientation.UNCHANGED, 0x00, 0x00, 0x00, 0b11011111)
+            .testCase(SpriteAttributes.Orientation.FLIPPED,   0x00, 0x00, 0x00, 0b11111111)
+            .testCase(SpriteAttributes.Orientation.UNCHANGED, 0x00, 0x00, 0x00, 0b00010101)
+            .testCase(SpriteAttributes.Orientation.FLIPPED,   0x00, 0x00, 0x00, 0b00110101)
+            .testCase(SpriteAttributes.Orientation.UNCHANGED, 0x00, 0x00, 0x00, 0b11001010)
+            .testCase(SpriteAttributes.Orientation.FLIPPED,   0x00, 0x00, 0x00, 0b11101010)
+            .run();
+    }
+
     private static class TableTest<T> {
         private final Function<SpriteAttributes, T> methodToTest;
         private List<TestRow<T>> table = new ArrayList<>();
