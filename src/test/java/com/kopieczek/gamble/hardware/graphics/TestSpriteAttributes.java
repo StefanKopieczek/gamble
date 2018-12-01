@@ -70,6 +70,24 @@ public class TestSpriteAttributes {
             .run();
     }
 
+    @Test
+    public void test_z_position() {
+        TableTest.of(SpriteAttributes::getZPosition)
+            .testCase(SpriteAttributes.ZPosition.FOREGROUND, 0x00, 0x00, 0x00, 0b00000000)
+            .testCase(SpriteAttributes.ZPosition.BACKGROUND, 0x00, 0x00, 0x00, 0b10000000)
+            .testCase(SpriteAttributes.ZPosition.FOREGROUND, 0xff, 0xff, 0xff, 0b00000000)
+            .testCase(SpriteAttributes.ZPosition.BACKGROUND, 0xff, 0xff, 0xff, 0b10000000)
+            .testCase(SpriteAttributes.ZPosition.FOREGROUND, 0x12, 0x34, 0x56, 0b00000000)
+            .testCase(SpriteAttributes.ZPosition.BACKGROUND, 0x12, 0x34, 0x56, 0b10000000)
+            .testCase(SpriteAttributes.ZPosition.FOREGROUND, 0x00, 0x00, 0x00, 0b01111111)
+            .testCase(SpriteAttributes.ZPosition.BACKGROUND, 0x00, 0x00, 0x00, 0b11111111)
+            .testCase(SpriteAttributes.ZPosition.FOREGROUND, 0x00, 0x00, 0x00, 0b00010101)
+            .testCase(SpriteAttributes.ZPosition.BACKGROUND, 0x00, 0x00, 0x00, 0b10010101)
+            .testCase(SpriteAttributes.ZPosition.FOREGROUND, 0x00, 0x00, 0x00, 0b01101010)
+            .testCase(SpriteAttributes.ZPosition.BACKGROUND, 0x00, 0x00, 0x00, 0b11101010)
+            .run();
+    }
+
     private static class TableTest<T> {
         private final Function<SpriteAttributes, T> methodToTest;
         private List<TestRow<T>> table = new ArrayList<>();

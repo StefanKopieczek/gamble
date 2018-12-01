@@ -16,18 +16,21 @@ class SpriteAttributes {
     private final int x;
     private final int y;
     private final int patternIndex;
+    private final ZPosition zPosition;
 
-    private SpriteAttributes(int x, int y, int patternIndex) {
+    private SpriteAttributes(int x, int y, int patternIndex, ZPosition zPosition) {
         this.x = x;
         this.y = y;
         this.patternIndex = patternIndex;
+        this.zPosition = zPosition;
     }
 
     static SpriteAttributes parse(int[] bytes) {
         return new SpriteAttributes(
                 parseX(bytes),
                 parseY(bytes),
-                parsePatternIndex(bytes)
+                parsePatternIndex(bytes),
+                parseZPosition(bytes)
         );
     }
 
@@ -43,6 +46,10 @@ class SpriteAttributes {
         return patternIndex;
     }
 
+    ZPosition getZPosition() {
+        return zPosition;
+    }
+
     private static int parseX(int[] bytes) {
         return bytes[1] - 8;
     }
@@ -53,5 +60,14 @@ class SpriteAttributes {
 
     private static int parsePatternIndex(int[] bytes) {
         return bytes[2];
+    }
+
+    private static ZPosition parseZPosition(int[] bytes) {
+        return (bytes[3] & 0x80) > 0 ? ZPosition.BACKGROUND : ZPosition.FOREGROUND;
+    }
+
+    enum ZPosition {
+        FOREGROUND,
+        BACKGROUND
     }
 }
