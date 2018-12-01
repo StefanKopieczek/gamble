@@ -13,18 +13,21 @@ package com.kopieczek.gamble.hardware.graphics;
  *   - Bits 3-0: Unused on DMG
  */
 class SpriteAttributes {
-    private int x;
-    private int y;
+    private final int x;
+    private final int y;
+    private final int patternIndex;
 
-    private SpriteAttributes(int x, int y) {
+    private SpriteAttributes(int x, int y, int patternIndex) {
         this.x = x;
         this.y = y;
+        this.patternIndex = patternIndex;
     }
 
     static SpriteAttributes parse(int[] bytes) {
         return new SpriteAttributes(
                 parseX(bytes),
-                parseY(bytes)
+                parseY(bytes),
+                parsePatternIndex(bytes)
         );
     }
 
@@ -36,11 +39,19 @@ class SpriteAttributes {
         return y;
     }
 
+    int getPatternIndex() {
+        return patternIndex;
+    }
+
     private static int parseX(int[] bytes) {
         return bytes[1] - 8;
     }
 
     private static int parseY(int[] bytes) {
         return bytes[0] - 16;
+    }
+
+    private static int parsePatternIndex(int[] bytes) {
+        return bytes[2];
     }
 }
