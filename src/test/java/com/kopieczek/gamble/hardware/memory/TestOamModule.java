@@ -46,6 +46,11 @@ public class TestOamModule {
             public void onSpriteAttributesModified(int spriteIndex) {
                 // Do nothing
             }
+
+            @Override
+            public void onSpriteHeightChanged(boolean areTallSpritesEnabled) {
+                // Do nothing
+            }
         };
 
         OamModule oam = new OamModule();
@@ -128,6 +133,11 @@ public class TestOamModule {
             @Override
             public void onSpriteAttributesModified(int spriteIndex) {
                 onAttributesChanged.accept(spriteIndex);
+            }
+
+            @Override
+            public void onSpriteHeightChanged(boolean areTallSpritesEnabled) {
+                // Do nothing
             }
         };
 

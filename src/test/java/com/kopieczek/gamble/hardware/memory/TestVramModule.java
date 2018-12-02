@@ -53,6 +53,11 @@ public class TestVramModule {
             public void onSpritePatternModified(int patternIndex) {
                 // Do nothing
             }
+
+            @Override
+            public void onSpriteHeightChanged(boolean areTallSpritesEnabled) {
+                // Do nothing
+            }
         };
 
         VramModule vram = new VramModule();
@@ -136,6 +141,11 @@ public class TestVramModule {
             @Override
             public void onSpritePatternModified(int patternIndex) {
                 onPatternChange.accept(patternIndex);
+            }
+
+            @Override
+            public void onSpriteHeightChanged(boolean areTallSpritesEnabled) {
+                // Do nothing
             }
         };
 

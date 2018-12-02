@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -58,6 +59,8 @@ class IoModule extends RamModule implements Io {
             .build();
 
     private final boolean[] buttonStates = new boolean[Button.values().length];
+    private final java.util.List<SpriteChangeListener> spriteListeners = new ArrayList<>();
+    private boolean areTallSpritesEnabled = false;
 
     // Used for OAM DMA copy and for setting interrupts
     private Mmu globalMemory;
@@ -73,6 +76,7 @@ class IoModule extends RamModule implements Io {
         addTrigger(JOYPAD_ADDR, this::recalculateJoypadRegister);
         addTrigger(LCD_LY_COMPARE_ADDR, this::updateCoincidenceFlag);
         addTrigger(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag);
+        addTrigger(LCD_CONTROL_ADDR, this::maybeFireSpriteHeightChange);
         addTrigger(DMA_TRANSFER_ADDR, this::doDmaTransfer);
         addTrigger(BIOS_DISABLE_ADDR, this::disableBios);
         addTrigger(TIMER_DIV_ADDR, () -> setByteDirect(TIMER_DIV_ADDR, 0x00));
@@ -330,6 +334,11 @@ class IoModule extends RamModule implements Io {
         return 0xfe00;
     }
 
+    @Override
+    public void register(SpriteChangeListener listener) {
+        spriteListeners.add(listener);
+    }
+
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
         if (colorId == 0) {
             // Color 0 is always full transparency regardless of palette
@@ -354,6 +363,15 @@ class IoModule extends RamModule implements Io {
 
     private void doDmaTransfer() {
         globalMemory.doDmaTransfer(readByte(DMA_TRANSFER_ADDR));
+    }
+
+    private void maybeFireSpriteHeightChange() {
+        boolean oldValue = this.areTallSpritesEnabled;
+        boolean newValue = getSpriteHeight() == 16;
+        this.areTallSpritesEnabled = newValue;
+        if (oldValue != newValue) {
+            spriteListeners.forEach(l -> l.onSpriteHeightChanged(newValue));
+        }
     }
 
     private boolean isHigh(int address, int bitIdx) {

@@ -29,7 +29,7 @@ public class Gpu {
         this.io = io;
         this.interrupts = interrupts;
         this.graphicsAccessController = graphicsAccessController;
-        this.spriteMap = new SpriteMap(oam, vram);
+        this.spriteMap = new SpriteMap(io, oam, vram);
     }
 
     private static Color[][] initScreenBuffer() {

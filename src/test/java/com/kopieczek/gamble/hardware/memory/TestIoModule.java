@@ -7,14 +7,14 @@ import org.junit.Test;
 
 import java.awt.*;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 public class TestIoModule {
     private static final ImmutableMap<Integer, Color> paletteMappings = ImmutableMap.of(
@@ -1142,6 +1142,93 @@ public class TestIoModule {
         assertEquals(0xfe00, getTestMmu().getIo().getSpritePatternStartAddress());
     }
 
+    @Test
+    public void test_listeners_fired_on_sprite_height_change_from_8_to_16() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff40, 0x00);
+        TestHeightListener listener = new TestHeightListener();
+        mmu.getIo().register(listener);
+        mmu.setByte(0xff40, 0x04);
+        assertEquals(true, listener.tallSpritesEnabledOnLastCall);
+    }
+
+    @Test
+    public void test_listeners_fired_on_sprite_height_change_from_16_to_8() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff40, 0x04);
+        TestHeightListener listener = new TestHeightListener();
+        mmu.getIo().register(listener);
+        mmu.setByte(0xff40, 0x00);
+        assertEquals(false, listener.tallSpritesEnabledOnLastCall);
+    }
+
+    @Test
+    public void test_repeated_high_writes_to_control_address_ignored_for_height_change_event() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff40, 0x00);
+        AtomicBoolean alreadyFired = new AtomicBoolean(false);
+        TestHeightListener listener = new TestHeightListener() {
+            @Override
+            public void onSpriteHeightChanged(boolean useTallSprites) {
+                assertFalse("Unexpectedly fired a second time", alreadyFired.getAndSet(true));
+            }
+        };
+        mmu.getIo().register(listener);
+        mmu.setByte(0xff40, 0x04);
+        mmu.setByte(0xff40, 0xff);
+    }
+
+    @Test
+    public void test_repeated_low_writes_to_control_address_ignored_for_height_change_event() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff40, 0x04);
+        AtomicBoolean alreadyFired = new AtomicBoolean(false);
+        TestHeightListener listener = new TestHeightListener() {
+            @Override
+            public void onSpriteHeightChanged(boolean useTallSprites) {
+                assertFalse("Unexpectedly fired a second time", alreadyFired.getAndSet(true));
+            }
+        };
+        mmu.getIo().register(listener);
+        mmu.setByte(0xff40, 0x00);
+        mmu.setByte(0xff40, 0xfb);
+    }
+
+    @Test
+    public void test_multiple_sprite_height_changes() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff40, 0x00);
+        AtomicInteger timesFired = new AtomicInteger(0);
+        TestHeightListener listener = new TestHeightListener() {
+            @Override
+            public void onSpriteHeightChanged(boolean useTallSprites) {
+                timesFired.incrementAndGet();
+            }
+        };
+        mmu.getIo().register(listener);
+        mmu.setByte(0xff40, 0x04);
+        mmu.setByte(0xff40, 0x00);
+        mmu.setByte(0xff40, 0x04);
+        mmu.setByte(0xff40, 0x00);
+        mmu.setByte(0xff40, 0x04);
+        mmu.setByte(0xff40, 0x00);
+        assertEquals(6, timesFired.get());
+    }
+
+    @Test
+    public void test_sprite_height_change_not_fired_after_write_if_height_unchanged_even_with_new_listener() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff40, 0xff);
+        TestHeightListener listener = new TestHeightListener() {
+            @Override
+            public void onSpriteHeightChanged(boolean useTallSprites) {
+                fail();
+            }
+        };
+        mmu.getIo().register(listener);
+        mmu.setByte(0xff40, 0xff);
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
@@ -1186,6 +1273,25 @@ public class TestIoModule {
             assertEquals("Unexpected value at address 0x" + Integer.toHexString(address),
                 (long)getExpectedValue.apply(address),
                 mmu.readByte(address));
+        }
+    }
+
+    private static class TestHeightListener implements SpriteChangeListener {
+        Boolean tallSpritesEnabledOnLastCall = null;
+
+        @Override
+        public void onSpriteAttributesModified(int spriteIndex) {
+            // Do nothing
+        }
+
+        @Override
+        public void onSpritePatternModified(int patternIndex) {
+            // Do nothing
+        }
+
+        @Override
+        public void onSpriteHeightChanged(boolean areTallSpritesEnabled) {
+            tallSpritesEnabledOnLastCall = areTallSpritesEnabled;
         }
     }
 
