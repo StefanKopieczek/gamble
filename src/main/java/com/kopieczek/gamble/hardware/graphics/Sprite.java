@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 class Sprite {
     private final Color[][] pixels;
+    private final SpriteAttributes attributes;
 
     /**
      * Constructor for short sprites
@@ -26,6 +27,7 @@ class Sprite {
     }
 
     private Sprite(SpriteAttributes attributes, byte[][] rows) {
+        this.attributes = attributes;
         pixels = new Color[rows.length][];
         int rowIdx = 0;
         for (byte[] row : rows) {
@@ -36,6 +38,10 @@ class Sprite {
             }
             rowIdx++;
         }
+    }
+
+    public SpriteAttributes getAttributes() {
+        return attributes;
     }
 
     private static byte[][] getRows(SpritePattern pattern1,

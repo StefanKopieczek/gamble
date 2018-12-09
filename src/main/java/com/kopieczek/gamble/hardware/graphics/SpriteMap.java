@@ -127,6 +127,14 @@ class SpriteMap implements SpriteChangeListener {
         ensureSpritesAreClean(spritesOnRow);
     }
 
+    public List<Sprite> getSpritesForRow(int rowIdx) {
+        ensureRowIsClean(rowIdx);
+        return rowToSpriteMap.get(rowIdx).stream()
+                .map(sprites::get)
+                .sorted(Comparator.comparingInt(sprite -> sprite.getAttributes().getX()))
+                .collect(Collectors.toList());
+    }
+
     private void loadSpriteHeight() {
         useTallSprites = (io.getSpriteHeight() == 16);
     }
