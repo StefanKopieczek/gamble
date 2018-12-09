@@ -14,6 +14,7 @@ public class Gpu {
     public static final int DISPLAY_WIDTH = 160;
     public static final int DISPLAY_HEIGHT= 144;
     public static final int VIRTUAL_TOTAL_HEIGHT = 153; // Including VBlank
+    private static final boolean DEBUG_MODE = true;
     private final Memory memory;
     private final Io io;
     private final InterruptLine interrupts;
@@ -129,6 +130,9 @@ public class Gpu {
         renderBackgroundSprites(sprites, currentLine);
         renderTiles(currentLine);
         renderForegroundSprites(sprites, currentLine);
+        if (DEBUG_MODE) {
+            renderGrid();
+        }
     }
 
     private void clearLine(int currentLine) {
@@ -156,8 +160,8 @@ public class Gpu {
     private java.util.List<Sprite> getAllSprites(int currentLine) {
         // TODO - not sure if sprites respect SCX/SCY. Won't use it for now but might need to revise.
         java.util.List<Sprite> sprites = spriteMap.getSpritesForRow(currentLine);
-        // TODO ENABLE THIS sprites = sprites.subList(0, Math.min(10, sprites.size())); // Only 10 sprites can be displayed on each line
-        return Lists.reverse(sprites); // Render higher priority sprites last so that they appear on top
+        sprites = sprites.subList(0, Math.min(10, sprites.size())); // Only 10 sprites can be displayed on each line
+        return Lists.reverse(sprites);  // Blit sprites in reverse priority order
     }
 
     private void renderBackgroundSprites(java.util.List<Sprite> sprites, int currentLine) {
@@ -176,11 +180,33 @@ public class Gpu {
         int spriteX = sprite.getAttributes().getX();
         int spriteY = sprite.getAttributes().getY();
         int rowOffset = currentLine - spriteY;
-        Color[] rowPixels = sprite.getPixels()[rowOffset];
+        Color[] rowPixels = Arrays.copyOf(sprite.getPixels()[rowOffset], sprite.getPixels()[rowOffset].length);
+        if (DEBUG_MODE) {
+            for (int idx = 0; idx < rowPixels.length; idx++) {
+                Color old = rowPixels[idx];
+                if (rowOffset < 8) {
+                    rowPixels[idx] = new Color(255, old.getGreen() / 2, old.getBlue() / 2);
+                } else if (rowOffset < 16){
+                    rowPixels[idx] = new Color(old.getRed() / 2, old.getGreen() / 2, 255);
+                } else {
+                    throw new IllegalArgumentException("Row offset " + rowOffset);
+                }
+            }
+        }
         for (int xOffset = 0; xOffset < rowPixels.length; xOffset++) {
             int x = spriteX + xOffset;
-            if (x < DISPLAY_WIDTH) {
+            if (x < DISPLAY_WIDTH && rowPixels[xOffset].getAlpha() > 0) {
                 scratchBuffer[currentLine][x] = rowPixels[xOffset];
+            }
+        }
+    }
+
+    private void renderGrid() {
+        for (int rowIdx = 0; rowIdx < DISPLAY_HEIGHT; rowIdx++) {
+            for (int colIdx = 0; colIdx < DISPLAY_WIDTH; colIdx++) {
+                if ((rowIdx % 8) * (colIdx % 8) == 0) {
+                    scratchBuffer[rowIdx][colIdx] = Color.RED;
+                }
             }
         }
     }

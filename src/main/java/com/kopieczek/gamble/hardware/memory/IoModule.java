@@ -361,7 +361,7 @@ class IoModule extends RamModule implements Io {
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
         if (colorId == 0) {
             // Color 0 is always full transparency regardless of palette
-            return new Color(255, 255, 255, 255);
+            return new Color(255, 255, 255, 0);
         } else {
             // Bits 1-0 are unused; bits 3-2 are color 1; ... ; bits 7-6 are color 3
             int shift = (colorId * 2);

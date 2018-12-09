@@ -68,7 +68,7 @@ class SpriteMap implements SpriteChangeListener {
         patternToSpriteMap.clear();
         IntStream.range(0, Oam.TOTAL_ATTRIBUTES).forEach(idx -> {
             int[] data = oam.getAttributeBytes(idx);
-            SpriteAttributes attrs = SpriteAttributes.parse(data);
+            SpriteAttributes attrs = SpriteAttributes.parse(idx, data);
             allAttributes.add(attrs);
             getPatternsUsed(attrs).forEach(pattern -> patternToSpriteMap.put(pattern, idx));
             getRowsUsed(attrs).forEach(row -> rowToSpriteMap.put(row, idx));
@@ -82,13 +82,13 @@ class SpriteMap implements SpriteChangeListener {
     private void reloadAttributes(Collection<Integer> attrsToReload) {
         attrsToReload.forEach(spriteIndex -> {
             // Remove existing attribute based-mappings for this sprite.
-            SpriteAttributes oldAttrs = allAttributes.get(spriteIndex);
-            getPatternsUsed(oldAttrs).forEach(pattern -> patternToSpriteMap.remove(pattern, spriteIndex));
-            getRowsUsed(oldAttrs).forEach(row -> rowToSpriteMap.remove(row, spriteIndex));
+            Sprite oldSprite = sprites.get(spriteIndex);
+            getPatternsUsed(oldSprite).forEach(pattern -> patternToSpriteMap.remove(pattern, spriteIndex));
+            getRowsUsed(oldSprite).forEach(row -> rowToSpriteMap.remove(row, spriteIndex));
 
             // Reload attributes
             int[] data = oam.getAttributeBytes(spriteIndex);
-            SpriteAttributes newAttrs = SpriteAttributes.parse(data);
+            SpriteAttributes newAttrs = SpriteAttributes.parse(spriteIndex, data);
             allAttributes.set(spriteIndex, newAttrs);
 
             // Add new attribute-based mappings for the reloaded value.
@@ -150,10 +150,9 @@ class SpriteMap implements SpriteChangeListener {
      */
     List<Sprite> getSpritesForRow(int rowIdx) {
         ensureRowIsClean(rowIdx);
-
-        // We explicitly sort to apply rule (1). Rule (2) follows because Java sorts are stable.
         return rowToSpriteMap.get(rowIdx).stream()
                 .map(sprites::get)
+                .sorted(Comparator.comparingInt(Sprite::getAttributeIndex))
                 .sorted(Comparator.comparingInt(sprite -> sprite.getAttributes().getX()))
                 .collect(Collectors.toList());
     }
@@ -211,9 +210,26 @@ class SpriteMap implements SpriteChangeListener {
         }
     }
 
+    private Set<Integer> getPatternsUsed(Sprite sprite) {
+        int mainPattern = sprite.getAttributes().getPatternIndex();
+        if (sprite.isTall()) {
+            int twinnedPattern = mainPattern ^ 0xfe;
+            return ImmutableSet.of(mainPattern, twinnedPattern);
+        } else {
+            return ImmutableSet.of(mainPattern);
+        }
+    }
+
     private Set<Integer> getRowsUsed(SpriteAttributes attrs) {
         int numRows = useTallSprites ? 16 : 8;
         int minRow = attrs.getY();
+        int maxRow = minRow + numRows;
+        return IntStream.range(minRow, maxRow).boxed().collect(Collectors.toSet());
+    }
+
+    private Set<Integer> getRowsUsed(Sprite sprite) {
+        int numRows = sprite.isTall() ? 16 : 8;
+        int minRow = sprite.getAttributes().getY();
         int maxRow = minRow + numRows;
         return IntStream.range(minRow, maxRow).boxed().collect(Collectors.toSet());
     }

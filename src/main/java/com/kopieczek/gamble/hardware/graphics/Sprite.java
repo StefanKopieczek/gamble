@@ -1,7 +1,5 @@
 package com.kopieczek.gamble.hardware.graphics;
 
-import com.kopieczek.gamble.hardware.memory.Io;
-
 import java.awt.*;
 import java.util.Arrays;
 
@@ -110,5 +108,13 @@ class Sprite {
         } else {
             return palette1[cell];
         }
+    }
+
+    public int getAttributeIndex() {
+        return attributes.getIndex();
+    }
+
+    public boolean isTall() {
+        return pixels.length > 8;
     }
 }

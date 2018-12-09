@@ -159,7 +159,7 @@ public class TestSpriteAttributes {
         }
 
         public void doTest(Function<SpriteAttributes, T> methodToTest) {
-            SpriteAttributes attributes = SpriteAttributes.parse(input);
+            SpriteAttributes attributes = SpriteAttributes.parse(0, input);
             assertEquals("Failure on " + intsToHex(input), expected, methodToTest.apply(attributes));
         }
     }
