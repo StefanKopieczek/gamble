@@ -31,6 +31,7 @@ class Sprite {
         pixels = new Color[rows.length][];
         int rowIdx = 0;
         for (byte[] row : rows) {
+            pixels[rowIdx] = new Color[8];
             int colIdx = 0;
             for (byte b : getCells(row, attributes.getHorizontalOrientation())) {
                 pixels[rowIdx][colIdx] = getColor(b, attributes);
@@ -40,8 +41,12 @@ class Sprite {
         }
     }
 
-    public SpriteAttributes getAttributes() {
+    SpriteAttributes getAttributes() {
         return attributes;
+    }
+
+    Color[][] getPixels() {
+        return pixels;
     }
 
     private static byte[][] getRows(SpritePattern pattern1,
@@ -76,7 +81,7 @@ class Sprite {
             byte[][] original = pattern.getUncompressedPattern();
             result = new byte[8][];
             for (int idx = 0; idx < 8; idx++) {
-                result[idx] =  original[8 - idx];
+                result[idx] =  original[7 - idx];
             }
         }
 
@@ -90,7 +95,7 @@ class Sprite {
         } else {
             result = new byte[8];
             for (int idx = 0; idx < 8; idx++) {
-                result[idx] = row[8 - idx];
+                result[idx] = row[7 - idx];
             }
         }
 

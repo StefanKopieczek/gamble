@@ -7,12 +7,15 @@ import com.kopieczek.gamble.hardware.memory.Io;
 import com.kopieczek.gamble.hardware.memory.Oam;
 import com.kopieczek.gamble.hardware.memory.SpriteChangeListener;
 import com.kopieczek.gamble.hardware.memory.Vram;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 class SpriteMap implements SpriteChangeListener {
+    private static final Logger log = LogManager.getLogger(SpriteMap.class);
     private final Io io;
     private final Oam oam;
     private final Vram vram;
@@ -127,8 +130,18 @@ class SpriteMap implements SpriteChangeListener {
         ensureSpritesAreClean(spritesOnRow);
     }
 
-    public List<Sprite> getSpritesForRow(int rowIdx) {
+    /**
+     * Return all sprites that overlap the given row, in descending priority order.
+     * Priority is defined by the following rules:
+     *  1) Sprites with a lower x coordinate have a higher priority
+     *  2) If sprites are equal under (1), the sprite with the lower attribute index has the higher priority
+     * @param rowIdx The row in question
+     * @return Sprites overlapping the given row, in descending priority order.
+     */
+    List<Sprite> getSpritesForRow(int rowIdx) {
         ensureRowIsClean(rowIdx);
+
+        // We explicitly sort to apply rule (1). Rule (2) follows because Java sorts are stable.
         return rowToSpriteMap.get(rowIdx).stream()
                 .map(sprites::get)
                 .sorted(Comparator.comparingInt(sprite -> sprite.getAttributes().getX()))
@@ -215,6 +228,8 @@ class SpriteMap implements SpriteChangeListener {
 
     @Override
     public void onSpriteHeightChanged(boolean areTallSpritesEnabled) {
+        log.debug("Tall sprites status changed. Enabled=" + areTallSpritesEnabled);
+        useTallSprites = areTallSpritesEnabled;
         IntStream.range(0, Oam.TOTAL_ATTRIBUTES).forEach(dirtyAttributes::add);
     }
 }

@@ -1,11 +1,13 @@
 package com.kopieczek.gamble.hardware.graphics;
 
+import com.google.common.collect.Lists;
 import com.kopieczek.gamble.hardware.cpu.Interrupt;
 import com.kopieczek.gamble.hardware.memory.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
+import java.util.Arrays;
 
 public class Gpu {
     private static final Logger log = LogManager.getLogger(Gpu.class);
@@ -30,6 +32,7 @@ public class Gpu {
         this.interrupts = interrupts;
         this.graphicsAccessController = graphicsAccessController;
         this.spriteMap = new SpriteMap(io, oam, vram);
+        this.spriteMap.init();
     }
 
     private static Color[][] initScreenBuffer() {
@@ -121,6 +124,12 @@ public class Gpu {
     }
 
     private void renderLine(int currentLine) {
+        // TODO - split rendering of foreground and background sprites
+        renderTiles(currentLine);
+        renderSprites(currentLine);
+    }
+
+    private void renderTiles(int currentLine) {
         final int tileY = ((currentLine + io.getScrollY()) / 8) % 32;
         for (int currentColumn = 0; currentColumn < DISPLAY_WIDTH; currentColumn++) {
             int tileX = ((currentColumn + io.getScrollX()) / 8) % 32;
@@ -129,6 +138,27 @@ public class Gpu {
             int[] rowData = getRowData(tileDataStart, (currentLine + io.getScrollY()) % 8);
             Color[] rowPixels = extractPixels(rowData);
             scratchBuffer[currentLine][currentColumn] = rowPixels[currentColumn % 8];
+        }
+    }
+
+    private void renderSprites(int currentLine) {
+        // TODO - not sure if sprites respect SCX/SCY. Won't use it for now but might need to revise.
+        java.util.List<Sprite> sprites = spriteMap.getSpritesForRow(currentLine);
+        // TODO ENABLE THIS sprites = sprites.subList(0, Math.min(10, sprites.size())); // Only 10 sprites can be displayed on each line
+        sprites = Lists.reverse(sprites); // Render higher priority sprites last so that they appear on top
+        sprites.forEach(sprite -> renderSpriteRow(sprite, currentLine));
+    }
+
+    private void renderSpriteRow(Sprite sprite, int currentLine) {
+        int spriteX = sprite.getAttributes().getX();
+        int spriteY = sprite.getAttributes().getY();
+        int rowOffset = currentLine - spriteY;
+        Color[] rowPixels = sprite.getPixels()[rowOffset];
+        for (int xOffset = 0; xOffset < rowPixels.length; xOffset++) {
+            int x = spriteX + xOffset;
+            if (x < DISPLAY_WIDTH) {
+                scratchBuffer[currentLine][x] = rowPixels[xOffset];
+            }
         }
     }
 
