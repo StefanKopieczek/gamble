@@ -539,218 +539,229 @@ public class TestIoModule {
     @Test
     public void test_pressing_a_with_button_select_on_resets_0xff00_bit_0() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.A, true);
         assertEquals(0x00, 0x01 & mmu.readByte(0xff00));
-        assertEquals(0x2e, 0xfe & mmu.readByte(0xff00));
+        assertEquals(0x1e, 0xfe & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_releasing_a_with_button_select_on_sets_0xff00_bit_0() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.A, true);
         mmu.getIo().setButtonPressed(Io.Button.A, false);
         assertEquals(0x01, 0x01 & mmu.readByte(0xff00));
-        assertEquals(0x2e, 0xfe & mmu.readByte(0xff00));
+        assertEquals(0x1e, 0xfe & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_pressing_a_with_button_select_off_does_not_modify_memory() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x20);
         mmu.getIo().setButtonPressed(Io.Button.A, true);
         assertEquals(0x01, 0x01 & mmu.readByte(0xff00));
-        assertEquals(0x0e, 0xfe & mmu.readByte(0xff00));
+        assertEquals(0x2e, 0xfe & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_button_select_after_pressing_a_resets_0xff00_bit_0() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x30);
         mmu.getIo().setButtonPressed(Io.Button.A, true);
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         assertEquals(0x00, 0x01 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_disabling_button_select_after_pressing_a_sets_0xff00_bit_0() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
-        mmu.getIo().setButtonPressed(Io.Button.A, true);
         mmu.setByte(0xff00, 0x00);
+        mmu.getIo().setButtonPressed(Io.Button.A, true);
+        mmu.setByte(0xff00, 0x20);
         assertEquals(0x01, 0x01 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_pad_select_does_not_enable_button_a() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x30);
         mmu.getIo().setButtonPressed(Io.Button.A, true);
-        mmu.setByte(0xff00, 0x10);
+        mmu.setByte(0xff00, 0x20);
         assertEquals(0x01, 0x01 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_pressing_b_with_button_select_on_resets_0xff00_bit_1() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.B, true);
         assertEquals(0x00, 0x02 & mmu.readByte(0xff00));
-        assertEquals(0x2d, 0xfd & mmu.readByte(0xff00));
+        assertEquals(0x1d, 0xfd & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_releasing_b_with_button_select_on_sets_0xff00_bit_1() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.B, true);
         mmu.getIo().setButtonPressed(Io.Button.B, false);
         assertEquals(0x02, 0x02 & mmu.readByte(0xff00));
-        assertEquals(0x2d, 0xfd & mmu.readByte(0xff00));
+        assertEquals(0x1d, 0xfd & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_pressing_b_with_button_select_off_does_not_modify_memory() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x20);
         mmu.getIo().setButtonPressed(Io.Button.B, true);
         assertEquals(0x02, 0x02 & mmu.readByte(0xff00));
-        assertEquals(0x0d, 0xfd & mmu.readByte(0xff00));
+        assertEquals(0x2d, 0xfd & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_button_select_after_pressing_b_resets_0xff00_bit_1() {
         Mmu mmu = getTestMmu();
-        mmu.getIo().setButtonPressed(Io.Button.B, true);
         mmu.setByte(0xff00, 0x20);
+        mmu.getIo().setButtonPressed(Io.Button.B, true);
+        mmu.setByte(0xff00, 0x00);
         assertEquals(0x00, 0x02 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_disabling_button_select_after_pressing_b_sets_0xff00_bit_1() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
-        mmu.getIo().setButtonPressed(Io.Button.B, true);
         mmu.setByte(0xff00, 0x00);
+        mmu.getIo().setButtonPressed(Io.Button.B, true);
+        mmu.setByte(0xff00, 0x20);
         assertEquals(0x02, 0x02 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_pad_select_does_not_enable_button_b() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x30);
         mmu.getIo().setButtonPressed(Io.Button.B, true);
-        mmu.setByte(0xff00, 0x10);
+        mmu.setByte(0xff00, 0x20);
         assertEquals(0x02, 0x02 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_pressing_select_with_button_select_on_resets_0xff00_bit_2() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.SELECT, true);
         assertEquals(0x00, 0x04 & mmu.readByte(0xff00));
-        assertEquals(0x2b, 0xfb & mmu.readByte(0xff00));
+        assertEquals(0x1b, 0xfb & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_releasing_select_with_button_select_on_sets_0xff00_bit_2() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.SELECT, true);
         mmu.getIo().setButtonPressed(Io.Button.SELECT, false);
         assertEquals(0x04, 0x04 & mmu.readByte(0xff00));
-        assertEquals(0x2b, 0xfb & mmu.readByte(0xff00));
+        assertEquals(0x1b, 0xfb & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_pressing_select_with_button_select_off_does_not_modify_memory() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x20);
         mmu.getIo().setButtonPressed(Io.Button.SELECT, true);
         assertEquals(0x04, 0x04 & mmu.readByte(0xff00));
-        assertEquals(0x0b, 0xfb & mmu.readByte(0xff00));
+        assertEquals(0x2b, 0xfb & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_button_select_after_pressing_select_resets_0xff00_bit_2() {
         Mmu mmu = getTestMmu();
-        mmu.getIo().setButtonPressed(Io.Button.SELECT, true);
         mmu.setByte(0xff00, 0x20);
+        mmu.getIo().setButtonPressed(Io.Button.SELECT, true);
+        mmu.setByte(0xff00, 0x10);
         assertEquals(0x00, 0x04 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_disabling_button_select_after_pressing_select_sets_0xff00_bit_2() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.SELECT, true);
-        mmu.setByte(0xff00, 0x00);
+        mmu.setByte(0xff00, 0x20);
         assertEquals(0x04, 0x04 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_pad_select_does_not_enable_select_button() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x20);
         mmu.getIo().setButtonPressed(Io.Button.SELECT, true);
-        mmu.setByte(0xff00, 0x10);
         assertEquals(0x04, 0x04 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_pressing_start_with_button_select_on_resets_0xff00_bit_3() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.START, true);
         assertEquals(0x00, 0x08 & mmu.readByte(0xff00));
-        assertEquals(0x27, 0xf7 & mmu.readByte(0xff00));
+        assertEquals(0x17, 0xf7 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_releasing_start_with_button_select_on_sets_0xff00_bit_3() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x00);
         mmu.getIo().setButtonPressed(Io.Button.START, true);
         mmu.getIo().setButtonPressed(Io.Button.START, false);
-        assertEquals(0x08, 0x08 & mmu.readByte(0xff00));
-        assertEquals(0x27, 0xf7 & mmu.readByte(0xff00));
-    }
-
-    @Test
-    public void test_pressing_start_with_button_select_off_does_not_modify_memory() {
-        Mmu mmu = getTestMmu();
-        mmu.getIo().setButtonPressed(Io.Button.START, true);
         assertEquals(0x08, 0x08 & mmu.readByte(0xff00));
         assertEquals(0x07, 0xf7 & mmu.readByte(0xff00));
     }
 
     @Test
+    public void test_pressing_start_with_button_select_off_does_not_modify_memory() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x30);
+        mmu.getIo().setButtonPressed(Io.Button.START, true);
+        assertEquals(0x08, 0x08 & mmu.readByte(0xff00));
+        assertEquals(0x37, 0xf7 & mmu.readByte(0xff00));
+    }
+
+    @Test
     public void test_enabling_button_select_after_pressing_start_resets_0xff00_bit_3() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x30);
         mmu.getIo().setButtonPressed(Io.Button.START, true);
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         assertEquals(0x00, 0x08 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_disabling_button_select_after_pressing_start_sets_0xff00_bit_3() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.START, true);
-        mmu.setByte(0xff00, 0x00);
+        mmu.setByte(0xff00, 0x30);
         assertEquals(0x08, 0x08 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_pad_select_does_not_enable_start_button() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x30);
         mmu.getIo().setButtonPressed(Io.Button.START, true);
-        mmu.setByte(0xff00, 0x10);
+        mmu.setByte(0xff00, 0x20);
         assertEquals(0x08, 0x08 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_pressing_right_with_pad_select_on_resets_0xff00_bit_0() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x10);
+        mmu.setByte(0xff00, 0x20);
         mmu.getIo().setButtonPressed(Io.Button.RIGHT, true);
         assertEquals(0x00, 0x01 & mmu.readByte(0xff00));
-        assertEquals(0x1e, 0xfe & mmu.readByte(0xff00));
+        assertEquals(0x2e, 0xfe & mmu.readByte(0xff00));
     }
 
     @Test
@@ -766,32 +777,34 @@ public class TestIoModule {
     @Test
     public void test_pressing_right_with_pad_select_off_does_not_modify_memory() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.RIGHT, true);
         assertEquals(0x01, 0x01 & mmu.readByte(0xff00));
-        assertEquals(0x0e, 0xfe & mmu.readByte(0xff00));
+        assertEquals(0x1e, 0xfe & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_pad_select_after_pressing_right_resets_0xff00_bit_0() {
         Mmu mmu = getTestMmu();
-        mmu.getIo().setButtonPressed(Io.Button.RIGHT, true);
         mmu.setByte(0xff00, 0x10);
+        mmu.getIo().setButtonPressed(Io.Button.RIGHT, true);
+        mmu.setByte(0xff00, 0x00);
         assertEquals(0x00, 0x01 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_disabling_pad_select_after_pressing_right_sets_0xff00_bit_0() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x10);
-        mmu.getIo().setButtonPressed(Io.Button.RIGHT, true);
         mmu.setByte(0xff00, 0x00);
+        mmu.getIo().setButtonPressed(Io.Button.RIGHT, true);
+        mmu.setByte(0xff00, 0x10);
         assertEquals(0x01, 0x01 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_button_select_does_not_enable_right_button() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.RIGHT, true);
         assertEquals(0x01, 0x01 & mmu.readByte(0xff00));
     }
@@ -799,51 +812,53 @@ public class TestIoModule {
     @Test
     public void test_pressing_left_with_pad_select_on_resets_0xff00_bit_1() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x10);
+        mmu.setByte(0xff00, 0x20);
         mmu.getIo().setButtonPressed(Io.Button.LEFT, true);
         assertEquals(0x00, 0x02 & mmu.readByte(0xff00));
-        assertEquals(0x1d, 0xfd & mmu.readByte(0xff00));
+        assertEquals(0x2d, 0xfd & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_releasing_left_with_pad_select_on_sets_0xff00_bit_1() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x10);
+        mmu.setByte(0xff00, 0x20);
         mmu.getIo().setButtonPressed(Io.Button.LEFT, true);
         mmu.getIo().setButtonPressed(Io.Button.LEFT, false);
         assertEquals(0x02, 0x02 & mmu.readByte(0xff00));
-        assertEquals(0x1d, 0xfd & mmu.readByte(0xff00));
+        assertEquals(0x2d, 0xfd & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_pressing_left_with_pad_select_off_does_not_modify_memory() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.LEFT, true);
         assertEquals(0x02, 0x02 & mmu.readByte(0xff00));
-        assertEquals(0x0d, 0xfd & mmu.readByte(0xff00));
+        assertEquals(0x1d, 0xfd & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_pad_select_after_pressing_left_resets_0xff00_bit_1() {
         Mmu mmu = getTestMmu();
-        mmu.getIo().setButtonPressed(Io.Button.LEFT, true);
         mmu.setByte(0xff00, 0x10);
+        mmu.getIo().setButtonPressed(Io.Button.LEFT, true);
+        mmu.setByte(0xff00, 0x00);
         assertEquals(0x00, 0x02 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_disabling_pad_select_after_pressing_left_sets_0xff00_bit_1() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x10);
-        mmu.getIo().setButtonPressed(Io.Button.LEFT, true);
         mmu.setByte(0xff00, 0x00);
+        mmu.getIo().setButtonPressed(Io.Button.LEFT, true);
+        mmu.setByte(0xff00, 0x10);
         assertEquals(0x02, 0x02 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_button_select_does_not_enable_left_button() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.LEFT, true);
         assertEquals(0x02, 0x02 & mmu.readByte(0xff00));
     }
@@ -851,10 +866,10 @@ public class TestIoModule {
     @Test
     public void test_pressing_up_with_pad_select_on_resets_0xff00_bit_2() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x10);
+        mmu.setByte(0xff00, 0x20);
         mmu.getIo().setButtonPressed(Io.Button.UP, true);
         assertEquals(0x00, 0x04 & mmu.readByte(0xff00));
-        assertEquals(0x1b, 0xfb & mmu.readByte(0xff00));
+        assertEquals(0x2b, 0xfb & mmu.readByte(0xff00));
     }
 
     @Test
@@ -870,43 +885,46 @@ public class TestIoModule {
     @Test
     public void test_pressing_up_with_pad_select_off_does_not_modify_memory() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.UP, true);
         assertEquals(0x04, 0x04 & mmu.readByte(0xff00));
-        assertEquals(0x0b, 0xfb & mmu.readByte(0xff00));
+        assertEquals(0x1b, 0xfb & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_pad_select_after_pressing_up_resets_0xff00_bit_2() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x30);
         mmu.getIo().setButtonPressed(Io.Button.UP, true);
-        mmu.setByte(0xff00, 0x10);
+        mmu.setByte(0xff00, 0x20);
         assertEquals(0x00, 0x04 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_disabling_pad_select_after_pressing_up_sets_0xff00_bit_2() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x10);
-        mmu.getIo().setButtonPressed(Io.Button.UP, true);
         mmu.setByte(0xff00, 0x00);
+        mmu.getIo().setButtonPressed(Io.Button.UP, true);
+        mmu.setByte(0xff00, 0x10);
         assertEquals(0x04, 0x04 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_button_select_does_not_enable_up_button() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x30);
         mmu.getIo().setButtonPressed(Io.Button.UP, true);
+        mmu.setByte(0xff00, 0x10);
         assertEquals(0x04, 0x04 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_pressing_down_with_pad_select_on_resets_0xff00_bit_3() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x10);
+        mmu.setByte(0xff00, 0x20);
         mmu.getIo().setButtonPressed(Io.Button.DOWN, true);
         assertEquals(0x00, 0x08 & mmu.readByte(0xff00));
-        assertEquals(0x17, 0xf7 & mmu.readByte(0xff00));
+        assertEquals(0x27, 0xf7 & mmu.readByte(0xff00));
     }
 
     @Test
@@ -922,32 +940,34 @@ public class TestIoModule {
     @Test
     public void test_pressing_down_with_pad_select_off_does_not_modify_memory() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.DOWN, true);
         assertEquals(0x08, 0x08 & mmu.readByte(0xff00));
-        assertEquals(0x07, 0xf7 & mmu.readByte(0xff00));
+        assertEquals(0x17, 0xf7 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_pad_select_after_pressing_down_resets_0xff00_bit_3() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x30);
         mmu.getIo().setButtonPressed(Io.Button.DOWN, true);
-        mmu.setByte(0xff00, 0x10);
+        mmu.setByte(0xff00, 0x20);
         assertEquals(0x00, 0x08 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_disabling_pad_select_after_pressing_down_sets_0xff00_bit_3() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x10);
-        mmu.getIo().setButtonPressed(Io.Button.DOWN, true);
         mmu.setByte(0xff00, 0x00);
+        mmu.getIo().setButtonPressed(Io.Button.DOWN, true);
+        mmu.setByte(0xff00, 0x10);
         assertEquals(0x08, 0x08 & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_enabling_button_select_does_not_enable_down_button() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         mmu.getIo().setButtonPressed(Io.Button.DOWN, true);
         assertEquals(0x08, 0x08 & mmu.readByte(0xff00));
     }
@@ -955,7 +975,7 @@ public class TestIoModule {
     @Test
     public void test_pressing_left_when_b_is_pressed_and_both_pad_and_buttons_are_selected_does_nothing() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x30);
+        mmu.setByte(0xff00, 0x00);
         mmu.getIo().setButtonPressed(Io.Button.LEFT, true);
         assertEquals("Bit 1 should be low at this point", 0x00, 0x02 & mmu.readByte(0xff00));
         mmu.getIo().setButtonPressed(Io.Button.UP, true);
@@ -967,7 +987,7 @@ public class TestIoModule {
         Mmu mmu = getTestMmu();
         mmu.getIo().setButtonPressed(Io.Button.START, true);
         mmu.getIo().setButtonPressed(Io.Button.DOWN, true);
-        mmu.setByte(0xff00, 0x30);
+        mmu.setByte(0xff00, 0x00);
         assertEquals("At this point bit 4 should be low", 0x00, 0x08 & mmu.readByte(0xff00));
         mmu.getIo().setButtonPressed(Io.Button.START, false);
         assertEquals("Bit 4 should still be low", 0x00, 0x08 & mmu.readByte(0xff00));
@@ -977,7 +997,7 @@ public class TestIoModule {
     public void test_when_pad_and_buttons_are_selected_then_both_pad_and_buttons_can_fire() {
         Mmu mmu = getTestMmu();
         Io io = mmu.getIo();
-        mmu.setByte(0xff00, 0x30);
+        mmu.setByte(0xff00, 0x00);
         io.setButtonPressed(Io.Button.A, true);
         io.setButtonPressed(Io.Button.B, true);
         io.setButtonPressed(Io.Button.UP, true);
@@ -989,23 +1009,24 @@ public class TestIoModule {
     public void test_switching_from_button_to_pad_select_and_back() {
         Mmu mmu = getTestMmu();
         Io io = mmu.getIo();
+        mmu.setByte(0xff00, 0x30); // Start with both lines disabled
         io.setButtonPressed(Io.Button.START, true);
         io.setButtonPressed(Io.Button.SELECT, true);
         io.setButtonPressed(Io.Button.LEFT, true);
         io.setButtonPressed(Io.Button.RIGHT, true);
         assertEquals("Joypad bits should be high", 0x0f, 0x0f & mmu.readByte(0xff00));
-        mmu.setByte(0xff00, 0x20); // Select buttons only
+        mmu.setByte(0xff00, 0x10); // Select buttons only
         assertEquals(0x03, 0x0f & mmu.readByte(0xff00));
-        mmu.setByte(0xff00, 0x10); // Select pad only
+        mmu.setByte(0xff00, 0x20); // Select pad only
         assertEquals(0x0c, 0x0f & mmu.readByte(0xff00));
-        mmu.setByte(0xff00, 0x20); // Select buttons again
+        mmu.setByte(0xff00, 0x10); // Select buttons again
         assertEquals(0x03, 0x0f & mmu.readByte(0xff00));
     }
 
     @Test
     public void test_pressing_a_selected_button_fires_joypad_interrupt() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         assertFalse("No interrupt should be fired at the start", mmu.checkInterrupt(Interrupt.JOYPAD));
         mmu.getIo().setButtonPressed(Io.Button.START, true);
         assertTrue("Joypad interrupt should now have fired", mmu.checkInterrupt(Interrupt.JOYPAD));
@@ -1014,7 +1035,7 @@ public class TestIoModule {
     @Test
     public void test_pressing_an_unselected_button_does_not_fire_joypad_interrupt() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x10);
+        mmu.setByte(0xff00, 0x20);
         mmu.getIo().setButtonPressed(Io.Button.B, true);
         assertFalse(mmu.checkInterrupt(Interrupt.JOYPAD));
     }
@@ -1032,7 +1053,7 @@ public class TestIoModule {
     @Test
     public void test_resetting_a_selected_button_does_not_clear_the_existing_interrupt() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff00, 0x10);
+        mmu.setByte(0xff00, 0x20);
         mmu.getIo().setButtonPressed(Io.Button.DOWN, true);
         mmu.getIo().setButtonPressed(Io.Button.DOWN, false);
         assertTrue(mmu.checkInterrupt(Interrupt.JOYPAD));
@@ -1041,9 +1062,10 @@ public class TestIoModule {
     @Test
     public void test_selecting_a_pressed_button_fires_an_interrupt() {
         Mmu mmu = getTestMmu();
+        mmu.setByte(0xff00, 0x30);
         mmu.getIo().setButtonPressed(Io.Button.SELECT, true);
         assertFalse("At this point no interrupt should have fired", mmu.checkInterrupt(Interrupt.JOYPAD));
-        mmu.setByte(0xff00, 0x20);
+        mmu.setByte(0xff00, 0x10);
         assertTrue(mmu.checkInterrupt(Interrupt.JOYPAD));
     }
 

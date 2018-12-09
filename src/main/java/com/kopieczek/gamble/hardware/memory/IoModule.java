@@ -187,8 +187,8 @@ class IoModule extends RamModule implements Io {
 
     private void recalculateJoypadRegister() {
         int oldJoypadValue = readByte(JOYPAD_ADDR);
-        boolean shouldSelectButtons = (oldJoypadValue & 0x20) > 0;
-        boolean shouldSelectDirections = (oldJoypadValue & 0x10) > 0;
+        boolean shouldSelectButtons = (oldJoypadValue & 0x20) == 0;
+        boolean shouldSelectDirections = (oldJoypadValue & 0x10) == 0;
 
         // Bring low any bit corresponding to a pressed button that we're
         // currently selecting on.
