@@ -77,6 +77,8 @@ class IoModule extends RamModule implements Io {
         addTrigger(LCD_LY_COMPARE_ADDR, this::updateCoincidenceFlag);
         addTrigger(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag);
         addTrigger(LCD_CONTROL_ADDR, this::maybeFireSpriteHeightChange);
+        addTrigger(SPRITE_PALETTE_0_ADDR, this::fireSpritePaletteChange);
+        addTrigger(SPRITE_PALETTE_1_ADDR, this::fireSpritePaletteChange);
         addTrigger(DMA_TRANSFER_ADDR, this::doDmaTransfer);
         addTrigger(BIOS_DISABLE_ADDR, this::disableBios);
         addTrigger(TIMER_DIV_ADDR, () -> setByteDirect(TIMER_DIV_ADDR, 0x00));
@@ -316,12 +318,28 @@ class IoModule extends RamModule implements Io {
     }
 
     @Override
-    public Color getShadeForPalette0Color(int colorId) {
-        return getShadeForPaletteColor(0, colorId);
+    public Color[] loadPalette0() {
+        return loadPalette(0);
     }
 
     @Override
-    public Color getShadeForPalette1Color(int colorId) {
+    public Color[] loadPalette1() {
+        return loadPalette(1);
+    }
+
+    private Color[] loadPalette(int paletteIdx) {
+        Color[] palette = new Color[4];
+        for (int idx = 0; idx < 4; idx++) {
+            palette[idx] = getShadeForPaletteColor(paletteIdx, idx);
+        }
+        return palette;
+    }
+
+    private Color getShadeForPalette0Color(int colorId) {
+        return getShadeForPaletteColor(0, colorId);
+    }
+
+    private Color getShadeForPalette1Color(int colorId) {
         return getShadeForPaletteColor(1, colorId);
     }
 
@@ -374,6 +392,10 @@ class IoModule extends RamModule implements Io {
         if (oldValue != newValue) {
             spriteListeners.forEach(l -> l.onSpriteHeightChanged(newValue));
         }
+    }
+
+    private void fireSpritePaletteChange() {
+        spriteListeners.forEach(l -> l.onSpritePaletteChanged());
     }
 
     private boolean isHigh(int address, int bitIdx) {

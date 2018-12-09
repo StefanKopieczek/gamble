@@ -124,9 +124,18 @@ public class Gpu {
     }
 
     private void renderLine(int currentLine) {
-        // TODO - split rendering of foreground and background sprites
+        java.util.List<Sprite> sprites = getAllSprites(currentLine);
+        clearLine(currentLine);
+        renderBackgroundSprites(sprites, currentLine);
         renderTiles(currentLine);
-        renderSprites(currentLine);
+        renderForegroundSprites(sprites, currentLine);
+    }
+
+    private void clearLine(int currentLine) {
+        // Null out line so the background can spot which pixels have background sprites.
+        for (int col = 0; col < DISPLAY_WIDTH; col++) {
+            scratchBuffer[currentLine][col] = null;
+        }
     }
 
     private void renderTiles(int currentLine) {
@@ -136,17 +145,31 @@ public class Gpu {
             int tileMapIdx = 32 * tileY + tileX;
             int tileDataStart = getTileDataAddress(tileMapIdx);
             int[] rowData = getRowData(tileDataStart, (currentLine + io.getScrollY()) % 8);
-            Color[] rowPixels = extractPixels(rowData);
-            scratchBuffer[currentLine][currentColumn] = rowPixels[currentColumn % 8];
+            int[] rowColors = extractColors(rowData);
+            int currentColor = rowColors[currentColumn % 8];
+            if (currentColor > 0 || (scratchBuffer[currentLine][currentColumn] == null)) {
+                scratchBuffer[currentLine][currentColumn] = decodeColor(currentColor);
+            }
         }
     }
 
-    private void renderSprites(int currentLine) {
+    private java.util.List<Sprite> getAllSprites(int currentLine) {
         // TODO - not sure if sprites respect SCX/SCY. Won't use it for now but might need to revise.
         java.util.List<Sprite> sprites = spriteMap.getSpritesForRow(currentLine);
         // TODO ENABLE THIS sprites = sprites.subList(0, Math.min(10, sprites.size())); // Only 10 sprites can be displayed on each line
-        sprites = Lists.reverse(sprites); // Render higher priority sprites last so that they appear on top
-        sprites.forEach(sprite -> renderSpriteRow(sprite, currentLine));
+        return Lists.reverse(sprites); // Render higher priority sprites last so that they appear on top
+    }
+
+    private void renderBackgroundSprites(java.util.List<Sprite> sprites, int currentLine) {
+        sprites.stream()
+               .filter(sprite -> sprite.getAttributes().getZPosition().equals(SpriteAttributes.ZPosition.BACKGROUND))
+               .forEach(sprite -> renderSpriteRow(sprite, currentLine));
+    }
+
+    private void renderForegroundSprites(java.util.List<Sprite> sprites, int currentLine) {
+        sprites.stream()
+                .filter(sprite -> sprite.getAttributes().getZPosition().equals(SpriteAttributes.ZPosition.FOREGROUND))
+                .forEach(sprite -> renderSpriteRow(sprite, currentLine));
     }
 
     private void renderSpriteRow(Sprite sprite, int currentLine) {
@@ -162,28 +185,20 @@ public class Gpu {
         }
     }
 
-    private static Color[] extractPixels(int[] rowData) {
-        Color[] pixels = new Color[8];
+    private static int[] extractColors(int[] rowData) {
+        int[] colors = new int[8];
         for (int idx = 0; idx < 8; idx++) {
             int mask = 0x80 >> idx;
             boolean lowBit = (rowData[0] & mask) > 0;
             boolean highBit = (rowData[1] & mask) > 0;
-            pixels[idx] = decodeColor(highBit, lowBit);
+            colors[idx] = (highBit ? 2 : 0) + (lowBit ? 1 : 0);
         }
 
-        return pixels;
+        return colors;
     }
 
-    private static Color decodeColor(boolean highBit, boolean lowBit) {
-        if (highBit && lowBit) {
-            return Color.BLACK;
-        } else if (highBit) {
-            return new Color(192, 192, 192);
-        } else if (lowBit) {
-            return new Color(96, 96, 96);
-        } else {
-            return Color.WHITE;
-        }
+    private Color decodeColor(int colorId) {
+        return io.getShadeForBackgroundColor(colorId);
     }
 
     private int[] getRowData(int tileDataStart, int rowIdx) {

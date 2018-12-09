@@ -43,20 +43,10 @@ public class TestVramModule {
 
     @Test
     public void test_writes_do_not_fire_attribute_modified_events() {
-        SpriteChangeListener listener = new SpriteChangeListener() {
+        SpriteChangeListener listener = new SpriteChangeAdapter() {
             @Override
             public void onSpriteAttributesModified(int spriteIndex) {
                 fail();
-            }
-
-            @Override
-            public void onSpritePatternModified(int patternIndex) {
-                // Do nothing
-            }
-
-            @Override
-            public void onSpriteHeightChanged(boolean areTallSpritesEnabled) {
-                // Do nothing
             }
         };
 
@@ -132,20 +122,10 @@ public class TestVramModule {
     }
 
     private void doSpritePatternChangeTest(Consumer<VramModule> test, Consumer<Integer> onPatternChange) {
-        SpriteChangeListener listener = new SpriteChangeListener() {
-            @Override
-            public void onSpriteAttributesModified(int spriteIndex) {
-                // Do nothing
-            }
-
+        SpriteChangeListener listener = new SpriteChangeAdapter() {
             @Override
             public void onSpritePatternModified(int patternIndex) {
                 onPatternChange.accept(patternIndex);
-            }
-
-            @Override
-            public void onSpriteHeightChanged(boolean areTallSpritesEnabled) {
-                // Do nothing
             }
         };
 

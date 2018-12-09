@@ -19,15 +19,18 @@ class SpriteAttributes {
     private final ZPosition zPosition;
     private final Orientation verticalOrientation;
     private final Orientation horizontalOrientation;
+    private final int palette;
 
     private SpriteAttributes(int x, int y, int patternIndex, ZPosition zPosition,
-                             Orientation horizontalOrientation, Orientation verticalOrientation) {
+                             Orientation horizontalOrientation, Orientation verticalOrientation,
+                             int paletteIndex) {
         this.x = x;
         this.y = y;
         this.patternIndex = patternIndex;
         this.zPosition = zPosition;
         this.horizontalOrientation = horizontalOrientation;
         this.verticalOrientation = verticalOrientation;
+        this.palette = paletteIndex;
     }
 
     static SpriteAttributes parse(int[] bytes) {
@@ -37,7 +40,8 @@ class SpriteAttributes {
                 parsePatternIndex(bytes),
                 parseZPosition(bytes),
                 parseHorizontalOrientation(bytes),
-                parseVerticalOrientation(bytes)
+                parseVerticalOrientation(bytes),
+                parsePalette(bytes)
         );
     }
 
@@ -65,6 +69,10 @@ class SpriteAttributes {
         return verticalOrientation;
     }
 
+    int getPalette() {
+        return palette;
+    }
+
     private static int parseX(int[] bytes) {
         return bytes[1] - 8;
     }
@@ -87,6 +95,10 @@ class SpriteAttributes {
 
     private static Orientation parseVerticalOrientation(int[] bytes) {
         return (bytes[3] & 0x40) > 0 ? Orientation.FLIPPED : Orientation.UNCHANGED;
+    }
+
+    private static int parsePalette(int[] bytes) {
+        return (bytes[3] & 0x10) > 0 ? 1 : 0;
     }
 
     enum ZPosition {

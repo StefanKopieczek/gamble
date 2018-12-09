@@ -36,20 +36,10 @@ public class TestOamModule {
 
     @Test
     public void test_writes_do_not_fire_pattern_modified_events() {
-        SpriteChangeListener listener = new SpriteChangeListener() {
+        SpriteChangeListener listener = new SpriteChangeAdapter() {
             @Override
             public void onSpritePatternModified(int patternIndex) {
                 fail();
-            }
-
-            @Override
-            public void onSpriteAttributesModified(int spriteIndex) {
-                // Do nothing
-            }
-
-            @Override
-            public void onSpriteHeightChanged(boolean areTallSpritesEnabled) {
-                // Do nothing
             }
         };
 
@@ -124,20 +114,10 @@ public class TestOamModule {
     }
 
     private void doSpriteAttributesChangeTest(Consumer<OamModule> test, Consumer<Integer> onAttributesChanged) {
-        SpriteChangeListener listener = new SpriteChangeListener() {
-            @Override
-            public void onSpritePatternModified(int patternIndex) {
-                // Do nothing
-            }
-
+        SpriteChangeListener listener = new SpriteChangeAdapter() {
             @Override
             public void onSpriteAttributesModified(int spriteIndex) {
                 onAttributesChanged.accept(spriteIndex);
-            }
-
-            @Override
-            public void onSpriteHeightChanged(boolean areTallSpritesEnabled) {
-                // Do nothing
             }
         };
 

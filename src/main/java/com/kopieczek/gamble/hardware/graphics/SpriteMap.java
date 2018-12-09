@@ -10,7 +10,9 @@ import com.kopieczek.gamble.hardware.memory.Vram;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -31,6 +33,8 @@ class SpriteMap implements SpriteChangeListener {
     private final Multimap<Integer, Integer> rowToSpriteMap = ArrayListMultimap.create();
 
     private boolean useTallSprites = false;
+    private Color[] palette0;
+    private Color[] palette1;
 
     SpriteMap(Io io, Oam oam, Vram vram) {
         this.io = io;
@@ -49,7 +53,13 @@ class SpriteMap implements SpriteChangeListener {
         reloadAllAttributes();
         reloadAllPatterns();
         loadSpriteHeight();
+        loadPalettes();
         rebuildAllSprites();
+    }
+
+    private void loadPalettes() {
+        palette0 = io.loadPalette0();
+        palette1 = io.loadPalette1();
     }
 
     private void reloadAllAttributes() {
@@ -180,7 +190,7 @@ class SpriteMap implements SpriteChangeListener {
 
     private Sprite buildShortSprite(SpriteAttributes attributes) {
         SpritePattern pattern = patterns.get(attributes.getPatternIndex());
-        return new Sprite(attributes, pattern);
+        return new Sprite(attributes, pattern, palette0, palette1);
     }
 
     private Sprite buildTallSprite(SpriteAttributes attributes) {
@@ -188,7 +198,7 @@ class SpriteMap implements SpriteChangeListener {
         int pattern2Index = (attributes.getPatternIndex()) | 0x01;
         SpritePattern pattern1 = patterns.get(pattern1Index);
         SpritePattern pattern2 = patterns.get(pattern2Index);
-        return new Sprite(attributes, pattern1, pattern2);
+        return new Sprite(attributes, pattern1, pattern2, palette0, palette1);
     }
 
     private Set<Integer> getPatternsUsed(SpriteAttributes attrs) {
@@ -231,5 +241,12 @@ class SpriteMap implements SpriteChangeListener {
         log.debug("Tall sprites status changed. Enabled=" + areTallSpritesEnabled);
         useTallSprites = areTallSpritesEnabled;
         IntStream.range(0, Oam.TOTAL_ATTRIBUTES).forEach(dirtyAttributes::add);
+    }
+
+    @Override
+    public void onSpritePaletteChanged() {
+        palette0 = io.loadPalette0();
+        palette1 = io.loadPalette1();
+        IntStream.range(0, Vram.TOTAL_SPRITE_PATTERNS).forEach(dirtyPatterns::add);
     }
 }

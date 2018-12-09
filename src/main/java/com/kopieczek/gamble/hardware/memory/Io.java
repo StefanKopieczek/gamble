@@ -27,8 +27,8 @@ public interface Io extends TimerRegisters {
     int getWindowY();
     int getWindowX();
     Color getShadeForBackgroundColor(int colorId);
-    Color getShadeForPalette0Color(int colorId);
-    Color getShadeForPalette1Color(int colorId);
+    Color[] loadPalette0();
+    Color[] loadPalette1();
     boolean areTileMapEntriesSigned();
     boolean isButtonPressed(Button button);
     void setButtonPressed(Button button, boolean isPressed);

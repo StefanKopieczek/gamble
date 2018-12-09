@@ -1,5 +1,7 @@
 package com.kopieczek.gamble.hardware.graphics;
 
+import com.kopieczek.gamble.hardware.memory.Io;
+
 import java.awt.*;
 import java.util.Arrays;
 
@@ -12,8 +14,8 @@ class Sprite {
      * @param attributes
      * @param pattern
      */
-    Sprite(SpriteAttributes attributes, SpritePattern pattern) {
-        this(attributes, getRows(pattern, attributes.getVerticalOrientation()));
+    Sprite(SpriteAttributes attributes, SpritePattern pattern, Color[] palette0, Color[] palette1) {
+        this(attributes, getRows(pattern, attributes.getVerticalOrientation()), palette0, palette1);
     }
 
     /**
@@ -22,11 +24,11 @@ class Sprite {
      * @param pattern1 The topmost pattern of the sprite, when unflipped.
      * @param pattern2 The bottommost pattern of the sprite, when unflipped.
      */
-    Sprite(SpriteAttributes attributes, SpritePattern pattern1, SpritePattern pattern2) {
-        this(attributes, getRows(pattern1, pattern2, attributes.getVerticalOrientation()));
+    Sprite(SpriteAttributes attributes, SpritePattern pattern1, SpritePattern pattern2, Color[] palette0, Color[] palette1) {
+        this(attributes, getRows(pattern1, pattern2, attributes.getVerticalOrientation()), palette0, palette1);
     }
 
-    private Sprite(SpriteAttributes attributes, byte[][] rows) {
+    private Sprite(SpriteAttributes attributes, byte[][] rows, Color[] palette0, Color[] palette1) {
         this.attributes = attributes;
         pixels = new Color[rows.length][];
         int rowIdx = 0;
@@ -34,7 +36,7 @@ class Sprite {
             pixels[rowIdx] = new Color[8];
             int colIdx = 0;
             for (byte b : getCells(row, attributes.getHorizontalOrientation())) {
-                pixels[rowIdx][colIdx] = getColor(b, attributes);
+                pixels[rowIdx][colIdx] = getColor(b, attributes, palette0, palette1);
                 colIdx++;
             }
             rowIdx++;
@@ -102,16 +104,11 @@ class Sprite {
         return result;
     }
 
-    private Color getColor(byte cell, SpriteAttributes attributes) {
-        switch (cell) {
-            case 3:
-                return Color.BLACK;
-            case 2:
-                return new Color(192, 192, 192);
-            case 1:
-                return new Color(96, 96, 96);
-            default:
-                return Color.WHITE;
+    private Color getColor(byte cell, SpriteAttributes attributes, Color[] palette0, Color[] palette1) {
+        if (attributes.getPalette() == 0) {
+            return palette0[cell];
+        } else {
+            return palette1[cell];
         }
     }
 }

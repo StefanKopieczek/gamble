@@ -308,7 +308,7 @@ public class TestIoModule {
     @Test
     public void test_get_background_shade_for_color_1_returns_bits_2_and_3_of_0xff47_as_color() {
         doRangeTest(0xff47, mmu -> {
-            Color expected = paletteMappings.get(mmu.readByte(0xff47) & 0x0c);
+            Color expected = paletteMappings.get((mmu.readByte(0xff47) & 0x0c) >> 2);
             assertEquals(expected, mmu.getIo().getShadeForBackgroundColor(1));
         });
     }
@@ -316,7 +316,7 @@ public class TestIoModule {
     @Test
     public void test_get_background_shade_for_color_2_returns_bits_4_and_5_of_0xff47_as_color() {
         doRangeTest(0xff47, mmu -> {
-            Color expected = paletteMappings.get(mmu.readByte(0xff47) & 0x30);
+            Color expected = paletteMappings.get((mmu.readByte(0xff47) & 0x30) >> 4);
             assertEquals(expected, mmu.getIo().getShadeForBackgroundColor(2));
         });
     }
@@ -324,7 +324,7 @@ public class TestIoModule {
     @Test
     public void test_get_background_shade_for_color_3_returns_bits_6_and_7_of_0xff47_as_color() {
         doRangeTest(0xff47, mmu -> {
-            Color expected = paletteMappings.get(mmu.readByte(0xff47) & 0xc0);
+            Color expected = paletteMappings.get((mmu.readByte(0xff47) & 0xc0) >> 6);
             assertEquals(expected, mmu.getIo().getShadeForBackgroundColor(3));
         });
     }
@@ -338,24 +338,24 @@ public class TestIoModule {
     @Test
     public void test_get_sprite_palette_0_shade_for_color_1_returns_bits_2_and_3_of_0xff48_as_color() {
         doRangeTest(0xff48, mmu -> {
-            Color expected = paletteMappings.get(mmu.readByte(0xff48) & 0x0c);
-            assertEquals(expected, mmu.getIo().getShadeForPalette0Color(1));
+            Color expected = paletteMappings.get((mmu.readByte(0xff48) & 0x0c) >> 2);
+            assertEquals(expected, mmu.getIo().loadPalette0()[1]);
         });
     }
 
     @Test
     public void test_get_sprite_palette_0_shade_for_color_2_returns_bits_4_and_5_of_0xff48_as_color() {
         doRangeTest(0xff48, mmu -> {
-            Color expected = paletteMappings.get(mmu.readByte(0xff48) & 0x30);
-            assertEquals(expected, mmu.getIo().getShadeForPalette0Color(2));
+            Color expected = paletteMappings.get((mmu.readByte(0xff48) & 0x30) >> 4);
+            assertEquals(expected, mmu.getIo().loadPalette0()[2]);
         });
     }
 
     @Test
     public void test_get_sprite_palette_0_shade_for_color_3_returns_bits_6_and_7_of_0xff48_as_color() {
         doRangeTest(0xff48, mmu -> {
-            Color expected = paletteMappings.get(mmu.readByte(0xff48) & 0xc0);
-            assertEquals(expected, mmu.getIo().getShadeForPalette0Color(3));
+            Color expected = paletteMappings.get((mmu.readByte(0xff48) & 0xc0) >> 6);
+            assertEquals(expected, mmu.getIo().loadPalette0()[3]);
         });
     }
     @Test
@@ -367,24 +367,24 @@ public class TestIoModule {
     @Test
     public void test_get_sprite_palette_1_shade_for_color_1_returns_bits_2_and_3_of_0xff48_as_color() {
         doRangeTest(0xff49, mmu -> {
-            Color expected = paletteMappings.get(mmu.readByte(0xff49) & 0x0c);
-            assertEquals(expected, mmu.getIo().getShadeForPalette1Color(1));
+            Color expected = paletteMappings.get((mmu.readByte(0xff49) & 0x0c) >> 2);
+            assertEquals(expected, mmu.getIo().loadPalette1()[1]);
         });
     }
 
     @Test
     public void test_get_sprite_palette_1_shade_for_color_2_returns_bits_4_and_5_of_0xff48_as_color() {
         doRangeTest(0xff49, mmu -> {
-            Color expected = paletteMappings.get(mmu.readByte(0xff49) & 0x30);
-            assertEquals(expected, mmu.getIo().getShadeForPalette1Color(2));
+            Color expected = paletteMappings.get((mmu.readByte(0xff49) & 0x30) >> 4);
+            assertEquals(expected, mmu.getIo().loadPalette1()[2]);
         });
     }
 
     @Test
     public void test_get_sprite_palette_1_shade_for_color_3_returns_bits_6_and_7_of_0xff48_as_color() {
         doRangeTest(0xff49, mmu -> {
-            Color expected = paletteMappings.get(mmu.readByte(0xff49) & 0xc0);
-            assertEquals(expected, mmu.getIo().getShadeForPalette1Color(3));
+            Color expected = paletteMappings.get((mmu.readByte(0xff49) & 0xc0) >> 6);
+            assertEquals(expected, mmu.getIo().loadPalette1()[3]);
         });
     }
 
@@ -1298,19 +1298,8 @@ public class TestIoModule {
         }
     }
 
-    private static class TestHeightListener implements SpriteChangeListener {
+    private static class TestHeightListener extends SpriteChangeAdapter {
         Boolean tallSpritesEnabledOnLastCall = null;
-
-        @Override
-        public void onSpriteAttributesModified(int spriteIndex) {
-            // Do nothing
-        }
-
-        @Override
-        public void onSpritePatternModified(int patternIndex) {
-            // Do nothing
-        }
-
         @Override
         public void onSpriteHeightChanged(boolean areTallSpritesEnabled) {
             tallSpritesEnabledOnLastCall = areTallSpritesEnabled;
