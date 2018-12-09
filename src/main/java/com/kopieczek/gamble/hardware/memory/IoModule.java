@@ -309,8 +309,9 @@ class IoModule extends RamModule implements Io {
     @Override
     public Color getShadeForBackgroundColor(int colorId) {
         // Bits 1-0 are color 0; bits 3-2 are color 1; ... ; bits 7-6 are color 3
-        int colorMask = 0x03 << (colorId * 2);
-        int shadeId = readByte(BACKGROUND_PALETTE_ADDR) & colorMask;
+        int shift = colorId * 2;
+        int colorMask = 0x03 << shift;
+        int shadeId = (readByte(BACKGROUND_PALETTE_ADDR) & colorMask) >> shift;
         return shadeMap.get(shadeId);
     }
 
@@ -345,9 +346,10 @@ class IoModule extends RamModule implements Io {
             return new Color(255, 255, 255, 255);
         } else {
             // Bits 1-0 are unused; bits 3-2 are color 1; ... ; bits 7-6 are color 3
-            int colorMask = 0x03 << (colorId * 2);
+            int shift = (colorId * 2);
+            int colorMask = 0x03 << shift;
             int paletteAddress = (paletteId == 0) ? SPRITE_PALETTE_0_ADDR : SPRITE_PALETTE_1_ADDR;
-            int shadeId = readByte(paletteAddress) & colorMask;
+            int shadeId = (readByte(paletteAddress) & colorMask) >> shift;
             return shadeMap.get(shadeId);
         }
     }
