@@ -26,8 +26,8 @@ public class GambleUi extends JFrame {
         getContentPane().add(screen, BorderLayout.CENTER);
 
         Controls controls = new Controls(io);
-        controls.init();
         getContentPane().add(controls, BorderLayout.SOUTH);
+        controls.init();
 
         pack();
         setVisible(true);
