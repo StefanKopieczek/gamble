@@ -6,6 +6,16 @@ repositories {
     mavenCentral()
 }
 
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+idea {
+    project {
+        languageLevel = '1.8'
+        jdkName = '1.8'
+    }
+}
+
 dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '22.0'
     dependencies {
