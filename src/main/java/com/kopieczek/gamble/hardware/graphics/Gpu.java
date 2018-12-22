@@ -14,7 +14,7 @@ public class Gpu {
     public static final int DISPLAY_WIDTH = 160;
     public static final int DISPLAY_HEIGHT= 144;
     public static final int VIRTUAL_TOTAL_HEIGHT = 153; // Including VBlank
-    private static final boolean DEBUG_MODE = true;
+    private static final boolean DEBUG_MODE = false;
     private final Memory memory;
     private final Io io;
     private final InterruptLine interrupts;
