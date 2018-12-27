@@ -154,7 +154,6 @@ public class Gpu {
     }
 
     private java.util.List<Sprite> getAllSprites(int currentLine) {
-        // TODO - not sure if sprites respect SCX/SCY. Won't use it for now but might need to revise.
         java.util.List<Sprite> sprites = spriteMap.getSpritesForRow(currentLine);
         sprites = sprites.subList(0, Math.min(10, sprites.size())); // Only 10 sprites can be displayed on each line
         return Lists.reverse(sprites);  // Blit sprites in reverse priority order
