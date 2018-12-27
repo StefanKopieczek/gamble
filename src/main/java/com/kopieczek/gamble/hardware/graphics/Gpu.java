@@ -136,18 +136,22 @@ public class Gpu {
         if (io.isWindowDisplayEnabled() &&
                 -7 <= io.getWindowX() && io.getWindowX() <= 159 &&
                 0 <= io.getWindowY() && io.getWindowY() <= 143) {
-            final int tileY = ((currentLine + io.getWindowY()) / 8) % 32;
-            for (int currentColumn = 0; currentColumn < DISPLAY_WIDTH; currentColumn++) {
-                int x = currentColumn + io.getWindowX();
-                int tileX = (x / 8) % 32;
+            if (currentLine < io.getWindowY()) {
+                return;
+            }
+
+            final int tileY = (currentLine - io.getWindowY()) / 8;
+
+            for (int currentColumn = Math.max(io.getWindowX(), 0); currentColumn < DISPLAY_WIDTH; currentColumn++) {
+                int x = currentColumn - io.getWindowX();
+
+                int tileX = x / 8;
                 int tileMapIdx = 32 * tileY + tileX;
                 int tileDataStart = getWindowTileDataAddress(tileMapIdx);
-                int[] rowData = getRowData(tileDataStart, (currentLine + io.getWindowY()) % 8);
+                int[] rowData = getRowData(tileDataStart, (currentLine - io.getWindowY()) % 8);
                 int[] rowColors = extractColors(rowData);
-                int currentColor = rowColors[(x + 8) % 8];
-                if (currentColor > 0 || (scratchBuffer[currentLine][currentColumn] == null)) {
-                    scratchBuffer[currentLine][currentColumn] = decodeColor(currentColor);
-                }
+                int currentColor = rowColors[x % 8];
+                scratchBuffer[currentLine][currentColumn] = decodeColor(currentColor);
             }
         }
     }
