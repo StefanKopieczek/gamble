@@ -191,7 +191,7 @@ public class Gpu {
         }
         for (int xOffset = 0; xOffset < rowPixels.length; xOffset++) {
             int x = spriteX + xOffset;
-            if (x < DISPLAY_WIDTH && rowPixels[xOffset].getAlpha() > 0) {
+            if (0 <= x && x < DISPLAY_WIDTH && rowPixels[xOffset].getAlpha() > 0) {
                 scratchBuffer[currentLine][x] = rowPixels[xOffset];
             }
         }
