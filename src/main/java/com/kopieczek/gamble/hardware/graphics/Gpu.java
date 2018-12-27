@@ -78,7 +78,6 @@ public class Gpu {
                         changeMode(Mode.OAM_READ);
                         graphicsAccessController.setOamAccessible(false);
                         io.handleOam();
-                        interrupts.setInterrupt(Interrupt.LCD_STAT);
                     }
                     break;
                 case VBLANK:
@@ -86,7 +85,6 @@ public class Gpu {
                     changeMode(Mode.OAM_READ);
                     graphicsAccessController.setOamAccessible(false);
                     io.handleOam();
-                    interrupts.setInterrupt(Interrupt.LCD_STAT);
                     break;
                 default:
                     throw new IllegalStateException("Unknown GPU mode " + mode);
