@@ -117,4 +117,18 @@ class SpriteAttributes {
         UNCHANGED,
         FLIPPED
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder()
+                .append("SpriteAttributes(x:").append(x)
+                .append(", y:").append(y)
+                .append(", z:").append(zPosition)
+                .append(", pattern:").append(patternIndex)
+                .append(", vert:").append(verticalOrientation)
+                .append(", horiz:").append(horizontalOrientation)
+                .append(", palette:").append(palette)
+                .append(")")
+                .toString();
+    }
 }

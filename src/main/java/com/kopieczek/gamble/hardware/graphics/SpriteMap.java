@@ -65,6 +65,7 @@ class SpriteMap implements SpriteChangeListener {
     private void reloadAllAttributes() {
         allAttributes.clear();
         dirtyAttributes.clear();
+        rowToSpriteMap.clear();
         patternToSpriteMap.clear();
         IntStream.range(0, Oam.TOTAL_ATTRIBUTES).forEach(idx -> {
             int[] data = oam.getAttributeBytes(idx);
@@ -79,13 +80,11 @@ class SpriteMap implements SpriteChangeListener {
         reloadAttributes(dirtyAttributes);
     }
 
-    private void reloadAttributes(Collection<Integer> attrsToReload) {
-        attrsToReload.forEach(spriteIndex -> {
-            // Remove existing attribute based-mappings for this sprite.
-            Sprite oldSprite = sprites.get(spriteIndex);
-            getPatternsUsed(oldSprite).forEach(pattern -> patternToSpriteMap.remove(pattern, spriteIndex));
-            getRowsUsed(oldSprite).forEach(row -> rowToSpriteMap.remove(row, spriteIndex));
+    private void reloadAttributes(Set<Integer> attrsToReload) {
+        removeValues(rowToSpriteMap, attrsToReload);
+        removeValues(patternToSpriteMap, attrsToReload);
 
+        attrsToReload.forEach(spriteIndex -> {
             // Reload attributes
             int[] data = oam.getAttributeBytes(spriteIndex);
             SpriteAttributes newAttrs = SpriteAttributes.parse(spriteIndex, data);
@@ -96,6 +95,7 @@ class SpriteMap implements SpriteChangeListener {
             getRowsUsed(newAttrs).forEach(row -> rowToSpriteMap.put(row, spriteIndex));
         });
         dirtyAttributes.removeAll(attrsToReload);
+
     }
 
     private void reloadAllPatterns() {
@@ -122,7 +122,7 @@ class SpriteMap implements SpriteChangeListener {
         reloadDirtyAttributes();
 
         Set<Integer> patternsToReload = spriteIndexes.stream()
-                .map(allAttributes::get)
+                .map(allAttributes::get) // Don't use the sprite object's attributes here - they may be stale
                 .flatMap(sprite -> getPatternsUsed(sprite).stream())
                 .filter(dirtyPatterns::contains)
                 .collect(Collectors.toSet());
@@ -203,17 +203,7 @@ class SpriteMap implements SpriteChangeListener {
     private Set<Integer> getPatternsUsed(SpriteAttributes attrs) {
         int mainPattern = attrs.getPatternIndex();
         if (useTallSprites) {
-            int twinnedPattern = mainPattern ^ 0xfe;  // Flip final bit
-            return ImmutableSet.of(mainPattern, twinnedPattern);
-        } else {
-            return ImmutableSet.of(mainPattern);
-        }
-    }
-
-    private Set<Integer> getPatternsUsed(Sprite sprite) {
-        int mainPattern = sprite.getAttributes().getPatternIndex();
-        if (sprite.isTall()) {
-            int twinnedPattern = mainPattern ^ 0xfe;
+            int twinnedPattern = mainPattern ^ 0x01;  // Flip final bit
             return ImmutableSet.of(mainPattern, twinnedPattern);
         } else {
             return ImmutableSet.of(mainPattern);
@@ -224,14 +214,8 @@ class SpriteMap implements SpriteChangeListener {
         int numRows = useTallSprites ? 16 : 8;
         int minRow = attrs.getY();
         int maxRow = minRow + numRows;
-        return IntStream.range(minRow, maxRow).boxed().collect(Collectors.toSet());
-    }
-
-    private Set<Integer> getRowsUsed(Sprite sprite) {
-        int numRows = sprite.isTall() ? 16 : 8;
-        int minRow = sprite.getAttributes().getY();
-        int maxRow = minRow + numRows;
-        return IntStream.range(minRow, maxRow).boxed().collect(Collectors.toSet());
+        Set<Integer> results = IntStream.range(minRow, maxRow).boxed().collect(Collectors.toSet());
+        return results;
     }
 
     @Override
@@ -264,5 +248,9 @@ class SpriteMap implements SpriteChangeListener {
         palette0 = io.loadPalette0();
         palette1 = io.loadPalette1();
         IntStream.range(0, Vram.TOTAL_SPRITE_PATTERNS).forEach(dirtyPatterns::add);
+    }
+
+    private <K, V> void removeValues(Multimap<K, V> multimap, Set<V> toRemove) {
+        multimap.entries().removeIf(e -> toRemove.contains(e.getValue()));
     }
 }

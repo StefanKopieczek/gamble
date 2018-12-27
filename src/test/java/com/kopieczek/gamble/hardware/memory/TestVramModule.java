@@ -42,6 +42,16 @@ public class TestVramModule {
     }
 
     @Test
+    public void test_write_to_0x1000_does_not_fire_pattern_modified() {
+        doSpritePatternChangeTest(
+                vram -> {
+                    vram.setByte(0x1000, 0xff);
+                },
+                onPatternModified -> fail("No pattern modified event expected")
+        );
+    }
+
+    @Test
     public void test_writes_do_not_fire_attribute_modified_events() {
         SpriteChangeListener listener = new SpriteChangeAdapter() {
             @Override

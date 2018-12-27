@@ -32,7 +32,7 @@ public class VramModule extends RamModule implements Vram {
     public void setByte(int address, int value) {
         int prevValue = readByte(address);
         super.setByte(address, value);
-        if (prevValue != value) {
+        if (prevValue != value && address < 0x1000) {
             fireSpritePatternChanged(address / 16);
         }
     }
