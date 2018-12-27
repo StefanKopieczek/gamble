@@ -25,13 +25,6 @@ public class DPad extends JPanel {
         add(right, BorderLayout.EAST);
     }
 
-    public void addListeners(JComponent parent) {
-        left.addListeners(parent);
-        right.addListeners(parent);
-        up.addListeners(parent);
-        down.addListeners(parent);
-    }
-
     private static class ArrowButton extends IoMappedButton {
         ArrowButton(String label, Io io, Io.Button buttonType, int keyCode) {
             super(label, io, buttonType, keyCode);

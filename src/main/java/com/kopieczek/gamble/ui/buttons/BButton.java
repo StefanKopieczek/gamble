@@ -7,6 +7,6 @@ import java.awt.event.KeyEvent;
 
 public class BButton extends RoundButton {
     public BButton(Io io) {
-        super("B", io, Io.Button.B, KeyEvent.VK_B);
+        super("B", io, Io.Button.B, KeyEvent.VK_X);
     }
 }

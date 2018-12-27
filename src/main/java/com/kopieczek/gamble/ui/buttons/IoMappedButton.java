@@ -3,7 +3,12 @@ package com.kopieczek.gamble.ui.buttons;
 import com.kopieczek.gamble.hardware.memory.Io;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
+
+import static java.awt.event.KeyEvent.KEY_PRESSED;
+import static java.awt.event.KeyEvent.KEY_RELEASED;
+import static java.awt.event.KeyEvent.KEY_TYPED;
 
 public class IoMappedButton extends JButton {
     private Io io;
@@ -15,11 +20,13 @@ public class IoMappedButton extends JButton {
         this.io = io;
         this.buttonType = buttonType;
         this.keyCode = keyCode;
+
+        this.addListeners();
     }
 
-    public void addListeners(JComponent parent) {
+    private void addListeners() {
         addMouseListener(buildMouseListener(io, buttonType));
-        addKeyboardListener(parent, keyCode);
+        addKeyboardListener(keyCode);
     }
 
     private void onPressed() {
@@ -46,26 +53,25 @@ public class IoMappedButton extends JButton {
         };
     }
 
-    private void addKeyboardListener(JComponent parent, int keyCode) {
-        parent.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent keyEvent) {
-                // Ignore
-            }
+    private void addKeyboardListener(final int keyCode) {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                .addKeyEventDispatcher(new KeyEventDispatcher() {
+                    @Override
+                    public boolean dispatchKeyEvent(KeyEvent keyEvent) {
+                        if (keyEvent.getKeyCode() != keyCode) {
+                            return false;
+                        }
 
-            @Override
-            public void keyPressed(KeyEvent keyEvent) {
-                if (keyEvent.getKeyCode() == keyCode) {
-                    onPressed();
-                }
-            }
+                        if (keyEvent.getID() == KEY_PRESSED)  {
+                            onPressed();
+                            return true;
+                        } else if (keyEvent.getID() == KEY_RELEASED) {
+                            onReleased();
+                            return true;
+                        }
 
-            @Override
-            public void keyReleased(KeyEvent keyEvent) {
-                if (keyEvent.getKeyCode() == keyCode) {
-                    onReleased();
-                }
-            }
-        });
+                        return false;
+                    }
+                });
     }
 }

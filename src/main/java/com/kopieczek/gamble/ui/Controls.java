@@ -29,10 +29,5 @@ class Controls extends JPanel {
         add(b);
         add(start);
         add(select);
-        dPad.addListeners(this);
-        a.addListeners(this);
-        b.addListeners(this);
-        start.addListeners(this);
-        select.addListeners(this);
     }
 }
