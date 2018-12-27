@@ -144,7 +144,7 @@ public class Gpu {
                 int tileDataStart = getWindowTileDataAddress(tileMapIdx);
                 int[] rowData = getRowData(tileDataStart, (currentLine + io.getWindowY()) % 8);
                 int[] rowColors = extractColors(rowData);
-                int currentColor = rowColors[x % 8];
+                int currentColor = rowColors[(x + 8) % 8];
                 if (currentColor > 0 || (scratchBuffer[currentLine][currentColumn] == null)) {
                     scratchBuffer[currentLine][currentColumn] = decodeColor(currentColor);
                 }
