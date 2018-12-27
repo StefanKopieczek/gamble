@@ -15,10 +15,11 @@ public interface Io extends TimerRegisters {
     int getSpriteHeight();
     boolean isSpriteDisplayEnabled();
     boolean isBackgroundDisplayEnabled();
-    void setOamInterrupt(boolean isInterrupted);
-    void setVBlankInterrupt(boolean isInterrupted);
-    void setHBlankInterrupt(boolean isInterrupted);
+    void handleOam();
+    void handleHBlank();
+    void handleVBlank();
     void setLcdControllerMode(LcdControllerMode mode);
+    boolean shouldStatInterruptFor(LcdStatEvent coincidence);
     int getScrollY();
     int getScrollX();
     int getLcdCurrentLine();
@@ -36,11 +37,19 @@ public interface Io extends TimerRegisters {
     int getSpritePatternStartAddress();
     void register(SpriteChangeListener listener);
 
+
     enum LcdControllerMode {
         HBLANK,
         VBLANK,
         OAM_READ,
         DATA_TRANSFER;
+    }
+
+    enum LcdStatEvent {
+        COINCIDENCE,
+        OAM,
+        HBLANK,
+        VBLANK
     }
 
     enum Button {

@@ -68,11 +68,15 @@ class IoModule extends RamModule implements Io {
     IoModule() {
         super(Mmu.IO_AREA_SIZE);
         initTriggersAndFilters();
-        setByteDirect(JOYPAD_ADDR, 0x0f);  // No buttons pressed
+
+        // Initialize key registers to hardware-standard values
+        setByteDirect(JOYPAD_ADDR, 0x0f);
+        setByteDirect(LCD_STATUS_ADDR, 0x86);
     }
 
     private void initTriggersAndFilters() {
         addFilter(JOYPAD_ADDR, Filter.readOnlyFilter(this, JOYPAD_ADDR, 0b00001111));
+        addFilter(LCD_STATUS_ADDR, Filter.readOnlyFilter(this, LCD_STATUS_ADDR, 0b00000011));
         addTrigger(JOYPAD_ADDR, this::recalculateJoypadRegister);
         addTrigger(LCD_LY_COMPARE_ADDR, this::updateCoincidenceFlag);
         addTrigger(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag);
@@ -245,18 +249,24 @@ class IoModule extends RamModule implements Io {
     }
 
     @Override
-    public void setOamInterrupt(boolean isInterrupted) {
-        setBit(LCD_STATUS_ADDR, 5, isInterrupted);
+    public void handleOam() {
+        if (shouldStatInterruptFor(LcdStatEvent.OAM)) {
+            globalMemory.setInterrupt(Interrupt.LCD_STAT);
+        }
     }
 
     @Override
-    public void setVBlankInterrupt(boolean isInterrupted) {
-        setBit(LCD_STATUS_ADDR, 4, isInterrupted);
+    public void handleHBlank() {
+        if (shouldStatInterruptFor(LcdStatEvent.HBLANK)) {
+            globalMemory.setInterrupt(Interrupt.LCD_STAT);
+        }
     }
 
     @Override
-    public void setHBlankInterrupt(boolean isInterrupted) {
-        setBit(LCD_STATUS_ADDR, 3, isInterrupted);
+    public void handleVBlank() {
+        if (shouldStatInterruptFor(LcdStatEvent.VBLANK)) {
+            globalMemory.setInterrupt(Interrupt.LCD_STAT);
+        }
     }
 
     @Override
@@ -264,7 +274,24 @@ class IoModule extends RamModule implements Io {
         final int oldValue = readByte(LCD_STATUS_ADDR);
         final int modeBits = lcdControllerModeBits.get(mode);
         final int newValue = (oldValue & 0xfc) + modeBits;
-        setByte(LCD_STATUS_ADDR, newValue);
+        setByteDirect(LCD_STATUS_ADDR, newValue);
+    }
+
+    @Override
+    public boolean shouldStatInterruptFor(LcdStatEvent event) {
+        int statusByte = readByte(LCD_STATUS_ADDR);
+        switch (event) {
+            case COINCIDENCE:
+                return (statusByte & 0x40) > 0;
+            case OAM:
+                return (statusByte & 0x20) > 0;
+            case VBLANK:
+                return (statusByte & 0x10) > 0;
+            case HBLANK:
+                return (statusByte & 0x08) > 0;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -373,10 +400,14 @@ class IoModule extends RamModule implements Io {
     }
 
     private void updateCoincidenceFlag() {
+        final boolean wasEnabled = (readByte(LCD_STATUS_ADDR) & 0x04) > 0;
         final boolean isEnabled = (getLcdCurrentLine() == getLyCompare());
         setBit(LCD_STATUS_ADDR, 2, isEnabled);
 
-        if (isEnabled) {
+        boolean hasChanged = (wasEnabled != isEnabled);
+        boolean isSelected = shouldStatInterruptFor(LcdStatEvent.COINCIDENCE);
+
+        if (hasChanged && isEnabled && isSelected) {
             globalMemory.setInterrupt(Interrupt.LCD_STAT);
         }
     }

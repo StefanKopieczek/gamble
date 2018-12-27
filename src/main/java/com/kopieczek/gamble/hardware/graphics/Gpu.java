@@ -65,21 +65,19 @@ public class Gpu {
                     changeMode(Mode.HBLANK);
                     graphicsAccessController.setVramAccessible(true);
                     graphicsAccessController.setOamAccessible(true);
-                    io.setHBlankInterrupt(true);
-                    interrupts.setInterrupt(Interrupt.LCD_STAT);
+                    io.handleHBlank();
                     break;
                 case HBLANK:
                     currentLine++;
                     if (currentLine == DISPLAY_HEIGHT - 1) {
                         interrupts.setInterrupt(Interrupt.V_BLANK);
-                        io.setVBlankInterrupt(true);
-                        interrupts.setInterrupt(Interrupt.LCD_STAT);
+                        io.handleVBlank();
                         flushBuffer();
                         changeMode(Mode.VBLANK);
                     } else {
                         changeMode(Mode.OAM_READ);
                         graphicsAccessController.setOamAccessible(false);
-                        io.setOamInterrupt(true);
+                        io.handleOam();
                         interrupts.setInterrupt(Interrupt.LCD_STAT);
                     }
                     break;
@@ -87,7 +85,7 @@ public class Gpu {
                     currentLine = 0;
                     changeMode(Mode.OAM_READ);
                     graphicsAccessController.setOamAccessible(false);
-                    io.setOamInterrupt(true);
+                    io.handleOam();
                     interrupts.setInterrupt(Interrupt.LCD_STAT);
                     break;
                 default:

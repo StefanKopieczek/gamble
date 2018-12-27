@@ -123,38 +123,6 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_set_oam_interrupt_changes_bit_5_of_0xff41() {
-        doRangedBitSetTest(0xff41, 5, true, mmu ->
-                mmu.getIo().setOamInterrupt(true)
-        );
-        doRangedBitSetTest(0xff41, 5, false, mmu ->
-                mmu.getIo().setOamInterrupt(false)
-        );
-    }
-
-    @Test
-    public void test_set_v_blank_interrupt_changes_bit_4_of_0xff41() {
-        doRangedBitSetTest(0xff41, 4, true, mmu ->
-                mmu.getIo().setVBlankInterrupt(true)
-        );
-        doRangedBitSetTest(0xff41, 4, false, mmu ->
-                mmu.getIo().setVBlankInterrupt(false)
-        );
-    }
-
-    @Test
-    public void test_set_v_blank_interrupt_changes_bit_3_of_0xff41() {
-        doRangedBitSetTest(0xff41, 3, true, mmu ->
-                mmu.getIo().setHBlankInterrupt(true)
-        );
-        doRangedBitSetTest(0xff41, 3, false, mmu ->
-                mmu.getIo().setHBlankInterrupt(false)
-        );
-    }
-
-    // *** TODO *** - test coincidence flag (0xff41 bit 2)
-
-    @Test
     public void test_set_lcd_controller_mode_changes_bits_0_and_1_of_0xff41() {
         final Map<Io.LcdControllerMode, Integer> expectedBits = ImmutableMap.of(
             Io.LcdControllerMode.HBLANK, 0x00,
@@ -232,6 +200,34 @@ public class TestIoModule {
     }
 
     @Test
+    public void test_should_stat_interrupt_for_coincidence_checks_bit_6_of_0xff41() {
+        doRangedBitCheckTest(0xff41, 6, (mmu, isSet) -> {
+            assertEquals(isSet, mmu.getIo().shouldStatInterruptFor(Io.LcdStatEvent.COINCIDENCE));
+        });
+    }
+
+    @Test
+    public void test_should_stat_interrupt_for_oam_checks_bit_5_of_0xff41() {
+        doRangedBitCheckTest(0xff41, 5, (mmu, isSet) -> {
+            assertEquals(isSet, mmu.getIo().shouldStatInterruptFor(Io.LcdStatEvent.OAM));
+        });
+    }
+
+    @Test
+    public void test_should_stat_interrupt_for_vblank_checks_bit_4_of_0xff41() {
+        doRangedBitCheckTest(0xff41, 4, (mmu, isSet) -> {
+            assertEquals(isSet, mmu.getIo().shouldStatInterruptFor(Io.LcdStatEvent.VBLANK));
+        });
+    }
+
+    @Test
+    public void test_should_stat_interrupt_for_hblank_checks_bit_3_of_0xff41() {
+        doRangedBitCheckTest(0xff41, 3, (mmu, isSet) -> {
+            assertEquals(isSet, mmu.getIo().shouldStatInterruptFor(Io.LcdStatEvent.HBLANK));
+        });
+    }
+
+    @Test
     public void test_setting_ly_compare_equal_to_lcd_current_line_sets_coincidence_flag() {
         Mmu mmu = getTestMmu();
         for (int lcdLine = 0; lcdLine < 154; lcdLine++) {
@@ -239,7 +235,8 @@ public class TestIoModule {
             for (int lyCompare = 0x00; lyCompare < 0xff; lyCompare++) {
                 mmu.setByte(0xff45, lyCompare);
                 boolean coincidenceFlag = (mmu.readByte(0xff41)  & 0x04) > 0;
-                assertEquals(lcdLine == lyCompare, coincidenceFlag);
+                String msg = String.format("LYC=%02x, LY=%02x", lyCompare, lcdLine);
+                assertEquals(msg, lcdLine == lyCompare, coincidenceFlag);
             }
         }
     }
@@ -252,35 +249,136 @@ public class TestIoModule {
             for (int lcdLine = 0; lcdLine < 154; lcdLine++) {
                 mmu.getIo().setLcdCurrentLine(lcdLine);
                 boolean coincidenceFlag = (mmu.readByte(0xff41) & 0x04) > 0;
-                assertEquals(lcdLine == lyCompare, coincidenceFlag);
+                String msg = String.format("LYC=%02x, LY=%02x", lyCompare, lcdLine);
+                assertEquals(msg, lcdLine == lyCompare, coincidenceFlag);
             }
         }
     }
 
     @Test
-    public void test_setting_ly_compare_equal_to_lcd_current_line_fires_stat_interrupt() {
+    public void test_setting_ly_compare_equal_to_lcd_current_line_fires_stat_interrupt_when_enabled() {
         Mmu mmu = getTestMmu();
-        for (int lcdLine = 0; lcdLine < 154; lcdLine++) {
+        mmu.setByte(0xff41, 0x40);
+
+        // Iterate backwards to avoid false negative at (0,0) due to default values
+        for (int lcdLine = 153; lcdLine >= 0; lcdLine--) {
             mmu.getIo().setLcdCurrentLine(lcdLine);
-            for (int lyCompare = 0x00; lyCompare < 0xff; lyCompare++) {
+            for (int lyCompare = 0x00; lyCompare <= 0xff; lyCompare++) {
                 mmu.resetInterrupt(Interrupt.LCD_STAT);
                 mmu.setByte(0xff45, lyCompare);
-                assertEquals(lcdLine == lyCompare, mmu.checkInterrupt(Interrupt.LCD_STAT));
+                String msg = String.format("LYC=%02x, LY=%02x", lyCompare, lcdLine);
+                assertEquals(msg, lcdLine == lyCompare, mmu.checkInterrupt(Interrupt.LCD_STAT));
             }
         }
     }
 
     @Test
-    public void test_setting_lcd_current_line_equal_to_ly_compare_fires_stat_interrupt() {
+    public void test_setting_lcd_current_line_equal_to_ly_compare_fires_stat_interrupt_when_enabled() {
         Mmu mmu = getTestMmu();
-        for (int lyCompare = 0x00; lyCompare < 0xff; lyCompare++) {
+        mmu.setByte(0xff41, 0x40);
+
+        // Iterate backwards to avoid false negative at (0,0) due to default values
+        for (int lyCompare = 0xff; lyCompare >= 0; lyCompare--) {
             mmu.setByte(0xff45, lyCompare);
             for (int lcdLine = 0; lcdLine < 154; lcdLine++) {
                 mmu.resetInterrupt(Interrupt.LCD_STAT);
                 mmu.getIo().setLcdCurrentLine(lcdLine);
-                assertEquals(lcdLine == lyCompare, mmu.checkInterrupt(Interrupt.LCD_STAT));
+                String msg = String.format("LYC=%02x, LY=%02x", lyCompare, lcdLine);
+                assertEquals(msg, lcdLine == lyCompare, mmu.checkInterrupt(Interrupt.LCD_STAT));
             }
         }
+    }
+
+    @Test
+    public void test_coincidence_stat_interrupt_does_not_fire_if_not_enabled() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff41, 0x38); // Select all stat interrupts *except* coincidence
+
+        // Iterate backwards to avoid false negative at (0,0) due to default values
+        for (int lyCompare = 0xff; lyCompare >= 0x00; lyCompare--) {
+            mmu.setByte(0xff45, lyCompare);
+            for (int lcdLine = 0; lcdLine < 154; lcdLine++) {
+                mmu.getIo().setLcdCurrentLine(lcdLine);
+                String msg = String.format("LYC=%02x, LY=%02x", lyCompare, lcdLine);
+                assertFalse(msg, mmu.checkInterrupt(Interrupt.LCD_STAT));
+            }
+        }
+    }
+
+    @Test
+    public void test_coincidence_stat_interrupt_does_not_double_fire_when_current_line_is_set() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff41, 0x40);
+
+        mmu.setByte(0xff45, 12);
+        mmu.getIo().setLcdCurrentLine(12);
+        assertTrue("Interrupt should fire on first coincidence", mmu.checkInterrupt(Interrupt.LCD_STAT));
+        mmu.resetInterrupt(Interrupt.LCD_STAT);
+
+        mmu.getIo().setLcdCurrentLine(12);
+        assertFalse("Interrupt should not re-fire if the line is re-stored", mmu.checkInterrupt(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_coincidence_stat_interrupt_does_not_double_fire_when_line_selector_is_set() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff41, 0x40);
+
+        mmu.setByte(0xff45, 12);
+        mmu.getIo().setLcdCurrentLine(12);
+        assertTrue("Interrupt should fire on first coincidence", mmu.checkInterrupt(Interrupt.LCD_STAT));
+        mmu.resetInterrupt(Interrupt.LCD_STAT);
+
+        mmu.setByte(0xff45, 12);
+        assertFalse("Interrupt should not re-fire if the selector is re-stored", mmu.checkInterrupt(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_handle_oam_fires_interrupt_if_enabled() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff41, 0x20);
+        mmu.getIo().handleOam();
+        assertTrue(mmu.checkInterrupt(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_handle_oam_does_not_fire_interrupt_when_not_selected() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff41, 0x58); // Select all stat interrupts *except* oam
+        mmu.getIo().handleOam();
+        assertFalse(mmu.checkInterrupt(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_handle_vblank_fires_interrupt_if_enabled() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff41, 0x10);
+        mmu.getIo().handleVBlank();
+        assertTrue(mmu.checkInterrupt(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_handle_vblank_does_not_fire_interrupt_when_not_selected() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff41, 0x68); // Select all stat interrupts *except* vblank
+        mmu.getIo().handleVBlank();
+        assertFalse(mmu.checkInterrupt(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_handle_hblank_fires_interrupt_if_enabled() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff41, 0x08);
+        mmu.getIo().handleHBlank();
+        assertTrue(mmu.checkInterrupt(Interrupt.LCD_STAT));
+    }
+
+    @Test
+    public void test_handle_hblank_does_not_fire_interrupt_when_not_selected() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff41, 0x70); // Select all stat interrupts *except* hblank
+        mmu.getIo().handleHBlank();
+        assertFalse(mmu.checkInterrupt(Interrupt.LCD_STAT));
     }
 
     @Test
