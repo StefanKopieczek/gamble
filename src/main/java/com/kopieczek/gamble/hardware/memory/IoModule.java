@@ -330,8 +330,8 @@ class IoModule extends RamModule implements Io {
 
     @Override
     public int getWindowX() {
-        // 0xff4b holds the x position minus 7 pixels
-        return readByte(WINDOW_X_POSITION_ADDR) + 7;
+        // 0xff4b holds the x position plus 7 pixels
+        return readByte(WINDOW_X_POSITION_ADDR) - 7;
     }
 
     @Override

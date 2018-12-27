@@ -125,9 +125,30 @@ public class Gpu {
         clearLine(currentLine);
         renderBackgroundSprites(sprites, currentLine);
         renderTiles(currentLine);
+        renderWindowTiles(currentLine);
         renderForegroundSprites(sprites, currentLine);
         if (DEBUG_MODE) {
             renderGrid();
+        }
+    }
+
+    private void renderWindowTiles(int currentLine) {
+        if (io.isWindowDisplayEnabled() &&
+                -7 <= io.getWindowX() && io.getWindowX() <= 159 &&
+                0 <= io.getWindowY() && io.getWindowY() <= 143) {
+            final int tileY = ((currentLine + io.getWindowY()) / 8) % 32;
+            for (int currentColumn = 0; currentColumn < DISPLAY_WIDTH; currentColumn++) {
+                int x = currentColumn + io.getWindowX();
+                int tileX = (x / 8) % 32;
+                int tileMapIdx = 32 * tileY + tileX;
+                int tileDataStart = getWindowTileDataAddress(tileMapIdx);
+                int[] rowData = getRowData(tileDataStart, (currentLine + io.getWindowY()) % 8);
+                int[] rowColors = extractColors(rowData);
+                int currentColor = rowColors[x % 8];
+                if (currentColor > 0 || (scratchBuffer[currentLine][currentColumn] == null)) {
+                    scratchBuffer[currentLine][currentColumn] = decodeColor(currentColor);
+                }
+            }
         }
     }
 
@@ -144,7 +165,7 @@ public class Gpu {
             int x = currentColumn + io.getScrollX();
             int tileX = (x / 8) % 32;
             int tileMapIdx = 32 * tileY + tileX;
-            int tileDataStart = getTileDataAddress(tileMapIdx);
+            int tileDataStart = getBackgroundTileDataAddress(tileMapIdx);
             int[] rowData = getRowData(tileDataStart, (currentLine + io.getScrollY()) % 8);
             int[] rowColors = extractColors(rowData);
             int currentColor = rowColors[x % 8];
@@ -228,8 +249,16 @@ public class Gpu {
         return new int[] {memory.readByte(rowDataStart), memory.readByte(rowDataStart + 1)};
     }
 
-    private int getTileDataAddress(int tileMapIdx) {
-        int tileDataIdx = memory.readByte(io.getBackgroundTileMapStartAddress() + tileMapIdx);
+    private int getBackgroundTileDataAddress(int tileMapIdx) {
+        return getTileDataAddress(io.getBackgroundTileMapStartAddress(), tileMapIdx);
+    }
+
+    private int getWindowTileDataAddress(int tileMapIdx) {
+        return getTileDataAddress(io.getWindowTileMapStartAddress(), tileMapIdx);
+    }
+
+    private int getTileDataAddress(int mapStartAddress, int tileMapIndex) {
+        int tileDataIdx = memory.readByte(mapStartAddress + tileMapIndex);
         if (io.areTileMapEntriesSigned()) {
             // Slightly magic.
             // If tile map entries are signed then 0x00 indicates tile 0, 0x80 indicates tile 128,
