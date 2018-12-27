@@ -141,12 +141,13 @@ public class Gpu {
     private void renderTiles(int currentLine) {
         final int tileY = ((currentLine + io.getScrollY()) / 8) % 32;
         for (int currentColumn = 0; currentColumn < DISPLAY_WIDTH; currentColumn++) {
-            int tileX = ((currentColumn + io.getScrollX()) / 8) % 32;
+            int x = currentColumn + io.getScrollX();
+            int tileX = (x / 8) % 32;
             int tileMapIdx = 32 * tileY + tileX;
             int tileDataStart = getTileDataAddress(tileMapIdx);
             int[] rowData = getRowData(tileDataStart, (currentLine + io.getScrollY()) % 8);
             int[] rowColors = extractColors(rowData);
-            int currentColor = rowColors[currentColumn % 8];
+            int currentColor = rowColors[x % 8];
             if (currentColor > 0 || (scratchBuffer[currentLine][currentColumn] == null)) {
                 scratchBuffer[currentLine][currentColumn] = decodeColor(currentColor);
             }
