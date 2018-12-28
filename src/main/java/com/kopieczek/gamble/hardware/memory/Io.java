@@ -43,6 +43,7 @@ public interface Io extends TimerRegisters {
     int getSquare1RemainingTime();
     int getSquare1StartingVolume();
     int getSquare1EnvelopeSign();
+    int getSquare1EnvelopeStepLength();
 
     enum LcdControllerMode {
         HBLANK,

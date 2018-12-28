@@ -1554,6 +1554,48 @@ public class TestIoModule {
         });
     }
 
+    @Test
+    public void test_get_square_1_envelope_step_length_is_0x00_when_0xff12_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff12, 0x00);
+        assertEquals(0x00, mmu.getIo().getSquare1EnvelopeStepLength());
+    }
+
+    @Test
+    public void test_get_square_1_envelope_step_length_is_0x01_when_0xff12_is_0x01() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff12, 0x01);
+        assertEquals(0x01, mmu.getIo().getSquare1EnvelopeStepLength());
+    }
+
+    @Test
+    public void test_get_square_1_envelope_step_length_is_0x01_when_0xff12_is_0xf9() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff12, 0xf9);
+        assertEquals(0x01, mmu.getIo().getSquare1EnvelopeStepLength());
+    }
+
+    @Test
+    public void test_get_square_1_envelope_step_length_is_0x05_when_0xff12_is_0x05() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff12, 0x05);
+        assertEquals(0x05, mmu.getIo().getSquare1EnvelopeStepLength());
+    }
+
+    @Test
+    public void test_get_square_1_envelope_step_length_is_0x07_when_0xff12_is_0x07() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff12, 0x07);
+        assertEquals(0x07, mmu.getIo().getSquare1EnvelopeStepLength());
+    }
+
+    @Test
+    public void test_get_square_1_envelope_step_length_ix_0x00_when_0xff12_is_0x08() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff12, 0x08);
+        assertEquals(0x00, mmu.getIo().getSquare1EnvelopeStepLength());
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
