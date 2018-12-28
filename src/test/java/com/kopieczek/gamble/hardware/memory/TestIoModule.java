@@ -1391,6 +1391,15 @@ public class TestIoModule {
         assertEquals(0x07, mmu.getIo().getSquare1SweepPeriod());
     }
 
+    @Test
+    public void test_square_1_sweep_sign_is_positive_iff_ff10_bit_3_is_high() {
+        doRangedBitCheckTest(0xff10, 3, (mmu, isHigh) -> {
+            int expected = isHigh ? -1 : +1;
+            assertEquals(expected, mmu.getIo().getSquare1SweepSign());
+        });
+
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
