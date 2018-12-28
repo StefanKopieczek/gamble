@@ -407,6 +407,11 @@ class IoModule extends RamModule implements Io {
         return squareWaveDutyCycles[dutyIdx];
     }
 
+    @Override
+    public int getSquare1Period() {
+        return 64 - (0x3f & readByte(NR11_ADDR));
+    }
+
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
         if (colorId == 0) {
             // Color 0 is always full transparency regardless of palette
