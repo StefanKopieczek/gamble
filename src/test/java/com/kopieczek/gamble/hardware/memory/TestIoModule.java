@@ -1546,6 +1546,14 @@ public class TestIoModule {
         assertEquals(0x00, mmu.getIo().getSquare1StartingVolume());
     }
 
+    @Test
+    public void test_square_1_envelope_sign() {
+        doRangedBitCheckTest(0xff12, 3, (mmu, isBitHigh) -> {
+            int expectedSign = isBitHigh ? +1 : -1;
+            assertEquals(expectedSign, mmu.getIo().getSquare1EnvelopeSign());
+        });
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();

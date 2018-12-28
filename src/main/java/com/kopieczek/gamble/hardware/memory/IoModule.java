@@ -418,6 +418,12 @@ class IoModule extends RamModule implements Io {
         return readByte(NR12_ADDR) >> 4;
     }
 
+    @Override
+    public int getSquare1EnvelopeSign() {
+        boolean isBitHigh = (readByte(NR12_ADDR) & 0x08) > 0;
+        return isBitHigh ? +1 : -1;
+    }
+
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
         if (colorId == 0) {
             // Color 0 is always full transparency regardless of palette
