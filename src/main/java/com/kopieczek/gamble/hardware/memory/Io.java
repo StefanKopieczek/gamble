@@ -45,6 +45,7 @@ public interface Io extends TimerRegisters {
     int getSquare1EnvelopeSign();
     int getSquare1EnvelopeStepLength();
     int getSquare1FrequencyCounter();
+    void setSquare1FrequencyCounter(int newValue);
     boolean isSquare1ContinuousModeEnabled();
     boolean isSquare1Restarted();
     void clearSquare1RestartFlag();

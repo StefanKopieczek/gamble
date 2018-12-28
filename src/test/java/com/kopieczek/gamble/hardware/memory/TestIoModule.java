@@ -1670,6 +1670,38 @@ public class TestIoModule {
         doRangedBitSetTest(0xff14, 7, false, mmu -> mmu.getIo().clearSquare1RestartFlag());
     }
 
+    @Test
+    public void test_set_square_1_frequency_counter() {
+        Mmu mmu = getTestMmu();
+        for (int nr13 = 0x00; nr13 <= 0xff; nr13++) {
+            for (int nr14 = 0x00; nr14 <= 0xff; nr14++) {
+                for (int newFreq = 0x000; newFreq <= 0x7ff; newFreq++) {
+                    mmu.setByte(0xff13, nr13);
+                    mmu.setByte(0xff14, nr14);
+                    mmu.getIo().setSquare1FrequencyCounter(newFreq);
+                    assertEquals("Incorrect value for LSB", newFreq & 0xff, mmu.readByte(0xff13));
+                    assertEquals("Incorrect value for MSB", (newFreq & 0x07) >> 8, mmu.readByte(0xff14) & 0x07);
+                    assertEquals("Unrelated NR14 bytes changed unexpectedly", nr14 & 0xf8, mmu.readByte(0xff14) & 0xf8);
+                }
+            }
+        }
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_set_square_1_frequency_counter_fails_on_negative_input() {
+        getTestMmu().getIo().setSquare1FrequencyCounter(-1);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_set_square_1_frequency_counter_fails_on_overlarge_value() {
+        getTestMmu().getIo().setSquare1FrequencyCounter(0x800);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_set_square_1_frequency_counter_fails_on_overlarge_value_2() {
+        getTestMmu().getIo().setSquare1FrequencyCounter(0x9ab);
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();

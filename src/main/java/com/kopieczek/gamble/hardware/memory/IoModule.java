@@ -440,6 +440,21 @@ class IoModule extends RamModule implements Io {
     }
 
     @Override
+    public void setSquare1FrequencyCounter(int newValue) {
+        if (newValue < 0 || newValue > 0x7ff) {
+            throw new IllegalArgumentException("Frequency counter value " + newValue + " exceeds bounds 0<=fc<0x800");
+        }
+
+        int lsb = newValue & 0xff;
+        int msb = (newValue & 0x07) >> 8;
+        int newNr13 = lsb;
+        int oldNr14 = readByte(NR14_ADDR);
+        int newNr14 = (oldNr14 & 0xf8) + (msb & 0x07);
+        setByte(NR13_ADDR, newNr13);
+        setByte(NR14_ADDR, newNr14);
+    }
+
+    @Override
     public boolean isSquare1ContinuousModeEnabled() {
         return (readByte(NR14_ADDR) & 0x40) == 0;
     }
