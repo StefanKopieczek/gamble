@@ -18,6 +18,7 @@ class IoModule extends RamModule implements Io {
     private static final int TIMER_COUNTER_ADDR = 0x0005;
     private static final int TIMER_MODULO_ADDR = 0x0006;
     private static final int TIMER_CONTROL_ADDR = 0x0007;
+    private static final int NR10_ADDR = 0x0010; // -PPP SNNN (holds Square 1 sweep's period, sign, and shift number)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -361,14 +362,6 @@ class IoModule extends RamModule implements Io {
         return palette;
     }
 
-    private Color getShadeForPalette0Color(int colorId) {
-        return getShadeForPaletteColor(0, colorId);
-    }
-
-    private Color getShadeForPalette1Color(int colorId) {
-        return getShadeForPaletteColor(1, colorId);
-    }
-
     @Override
     public int getSpriteDataStartAddress() {
         return 0x8000;
@@ -382,6 +375,11 @@ class IoModule extends RamModule implements Io {
     @Override
     public void register(SpriteChangeListener listener) {
         spriteListeners.add(listener);
+    }
+
+    @Override
+    public int getSquare1SweepPeriod() {
+        return 0x07 & (readByte(NR10_ADDR) >> 4);
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
