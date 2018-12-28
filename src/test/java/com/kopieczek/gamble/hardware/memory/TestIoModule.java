@@ -1651,6 +1651,20 @@ public class TestIoModule {
         doFrequencyTest(0x43, 0x2d, 0x543);
     }
 
+    @Test
+    public void test_is_square_1_continuous_mode_enabled_is_true_iff_0xff14_bit_6_is_low() {
+        doRangedBitCheckTest(0xff14, 6, (mmu, bitIsHigh) -> {
+            assertEquals(!bitIsHigh, mmu.getIo().isSquare1ContinuousModeEnabled());
+        });
+    }
+
+    @Test
+    public void test_is_square_1_restarted() {
+        doRangedBitCheckTest(0xff14, 7, (mmu, bitIsHigh) -> {
+            assertEquals(bitIsHigh, mmu.getIo().isSquare1Restarted());
+        });
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();

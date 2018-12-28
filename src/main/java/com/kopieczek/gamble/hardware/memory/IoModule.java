@@ -439,6 +439,16 @@ class IoModule extends RamModule implements Io {
         return (msb << 8) + lsb;
     }
 
+    @Override
+    public boolean isSquare1ContinuousModeEnabled() {
+        return (readByte(NR14_ADDR) & 0x40) == 0;
+    }
+
+    @Override
+    public boolean isSquare1Restarted() {
+        return (readByte(NR14_ADDR) & 0x80) > 0;
+    }
+
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
         if (colorId == 0) {
             // Color 0 is always full transparency regardless of palette
