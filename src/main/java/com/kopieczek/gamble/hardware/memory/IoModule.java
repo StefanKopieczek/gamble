@@ -388,6 +388,11 @@ class IoModule extends RamModule implements Io {
         return shouldNegate ? -1 : +1;
     }
 
+    @Override
+    public int getSquare1SweepShift() {
+        return 0x07 & readByte(NR10_ADDR);
+    }
+
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
         if (colorId == 0) {
             // Color 0 is always full transparency regardless of palette

@@ -1397,7 +1397,48 @@ public class TestIoModule {
             int expected = isHigh ? -1 : +1;
             assertEquals(expected, mmu.getIo().getSquare1SweepSign());
         });
+    }
 
+    @Test
+    public void test_square_1_sweep_shift_is_0x00_when_ff10_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff10, 0x00);
+        assertEquals(0x00, mmu.getIo().getSquare1SweepShift());
+    }
+
+    @Test
+    public void test_square_1_sweep_shift_is_0x01_when_ff10_is_0x01() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff10, 0x01);
+        assertEquals(0x01, mmu.getIo().getSquare1SweepShift());
+    }
+
+    @Test
+    public void test_square_1_sweep_shift_is_0x00_when_ff10_is_0xf8() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff10, 0xf8);
+        assertEquals(0x00, mmu.getIo().getSquare1SweepShift());
+    }
+
+    @Test
+    public void test_square_1_sweep_shift_is_0x06_when_ff10_is_0x06() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff10, 0x06);
+        assertEquals(0x06, mmu.getIo().getSquare1SweepShift());
+    }
+
+    @Test
+    public void test_square_1_sweep_shift_is_0x06_when_ff10_is_0xfe() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff10, 0xfe);
+        assertEquals(0x06, mmu.getIo().getSquare1SweepShift());
+    }
+
+    @Test
+    public void test_square_1_sweep_shift_is_0x07_when_ff10_is_0x07() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff10, 0x07);
+        assertEquals(0x07, mmu.getIo().getSquare1SweepShift());
     }
 
     private static void doRangeTest(int address, Consumer<Mmu> test) {
