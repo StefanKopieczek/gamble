@@ -1590,10 +1590,65 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_get_square_1_envelope_step_length_ix_0x00_when_0xff12_is_0x08() {
+    public void test_get_square_1_envelope_step_length_is_0x00_when_0xff12_is_0x08() {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff12, 0x08);
         assertEquals(0x00, mmu.getIo().getSquare1EnvelopeStepLength());
+    }
+
+    @Test
+    public void test_get_square_1_freq_ctr_returns_0x000_when_0xff13_is_0x00_and_0xff14_is_00() {
+        doFrequencyTest(0x00, 0x00, 0x000);
+    }
+
+    @Test
+    public void test_get_square_1_freq_ctr_returns_0x001_when_0xff13_is_0x01_and_0xff14_is_0x00() {
+        doFrequencyTest(0x01, 0x00, 0x001);
+    }
+
+    @Test
+    public void test_get_square_1_freq_ctr_returns_0x0ab_when_0xff13_is_0xab_and_0xff14_is_0x00() {
+        doFrequencyTest(0xab, 0x00, 0x0ab);
+    }
+
+    @Test
+    public void test_get_square_1_freq_ctr_returns_0x0ff_when_0xff13_is_0xff_and_0xff14_is_0x00() {
+        doFrequencyTest(0xff, 0x00, 0x0ff);
+    }
+
+    @Test
+    public void test_get_square_1_freq_ctr_returns_0x149_when_0xff13_is_0x49_and_0xff14_is_0x01() {
+        doFrequencyTest(0x49, 0x01, 0x149);
+    }
+
+    @Test
+    public void test_get_square_1_freq_ctr_returns_0x5bf_when_0xff13_is_0xbf_and_0xff14_is_0x05() {
+        doFrequencyTest(0xbf, 0x05, 0x5bf);
+    }
+
+    @Test
+    public void test_get_square_1_freq_ctr_returns_0x790_when_0xff13_is_0x90_and_0xff14_is_0x07() {
+        doFrequencyTest(0x90, 0x07, 0x790);
+    }
+
+    @Test
+    public void test_get_square_1_freq_ctr_returns_0x090_when_0xff13_is_0x90_and_0xff14_is_0xf8() {
+        doFrequencyTest(0x90, 0xf8, 0x090);
+    }
+
+    @Test
+    public void test_get_square_1_freq_ctr_returns_0x790_when_0xff13_is_0x90_and_0xff14_is_0xff() {
+        doFrequencyTest(0x90, 0xff, 0x790);
+    }
+
+    @Test
+    public void test_get_square_1_freq_ctr_returns_0x000_when_0xff13_is_0x00_and_0xff14_is_0xf8() {
+        doFrequencyTest(0x00, 0xf8, 0x000);
+    }
+
+    @Test
+    public void test_get_square_1_freq_ctr_returns_0x543_when_0xff13_is_0x43_and_0xff14_is_0x2d() {
+        doFrequencyTest(0x43, 0x2d, 0x543);
     }
 
     private static void doRangeTest(int address, Consumer<Mmu> test) {
@@ -1631,6 +1686,13 @@ public class TestIoModule {
         for (int idx = 0 ; idx < length; idx++) {
             mmu.setByte(startAddr + idx, valueGenerator.apply(idx));
         }
+    }
+
+    private static void doFrequencyTest(int nr13, int nr14, int expectedFrequencyCounter) {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff13, nr13);
+        mmu.setByte(0xff14, nr14);
+        assertEquals(expectedFrequencyCounter, mmu.getIo().getSquare1FrequencyCounter());
     }
 
     private static void assertMemoryValues(Mmu mmu, int startAddr, int length,

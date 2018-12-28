@@ -22,6 +22,8 @@ class IoModule extends RamModule implements Io {
     private static final int NR10_ADDR = 0x0010; // -PPP SNNN (holds Square 1 sweep's period, sign, and shift number)
     private static final int NR11_ADDR = 0x0011; // DDRR RRRR (holds Square 1 duty cycle and remaining time (r.t. = 64 - R)
     private static final int NR12_ADDR = 0x0012; // VVVV SLLL (holds Square 1's starting volume, envelope sign, and length of envelope steps)
+    private static final int NR13_ADDR = 0x0013; // Bottom 8 bits of Square 1's frequency counter value
+    private static final int NR14_ADDR = 0x0014; // IC-- -FFF (holds Square 1's Initialize and Continuous flags, as well as the top 3 bits of its frequency counter)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -428,6 +430,13 @@ class IoModule extends RamModule implements Io {
     @Override
     public int getSquare1EnvelopeStepLength() {
         return readByte(NR12_ADDR) & 0x07;
+    }
+
+    @Override
+    public int getSquare1FrequencyCounter() {
+        int lsb = readByte(NR13_ADDR);
+        int msb = readByte(NR14_ADDR) & 0x07;
+        return (msb << 8) + lsb;
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
