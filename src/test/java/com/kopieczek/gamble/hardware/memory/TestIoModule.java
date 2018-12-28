@@ -1665,6 +1665,11 @@ public class TestIoModule {
         });
     }
 
+    @Test
+    public void test_clear_square_1_restart_flag() {
+        doRangedBitSetTest(0xff14, 7, false, mmu -> mmu.getIo().clearSquare1RestartFlag());
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();

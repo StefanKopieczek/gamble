@@ -449,6 +449,13 @@ class IoModule extends RamModule implements Io {
         return (readByte(NR14_ADDR) & 0x80) > 0;
     }
 
+    @Override
+    public void clearSquare1RestartFlag() {
+        int oldValue = readByte(NR14_ADDR);
+        int newValue = oldValue & 0x7f;
+        setByte(NR14_ADDR, newValue);
+    }
+
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
         if (colorId == 0) {
             // Color 0 is always full transparency regardless of palette
