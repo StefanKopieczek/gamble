@@ -389,9 +389,9 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_get_window_x_position_returns_0xff4b_plus_7() {
+    public void test_get_window_x_position_returns_0xff4b_minus_7() {
         doRangeTest(0xff4b, mmu ->
-                assertEquals(mmu.readByte(0xff4b) + 7, mmu.getIo().getWindowX())
+                assertEquals(mmu.readByte(0xff4b) - 7, mmu.getIo().getWindowX())
         );
     }
 
