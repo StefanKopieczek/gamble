@@ -19,7 +19,7 @@ class IoModule extends RamModule implements Io {
     private static final int TIMER_MODULO_ADDR = 0x0006;
     private static final int TIMER_CONTROL_ADDR = 0x0007;
     private static final int NR10_ADDR = 0x0010; // -PPP SNNN (holds Square 1 sweep's period, sign, and shift number)
-    private static final int NR11_ADDR = 0x0011; // DDPP PPPP (holds Square 1 duty cycle and period (period = 64 - L)
+    private static final int NR11_ADDR = 0x0011; // DDRR RRRR (holds Square 1 duty cycle and remaining time (r.t. = 64 - R)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -408,7 +408,7 @@ class IoModule extends RamModule implements Io {
     }
 
     @Override
-    public int getSquare1Period() {
+    public int getSquare1RemainingTime() {
         return 64 - (0x3f & readByte(NR11_ADDR));
     }
 

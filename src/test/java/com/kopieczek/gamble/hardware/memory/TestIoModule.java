@@ -1460,55 +1460,55 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_square_1_period_is_0x40_when_0xff11_is_0x00() {
+    public void test_square_1_remaining_time_is_0x40_when_0xff11_is_0x00() {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff11, 0x00);
-        assertEquals(0x40, mmu.getIo().getSquare1Period());
+        assertEquals(0x40, mmu.getIo().getSquare1RemainingTime());
     }
 
     @Test
-    public void test_square_1_period_is_0x3f_when_0xff11_is_0x01() {
+    public void test_square_1_remaining_time_is_0x3f_when_0xff11_is_0x01() {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff11, 0x01);
-        assertEquals(0x3f, mmu.getIo().getSquare1Period());
+        assertEquals(0x3f, mmu.getIo().getSquare1RemainingTime());
     }
 
     @Test
-    public void test_square_1_period_is_0x3f_when_0xff11_is_0xc1() {
+    public void test_square_1_remaining_time_is_0x3f_when_0xff11_is_0xc1() {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff11, 0xc1);
-        assertEquals(0x3f, mmu.getIo().getSquare1Period());
+        assertEquals(0x3f, mmu.getIo().getSquare1RemainingTime());
     }
 
     @Test
-    public void test_square_1_period_is_0x14_when_0xff11_is_0x2c() {
+    public void test_square_1_remaining_time_is_0x14_when_0xff11_is_0x2c() {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff11, 0x2c);
-        assertEquals(0x14, mmu.getIo().getSquare1Period());
+        assertEquals(0x14, mmu.getIo().getSquare1RemainingTime());
     }
 
     @Test
-    public void test_square_1_period_is_0x14_when_0xff11_is_0xec() {
+    public void test_square_1_remaining_time_is_0x14_when_0xff11_is_0xec() {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff11, 0xec);
-        assertEquals(0x14, mmu.getIo().getSquare1Period());
+        assertEquals(0x14, mmu.getIo().getSquare1RemainingTime());
     }
 
     @Test
-    public void test_square_1_period_is_0x01_when_0xff11_is_0x3f() {
+    public void test_square_1_remaining_time_is_0x01_when_0xff11_is_0x3f() {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff11, 0x3f);
-        assertEquals(0x01, mmu.getIo().getSquare1Period());
+        assertEquals(0x01, mmu.getIo().getSquare1RemainingTime());
     }
 
     @Test
-    public void test_square_1_period_is_0x40_when_0xff11_is_0x40() {
+    public void test_square_1_remaining_time_is_0x40_when_0xff11_is_0x40() {
         // The period is contained in the lower 6 bits of NR11.
         // 0x40 is 0b0100_0000 so should be treated the same as 0x00
         // and so should have the same period as if 0xff11 were 0x00.
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff11, 0x40);
-        assertEquals(0x40, mmu.getIo().getSquare1Period());
+        assertEquals(0x40, mmu.getIo().getSquare1RemainingTime());
     }
 
     private static void doRangeTest(int address, Consumer<Mmu> test) {
