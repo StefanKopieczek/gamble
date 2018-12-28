@@ -39,6 +39,7 @@ public interface Io extends TimerRegisters {
     int getSquare1SweepPeriod();
     int getSquare1SweepSign();
     int getSquare1SweepShift();
+    boolean[] getSquare1DutyCycle();
 
     enum LcdControllerMode {
         HBLANK,

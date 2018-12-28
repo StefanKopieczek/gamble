@@ -19,6 +19,7 @@ class IoModule extends RamModule implements Io {
     private static final int TIMER_MODULO_ADDR = 0x0006;
     private static final int TIMER_CONTROL_ADDR = 0x0007;
     private static final int NR10_ADDR = 0x0010; // -PPP SNNN (holds Square 1 sweep's period, sign, and shift number)
+    private static final int NR11_ADDR = 0x0011; // DDPP PPPP (holds Square 1 duty cycle and period (period = 64 - L)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -47,6 +48,13 @@ class IoModule extends RamModule implements Io {
             2, Color.DARK_GRAY,
             3, Color.BLACK
     );
+
+    private static final boolean[][] squareWaveDutyCycles = new boolean[][] {
+            new boolean[] {false, false, false, false, false, false, false, true},
+            new boolean[] {true, false, false, false, false, false, false, true},
+            new boolean[] {true, false, false, false, false, true, true, true},
+            new boolean[] {false, true, true, true, true, true, true, false}
+    };
 
     private static final Map<Button, Integer> buttonMasks = ImmutableMap.<Button, Integer>builder()
             .put(Button.A, 0x01)
@@ -391,6 +399,12 @@ class IoModule extends RamModule implements Io {
     @Override
     public int getSquare1SweepShift() {
         return 0x07 & readByte(NR10_ADDR);
+    }
+
+    @Override
+    public boolean[] getSquare1DutyCycle() {
+        int dutyIdx = readByte(NR11_ADDR) >> 6;
+        return squareWaveDutyCycles[dutyIdx];
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {

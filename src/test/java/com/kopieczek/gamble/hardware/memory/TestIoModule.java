@@ -1441,6 +1441,24 @@ public class TestIoModule {
         assertEquals(0x07, mmu.getIo().getSquare1SweepShift());
     }
 
+    @Test
+    public void test_square_1_duty() {
+        boolean[][] duties = new boolean[][] {
+                new boolean[] {false, false, false, false, false, false, false, true},
+                new boolean[] {true, false, false, false, false, false, false, true},
+                new boolean[] {true, false, false, false, false, true, true, true},
+                new boolean[] {false, true, true, true, true, true, true, false}
+        };
+
+        doRangeTest(0xff11, mmu -> {
+            int nr11 = mmu.readByte(0xff11);
+            int dutyHigh = (nr11 & 0x80) > 0 ? 2 : 0;
+            int dutyLow = (nr11 & 0x40) > 0 ? 1 : 0;
+            int dutyIdx = dutyHigh + dutyLow;
+            assertArrayEquals(duties[dutyIdx], mmu.getIo().getSquare1DutyCycle());
+        });
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
