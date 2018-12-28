@@ -1511,6 +1511,41 @@ public class TestIoModule {
         assertEquals(0x40, mmu.getIo().getSquare1RemainingTime());
     }
 
+    @Test
+    public void test_square_1_starting_volume_is_0x00_when_0xff12_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff12, 0x00);
+        assertEquals(0x00, mmu.getIo().getSquare1StartingVolume());
+    }
+
+    @Test
+    public void test_square_1_starting_volume_is_0x01_when_0xff12_is_0x10() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff12, 0x10);
+        assertEquals(0x01, mmu.getIo().getSquare1StartingVolume());
+    }
+
+    @Test
+    public void test_square_1_starting_volume_is_0x0e_when_ff12_is_0xe0() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff12, 0xe0);
+        assertEquals(0x0e, mmu.getIo().getSquare1StartingVolume());
+    }
+
+    @Test
+    public void test_square_1_starting_volume_is_0x0f_when_ff12_is_0xff() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff12, 0xff);
+        assertEquals(0x0f, mmu.getIo().getSquare1StartingVolume());
+    }
+
+    @Test
+    public void test_square_1_starting_volume_is_0x00_when_ff12_is_0x0f() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff12, 0x0f);
+        assertEquals(0x00, mmu.getIo().getSquare1StartingVolume());
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
