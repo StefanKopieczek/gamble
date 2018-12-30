@@ -1991,6 +1991,34 @@ public class TestIoModule {
         assertTrue(mmu.getIo().isWaveDacEnabled());
     }
 
+    @Test
+    public void test_get_wave_remaining_time_returns_0x100_when_0xff1b_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1b, 0x00);
+        assertEquals(0x100, mmu.getIo().getWaveRemainingTime());
+    }
+
+    @Test
+    public void test_get_wave_remaining_time_returns_0xff_when_0xff1b_is_0x01() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1b, 0x01);
+        assertEquals(0xff, mmu.getIo().getWaveRemainingTime());
+    }
+
+    @Test
+    public void test_get_wave_remaining_time_returns_0x4c_when_0xff1b_is_0xb4() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1b, 0xb4);
+        assertEquals(0x4c, mmu.getIo().getWaveRemainingTime());
+    }
+
+    @Test
+    public void test_get_wave_remaining_time_returns_0x01_when_0xff1b_is_0xff() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1b, 0xff);
+        assertEquals(0x01, mmu.getIo().getWaveRemainingTime());
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
