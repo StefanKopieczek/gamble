@@ -74,6 +74,9 @@ public interface Io extends TimerRegisters {
     int getNoiseFrequencyShift();
     boolean isNoiseWideModeEnabled();
     float getNoiseFrequencyDivisor();
+    boolean isNoiseContinuousModeEnabled();
+    boolean isNoiseRestarted();
+    void clearNoiseRestartFlag();
 
     enum LcdControllerMode {
         HBLANK,

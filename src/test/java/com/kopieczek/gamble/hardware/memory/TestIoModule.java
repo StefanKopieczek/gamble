@@ -2453,6 +2453,25 @@ public class TestIoModule {
         assertEquals(expectedFrequencyCounter, mmu.getIo().getWaveFrequencyCounter());
     }
 
+    @Test
+    public void test_is_noise_continuous_mode_enabled_is_true_iff_0xff23_bit_6_is_low() {
+        doRangedBitCheckTest(0xff23, 6, (mmu, bitIsHigh) -> {
+            assertEquals(!bitIsHigh, mmu.getIo().isNoiseContinuousModeEnabled());
+        });
+    }
+
+    @Test
+    public void test_is_noise_restarted() {
+        doRangedBitCheckTest(0xff23, 7, (mmu, bitIsHigh) -> {
+            assertEquals(bitIsHigh, mmu.getIo().isNoiseRestarted());
+        });
+    }
+
+    @Test
+    public void test_clear_noise_restart_flag() {
+        doRangedBitSetTest(0xff23, 7, false, mmu -> mmu.getIo().clearNoiseRestartFlag());
+    }
+
     private static void assertMemoryValues(Mmu mmu, int startAddr, int length,
             Function<Integer, Integer> getExpectedValue) {
         for (int idx = 0; idx < length; idx++) {
