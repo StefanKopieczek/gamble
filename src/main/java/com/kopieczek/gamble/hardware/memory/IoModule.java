@@ -635,13 +635,23 @@ class IoModule extends RamModule implements Io {
     }
 
     @Override
-    public int getNoiseFrequencyCounter() {
+    public int getNoiseFrequencyShift() {
         return readByte(NR43_ADDR) >> 4;
     }
 
     @Override
     public boolean isNoiseWideModeEnabled() {
         return (readByte(NR43_ADDR) & 0x08) == 0;
+    }
+
+    @Override
+    public float getNoiseFrequencyDivisor() {
+        int code = readByte(NR43_ADDR) & 0x07;
+        if (code == 0) {
+            return 0.5f;
+        } else {
+            return code;
+        }
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {

@@ -2319,38 +2319,38 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_get_noise_frequency_counter_is_0x00_when_0xff22_is_0x00() {
+    public void test_get_noise_frequency_shift_is_0x00_when_0xff22_is_0x00() {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff22, 0x00);
-        assertEquals(0x00, mmu.getIo().getNoiseFrequencyCounter());
+        assertEquals(0x00, mmu.getIo().getNoiseFrequencyShift());
     }
 
     @Test
-    public void test_get_noise_frequency_counter_is_0x01_when_0xff22_is_0x10() {
+    public void test_get_noise_frequency_shift_is_0x01_when_0xff22_is_0x10() {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff22, 0x10);
-        assertEquals(0x01, mmu.getIo().getNoiseFrequencyCounter());
+        assertEquals(0x01, mmu.getIo().getNoiseFrequencyShift());
     }
 
     @Test
-    public void test_get_noise_frequency_counter_is_0x07_when_0xff22_is_0x70() {
+    public void test_get_noise_frequency_shift_is_0x07_when_0xff22_is_0x70() {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff22, 0x70);
-        assertEquals(0x07, mmu.getIo().getNoiseFrequencyCounter());
+        assertEquals(0x07, mmu.getIo().getNoiseFrequencyShift());
     }
 
     @Test
-    public void test_get_noise_frequency_counter_is_0x07_when_0xff22_is_0x7f() {
+    public void test_get_noise_frequency_shift_is_0x07_when_0xff22_is_0x7f() {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff22, 0x70);
-        assertEquals(0x07, mmu.getIo().getNoiseFrequencyCounter());
+        assertEquals(0x07, mmu.getIo().getNoiseFrequencyShift());
     }
 
     @Test
-    public void test_get_noise_frequency_counter_is_0x0f_when_0xff22_is_0xf0() {
+    public void test_get_noise_frequency_shift_is_0x0f_when_0xff22_is_0xf0() {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff22, 0xf0);
-        assertEquals(0x0f, mmu.getIo().getNoiseFrequencyCounter());
+        assertEquals(0x0f, mmu.getIo().getNoiseFrequencyShift());
     }
 
     @Test
@@ -2358,6 +2358,41 @@ public class TestIoModule {
         doRangedBitCheckTest(0xff22, 3, (mmu, isBitHigh) -> {
             assertEquals(!isBitHigh, mmu.getIo().isNoiseWideModeEnabled());
         });
+    }
+
+    @Test
+    public void test_get_noise_frequency_divisor_returns_a_half_when_0xff22_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff22, 0x00);
+        assertEquals(0.5f, mmu.getIo().getNoiseFrequencyDivisor(), 0.01f);
+    }
+
+    @Test
+    public void test_get_noise_frequency_divisor_returns_1_when_0xff22_is_0x01() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff22, 0x01);
+        assertEquals(1, mmu.getIo().getNoiseFrequencyDivisor(), 0.01f);
+    }
+
+    @Test
+    public void test_get_noise_frequency_divisor_returns_2_when_0xff22_is_0x02() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff22, 0x02);
+        assertEquals(2, mmu.getIo().getNoiseFrequencyDivisor(), 0.01f);
+    }
+
+    @Test
+    public void test_get_noise_frequency_divisor_returns_5_when_0xff22_is_0x05() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff22, 0x05);
+        assertEquals(5, mmu.getIo().getNoiseFrequencyDivisor(), 0.01f);
+    }
+
+    @Test
+    public void test_get_noise_frequency_divisor_returns_7_when_0xff22_is_0x07() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff22, 0x07);
+        assertEquals(7, mmu.getIo().getNoiseFrequencyDivisor(), 0.01f);
     }
 
     private static void doRangeTest(int address, Consumer<Mmu> test) {
