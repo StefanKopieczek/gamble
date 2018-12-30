@@ -51,6 +51,9 @@ public interface Io extends TimerRegisters {
     void clearSquare1RestartFlag();
     boolean[] getSquare2DutyCycle();
     int getSquare2RemainingTime();
+    int getSquare2StartingVolume();
+    int getSquare2EnvelopeSign();
+    int getSquare2EnvelopeStepLength();
 
     enum LcdControllerMode {
         HBLANK,
