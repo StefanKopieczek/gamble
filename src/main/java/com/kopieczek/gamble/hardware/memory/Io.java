@@ -72,6 +72,7 @@ public interface Io extends TimerRegisters {
     int getNoiseEnvelopeSign();
     int getNoiseEnvelopeStepLength();
     int getNoiseFrequencyCounter();
+    boolean isNoiseWideModeEnabled();
 
     enum LcdControllerMode {
         HBLANK,

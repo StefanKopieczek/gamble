@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -636,6 +637,11 @@ class IoModule extends RamModule implements Io {
     @Override
     public int getNoiseFrequencyCounter() {
         return readByte(NR43_ADDR) >> 4;
+    }
+
+    @Override
+    public boolean isNoiseWideModeEnabled() {
+        return (readByte(NR43_ADDR) & 0x08) == 0;
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {

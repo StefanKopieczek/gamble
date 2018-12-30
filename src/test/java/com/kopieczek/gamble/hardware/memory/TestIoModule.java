@@ -2353,6 +2353,13 @@ public class TestIoModule {
         assertEquals(0x0f, mmu.getIo().getNoiseFrequencyCounter());
     }
 
+    @Test
+    public void test_is_noise_wide_mode_enabled() {
+        doRangedBitCheckTest(0xff22, 3, (mmu, isBitHigh) -> {
+            assertEquals(!isBitHigh, mmu.getIo().isNoiseWideModeEnabled());
+        });
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
