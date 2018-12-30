@@ -1,6 +1,5 @@
 package com.kopieczek.gamble.hardware.memory;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.kopieczek.gamble.hardware.cpu.Interrupt;
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +23,7 @@ class IoModule extends RamModule implements Io {
     private static final int NR12_ADDR = 0x0012; // VVVV SLLL (holds Square 1's starting volume, envelope sign, and length of envelope steps)
     private static final int NR13_ADDR = 0x0013; // Bottom 8 bits of Square 1's frequency counter value
     private static final int NR14_ADDR = 0x0014; // IC-- -FFF (holds Square 1's Initialize and Continuous flags, as well as the top 3 bits of its frequency counter)
+    private static final int NR21_ADDR = 0x0016; // DDRR RRRR (holds Square 2 duty cycle and remaining time (r.t. = 64 - R)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -469,6 +469,17 @@ class IoModule extends RamModule implements Io {
         int oldValue = readByte(NR14_ADDR);
         int newValue = oldValue & 0x7f;
         setByte(NR14_ADDR, newValue);
+    }
+
+    @Override
+    public boolean[] getSquare2DutyCycle() {
+        int dutyIdx = readByte(NR21_ADDR) >> 6;
+        return squareWaveDutyCycles[dutyIdx];
+    }
+
+    @Override
+    public int getSquare2RemainingTime() {
+        return 64 - (0x3f & readByte(NR21_ADDR));
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {

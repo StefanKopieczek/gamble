@@ -49,6 +49,8 @@ public interface Io extends TimerRegisters {
     boolean isSquare1ContinuousModeEnabled();
     boolean isSquare1Restarted();
     void clearSquare1RestartFlag();
+    boolean[] getSquare2DutyCycle();
+    int getSquare2RemainingTime();
 
     enum LcdControllerMode {
         HBLANK,
