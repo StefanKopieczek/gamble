@@ -1598,57 +1598,57 @@ public class TestIoModule {
 
     @Test
     public void test_get_square_1_freq_ctr_returns_0x000_when_0xff13_is_0x00_and_0xff14_is_00() {
-        doFrequencyTest(0x00, 0x00, 0x000);
+        doSquare1FrequencyTest(0x00, 0x00, 0x000);
     }
 
     @Test
     public void test_get_square_1_freq_ctr_returns_0x001_when_0xff13_is_0x01_and_0xff14_is_0x00() {
-        doFrequencyTest(0x01, 0x00, 0x001);
+        doSquare1FrequencyTest(0x01, 0x00, 0x001);
     }
 
     @Test
     public void test_get_square_1_freq_ctr_returns_0x0ab_when_0xff13_is_0xab_and_0xff14_is_0x00() {
-        doFrequencyTest(0xab, 0x00, 0x0ab);
+        doSquare1FrequencyTest(0xab, 0x00, 0x0ab);
     }
 
     @Test
     public void test_get_square_1_freq_ctr_returns_0x0ff_when_0xff13_is_0xff_and_0xff14_is_0x00() {
-        doFrequencyTest(0xff, 0x00, 0x0ff);
+        doSquare1FrequencyTest(0xff, 0x00, 0x0ff);
     }
 
     @Test
     public void test_get_square_1_freq_ctr_returns_0x149_when_0xff13_is_0x49_and_0xff14_is_0x01() {
-        doFrequencyTest(0x49, 0x01, 0x149);
+        doSquare1FrequencyTest(0x49, 0x01, 0x149);
     }
 
     @Test
     public void test_get_square_1_freq_ctr_returns_0x5bf_when_0xff13_is_0xbf_and_0xff14_is_0x05() {
-        doFrequencyTest(0xbf, 0x05, 0x5bf);
+        doSquare1FrequencyTest(0xbf, 0x05, 0x5bf);
     }
 
     @Test
     public void test_get_square_1_freq_ctr_returns_0x790_when_0xff13_is_0x90_and_0xff14_is_0x07() {
-        doFrequencyTest(0x90, 0x07, 0x790);
+        doSquare1FrequencyTest(0x90, 0x07, 0x790);
     }
 
     @Test
     public void test_get_square_1_freq_ctr_returns_0x090_when_0xff13_is_0x90_and_0xff14_is_0xf8() {
-        doFrequencyTest(0x90, 0xf8, 0x090);
+        doSquare1FrequencyTest(0x90, 0xf8, 0x090);
     }
 
     @Test
     public void test_get_square_1_freq_ctr_returns_0x790_when_0xff13_is_0x90_and_0xff14_is_0xff() {
-        doFrequencyTest(0x90, 0xff, 0x790);
+        doSquare1FrequencyTest(0x90, 0xff, 0x790);
     }
 
     @Test
     public void test_get_square_1_freq_ctr_returns_0x000_when_0xff13_is_0x00_and_0xff14_is_0xf8() {
-        doFrequencyTest(0x00, 0xf8, 0x000);
+        doSquare1FrequencyTest(0x00, 0xf8, 0x000);
     }
 
     @Test
     public void test_get_square_1_freq_ctr_returns_0x543_when_0xff13_is_0x43_and_0xff14_is_0x2d() {
-        doFrequencyTest(0x43, 0x2d, 0x543);
+        doSquare1FrequencyTest(0x43, 0x2d, 0x543);
     }
 
     @Test
@@ -1857,6 +1857,112 @@ public class TestIoModule {
         assertEquals(0x00, mmu.getIo().getSquare2EnvelopeStepLength());
     }
 
+    @Test
+    public void test_get_square_2_freq_ctr_returns_0x000_when_0xff18_is_0x00_and_0xff19_is_00() {
+        doSquare2FrequencyTest(0x00, 0x00, 0x000);
+    }
+
+    @Test
+    public void test_get_square_2_freq_ctr_returns_0x001_when_0xff18_is_0x01_and_0xff19_is_0x00() {
+        doSquare2FrequencyTest(0x01, 0x00, 0x001);
+    }
+
+    @Test
+    public void test_get_square_2_freq_ctr_returns_0x0ab_when_0xff18_is_0xab_and_0xff19_is_0x00() {
+        doSquare2FrequencyTest(0xab, 0x00, 0x0ab);
+    }
+
+    @Test
+    public void test_get_square_2_freq_ctr_returns_0x0ff_when_0xff18_is_0xff_and_0xff19_is_0x00() {
+        doSquare2FrequencyTest(0xff, 0x00, 0x0ff);
+    }
+
+    @Test
+    public void test_get_square_2_freq_ctr_returns_0x149_when_0xff18_is_0x49_and_0xff19_is_0x01() {
+        doSquare2FrequencyTest(0x49, 0x01, 0x149);
+    }
+
+    @Test
+    public void test_get_square_2_freq_ctr_returns_0x5bf_when_0xff18_is_0xbf_and_0xff19_is_0x05() {
+        doSquare2FrequencyTest(0xbf, 0x05, 0x5bf);
+    }
+
+    @Test
+    public void test_get_square_2_freq_ctr_returns_0x790_when_0xff18_is_0x90_and_0xff19_is_0x07() {
+        doSquare2FrequencyTest(0x90, 0x07, 0x790);
+    }
+
+    @Test
+    public void test_get_square_2_freq_ctr_returns_0x090_when_0xff18_is_0x90_and_0xff19_is_0xf8() {
+        doSquare2FrequencyTest(0x90, 0xf8, 0x090);
+    }
+
+    @Test
+    public void test_get_square_2_freq_ctr_returns_0x790_when_0xff18_is_0x90_and_0xff19_is_0xff() {
+        doSquare2FrequencyTest(0x90, 0xff, 0x790);
+    }
+
+    @Test
+    public void test_get_square_2_freq_ctr_returns_0x000_when_0xff18_is_0x00_and_0xff19_is_0xf8() {
+        doSquare2FrequencyTest(0x00, 0xf8, 0x000);
+    }
+
+    @Test
+    public void test_get_square_2_freq_ctr_returns_0x543_when_0xff18_is_0x43_and_0xff19_is_0x2d() {
+        doSquare2FrequencyTest(0x43, 0x2d, 0x543);
+    }
+
+    @Test
+    public void test_is_square_2_continuous_mode_enabled_is_true_iff_0xff19_bit_6_is_low() {
+        doRangedBitCheckTest(0xff19, 6, (mmu, bitIsHigh) -> {
+            assertEquals(!bitIsHigh, mmu.getIo().isSquare2ContinuousModeEnabled());
+        });
+    }
+
+    @Test
+    public void test_is_square_2_restarted() {
+        doRangedBitCheckTest(0xff19, 7, (mmu, bitIsHigh) -> {
+            assertEquals(bitIsHigh, mmu.getIo().isSquare2Restarted());
+        });
+    }
+
+    @Test
+    public void test_clear_square_2_restart_flag() {
+        doRangedBitSetTest(0xff19, 7, false, mmu -> mmu.getIo().clearSquare2RestartFlag());
+    }
+
+    @Test
+    public void test_set_square_2_frequency_counter() {
+        Mmu mmu = getTestMmu();
+        for (int nr23 = 0x00; nr23 <= 0xff; nr23++) {
+            for (int inr24 = 0x00; inr24 <= 0xff; inr24++) {
+                for (int newFreq = 0x000; newFreq <= 0x7ff; newFreq++) {
+                    mmu.setByte(0xff18, nr23);
+                    mmu.setByte(0xff19, inr24);
+                    mmu.getIo().setSquare2FrequencyCounter(newFreq);
+                    assertEquals("Incorrect value for LSB", newFreq & 0xff, mmu.readByte(0xff18));
+                    assertEquals("Incorrect value for MSB", (newFreq & 0x07) >> 8, mmu.readByte(0xff19) & 0x07);
+                    assertEquals("Unrelated NR14 bytes changed unexpectedly", inr24 & 0xf8, mmu.readByte(0xff19) & 0xf8);
+                }
+            }
+        }
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_set_square_2_frequency_counter_fails_on_negative_input() {
+        getTestMmu().getIo().setSquare2FrequencyCounter(-1);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_set_square_2_frequency_counter_fails_on_overlarge_value() {
+        getTestMmu().getIo().setSquare2FrequencyCounter(0x800);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_set_square_2_frequency_counter_fails_on_overlarge_value_2() {
+        getTestMmu().getIo().setSquare2FrequencyCounter(0x9ab);
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
@@ -1894,11 +2000,18 @@ public class TestIoModule {
         }
     }
 
-    private static void doFrequencyTest(int nr13, int nr14, int expectedFrequencyCounter) {
+    private static void doSquare1FrequencyTest(int nr13, int nr14, int expectedFrequencyCounter) {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff13, nr13);
         mmu.setByte(0xff14, nr14);
         assertEquals(expectedFrequencyCounter, mmu.getIo().getSquare1FrequencyCounter());
+    }
+
+    private static void doSquare2FrequencyTest(int nr23, int nr24, int expectedFrequencyCounter) {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff18, nr23);
+        mmu.setByte(0xff19, nr24);
+        assertEquals(expectedFrequencyCounter, mmu.getIo().getSquare2FrequencyCounter());
     }
 
     private static void assertMemoryValues(Mmu mmu, int startAddr, int length,

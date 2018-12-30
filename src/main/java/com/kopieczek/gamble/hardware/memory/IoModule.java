@@ -25,6 +25,8 @@ class IoModule extends RamModule implements Io {
     private static final int NR14_ADDR = 0x0014; // IC-- -FFF (holds Square 1's Initialize and Continuous flags, as well as the top 3 bits of its frequency counter)
     private static final int NR21_ADDR = 0x0016; // DDRR RRRR (holds Square 2 duty cycle and remaining time (r.t. = 64 - R)
     private static final int NR22_ADDR = 0x0017; // VVVV SLLL (holds Square 2's starting volume, envelope sign, and length of envelope steps)
+    private static final int NR23_ADDR = 0x0018; // Bottom 8 bits of Square 2's frequency counter value
+    private static final int NR24_ADDR = 0x0019; // IC-- -FFF (holds Square 2's Initialize and Continuous flags, as well as the top 3 bits of its frequency counter)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -497,6 +499,45 @@ class IoModule extends RamModule implements Io {
     @Override
     public int getSquare2EnvelopeStepLength() {
         return readByte(NR22_ADDR) & 0x07;
+    }
+
+    @Override
+    public int getSquare2FrequencyCounter() {
+        int lsb = readByte(NR23_ADDR);
+        int msb = readByte(NR24_ADDR) & 0x07;
+        return (msb << 8) + lsb;
+    }
+
+    @Override
+    public void setSquare2FrequencyCounter(int newValue) {
+        if (newValue < 0 || newValue > 0x7ff) {
+            throw new IllegalArgumentException("Frequency counter value " + newValue + " exceeds bounds 0<=fc<0x800");
+        }
+
+        int lsb = newValue & 0xff;
+        int msb = (newValue & 0x07) >> 8;
+        int newNr23 = lsb;
+        int oldNr24 = readByte(NR24_ADDR);
+        int newNr24 = (oldNr24 & 0xf8) + (msb & 0x07);
+        setByte(NR23_ADDR, newNr23);
+        setByte(NR24_ADDR, newNr24);
+    }
+
+    @Override
+    public boolean isSquare2ContinuousModeEnabled() {
+        return (readByte(NR24_ADDR) & 0x40) == 0;
+    }
+
+    @Override
+    public boolean isSquare2Restarted() {
+        return (readByte(NR24_ADDR) & 0x80) > 0;
+    }
+
+    @Override
+    public void clearSquare2RestartFlag() {
+        int oldValue = readByte(NR24_ADDR);
+        int newValue = oldValue & 0x7f;
+        setByte(NR24_ADDR, newValue);
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
