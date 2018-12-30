@@ -27,6 +27,7 @@ class IoModule extends RamModule implements Io {
     private static final int NR22_ADDR = 0x0017; // VVVV SLLL (holds Square 2's starting volume, envelope sign, and length of envelope steps)
     private static final int NR23_ADDR = 0x0018; // Bottom 8 bits of Square 2's frequency counter value
     private static final int NR24_ADDR = 0x0019; // IC-- -FFF (holds Square 2's Initialize and Continuous flags, as well as the top 3 bits of its frequency counter)
+    private static final int NR30_ADDR = 0x001a; // E--- ---- (holds the Wave channel's DAC enable bit; other bits unused)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -538,6 +539,11 @@ class IoModule extends RamModule implements Io {
         int oldValue = readByte(NR24_ADDR);
         int newValue = oldValue & 0x7f;
         setByte(NR24_ADDR, newValue);
+    }
+
+    @Override
+    public boolean isWaveDacEnabled() {
+        return (readByte(NR30_ADDR) & 0x80) > 0;
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {

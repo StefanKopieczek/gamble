@@ -59,6 +59,7 @@ public interface Io extends TimerRegisters {
     boolean isSquare2Restarted();
     void clearSquare2RestartFlag();
     void setSquare2FrequencyCounter(int newValue);
+    boolean isWaveDacEnabled();
 
     enum LcdControllerMode {
         HBLANK,

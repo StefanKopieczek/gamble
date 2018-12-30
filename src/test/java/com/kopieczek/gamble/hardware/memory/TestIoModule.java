@@ -1963,6 +1963,34 @@ public class TestIoModule {
         getTestMmu().getIo().setSquare2FrequencyCounter(0x9ab);
     }
 
+    @Test
+    public void test_is_wave_dac_enabled_returns_false_if_0xff1a_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1a, 0x00);
+        assertFalse(mmu.getIo().isWaveDacEnabled());
+    }
+
+    @Test
+    public void test_is_wave_dac_enabled_returns_true_if_0ff1a_is_0x80() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1a, 0x80);
+        assertTrue(mmu.getIo().isWaveDacEnabled());
+    }
+
+    @Test
+    public void test_is_wave_dac_enabled_returns_false_if_0xff1a_is_0x7f() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1a, 0x7f);
+        assertFalse(mmu.getIo().isWaveDacEnabled());
+    }
+
+    @Test
+    public void test_is_wave_dac_enabled_returns_true_if_0xff1a_is_0xff() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1a, 0xff);
+        assertTrue(mmu.getIo().isWaveDacEnabled());
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
