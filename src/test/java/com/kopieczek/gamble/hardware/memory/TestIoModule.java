@@ -2181,6 +2181,143 @@ public class TestIoModule {
         getTestMmu().getIo().setWaveFrequencyCounter(0x9ab);
     }
 
+    @Test
+    public void test_noise_remaining_time_is_0x40_when_0xff20_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff20, 0x00);
+        assertEquals(0x40, mmu.getIo().getNoiseRemainingTime());
+    }
+
+    @Test
+    public void test_noise_remaining_time_is_0x3f_when_0xff20_is_0x01() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff20, 0x01);
+        assertEquals(0x3f, mmu.getIo().getNoiseRemainingTime());
+    }
+
+    @Test
+    public void test_noise_remaining_time_is_0x3f_when_0xff20_is_0xc1() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff20, 0xc1);
+        assertEquals(0x3f, mmu.getIo().getNoiseRemainingTime());
+    }
+
+    @Test
+    public void test_noise_remaining_time_is_0x14_when_0xff20_is_0x2c() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff20, 0x2c);
+        assertEquals(0x14, mmu.getIo().getNoiseRemainingTime());
+    }
+
+    @Test
+    public void test_noise_remaining_time_is_0x14_when_0xff20_is_0xec() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff20, 0xec);
+        assertEquals(0x14, mmu.getIo().getNoiseRemainingTime());
+    }
+
+    @Test
+    public void test_noise_remaining_time_is_0x01_when_0xff20_is_0x3f() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff20, 0x3f);
+        assertEquals(0x01, mmu.getIo().getNoiseRemainingTime());
+    }
+
+    @Test
+    public void test_noise_remaining_time_is_0x40_when_0xff20_is_0x40() {
+        // The period is contained in the lower 6 bits of NR41.
+        // 0x40 is 0b0100_0000 so should be treated the same as 0x00
+        // and so should have the same period as if 0xff20 were 0x00.
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff20, 0x40);
+        assertEquals(0x40, mmu.getIo().getNoiseRemainingTime());
+    }
+
+    @Test
+    public void test_noise_starting_volume_is_0x00_when_0xff21_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff21, 0x00);
+        assertEquals(0x00, mmu.getIo().getNoiseStartingVolume());
+    }
+
+    @Test
+    public void test_noise_starting_volume_is_0x01_when_0xff21_is_0x10() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff21, 0x10);
+        assertEquals(0x01, mmu.getIo().getNoiseStartingVolume());
+    }
+
+    @Test
+    public void test_noise_starting_volume_is_0x0e_when_ff21_is_0xe0() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff21, 0xe0);
+        assertEquals(0x0e, mmu.getIo().getNoiseStartingVolume());
+    }
+
+    @Test
+    public void test_noise_starting_volume_is_0x0f_when_ff21_is_0xff() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff21, 0xff);
+        assertEquals(0x0f, mmu.getIo().getNoiseStartingVolume());
+    }
+
+    @Test
+    public void test_noise_starting_volume_is_0x00_when_ff21_is_0x0f() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff21, 0x0f);
+        assertEquals(0x00, mmu.getIo().getNoiseStartingVolume());
+    }
+
+    @Test
+    public void test_noise_envelope_sign() {
+        doRangedBitCheckTest(0xff21, 3, (mmu, isBitHigh) -> {
+            int expectedSign = isBitHigh ? +1 : -1;
+            assertEquals(expectedSign, mmu.getIo().getNoiseEnvelopeSign());
+        });
+    }
+
+    @Test
+    public void test_get_noise_envelope_step_length_is_0x00_when_0xff21_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff21, 0x00);
+        assertEquals(0x00, mmu.getIo().getNoiseEnvelopeStepLength());
+    }
+
+    @Test
+    public void test_get_noise_envelope_step_length_is_0x01_when_0xff21_is_0x01() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff21, 0x01);
+        assertEquals(0x01, mmu.getIo().getNoiseEnvelopeStepLength());
+    }
+
+    @Test
+    public void test_get_noise_envelope_step_length_is_0x01_when_0xff21_is_0xf9() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff21, 0xf9);
+        assertEquals(0x01, mmu.getIo().getNoiseEnvelopeStepLength());
+    }
+
+    @Test
+    public void test_get_noise_envelope_step_length_is_0x05_when_0xff21() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff21, 0x05);
+        assertEquals(0x05, mmu.getIo().getNoiseEnvelopeStepLength());
+    }
+
+    @Test
+    public void test_get_noise_envelope_step_length_is_0x07_when_0xff21_is_0x07() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff21, 0x07);
+        assertEquals(0x07, mmu.getIo().getNoiseEnvelopeStepLength());
+    }
+
+    @Test
+    public void test_get_noise_envelope_step_length_is_0x00_when_0xff21_is_0x08() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff21, 0x08);
+        assertEquals(0x00, mmu.getIo().getNoiseEnvelopeStepLength());
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();

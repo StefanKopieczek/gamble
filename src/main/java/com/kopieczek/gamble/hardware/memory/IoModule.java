@@ -32,6 +32,8 @@ class IoModule extends RamModule implements Io {
     private static final int NR32_ADDR = 0x001c; // -VV- ---- (holds the Wave channel's volume: 00=0%, 01=100%, 10=50%, 11=25%)
     private static final int NR33_ADDR = 0x001d; // Bottom 8 bits of the Wave channel's frequency counter value
     private static final int NR34_ADDR = 0x001e; // IC-- -FFF (holds the Wave channel's Initialize and Continuous flags, as well as the top 3 bits of its frequency counter)
+    private static final int NR41_ADDR = 0x0020; // --RR RRRR (holds the Noise channel's remaining time (r.t. = 64 - R)
+    private static final int NR42_ADDR = 0x0021; // VVVV SLLL (holds then Noise channel's starting volume, envelope sign, and length of envelope steps)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -607,6 +609,27 @@ class IoModule extends RamModule implements Io {
         int oldValue = readByte(NR34_ADDR);
         int newValue = oldValue & 0x7f;
         setByte(NR34_ADDR, newValue);
+    }
+
+    @Override
+    public int getNoiseRemainingTime() {
+        return 64 - (0x3f & readByte(NR41_ADDR));
+    }
+
+    @Override
+    public int getNoiseStartingVolume() {
+        return readByte(NR42_ADDR) >> 4;
+    }
+
+    @Override
+    public int getNoiseEnvelopeSign() {
+        boolean isBitHigh = (readByte(NR42_ADDR) & 0x08) > 0;
+        return isBitHigh ? +1 : -1;
+    }
+
+    @Override
+    public int getNoiseEnvelopeStepLength() {
+        return readByte(NR42_ADDR) & 0x07;
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {

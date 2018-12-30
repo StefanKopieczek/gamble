@@ -67,6 +67,10 @@ public interface Io extends TimerRegisters {
     boolean isWaveRestarted();
     void clearWaveRestartFlag();
     void setWaveFrequencyCounter(int newFreq);
+    int getNoiseRemainingTime();
+    int getNoiseStartingVolume();
+    int getNoiseEnvelopeSign();
+    int getNoiseEnvelopeStepLength();
 
     enum LcdControllerMode {
         HBLANK,
