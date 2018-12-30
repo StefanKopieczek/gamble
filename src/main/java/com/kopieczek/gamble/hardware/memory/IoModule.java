@@ -30,6 +30,8 @@ class IoModule extends RamModule implements Io {
     private static final int NR30_ADDR = 0x001a; // E--- ---- (holds the Wave channel's DAC enable bit; other bits unused)
     private static final int NR31_ADDR = 0x001b; // RRRR RRRR (holds the Wave channel's remaining time (r.t. = 256 - R)
     private static final int NR32_ADDR = 0x001c; // -VV- ---- (holds the Wave channel's volume: 00=0%, 01=100%, 10=50%, 11=25%)
+    private static final int NR33_ADDR = 0x001d; // Bottom 8 bits of the Wave channel's frequency counter value
+    private static final int NR34_ADDR = 0x001e; // IC-- -FFF (holds the Wave channel's Initialize and Continuous flags, as well as the top 3 bits of its frequency counter)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -566,6 +568,45 @@ class IoModule extends RamModule implements Io {
             default:
                 return 0;
         }
+    }
+
+    @Override
+    public int getWaveFrequencyCounter() {
+        int lsb = readByte(NR33_ADDR);
+        int msb = readByte(NR34_ADDR) & 0x07;
+        return (msb << 8) + lsb;
+    }
+
+    @Override
+    public void setWaveFrequencyCounter(int newValue) {
+        if (newValue < 0 || newValue > 0x7ff) {
+            throw new IllegalArgumentException("Frequency counter value " + newValue + " exceeds bounds 0<=fc<0x800");
+        }
+
+        int lsb = newValue & 0xff;
+        int msb = (newValue & 0x07) >> 8;
+        int newNr33 = lsb;
+        int oldNr34 = readByte(NR34_ADDR);
+        int newNr34 = (oldNr34 & 0xf8) + (msb & 0x07);
+        setByte(NR33_ADDR, newNr33);
+        setByte(NR34_ADDR, newNr34);
+    }
+
+    @Override
+    public boolean isWaveContinuousModeEnabled() {
+        return (readByte(NR34_ADDR) & 0x40) == 0;
+    }
+
+    @Override
+    public boolean isWaveRestarted() {
+        return (readByte(NR34_ADDR) & 0x80) > 0;
+    }
+
+    @Override
+    public void clearWaveRestartFlag() {
+        int oldValue = readByte(NR34_ADDR);
+        int newValue = oldValue & 0x7f;
+        setByte(NR34_ADDR, newValue);
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {

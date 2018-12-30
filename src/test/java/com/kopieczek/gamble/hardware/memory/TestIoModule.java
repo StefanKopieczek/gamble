@@ -1942,7 +1942,7 @@ public class TestIoModule {
                     mmu.getIo().setSquare2FrequencyCounter(newFreq);
                     assertEquals("Incorrect value for LSB", newFreq & 0xff, mmu.readByte(0xff18));
                     assertEquals("Incorrect value for MSB", (newFreq & 0x07) >> 8, mmu.readByte(0xff19) & 0x07);
-                    assertEquals("Unrelated NR14 bytes changed unexpectedly", inr24 & 0xf8, mmu.readByte(0xff19) & 0xf8);
+                    assertEquals("Unrelated NR24 bytes changed unexpectedly", inr24 & 0xf8, mmu.readByte(0xff19) & 0xf8);
                 }
             }
         }
@@ -2075,6 +2075,112 @@ public class TestIoModule {
         assertEquals(25, mmu.getIo().getWaveVolumePercent());
     }
 
+    @Test
+    public void test_get_wave_freq_ctr_returns_0x000_when_0xff1d_is_0x00_and_0xff1e_is_00() {
+        doWaveFrequencyTest(0x00, 0x00, 0x000);
+    }
+
+    @Test
+    public void test_get_wave_freq_ctr_returns_0x001_when_0xff1d_is_0x01_and_0xff1e_is_0x00() {
+        doWaveFrequencyTest(0x01, 0x00, 0x001);
+    }
+
+    @Test
+    public void test_get_wave_freq_ctr_returns_0x0ab_when_0xff1d_is_0xab_and_0xff1e_is_0x00() {
+        doWaveFrequencyTest(0xab, 0x00, 0x0ab);
+    }
+
+    @Test
+    public void test_get_wave_freq_ctr_returns_0x0ff_when_0xff1d_is_0xff_and_0xff1e_is_0x00() {
+        doWaveFrequencyTest(0xff, 0x00, 0x0ff);
+    }
+
+    @Test
+    public void test_get_wave_freq_ctr_returns_0x149_when_0xff1d_is_0x49_and_0xff1e_is_0x01() {
+        doWaveFrequencyTest(0x49, 0x01, 0x149);
+    }
+
+    @Test
+    public void test_get_wave_freq_ctr_returns_0x5bf_when_0xff1d_is_0xbf_and_0xff1e_is_0x05() {
+        doWaveFrequencyTest(0xbf, 0x05, 0x5bf);
+    }
+
+    @Test
+    public void test_get_wave_freq_ctr_returns_0x790_when_0xff1d_is_0x90_and_0xff1e_is_0x07() {
+        doWaveFrequencyTest(0x90, 0x07, 0x790);
+    }
+
+    @Test
+    public void test_get_wave_freq_ctr_returns_0x090_when_0xff1d_is_0x90_and_0xff1e_is_0xf8() {
+        doWaveFrequencyTest(0x90, 0xf8, 0x090);
+    }
+
+    @Test
+    public void test_get_wave_freq_ctr_returns_0x790_when_0xff1d_is_0x90_and_0xff1e_is_0xff() {
+        doWaveFrequencyTest(0x90, 0xff, 0x790);
+    }
+
+    @Test
+    public void test_get_wave_freq_ctr_returns_0x000_when_0xff1d_is_0x00_and_0xff1e_is_0xf8() {
+        doWaveFrequencyTest(0x00, 0xf8, 0x000);
+    }
+
+    @Test
+    public void test_get_wave_freq_ctr_returns_0x543_when_0xff1d_is_0x43_and_0xff1e_is_0x2d() {
+        doWaveFrequencyTest(0x43, 0x2d, 0x543);
+    }
+
+    @Test
+    public void test_is_wave_continuous_mode_enabled_is_true_iff_0xff1e_bit_6_is_low() {
+        doRangedBitCheckTest(0xff1e, 6, (mmu, bitIsHigh) -> {
+            assertEquals(!bitIsHigh, mmu.getIo().isWaveContinuousModeEnabled());
+        });
+    }
+
+    @Test
+    public void test_is_wave_restarted() {
+        doRangedBitCheckTest(0xff1e, 7, (mmu, bitIsHigh) -> {
+            assertEquals(bitIsHigh, mmu.getIo().isWaveRestarted());
+        });
+    }
+
+    @Test
+    public void test_clear_wave_restart_flag() {
+        doRangedBitSetTest(0xff1e, 7, false, mmu -> mmu.getIo().clearWaveRestartFlag());
+    }
+
+    @Test
+    public void test_set_wave_frequency_counter() {
+        Mmu mmu = getTestMmu();
+        for (int nr33 = 0x00; nr33 <= 0xff; nr33++) {
+            for (int nr34 = 0x00; nr34 <= 0xff; nr34++) {
+                for (int newFreq = 0x000; newFreq <= 0x7ff; newFreq++) {
+                    mmu.setByte(0xff1d, nr33);
+                    mmu.setByte(0xff1e, nr34);
+                    mmu.getIo().setWaveFrequencyCounter(newFreq);
+                    assertEquals("Incorrect value for LSB", newFreq & 0xff, mmu.readByte(0xff1d));
+                    assertEquals("Incorrect value for MSB", (newFreq & 0x07) >> 8, mmu.readByte(0xff1e) & 0x07);
+                    assertEquals("Unrelated NR34 bytes changed unexpectedly", nr34 & 0xf8, mmu.readByte(0xff1e) & 0xf8);
+                }
+            }
+        }
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_set_wave_frequency_counter_fails_on_negative_input() {
+        getTestMmu().getIo().setWaveFrequencyCounter(-1);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_set_wave_frequency_counter_fails_on_overlarge_value() {
+        getTestMmu().getIo().setWaveFrequencyCounter(0x800);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void test_set_wave_frequency_counter_fails_on_overlarge_value_2() {
+        getTestMmu().getIo().setWaveFrequencyCounter(0x9ab);
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();
@@ -2124,6 +2230,13 @@ public class TestIoModule {
         mmu.setByte(0xff18, nr23);
         mmu.setByte(0xff19, nr24);
         assertEquals(expectedFrequencyCounter, mmu.getIo().getSquare2FrequencyCounter());
+    }
+
+    private static void doWaveFrequencyTest(int nr33, int nr34, int expectedFrequencyCounter) {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1d, nr33);
+        mmu.setByte(0xff1e, nr34);
+        assertEquals(expectedFrequencyCounter, mmu.getIo().getWaveFrequencyCounter());
     }
 
     private static void assertMemoryValues(Mmu mmu, int startAddr, int length,
