@@ -34,6 +34,7 @@ class IoModule extends RamModule implements Io {
     private static final int NR34_ADDR = 0x001e; // IC-- -FFF (holds the Wave channel's Initialize and Continuous flags, as well as the top 3 bits of its frequency counter)
     private static final int NR41_ADDR = 0x0020; // --RR RRRR (holds the Noise channel's remaining time (r.t. = 64 - R)
     private static final int NR42_ADDR = 0x0021; // VVVV SLLL (holds then Noise channel's starting volume, envelope sign, and length of envelope steps)
+    private static final int NR43_ADDR = 0x0022; // FFFF WCCC (holds the Noise channel's frequency counter value, LSFR width mode, and divisor code)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -630,6 +631,11 @@ class IoModule extends RamModule implements Io {
     @Override
     public int getNoiseEnvelopeStepLength() {
         return readByte(NR42_ADDR) & 0x07;
+    }
+
+    @Override
+    public int getNoiseFrequencyCounter() {
+        return readByte(NR43_ADDR) >> 4;
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
