@@ -2019,6 +2019,62 @@ public class TestIoModule {
         assertEquals(0x01, mmu.getIo().getWaveRemainingTime());
     }
 
+    @Test
+    public void get_wave_volume_percent_returns_0_when_0xff1c_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1c, 0x00);
+        assertEquals(0, mmu.getIo().getWaveVolumePercent());
+    }
+
+    @Test
+    public void get_wave_volume_percent_returns_100_when_0xff1c_is_0x20() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1c, 0x20);
+        assertEquals(100, mmu.getIo().getWaveVolumePercent());
+    }
+
+    @Test
+    public void get_wave_volume_percent_returns_0_when_0xff1c_is_0x8f() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1c, 0x8f);
+        assertEquals(0, mmu.getIo().getWaveVolumePercent());
+    }
+
+    @Test
+    public void get_wave_volume_percent_returns_50_when_0xff1c_is_0x40() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1c, 0x40);
+        assertEquals(50, mmu.getIo().getWaveVolumePercent());
+    }
+
+    @Test
+    public void get_wave_volume_percent_returns_50_when_0xff1c_is_0xc0() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1c, 0xc0);
+        assertEquals(50, mmu.getIo().getWaveVolumePercent());
+    }
+
+    @Test
+    public void get_wave_volume_percent_returns_50_when_0xff1c_is_0x4f() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1c, 0x4f);
+        assertEquals(50, mmu.getIo().getWaveVolumePercent());
+    }
+
+    @Test
+    public void get_wave_volume_percent_returns_50_when_0xff1c_is_0xcf() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1c, 0xcf);
+        assertEquals(50, mmu.getIo().getWaveVolumePercent());
+    }
+
+    @Test
+    public void get_wave_volume_percent_returns_25_when_0xff1c_is_0x60() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff1c, 0x60);
+        assertEquals(25, mmu.getIo().getWaveVolumePercent());
+    }
+
     private static void doRangeTest(int address, Consumer<Mmu> test) {
         for (int value = 0x00; value < 0xff; value++) {
             Mmu mmu = getTestMmu();

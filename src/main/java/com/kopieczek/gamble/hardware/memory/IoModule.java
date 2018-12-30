@@ -29,6 +29,7 @@ class IoModule extends RamModule implements Io {
     private static final int NR24_ADDR = 0x0019; // IC-- -FFF (holds Square 2's Initialize and Continuous flags, as well as the top 3 bits of its frequency counter)
     private static final int NR30_ADDR = 0x001a; // E--- ---- (holds the Wave channel's DAC enable bit; other bits unused)
     private static final int NR31_ADDR = 0x001b; // RRRR RRRR (holds the Wave channel's remaining time (r.t. = 256 - R)
+    private static final int NR32_ADDR = 0x001c; // -VV- ---- (holds the Wave channel's volume: 00=0%, 01=100%, 10=50%, 11=25%)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -550,6 +551,21 @@ class IoModule extends RamModule implements Io {
     @Override
     public int getWaveRemainingTime() {
         return 256 - readByte(NR31_ADDR);
+    }
+
+    @Override
+    public int getWaveVolumePercent() {
+        int volumeBits = (readByte(NR32_ADDR) & 0x60);
+        switch (volumeBits) {
+            case 0x20:
+                return 100;
+            case 0x40:
+                return 50;
+            case 0x60:
+                return 25;
+            default:
+                return 0;
+        }
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {

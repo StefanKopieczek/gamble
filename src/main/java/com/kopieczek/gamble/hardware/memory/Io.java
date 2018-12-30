@@ -61,6 +61,7 @@ public interface Io extends TimerRegisters {
     void setSquare2FrequencyCounter(int newValue);
     boolean isWaveDacEnabled();
     int getWaveRemainingTime();
+    int getWaveVolumePercent();
 
     enum LcdControllerMode {
         HBLANK,
