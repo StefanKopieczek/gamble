@@ -2396,43 +2396,6 @@ public class TestIoModule {
         assertEquals(7, mmu.getIo().getNoiseFrequencyDivisor(), 0.01f);
     }
 
-    private static void doRangeTest(int address, Consumer<Mmu> test) {
-        for (int value = 0x00; value < 0xff; value++) {
-            Mmu mmu = getTestMmu();
-            mmu.setByte(address, value);
-            test.accept(mmu);
-        }
-    }
-
-    private static void doRangedBitCheckTest(int address, int bitIdx, final BiConsumer<Mmu, Boolean> test) {
-        final int mask = 0x01 << bitIdx;
-        doRangeTest(address, mmu -> {
-           boolean bitState = (mmu.readByte(address) & mask) > 0;
-           test.accept(mmu, bitState);
-        });
-    }
-
-    private static void doRangedBitSetTest(int address, int bitIdx, boolean expected, Consumer<Mmu> setup) {
-        final int mask = 0x01 << bitIdx;
-        doRangeTest(address, mmu -> {
-            int oldValue = mmu.readByte(address);
-            setup.accept(mmu);
-            int newValue = mmu.readByte(address);
-            boolean isTargetBitHigh = (newValue & mask) > 0;
-            assertEquals("Target bit had unexpected value", expected, isTargetBitHigh);
-            boolean otherBitsChanged = ((oldValue ^ newValue) & ~mask) > 0;
-            assertFalse(otherBitsChanged);
-        });
-    }
-
-    private static void setRange(Mmu mmu, int startAddr, int length,
-                                 Function<Integer, Integer> valueGenerator) {
-
-        for (int idx = 0 ; idx < length; idx++) {
-            mmu.setByte(startAddr + idx, valueGenerator.apply(idx));
-        }
-    }
-
     private static void doSquare1FrequencyTest(int nr13, int nr14, int expectedFrequencyCounter) {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff13, nr13);
@@ -2723,6 +2686,90 @@ public class TestIoModule {
         Mmu mmu = getTestMmu();
         mmu.setByte(0xff25, 0xff);
         assertEquals(AudioOutputMode.STEREO, mmu.getIo().getNoiseOutputMode());
+    }
+
+    @Test
+    public void test_master_sound_enable() {
+        doRangedBitCheckTest(0xff26, 7, (mmu, isBitHigh) -> {
+            assertEquals(isBitHigh, mmu.getIo().isAudioOutputEnabled());
+        });
+    }
+
+    @Test
+    public void test_set_square_1_is_playing_flag_to_false() {
+        doRangedBitSetTest(0xff26, 0, false, mmu -> mmu.getIo().setSquare1PlayingFlag(false));
+    }
+
+    @Test
+    public void test_set_square_1_is_playing_flag_to_true() {
+        doRangedBitSetTest(0xff26, 0, true, mmu -> mmu.getIo().setSquare1PlayingFlag(true));
+    }
+
+    @Test
+    public void test_set_square_2_is_playing_flag_to_false() {
+        doRangedBitSetTest(0xff26, 1, false, mmu -> mmu.getIo().setSquare2PlayingFlag(false));
+    }
+
+    @Test
+    public void test_set_square_2_is_playing_flag_to_true() {
+        doRangedBitSetTest(0xff26, 1, true, mmu -> mmu.getIo().setSquare2PlayingFlag(true));
+    }
+
+    @Test
+    public void test_set_wave_is_playing_flag_to_false() {
+        doRangedBitSetTest(0xff26, 2, false, mmu -> mmu.getIo().setWavePlayingFlag(false));
+    }
+
+    @Test
+    public void test_set_wave_is_playing_flag_to_true() {
+        doRangedBitSetTest(0xff26, 2, true, mmu -> mmu.getIo().setWavePlayingFlag(true));
+    }
+
+    @Test
+    public void test_set_noise_is_playing_flag_to_false() {
+        doRangedBitSetTest(0xff26, 3, false, mmu -> mmu.getIo().setNoisePlayingFlag(false));
+    }
+
+    @Test
+    public void test_set_noise_is_playing_flag_to_true() {
+        doRangedBitSetTest(0xff26, 3, true, mmu -> mmu.getIo().setNoisePlayingFlag(true));
+    }
+
+    private static void doRangeTest(int address, Consumer<Mmu> test) {
+        for (int value = 0x00; value < 0xff; value++) {
+            Mmu mmu = getTestMmu();
+            mmu.setByte(address, value);
+            test.accept(mmu);
+        }
+    }
+
+    private static void doRangedBitCheckTest(int address, int bitIdx, final BiConsumer<Mmu, Boolean> test) {
+        final int mask = 0x01 << bitIdx;
+        doRangeTest(address, mmu -> {
+            boolean bitState = (mmu.readByte(address) & mask) > 0;
+            test.accept(mmu, bitState);
+        });
+    }
+
+    private static void doRangedBitSetTest(int address, int bitIdx, boolean expected, Consumer<Mmu> setup) {
+        final int mask = 0x01 << bitIdx;
+        doRangeTest(address, mmu -> {
+            int oldValue = mmu.readByte(address);
+            setup.accept(mmu);
+            int newValue = mmu.readByte(address);
+            boolean isTargetBitHigh = (newValue & mask) > 0;
+            assertEquals("Target bit had unexpected value", expected, isTargetBitHigh);
+            boolean otherBitsChanged = ((oldValue ^ newValue) & ~mask) > 0;
+            assertFalse(otherBitsChanged);
+        });
+    }
+
+    private static void setRange(Mmu mmu, int startAddr, int length,
+                                 Function<Integer, Integer> valueGenerator) {
+
+        for (int idx = 0 ; idx < length; idx++) {
+            mmu.setByte(startAddr + idx, valueGenerator.apply(idx));
+        }
     }
 
     private static void assertMemoryValues(Mmu mmu, int startAddr, int length,

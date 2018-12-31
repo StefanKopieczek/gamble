@@ -39,6 +39,7 @@ class IoModule extends RamModule implements Io {
     private static final int NR43_ADDR = 0x0022; // FFFF WCCC (holds the Noise channel's frequency counter value, LSFR width mode, and divisor code)
     private static final int NR44_ADDR = 0x0023; // IC-- ---- (holds the Noise channel's Initialize and Continuous flags)
     private static final int NR51_ADDR = 0x0025; // dcba DCBA (channel L/R enable; lowercase=left, uppercase=right, a = channel_1, b = channel_2, ...)
+    private static final int NR52_ADDR = 0x0026; // M--- 4321 (sound master enable, plus R/O flags indicating whether sound is currently playing on each channel)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -715,6 +716,47 @@ class IoModule extends RamModule implements Io {
         } else {
             return AudioOutputMode.NONE;
         }
+    }
+
+    @Override
+    public boolean isAudioOutputEnabled() {
+        return (readByte(NR52_ADDR) & 0x80) > 0;
+    }
+
+    @Override
+    public void setSquare1PlayingFlag(boolean isPlaying) {
+        setIsPlayingFlag(1, isPlaying);
+    }
+
+    @Override
+    public void setSquare2PlayingFlag(boolean isPlaying) {
+        setIsPlayingFlag(2, isPlaying);
+    }
+
+    @Override
+    public void setWavePlayingFlag(boolean isPlaying) {
+        setIsPlayingFlag(3, isPlaying);
+    }
+
+    @Override
+    public void setNoisePlayingFlag(boolean isPlaying) {
+        setIsPlayingFlag(4, isPlaying);
+    }
+
+    private void setIsPlayingFlag(int channel, boolean isPlaying) {
+        int oldNr52 = readByte(NR52_ADDR);
+        int affectedBit = channel - 1;
+
+        int newNr52;
+        if (isPlaying) {
+            int mask = 0x01 << affectedBit;
+            newNr52 = oldNr52 | mask;
+        } else {
+            int mask = ~(0x01 << affectedBit);
+            newNr52 = oldNr52 & mask;
+        }
+
+        setByte(NR52_ADDR, newNr52);
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {

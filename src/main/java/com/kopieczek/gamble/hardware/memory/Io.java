@@ -83,6 +83,11 @@ public interface Io extends TimerRegisters {
     AudioOutputMode getSquare2OutputMode();
     AudioOutputMode getWaveOutputMode();
     AudioOutputMode getNoiseOutputMode();
+    boolean isAudioOutputEnabled();
+    void setSquare1PlayingFlag(boolean isPlaying);
+    void setSquare2PlayingFlag(boolean isPlaying);
+    void setWavePlayingFlag(boolean isPlaying);
+    void setNoisePlayingFlag(boolean isPlaying);
 
     enum LcdControllerMode {
         HBLANK,
