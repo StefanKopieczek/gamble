@@ -8,4 +8,11 @@ class Mixer extends Channel {
     Mixer(List<Channel> channels) {
         this.channels = channels;
     }
+
+    @Override
+    public byte[][][] stepAhead(int ticks) {
+        // TODO
+        channels.forEach(c -> c.stepAhead(ticks));
+        return new byte[0][][];
+    }
 }

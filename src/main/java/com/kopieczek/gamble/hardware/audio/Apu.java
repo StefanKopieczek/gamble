@@ -12,14 +12,28 @@ public class Apu {
     private final Io io;
     private final Renderer renderer;
     private final Mixer mixer;
+    private int leftoverTicks = 0;
 
-    public Apu(Io io, Renderer renderer) {
+    public Apu(Io io, Renderer renderer, List<Channel> channels) {
         this.io = io;
         this.renderer = renderer;
-        this.mixer = new Mixer(buildChannels(io));
+        this.mixer = new Mixer(channels);
     }
 
-    private static List<Channel> buildChannels(Io io) {
+    public Apu(Io io, Renderer renderer) {
+        this(io, renderer, buildStandardChannels(io));
+    }
+
+    public void stepAhead(int cycleDelta) {
+        cycleDelta += leftoverTicks;
+        int apuTicks = cycleDelta / CPU_TICKS_PER_APU_TICK;
+        leftoverTicks = cycleDelta % CPU_TICKS_PER_APU_TICK;
+        if (apuTicks > 0) {
+            mixer.stepAhead(apuTicks);
+        }
+    }
+
+    private static List<Channel> buildStandardChannels(Io io) {
         // TODO
         return Collections.emptyList();
     }
