@@ -29,7 +29,8 @@ public class Apu {
         int apuTicks = cycleDelta / CPU_TICKS_PER_APU_TICK;
         leftoverTicks = cycleDelta % CPU_TICKS_PER_APU_TICK;
         if (apuTicks > 0) {
-            mixer.stepAhead(apuTicks);
+            short[][][] buffers = mixer.stepAhead(apuTicks);
+            renderer.render(buffers);
         }
     }
 

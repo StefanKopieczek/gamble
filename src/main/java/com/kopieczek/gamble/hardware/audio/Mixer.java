@@ -10,9 +10,17 @@ class Mixer extends Channel {
     }
 
     @Override
-    public byte[][][] stepAhead(int ticks) {
+    public short[][][] stepAhead(int ticks) {
+        short[][][][] buffersForEachChannel = new short[channels.size()][][][];
+        for (int idx = 0; idx < channels.size(); idx++) {
+            buffersForEachChannel[idx] = channels.get(idx).stepAhead(ticks);
+        }
+
+        return mix(buffersForEachChannel);
+    }
+
+    private static short[][][] mix(short[][][][] buffersForEachChannel) {
         // TODO
-        channels.forEach(c -> c.stepAhead(ticks));
-        return new byte[0][][];
+        return buffersForEachChannel[0];
     }
 }
