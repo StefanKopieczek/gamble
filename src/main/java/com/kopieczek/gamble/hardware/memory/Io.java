@@ -1,5 +1,7 @@
 package com.kopieczek.gamble.hardware.memory;
 
+import com.kopieczek.gamble.hardware.audio.AudioOutputMode;
+
 import java.awt.*;
 
 public interface Io extends TimerRegisters {
@@ -77,6 +79,7 @@ public interface Io extends TimerRegisters {
     boolean isNoiseContinuousModeEnabled();
     boolean isNoiseRestarted();
     void clearNoiseRestartFlag();
+    AudioOutputMode getSquare1OutputMode();
 
     enum LcdControllerMode {
         HBLANK,

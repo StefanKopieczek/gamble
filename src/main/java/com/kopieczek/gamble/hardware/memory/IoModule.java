@@ -1,6 +1,7 @@
 package com.kopieczek.gamble.hardware.memory;
 
 import com.google.common.collect.ImmutableMap;
+import com.kopieczek.gamble.hardware.audio.AudioOutputMode;
 import com.kopieczek.gamble.hardware.cpu.Interrupt;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +38,7 @@ class IoModule extends RamModule implements Io {
     private static final int NR42_ADDR = 0x0021; // VVVV SLLL (holds then Noise channel's starting volume, envelope sign, and length of envelope steps)
     private static final int NR43_ADDR = 0x0022; // FFFF WCCC (holds the Noise channel's frequency counter value, LSFR width mode, and divisor code)
     private static final int NR44_ADDR = 0x0023; // IC-- ---- (holds the Noise channel's Initialize and Continuous flags)
+    private static final int NR51_ADDR = 0x0025; // dcba DCBA (channel L/R enable; lowercase=left, uppercase=right, a = channel_1, b = channel_2, ...)
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -670,6 +672,23 @@ class IoModule extends RamModule implements Io {
         int oldValue = readByte(NR44_ADDR);
         int newValue = oldValue & 0x7f;
         setByte(NR44_ADDR, newValue);
+    }
+
+    @Override
+    public AudioOutputMode getSquare1OutputMode() {
+        int controlByte = readByte(NR51_ADDR);
+        boolean leftEnable = (controlByte & 0x10) > 0;
+        boolean rightEnable = (controlByte & 0x01) > 0;
+
+        if (leftEnable && rightEnable) {
+            return AudioOutputMode.STEREO;
+        } else if (leftEnable) {
+            return AudioOutputMode.LEFT_ONLY;
+        } else if (rightEnable) {
+            return AudioOutputMode.RIGHT_ONLY;
+        } else {
+            return AudioOutputMode.NONE;
+        }
     }
 
     private Color getShadeForPaletteColor(int paletteId, int colorId) {
