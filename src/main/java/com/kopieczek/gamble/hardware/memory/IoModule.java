@@ -676,9 +676,35 @@ class IoModule extends RamModule implements Io {
 
     @Override
     public AudioOutputMode getSquare1OutputMode() {
+        return getAudioOutputMode(1);
+    }
+
+    @Override
+    public AudioOutputMode getSquare2OutputMode() {
+        return getAudioOutputMode(2);
+    }
+
+    @Override
+    public AudioOutputMode getWaveOutputMode() {
+        return getAudioOutputMode(3);
+    }
+
+    @Override
+    public AudioOutputMode getNoiseOutputMode() {
+        return getAudioOutputMode(4);
+    }
+
+    private AudioOutputMode getAudioOutputMode(int channel) {
         int controlByte = readByte(NR51_ADDR);
-        boolean leftEnable = (controlByte & 0x10) > 0;
-        boolean rightEnable = (controlByte & 0x01) > 0;
+
+        // For channels a=1, b=2, ..., NR51 is represented bitwise as:
+        //      dcba DCBA     (lowercase = left output, uppercase = right output)
+        // thus the masks for channel n are 0x01<<(n+3) and 0x01<<(n-1).
+        int leftEnableMask = (0x01 << (channel + 3));
+        int rightEnableMask = (0x01 << (channel - 1));
+
+        boolean leftEnable = (controlByte & leftEnableMask) > 0;
+        boolean rightEnable = (controlByte & rightEnableMask) > 0;
 
         if (leftEnable && rightEnable) {
             return AudioOutputMode.STEREO;

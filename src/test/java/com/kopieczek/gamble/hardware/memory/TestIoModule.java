@@ -2536,6 +2536,195 @@ public class TestIoModule {
         assertEquals(AudioOutputMode.STEREO, mmu.getIo().getSquare1OutputMode());
     }
 
+    @Test
+    public void test_get_square_2_output_mode_returns_none_if_0xff25_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x00);
+        assertEquals(AudioOutputMode.NONE, mmu.getIo().getSquare2OutputMode());
+    }
+
+    @Test
+    public void test_get_square_2_output_mode_returns_left_only_if_0xff25_is_0x20() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x20);
+        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getSquare2OutputMode());
+    }
+
+    @Test
+    public void test_get_square_2_output_mode_returns_right_only_if_0xff25_is_0x02() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x02);
+        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getSquare2OutputMode());
+    }
+
+    @Test
+    public void test_get_square_2_output_mode_returns_right_only_if_0xff25_is_0xd2() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0xd2);
+        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getSquare2OutputMode());
+    }
+
+    @Test
+    public void test_get_square_2_output_mode_returns_right_only_if_0xff25_is_0x0f() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x0f);
+        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getSquare2OutputMode());
+    }
+
+    @Test
+    public void test_get_square_2_output_mode_returns_right_only_if_0xff25_is_0xdf() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0xdf);
+        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getSquare2OutputMode());
+    }
+
+    @Test
+    public void test_get_square_2_output_mode_returns_left_only_if_0xff25_is_0xfd() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0xfd);
+        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getSquare2OutputMode());
+    }
+
+    @Test
+    public void test_get_square_2_output_mode_returns_stereo_if_0xff25_is_0x22() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x22);
+        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getSquare2OutputMode());
+    }
+
+    @Test
+    public void test_get_square_2_output_mode_returns_stereo_if_0xff25_is_0xff() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0xff);
+        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getSquare2OutputMode());
+    }
+
+    @Test
+    public void test_get_wave_output_mode_returns_none_if_0xff25_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x00);
+        assertEquals(AudioOutputMode.NONE, mmu.getIo().getWaveOutputMode());
+    }
+
+    @Test
+    public void test_get_wave_output_mode_returns_left_only_if_0xff25_is_0x40() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x40);
+        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getWaveOutputMode());
+    }
+
+    @Test
+    public void test_get_wave_output_mode_returns_right_only_if_0xff25_is_0x04() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x04);
+        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getWaveOutputMode());
+    }
+
+    @Test
+    public void test_get_wave_output_mode_returns_right_only_if_0xff25_is_0xb1() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0xb4);
+        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getWaveOutputMode());
+    }
+
+    @Test
+    public void test_get_wave_output_mode_returns_right_only_if_0xff25_is_0x0f() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x0f);
+        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getWaveOutputMode());
+    }
+
+    @Test
+    public void test_get_wave_output_mode_returns_right_only_if_0xff25_is_0xbf() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0xbf);
+        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getWaveOutputMode());
+    }
+
+    @Test
+    public void test_get_wave_output_mode_returns_left_only_if_0xff25_is_0xfb() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0xfb);
+        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getWaveOutputMode());
+    }
+
+    @Test
+    public void test_get_wave_output_mode_returns_stereo_if_0xff25_is_0x44() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x44);
+        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getWaveOutputMode());
+    }
+
+    @Test
+    public void test_get_wave_output_mode_returns_stereo_if_0xff25_is_0xff() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0xff);
+        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getWaveOutputMode());
+    }
+
+    @Test
+    public void test_get_noise_output_mode_returns_none_if_0xff25_is_0x00() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x00);
+        assertEquals(AudioOutputMode.NONE, mmu.getIo().getNoiseOutputMode());
+    }
+
+    @Test
+    public void test_get_noise_output_mode_returns_left_only_if_0xff25_is_0x80() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x80);
+        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getNoiseOutputMode());
+    }
+
+    @Test
+    public void test_get_noise_output_mode_returns_right_only_if_0xff25_is_0x08() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x08);
+        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getNoiseOutputMode());
+    }
+
+    @Test
+    public void test_get_noise_output_mode_returns_right_only_if_0xff25_is_0x71() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x78);
+        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getNoiseOutputMode());
+    }
+
+    @Test
+    public void test_get_noise_output_mode_returns_right_only_if_0xff25_is_0x0f() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x0f);
+        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getNoiseOutputMode());
+    }
+
+    @Test
+    public void test_get_noise_output_mode_returns_right_only_if_0xff25_is_0x7f() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x7f);
+        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getNoiseOutputMode());
+    }
+
+    @Test
+    public void test_get_noise_output_mode_returns_left_only_if_0xff25_is_0xf7() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0xf7);
+        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getNoiseOutputMode());
+    }
+
+    @Test
+    public void test_get_noise_output_mode_returns_stereo_if_0xff25_is_0x88() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0x88);
+        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getNoiseOutputMode());
+    }
+
+    @Test
+    public void test_get_noise_output_mode_returns_stereo_if_0xff25_is_0xff() {
+        Mmu mmu = getTestMmu();
+        mmu.setByte(0xff25, 0xff);
+        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getNoiseOutputMode());
+    }
+
     private static void assertMemoryValues(Mmu mmu, int startAddr, int length,
             Function<Integer, Integer> getExpectedValue) {
         for (int idx = 0; idx < length; idx++) {

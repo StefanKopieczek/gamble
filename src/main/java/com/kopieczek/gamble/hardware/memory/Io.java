@@ -80,6 +80,9 @@ public interface Io extends TimerRegisters {
     boolean isNoiseRestarted();
     void clearNoiseRestartFlag();
     AudioOutputMode getSquare1OutputMode();
+    AudioOutputMode getSquare2OutputMode();
+    AudioOutputMode getWaveOutputMode();
+    AudioOutputMode getNoiseOutputMode();
 
     enum LcdControllerMode {
         HBLANK,
