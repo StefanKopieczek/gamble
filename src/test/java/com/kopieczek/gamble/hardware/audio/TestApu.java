@@ -100,24 +100,24 @@ public class TestApu {
         // Note that we don't assert this happens on specific ticks
         Channel channel = new MockChannelBuilder()
                 .onTick(1).thenReturn(new short[][] {
-                        new short[] {0x12, 0x34, 0x56},
-                        new short[] {0x78, 0x9a, 0xbc}
+                        new short[] {0x1221, 0x4342, 0x0156},
+                        new short[] {0x7a82, -0x769a, 0x4bce}
                 })
                 .onTick(3).thenReturn(new short[][] {
-                        new short[] {0xde, 0xf0, 0x12},
-                        new short[] {0xfe, 0xdc, 0xba}
+                        new short[] {0x3eda, -0x62f0, -0x0212},
+                        new short[] {0x19fe, -0x7dac, 0x2b3a}
                 })
                 .onTick(100).thenReturn(new short[][] {
-                        new short[] {0x98, 0x76, 0x54},
-                        new short[] {0x32, 0x10, 0xff}
+                        new short[] {-0x3978, 0x7776, 0x25b4},
+                        new short[] {-0x32ca, -0x7fff, 0x7fff}
                 })
                 .build();
         MockRenderer renderer = new MockRenderer();
         Apu apu = new Apu(io, renderer, ImmutableList.of(channel));
         apu.stepAhead(200);
 
-        renderer.assertLeftSamplesSeen(0x12, 0x34, 0x56, 0xde, 0xf0, 0x12, 0x98, 0x76, 0x54)
-                .assertRightSamplesSeen(0x78, 0x9a, 0xbc, 0xfe, 0xdc, 0xba, 0x32, 0x10, 0xff);
+        renderer.assertLeftSamplesSeen(0x1221, 0x4342, 0x0156, 0x3eda, -0x62f0, -0x0212, -0x3978, 0x7776, 0x25b4)
+                .assertRightSamplesSeen(0x7a82, -0x769a, 0x4bce, 0x19fe, -0x7dac, 0x2b3a, -0x32ca, -0x7fff, 0x7fff);
     }
 
     private static List<Channel> makeDummyChannels() {

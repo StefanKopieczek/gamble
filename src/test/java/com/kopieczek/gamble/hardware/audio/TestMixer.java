@@ -17,16 +17,16 @@ import static org.mockito.Mockito.verify;
 
 public class TestMixer {
     private static final short[][] BUFFER_1 = new short[][] {
-            new short[] {0x12, 0x34, 0x56},
-            new short[] {0x78, 0x9a, 0xbc}
+            new short[] {0x0122, -0x7a34, 0x2b56},
+            new short[] {-0x5178, -0x5a9a, 0x01bc}
     };
     private static final short[][] BUFFER_2 = new short[][] {
-            new short[] {0x11, 0x33, 0x55},
-            new short[] {0x22, 0x44, 0x66}
+            new short[] {0x1102, 0x3a37, -0x655c},
+            new short[] {0x0224, 0x7044, 0x626a}
     };
     private static final short[][] BUFFER_3 = new short[][] {
-            new short[] {0x98, 0x76, 0x54},
-            new short[] {0xfe, 0xde, 0xcb}
+            new short[] {0x6f98, -0x7ff6, 0x0054},
+            new short[] {-0x7ffe, 0x7de2, -0x04cb}
     };
 
     @Test
