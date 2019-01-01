@@ -11,9 +11,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class TestMixer {
     private static final short[][] BUFFER_1 = new short[][] {
@@ -27,6 +25,10 @@ public class TestMixer {
     private static final short[][] BUFFER_3 = new short[][] {
             new short[] {0x6f98, -0x7ff6, 0x0054},
             new short[] {-0x7ffe, 0x7de2, -0x04cb}
+    };
+    private static final short[][] ZERO_ENERGY_BUFFER = new short[][] {
+            new short[3],
+            new short[3]
     };
 
     @Test
@@ -153,10 +155,50 @@ public class TestMixer {
         assertArrayEquals(new short[][][]{BUFFER_3}, mixer.stepAhead(1));
     }
 
+    @Test
+    public void test_mixer_with_one_active_and_one_disabled_channel_returns_the_active_channel_with_50_percent_volume() {
+        Channel active = new MockChannelBuilder()
+                .onTick(1).thenReturn(BUFFER_1)
+                .onTick(2).thenReturn(BUFFER_2)
+                .build();
+        Channel disabled = new MockChannelBuilder()
+                .onTick(1).thenReturn(ZERO_ENERGY_BUFFER)
+                .onTick(2).thenReturn(ZERO_ENERGY_BUFFER)
+                .build();
+        Mixer mixer = new Mixer(ImmutableList.of(active, disabled));
+        short[][] BUFFER_1_ADJUSTED = adjustVolume(BUFFER_1, 2);
+        short[][] BUFFER_2_ADJUSTED = adjustVolume(BUFFER_2, 2);
+
+        assertArrayEquals(new short[][][]{BUFFER_1_ADJUSTED}, mixer.stepAhead(1));
+        assertArrayEquals(new short[][][]{BUFFER_2_ADJUSTED}, mixer.stepAhead(1));
+    }
+
+    @Test
+    public void test_mixer_with_one_disabled_and_one_active_channel_returns_the_active_channel_with_50_percent_volume() {
+        Channel active = new MockChannelBuilder()
+                .onTick(1).thenReturn(BUFFER_1)
+                .onTick(2).thenReturn(BUFFER_2)
+                .build();
+        Channel disabled = new MockChannelBuilder()
+                .onTick(1).thenReturn(ZERO_ENERGY_BUFFER)
+                .onTick(2).thenReturn(ZERO_ENERGY_BUFFER)
+                .build();
+        Mixer mixer = new Mixer(ImmutableList.of(disabled, active));
+        short[][] BUFFER_1_ADJUSTED = adjustVolume(BUFFER_1, 2);
+        short[][] BUFFER_2_ADJUSTED = adjustVolume(BUFFER_2, 2);
+
+        assertArrayEquals(new short[][][]{BUFFER_1_ADJUSTED}, mixer.stepAhead(1));
+        assertArrayEquals(new short[][][]{BUFFER_2_ADJUSTED}, mixer.stepAhead(1));
+    }
+
     private static List<Channel> createDummyChannels(int numChannels) {
-        return IntStream.range(0, 20)
+        List<Channel> channels = IntStream.range(0, numChannels)
                 .mapToObj(idx -> mock(Channel.class))
                 .collect(Collectors.toList());
+        channels.forEach(channel -> {
+            when(channel.stepAhead(anyInt())).thenReturn(new short[0][][]);
+        });
+        return channels;
     }
 
     private void verifyTicks(List<Channel> channels, Integer... ticks) {
@@ -165,5 +207,14 @@ public class TestMixer {
             verify(channel, atLeast(0)).stepAhead(args.capture());
             assertEquals(Arrays.asList(ticks), args.getAllValues());
         });
+    }
+
+    private short[][] adjustVolume(short[][] buffer, int ratio) {
+        short[][] newBuffer = new short[][] { new short[3], new short[3] };
+        for (int i = 0; i < 3; i++) {
+            newBuffer[0][i] = (short)(buffer[0][i] / ratio);
+            newBuffer[1][i] = (short)(buffer[1][i] / ratio);
+        }
+        return newBuffer;
     }
 }
