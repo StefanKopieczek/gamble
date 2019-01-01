@@ -6,7 +6,6 @@ import com.kopieczek.gamble.hardware.memory.Io;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -166,43 +165,4 @@ public class TestApu {
         }
     }
 
-    private static class MockChannelBuilder {
-        final Map<Integer, short[][]> tickMap = new HashMap<>();
-
-        Inner onTick(int tick) {
-            return new Inner(tick);
-        }
-
-        Channel build() {
-            return new Channel() {
-                private int currentTick = 0;
-
-                @Override
-                public short[][][] stepAhead(int ticks) {
-                    List<short[][]> result = new ArrayList<>();
-
-                    IntStream.range(currentTick + 1, currentTick + ticks + 1).forEach(tick -> {
-                        if (tickMap.containsKey(tick)) {
-                            result.add(tickMap.get(tick));
-                        }
-                    });
-
-                    return result.toArray(new short[result.size()][][]);
-                }
-            };
-        }
-
-        private class Inner {
-            private int tick;
-
-            Inner(int tick) {
-                this.tick = tick;
-            }
-
-            public MockChannelBuilder thenReturn(short[][] leftRightArrays) {
-                MockChannelBuilder.this.tickMap.put(tick, leftRightArrays);
-                return MockChannelBuilder.this;
-            }
-        }
-    }
 }
