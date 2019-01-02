@@ -1,6 +1,7 @@
 package com.kopieczek.gamble.ui;
 
 import com.kopieczek.gamble.Gamble;
+import com.kopieczek.gamble.hardware.graphics.ScreenBuffer;
 import com.kopieczek.gamble.hardware.memory.Io;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,10 +14,10 @@ import java.io.InputStreamReader;
 public class GambleUi extends JFrame {
     private static final Logger log = LogManager.getLogger(Gamble.class);
 
-    private final Color[][] screenBuffer;
+    private final ScreenBuffer screenBuffer;
     private final Io io;
 
-    public GambleUi(Color[][] screenBuffer, Io io) {
+    public GambleUi(ScreenBuffer screenBuffer, Io io) {
         super("Gamble");
         this.screenBuffer = screenBuffer;
         this.io = io;

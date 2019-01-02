@@ -20,8 +20,7 @@ public class Gpu {
     private final InterruptLine interrupts;
     private final GraphicsAccessController graphicsAccessController;
     private final SpriteMap spriteMap;
-    private final Color[][] screenBuffer = initScreenBuffer();
-    private final Color[][] scratchBuffer = initScreenBuffer();
+    private final ScreenBuffer screenBuffer = new ScreenBuffer(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     private Mode mode = Mode.OAM_READ;
     private int modeClock = 0;
     private int currentLine = 0;
@@ -36,19 +35,7 @@ public class Gpu {
         this.spriteMap.init();
     }
 
-    private static Color[][] initScreenBuffer() {
-        Color[][] buffer = new Color[DISPLAY_HEIGHT][];
-        for (int rowIdx = 0; rowIdx < DISPLAY_HEIGHT; rowIdx++) {
-            buffer[rowIdx] = new Color[DISPLAY_WIDTH];
-            for (int colIdx = 0; colIdx < DISPLAY_WIDTH; colIdx++) {
-                buffer[rowIdx][colIdx] = Color.BLACK;
-            }
-        }
-
-        return buffer;
-    }
-
-    public Color[][] getScreenBuffer() {
+    public ScreenBuffer getScreenBuffer() {
         return screenBuffer;
     }
 
@@ -72,7 +59,7 @@ public class Gpu {
                     if (currentLine == DISPLAY_HEIGHT - 1) {
                         interrupts.setInterrupt(Interrupt.V_BLANK);
                         io.handleVBlank();
-                        flushBuffer();
+                        screenBuffer.swapScratchBuffers();
                         changeMode(Mode.VBLANK);
                     } else {
                         changeMode(Mode.OAM_READ);
@@ -98,26 +85,17 @@ public class Gpu {
     }
 
     public void stop() {
-        for (int y = 0; y < scratchBuffer.length; y++) {
-            for (int x = 0; x < scratchBuffer[0].length; x++) {
-                scratchBuffer[y][x] = Color.WHITE;
+        Color[][] scratch = screenBuffer.getScratch();
+        for (int y = 0; y < scratch.length; y++) {
+            for (int x = 0; x < scratch[0].length; x++) {
+                scratch[y][x] = Color.WHITE;
             }
         }
 
-        flushBuffer();
+        screenBuffer.swapScratchBuffers();
         modeClock = 0;
         currentLine = 0;
         mode = Mode.OAM_READ;
-    }
-
-    private void flushBuffer() {
-        synchronized (screenBuffer){
-            for (int y = 0; y < screenBuffer.length; y++) {
-                for (int x = 0; x < screenBuffer[0].length; x++) {
-                    screenBuffer[y][x] = scratchBuffer[y][x];
-                }
-            }
-        }
     }
 
     private void renderLine(int currentLine) {
@@ -142,6 +120,7 @@ public class Gpu {
 
             final int tileY = (currentLine - io.getWindowY()) / 8;
 
+            Color[][] scratch = screenBuffer.getScratch();
             for (int currentColumn = Math.max(io.getWindowX(), 0); currentColumn < DISPLAY_WIDTH; currentColumn++) {
                 int x = currentColumn - io.getWindowX();
 
@@ -151,19 +130,21 @@ public class Gpu {
                 int[] rowData = getRowData(tileDataStart, (currentLine - io.getWindowY()) % 8);
                 int[] rowColors = extractColors(rowData);
                 int currentColor = rowColors[x % 8];
-                scratchBuffer[currentLine][currentColumn] = decodeColor(currentColor);
+                scratch[currentLine][currentColumn] = decodeColor(currentColor);
             }
         }
     }
 
     private void clearLine(int currentLine) {
         // Null out line so the background can spot which pixels have background sprites.
+        Color[][] scratch = screenBuffer.getScratch();
         for (int col = 0; col < DISPLAY_WIDTH; col++) {
-            scratchBuffer[currentLine][col] = null;
+            scratch[currentLine][col] = null;
         }
     }
 
     private void renderTiles(int currentLine) {
+        Color[][] scratch = screenBuffer.getScratch();
         final int tileY = ((currentLine + io.getScrollY()) / 8) % 32;
         for (int currentColumn = 0; currentColumn < DISPLAY_WIDTH; currentColumn++) {
             int x = currentColumn + io.getScrollX();
@@ -173,8 +154,8 @@ public class Gpu {
             int[] rowData = getRowData(tileDataStart, (currentLine + io.getScrollY()) % 8);
             int[] rowColors = extractColors(rowData);
             int currentColor = rowColors[x % 8];
-            if (currentColor > 0 || (scratchBuffer[currentLine][currentColumn] == null)) {
-                scratchBuffer[currentLine][currentColumn] = decodeColor(currentColor);
+            if (currentColor > 0 || (scratch[currentLine][currentColumn] == null)) {
+                scratch[currentLine][currentColumn] = decodeColor(currentColor);
             }
         }
     }
@@ -214,19 +195,22 @@ public class Gpu {
                 }
             }
         }
+
+        Color[][] scratch = screenBuffer.getScratch();
         for (int xOffset = 0; xOffset < rowPixels.length; xOffset++) {
             int x = spriteX + xOffset;
             if (0 <= x && x < DISPLAY_WIDTH && rowPixels[xOffset].getAlpha() > 0) {
-                scratchBuffer[currentLine][x] = rowPixels[xOffset];
+                scratch[currentLine][x] = rowPixels[xOffset];
             }
         }
     }
 
     private void renderGrid() {
+        Color[][] scratch = screenBuffer.getScratch();
         for (int rowIdx = 0; rowIdx < DISPLAY_HEIGHT; rowIdx++) {
             for (int colIdx = 0; colIdx < DISPLAY_WIDTH; colIdx++) {
                 if ((rowIdx % 8) * (colIdx % 8) == 0) {
-                    scratchBuffer[rowIdx][colIdx] = Color.RED;
+                    scratch[rowIdx][colIdx] = Color.RED;
                 }
             }
         }

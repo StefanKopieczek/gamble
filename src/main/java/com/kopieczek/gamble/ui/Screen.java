@@ -1,6 +1,7 @@
 package com.kopieczek.gamble.ui;
 
 import com.kopieczek.gamble.hardware.graphics.Gpu;
+import com.kopieczek.gamble.hardware.graphics.ScreenBuffer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,9 +11,9 @@ import java.awt.event.ActionListener;
 public class Screen extends JPanel implements ActionListener {
     private Timer repaintTimer = new Timer(17, this);
     private final float DEFAULT_SCREEN_SCALE = 2;
-    private final Color[][] screenBuffer;
+    private final ScreenBuffer screenBuffer;
 
-    Screen(Color[][] screenBuffer) {
+    Screen(ScreenBuffer screenBuffer) {
         super();
         this.screenBuffer = screenBuffer;
     }
@@ -25,17 +26,17 @@ public class Screen extends JPanel implements ActionListener {
 
     @Override
     public void paintComponent(Graphics g) {
-        synchronized (screenBuffer) {
-            final int width = getWidth();
-            final int height = getHeight();
-            final float scaleX = width/(float)Gpu.DISPLAY_WIDTH;
-            final float scaleY = height/(float)Gpu.DISPLAY_HEIGHT;
-            for (int y = 0; y < height ; y++) {
-                for (int x = 0; x < width; x++) {
-                    int pixelX = (int)(x / scaleX);
-                    int pixelY = (int)(y / scaleY);
-                    setPixel(g, x, y, screenBuffer[pixelY][pixelX]);
-                }
+        screenBuffer.updateScreenBuffer();
+        Color[][] currentFrame = screenBuffer.getScreen();
+        final int width = getWidth();
+        final int height = getHeight();
+        final float scaleX = width/(float)Gpu.DISPLAY_WIDTH;
+        final float scaleY = height/(float)Gpu.DISPLAY_HEIGHT;
+        for (int y = 0; y < height ; y++) {
+            for (int x = 0; x < width; x++) {
+                int pixelX = (int)(x / scaleX);
+                int pixelY = (int)(y / scaleY);
+                setPixel(g, x, y, currentFrame[pixelY][pixelX]);
             }
         }
     }
