@@ -1,12 +1,12 @@
 package com.kopieczek.gamble.hardware.audio;
 
+import com.google.common.collect.ImmutableList;
 import com.kopieczek.gamble.hardware.memory.Io;
 
-import java.util.Collections;
 import java.util.List;
 
 public class Apu {
-    private static final int MASTER_FREQUENCY_HZ = 2097152;
+    static final int MASTER_FREQUENCY_HZ = 2097152;
     private static final int CPU_TICKS_PER_APU_TICK = 2;
 
     private final Io io;
@@ -35,7 +35,6 @@ public class Apu {
     }
 
     private static List<Channel> buildStandardChannels(Io io) {
-        // TODO
-        return Collections.emptyList();
+        return ImmutableList.of(new SineWaveTestChannel(440));
     }
 }

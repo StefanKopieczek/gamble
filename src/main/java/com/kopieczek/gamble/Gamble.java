@@ -1,5 +1,7 @@
 package com.kopieczek.gamble;
 
+import com.kopieczek.gamble.hardware.audio.Apu;
+import com.kopieczek.gamble.hardware.audio.StereoRenderer;
 import com.kopieczek.gamble.hardware.cpu.Cpu;
 import com.kopieczek.gamble.hardware.cpu.Word;
 import com.kopieczek.gamble.hardware.cpu.timer.TimerChip;
@@ -33,6 +35,7 @@ public class Gamble {
                           mmu.getOam(),
                           mmu.getVram());
         TimerChip timer = new TimerChip(mmu.getIo(), mmu.getInterruptLine());
+        Apu apu = new Apu(mmu.getIo(), getRenderer());
 
         log.info("Loading ROM");
         loadRom(mmu, new File(args[0]));
@@ -70,6 +73,7 @@ public class Gamble {
                 mmu.stepAhead(cycleDelta);
                 gpu.stepAhead(cycleDelta);
             }
+            apu.stepAhead(cycleDelta);
             timer.tick(cycleDelta);
             governor.sleepIfNeeded(cycleDelta);
         }
@@ -82,5 +86,15 @@ public class Gamble {
         } catch (IOException e) {
             log.error("Failed to load rom", e);
         }
+    }
+
+    private static StereoRenderer getRenderer() {
+        StereoRenderer renderer = new StereoRenderer();
+        try {
+            renderer.init();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return renderer;
     }
 }
