@@ -191,6 +191,70 @@ public class TestMixer {
         assertArrayEquals(new short[][][]{BUFFER_2_ADJUSTED}, mixer.stepAhead(1));
     }
 
+    @Test
+    public void test_mixer_with_two_active_channels_mixes_them_correctly() {
+        Channel channel1 = new MockChannelBuilder()
+                .onTick(1).thenReturn(new short[][] {
+                        new short[] {0x1000, 0x2000, 0x3000},
+                        new short[] {0x4000, 0x5000, 0x6000}
+                }).onTick(2).thenReturn(new short[][] {
+                        new short[] {-0x1000, -0x2000, -0x3000},
+                        new short[] {-0x4000, -0x5000, -0x6000}
+                }).build();
+        Channel channel2 = new MockChannelBuilder()
+                .onTick(1).thenReturn(new short[][] {
+                        new short[] {0x0100, 0x0200, 0x0300},
+                        new short[] {-0x0100, -0x0200, -0x0300}
+                }).onTick(2).thenReturn(new short[][] {
+                        new short[] {0x0400, 0x0500, 0x0600},
+                        new short[] {-0x0400, -0x0500, -0x0600}
+                }).build();
+        Mixer mixer = new Mixer(ImmutableList.of(channel1, channel2));
+
+        short[][][] expected1 = new short[][][] {
+                new short[][] {
+                        new short[] {0x0880, 0x1100, 0x1980},
+                        new short[] {0x1f80, 0x2700, 0x2e80}
+                }
+        };
+        short[][][] expected2 = new short[][][] {
+                new short[][] {
+                        new short[] {-0x0600, -0x0d80, -0x1500},
+                        new short[] {-0x2200, -0x2a80, -0x3300}
+                }
+        };
+        assertArrayEquals(expected1, mixer.stepAhead(1));
+        assertArrayEquals(expected2, mixer.stepAhead(1));
+    }
+
+    @Test
+    public void test_mixer_with_three_active_channels_mixes_them_correctly() {
+        Channel channel1 = new MockChannelBuilder()
+                .onTick(1).thenReturn(new short[][] {
+                        new short[] {0x3000, 0x6000, -0x3000, 0x03c0},
+                        new short[] {0x6000, -0x6000, 0x3000, -0x3000}
+                }).build();
+        Channel channel2 = new MockChannelBuilder()
+                .onTick(1).thenReturn(new short[][] {
+                        new short[] {0x0300, 0x0600, 0x0900, 0x03c0},
+                        new short[] {-0x6c00, -0x66c3, 0x30c0, -0x3ccc}
+                }).build();
+        Channel channel3 = new MockChannelBuilder()
+                .onTick(1).thenReturn(new short[][] {
+                        new short[] {0x0306, 0x660c, 0x09c0, 0x03c0},
+                        new short[] {0x360c, 0x06c3, -0x30c0, -0x3ccc}
+                }).build();
+        Mixer mixer = new Mixer(ImmutableList.of(channel1, channel2, channel3));
+        short[][][] expected = new short[][][] {
+                new short[][]{
+                        new short[]{0x1202, 0x4404, -0x09c0, 0x03c0},
+                        new short[]{0x0e04, -0x4000, 0x1000, -0x3888}
+                }
+        };
+        assertArrayEquals(expected, mixer.stepAhead(1));
+    }
+
+
     private static List<Channel> createDummyChannels(int numChannels) {
         List<Channel> channels = IntStream.range(0, numChannels)
                 .mapToObj(idx -> mock(Channel.class))
