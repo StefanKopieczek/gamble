@@ -1,16 +1,21 @@
 package com.kopieczek.gamble.hardware.audio;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.IntStream;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class MockChannelBuilder {
-    private final Map<Integer, short[][]> tickMap = new HashMap<>();
+    private List<Short> leftSamples;
+    private List<Short> rightSamples;
 
-    Inner onTick(int tick) {
-        return new Inner(tick);
+    MockChannelBuilder withLeftSamples(Integer... samples) {
+        leftSamples = Stream.of(samples).map(Integer::shortValue).collect(Collectors.toList());
+        return this;
+    }
+
+    MockChannelBuilder withRightSamples(Integer... samples) {
+        rightSamples = Stream.of(samples).map(Integer::shortValue).collect(Collectors.toList());
+        return this;
     }
 
     Channel build() {
@@ -18,31 +23,13 @@ class MockChannelBuilder {
             private int currentTick = 0;
 
             @Override
-            public short[][][] stepAhead(int ticks) {
-                List<short[][]> result = new ArrayList<>();
-
-                IntStream.range(currentTick + 1, currentTick + ticks + 1).forEach(tick -> {
-                    if (tickMap.containsKey(tick)) {
-                        result.add(tickMap.get(tick));
-                    }
-                });
-
-                currentTick += ticks;
-                return result.toArray(new short[result.size()][][]);
+            public short[] tick() {
+                short left = currentTick < leftSamples.size() ? leftSamples.get(currentTick) : 0x0000;
+                short right = currentTick < rightSamples.size() ? rightSamples.get(currentTick) : 0x0000;
+                short[] result = new short[] { left, right };
+                currentTick++;
+                return result;
             }
         };
-    }
-
-    class Inner {
-        private int tick;
-
-        Inner(int tick) {
-            this.tick = tick;
-        }
-
-        MockChannelBuilder thenReturn(short[][] leftRightArrays) {
-            MockChannelBuilder.this.tickMap.put(tick, leftRightArrays);
-            return MockChannelBuilder.this;
-        }
     }
 }

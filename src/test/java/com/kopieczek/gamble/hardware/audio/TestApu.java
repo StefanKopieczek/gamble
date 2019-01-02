@@ -5,14 +5,13 @@ import com.google.common.primitives.Shorts;
 import com.kopieczek.gamble.hardware.memory.Io;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 public class TestApu {
@@ -41,7 +40,7 @@ public class TestApu {
         apu.stepAhead(0);
         apu.stepAhead(0);
         apu.stepAhead(0);
-        channels.forEach(chan -> verify(chan, never()).stepAhead(anyInt()));
+        assertTotalTicks(0, channels);
     }
 
     @Test
@@ -99,40 +98,28 @@ public class TestApu {
     public void test_apu_ticks_return_all_single_channel_data_eventually() {
         // Note that we don't assert this happens on specific ticks
         Channel channel = new MockChannelBuilder()
-                .onTick(1).thenReturn(new short[][] {
-                        new short[] {0x1221, 0x4342, 0x0156},
-                        new short[] {0x7a82, -0x769a, 0x4bce}
-                })
-                .onTick(3).thenReturn(new short[][] {
-                        new short[] {0x3eda, -0x62f0, -0x0212},
-                        new short[] {0x19fe, -0x7dac, 0x2b3a}
-                })
-                .onTick(100).thenReturn(new short[][] {
-                        new short[] {-0x3978, 0x7776, 0x25b4},
-                        new short[] {-0x32ca, -0x7fff, 0x7fff}
-                })
+                .withLeftSamples(0x1221, 0x4342, 0x0156, 0x3eda, -0x62f0, -0x212)
+                .withRightSamples(0x7a82, -0x769a, 0x4bce, -0x32ca, -0x7fff, 0x7fff)
                 .build();
         MockRenderer renderer = new MockRenderer();
         Apu apu = new Apu(io, renderer, ImmutableList.of(channel));
         apu.stepAhead(200);
 
-        renderer.assertLeftSamplesSeen(0x1221, 0x4342, 0x0156, 0x3eda, -0x62f0, -0x0212, -0x3978, 0x7776, 0x25b4)
-                .assertRightSamplesSeen(0x7a82, -0x769a, 0x4bce, 0x19fe, -0x7dac, 0x2b3a, -0x32ca, -0x7fff, 0x7fff);
+        renderer.assertLeftSamplesSeen(0x1221, 0x4342, 0x0156, 0x3eda, -0x62f0, -0x0212)
+                .assertRightSamplesSeen(0x7a82, -0x769a, 0x4bce, -0x32ca, -0x7fff, 0x7fff);
     }
 
     private static List<Channel> makeDummyChannels() {
         List<Channel> channels = IntStream.range(0, 4)
                 .mapToObj(idx -> mock(Channel.class))
                 .collect(Collectors.toList());
-        channels.forEach(chan -> when(chan.stepAhead(anyInt())).thenReturn(new short[0][][]));
+        channels.forEach(chan -> when(chan.tick()).thenReturn(new short[] {0x00, 0x00}));
         return channels;
     }
 
     private void assertTotalTicks(int ticks, List<Channel> mockChannels) {
         mockChannels.forEach(chan -> {
-            ArgumentCaptor<Integer> args = ArgumentCaptor.forClass(Integer.class);
-            verify(chan, atLeast(0)).stepAhead(args.capture());
-            assertEquals("Unexpected number of ticks to channel", ticks, (long)args.getAllValues().stream().reduce(0, (a, b) -> a + b));
+            verify(chan, times(ticks)).tick();
         });
     }
 
@@ -141,28 +128,31 @@ public class TestApu {
         private final ArrayList<Short> rightSamplesSeen = new ArrayList<>();
 
         @Override
-        public void render(short[][][] buffers) {
-            for (short[][] buffer : buffers) {
-                leftSamplesSeen.addAll(Shorts.asList(buffer[0]));
-                rightSamplesSeen.addAll(Shorts.asList(buffer[1]));
-            }
+        public void render(short[] sample) {
+            leftSamplesSeen.add(sample[0]);
+            rightSamplesSeen.add(sample[1]);
         }
 
-        MockRenderer assertLeftSamplesSeen(int... samples) {
-            short[] sampleShorts = new short[samples.length];
-            IntStream.range(0, samples.length).forEach(idx -> sampleShorts[idx] = (short)samples[idx]);
-            List<Short> expected = Shorts.asList(sampleShorts);
-            assertEquals(expected, leftSamplesSeen);
+        MockRenderer assertLeftSamplesSeen(Integer... samples) {
+            if (samples.length > leftSamplesSeen.size()) {
+                fail("Expected at least " + samples.length + " left samples; saw " + leftSamplesSeen.size());
+            }
+
+            for (int idx = 0; idx < Math.min(leftSamplesSeen.size(), samples.length); idx++) {
+                assertEquals("Unexpected left sample at index " + idx, new Short(samples[idx].shortValue()), leftSamplesSeen.get(idx));
+            }
             return this;
         }
 
-        MockRenderer assertRightSamplesSeen(int... samples) {
-            short[] sampleShorts = new short[samples.length];
-            IntStream.range(0, samples.length).forEach(idx -> sampleShorts[idx] = (short)samples[idx]);
-            List<Short> expected = Shorts.asList(sampleShorts);
-            assertEquals(expected, rightSamplesSeen);
+        MockRenderer assertRightSamplesSeen(Integer... samples) {
+            if (samples.length > rightSamplesSeen.size()) {
+                fail("Expected at least " + samples.length + " right samples; saw " + leftSamplesSeen.size());
+            }
+
+            for (int idx = 0; idx < Math.min(rightSamplesSeen.size(), samples.length); idx++) {
+                assertEquals("Unexpected right sample at index " + idx, new Short(samples[idx].shortValue()), rightSamplesSeen.get(idx));
+            }
             return this;
         }
     }
-
 }
