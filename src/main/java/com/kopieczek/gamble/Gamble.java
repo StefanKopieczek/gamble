@@ -45,13 +45,6 @@ public class Gamble {
         SwingUtilities.invokeLater(gb::init);
         Governor governor = new Governor();
 
-        log.info("UI ready. Waiting 3s before starting program execution");
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
         if (SHOULD_SKIP_BIOS) {
             mmu.setBiosEnabled(false);
             cpu.setProgramCounter(0x100);
