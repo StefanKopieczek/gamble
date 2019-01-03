@@ -112,7 +112,8 @@ public class StereoRenderer implements Renderer {
                 }
 
                 if (DYNAMIC_FREQ_ADJUST_ENABLED) {
-                    double freqRatio = 1 + (0.02 * (1 - performanceRatio));
+                    double nudge = (performanceRatio > 1) ? (0.02 * (1 - performanceRatio)) : (0.01 * (1 - performanceRatio));
+                    double freqRatio = 1 + nudge;
                     int oldFreq = downsampler.getOutputFrequency();
                     int newFreq = (int) (oldFreq * freqRatio);
                     downsampler.setOutputFrequency(newFreq);
