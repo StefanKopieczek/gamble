@@ -19,14 +19,13 @@ public class StereoRenderer implements Renderer {
     private static final int SAMPLE_WIDTH_BYTES = 2;
     private static final int FRAME_WIDTH_BYTES = NUM_CHANNELS * SAMPLE_WIDTH_BYTES;
     private static final int SAMPLE_RATE = 16000;
-    private static final int DOWNSAMPLE_RATIO = Apu.MASTER_FREQUENCY_HZ / SAMPLE_RATE;
     private static final int BUFFER_SIZE = 2200;
     private static final float EXPECTED_BUFFERS_PER_SEC = SAMPLE_RATE / ((float)BUFFER_SIZE / FRAME_WIDTH_BYTES);
 
-    int downsamplerClock = 0;
+    private final Downsampler downsampler;
     private SourceDataLine lineOut;
 
-    private BlockingQueue<byte[]> buffers = new LinkedBlockingQueue<>();
+    private final BlockingQueue<byte[]> buffers = new LinkedBlockingQueue<>();
     private byte[] buffer = new byte[BUFFER_SIZE];
     private int bufPtr = 0;
 
@@ -39,28 +38,46 @@ public class StereoRenderer implements Renderer {
         16000,
         false);
 
+    public StereoRenderer() {
+        downsampler = new SimpleDecimator();
+        downsampler.setInputFrequency(Apu.MASTER_FREQUENCY_HZ);
+        downsampler.setOutputFrequency(SAMPLE_RATE);
+    }
 
     public void init() throws LineUnavailableException {
         lineOut = AudioSystem.getSourceDataLine(FORMAT);
-        lineOut.open(FORMAT);
+        lineOut.open(FORMAT, BUFFER_SIZE * 2);
         lineOut.start();
         new RenderThread().start();
     }
 
     @Override
     public void render(short[] newSample) {
-        if (downsamplerClock == 0) {
-            byte[] encodedSample = convert(newSample);
-            System.arraycopy(encodedSample, 0, buffer, bufPtr, encodedSample.length);
-            bufPtr += encodedSample.length;
-            if (bufPtr == buffer.length) {
-                buffers.add(buffer);
-                buffer = new byte[BUFFER_SIZE];
-                bufPtr = 0;
-            }
+        short[] downsampled = downsampler.accept(newSample);
+        if (downsampled != null) {
+            byte[] encoded = convert(downsampled);
+            buffer(encoded);
         }
+    }
 
-        downsamplerClock = (downsamplerClock + 1) % DOWNSAMPLE_RATIO;
+    private void buffer(byte[] bytes) {
+        System.arraycopy(bytes, 0, buffer, bufPtr, bytes.length);
+        bufPtr += bytes.length;
+        if (bufPtr == buffer.length) {
+            buffers.add(buffer);
+            buffer = new byte[BUFFER_SIZE];
+            bufPtr = 0;
+            maybeAdjustFrequency();
+        }
+    }
+
+    private void maybeAdjustFrequency() {
+        int bufferBacklog = buffers.size();
+        final int target = 5;
+        double freqRatio = 1 + (0.0001 * (target - bufferBacklog));
+        int oldFreq = downsampler.getOutputFrequency();
+        int newFreq = (int)(oldFreq * freqRatio);
+        downsampler.setOutputFrequency(newFreq);
     }
 
     private static byte[] convert(short[] sample) {
@@ -96,11 +113,15 @@ public class StereoRenderer implements Renderer {
                 float maxPermittedWait = 1000 / EXPECTED_BUFFERS_PER_SEC;
                 float performanceRatio = maxPermittedWait / avgWait;
 
-                if (performanceRatio < 1f) {
+                if (performanceRatio < 0.95f) {
                     log.warn("Audio buffer latency detected; avg wait is {}ms, max permissible is {}ms. Performance ratio: {}", avgWait, maxPermittedWait, performanceRatio);
                 } else {
                     log.debug("Current audio buffer performance ratio: {}", performanceRatio);
                 }
+            }
+
+            if (buffers.size() > 10) {
+                log.warn("Audio playback backlog of {} seconds ({} buffers)", buffers.size() / EXPECTED_BUFFERS_PER_SEC, buffers.size());
             }
         }
     }
