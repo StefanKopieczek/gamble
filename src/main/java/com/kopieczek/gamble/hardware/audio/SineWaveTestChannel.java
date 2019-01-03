@@ -1,6 +1,6 @@
 package com.kopieczek.gamble.hardware.audio;
 
-public class SineWaveTestChannel extends Channel {
+public class SineWaveTestChannel implements Channel {
     private final float frequencyHz;
     int tick = 0;
 

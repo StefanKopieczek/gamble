@@ -6,7 +6,13 @@ public class Square1Channel extends SquareWaveChannel {
     private final Io io;
 
     public Square1Channel(Io io) {
+        super(io);
         this.io = io;
+    }
+
+    @Override
+    protected AudioOutputMode getOutputMode() {
+        return io.getSquare1OutputMode();
     }
 
     @Override

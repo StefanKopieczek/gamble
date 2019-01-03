@@ -1,9 +1,16 @@
 package com.kopieczek.gamble.hardware.audio;
 
-public abstract class SquareWaveChannel extends Channel {
+import com.kopieczek.gamble.hardware.memory.Io;
+
+abstract class SquareWaveChannel extends AbstractChannel{
     private int tickCtr = 0;
 
-    public short[] tick() {
+    SquareWaveChannel(Io io) {
+        super(io);
+    }
+
+    @Override
+    public final short getSample() {
         int stepLengthInTicks = getStepLengthInTicks();
         boolean duty[] = getDutyCycle();
         short volume = getVolume();
@@ -12,7 +19,7 @@ public abstract class SquareWaveChannel extends Channel {
         boolean isHigh = duty[dutyOffset];
         short amplitude = isHigh ? volume : 0;
         tickCtr = (tickCtr + 1) % 32768;
-        return new short[] {amplitude, amplitude};
+        return amplitude;
     }
 
     private int getStepLengthInTicks() {
