@@ -15,7 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class StereoRenderer implements Renderer {
     private static final Logger log = LogManager.getLogger(StereoRenderer.class);
-    private static final boolean DYNAMIC_FREQ_ADJUST_ENABLED = false;
+    private static final boolean DYNAMIC_FREQ_ADJUST_ENABLED = true;
     private static final int NUM_CHANNELS = 2;
     private static final int SAMPLE_WIDTH_BYTES = 2;
     private static final int FRAME_WIDTH_BYTES = NUM_CHANNELS * SAMPLE_WIDTH_BYTES;
@@ -40,7 +40,7 @@ public class StereoRenderer implements Renderer {
         false);
 
     public StereoRenderer() {
-        final float fudgeFactor = 0.845f; // Haven't worked out why I need this yet >_>
+        final float fudgeFactor = 0.85f; // Haven't worked out why I need this yet >_>
         downsampler = new SimpleDecimator();
         downsampler.setInputFrequency(Apu.MASTER_FREQUENCY_HZ);
         downsampler.setOutputFrequency((int)(SAMPLE_RATE * fudgeFactor));
@@ -69,18 +69,6 @@ public class StereoRenderer implements Renderer {
             buffers.add(buffer);
             buffer = new byte[BUFFER_SIZE];
             bufPtr = 0;
-            maybeAdjustFrequency();
-        }
-    }
-
-    private void maybeAdjustFrequency() {
-        if (DYNAMIC_FREQ_ADJUST_ENABLED) {
-            int bufferBacklog = buffers.size();
-            final int target = 5;
-            double freqRatio = 1 + (0.0001 * (target - bufferBacklog));
-            int oldFreq = downsampler.getOutputFrequency();
-            int newFreq = (int) (oldFreq * freqRatio);
-            downsampler.setOutputFrequency(newFreq);
         }
     }
 
@@ -102,14 +90,14 @@ public class StereoRenderer implements Renderer {
                 while (true) {
                     byte[] buffer = buffers.take();
                     lineOut.write(buffer, 0, buffer.length);
-                    logBuffer();
+                    processLatencyStats();
                 }
             } catch (InterruptedException e) {
                 log.warn("Render thread interrupted - playback will stop");
             }
         }
 
-        private void logBuffer() {
+        private void processLatencyStats() {
             bufferArrivalTimes.add(System.currentTimeMillis());
             if (bufferArrivalTimes.size() > ARRIVAL_METRIC_PERIOD) {
                 bufferArrivalTimes.remove(0);
@@ -121,6 +109,13 @@ public class StereoRenderer implements Renderer {
                     log.warn("Audio buffer latency detected; avg wait is {}ms, max permissible is {}ms. Performance ratio: {}", avgWait, maxPermittedWait, performanceRatio);
                 } else {
                     log.debug("Current audio buffer performance ratio: {}", performanceRatio);
+                }
+
+                if (DYNAMIC_FREQ_ADJUST_ENABLED) {
+                    double freqRatio = 1 + (0.02 * (1 - performanceRatio));
+                    int oldFreq = downsampler.getOutputFrequency();
+                    int newFreq = (int) (oldFreq * freqRatio);
+                    downsampler.setOutputFrequency(newFreq);
                 }
             }
 
