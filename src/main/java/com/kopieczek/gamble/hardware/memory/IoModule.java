@@ -1,13 +1,12 @@
 package com.kopieczek.gamble.hardware.memory;
 
 import com.google.common.collect.ImmutableMap;
-import com.kopieczek.gamble.hardware.audio.AudioOutputMode;
+import com.kopieczek.gamble.hardware.audio.*;
 import com.kopieczek.gamble.hardware.cpu.Interrupt;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
-import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -21,20 +20,20 @@ class IoModule extends RamModule implements Io {
     private static final int TIMER_MODULO_ADDR = 0x0006;
     private static final int TIMER_CONTROL_ADDR = 0x0007;
     private static final int NR10_ADDR = 0x0010; // -PPP SNNN (holds Square 1 sweep's period, sign, and shift number)
-    private static final int NR11_ADDR = 0x0011; // DDRR RRRR (holds Square 1 duty cycle and remaining time (r.t. = 64 - R)
+    private static final int NR11_ADDR = 0x0011; // DDLL LLLL (holds Square 1 duty cycle and length counter (len = 64 - L)
     private static final int NR12_ADDR = 0x0012; // VVVV SLLL (holds Square 1's starting volume, envelope sign, and length of envelope steps)
     private static final int NR13_ADDR = 0x0013; // Bottom 8 bits of Square 1's frequency counter value
     private static final int NR14_ADDR = 0x0014; // IC-- -FFF (holds Square 1's Initialize and Continuous flags, as well as the top 3 bits of its frequency counter)
-    private static final int NR21_ADDR = 0x0016; // DDRR RRRR (holds Square 2 duty cycle and remaining time (r.t. = 64 - R)
+    private static final int NR21_ADDR = 0x0016; // DDLL LLLL (holds Square 2 duty cycle and length counter (len = 64 - L)
     private static final int NR22_ADDR = 0x0017; // VVVV SLLL (holds Square 2's starting volume, envelope sign, and length of envelope steps)
     private static final int NR23_ADDR = 0x0018; // Bottom 8 bits of Square 2's frequency counter value
     private static final int NR24_ADDR = 0x0019; // IC-- -FFF (holds Square 2's Initialize and Continuous flags, as well as the top 3 bits of its frequency counter)
     private static final int NR30_ADDR = 0x001a; // E--- ---- (holds the Wave channel's DAC enable bit; other bits unused)
-    private static final int NR31_ADDR = 0x001b; // RRRR RRRR (holds the Wave channel's remaining time (r.t. = 256 - R)
+    private static final int NR31_ADDR = 0x001b; // LLLL LLLL (holds the Wave channel's length counter (len = 256 - L)
     private static final int NR32_ADDR = 0x001c; // -VV- ---- (holds the Wave channel's volume: 00=0%, 01=100%, 10=50%, 11=25%)
     private static final int NR33_ADDR = 0x001d; // Bottom 8 bits of the Wave channel's frequency counter value
     private static final int NR34_ADDR = 0x001e; // IC-- -FFF (holds the Wave channel's Initialize and Continuous flags, as well as the top 3 bits of its frequency counter)
-    private static final int NR41_ADDR = 0x0020; // --RR RRRR (holds the Noise channel's remaining time (r.t. = 64 - R)
+    private static final int NR41_ADDR = 0x0020; // --LL LLLL (holds the Noise channel's length counter (len = 64 - L)
     private static final int NR42_ADDR = 0x0021; // VVVV SLLL (holds then Noise channel's starting volume, envelope sign, and length of envelope steps)
     private static final int NR43_ADDR = 0x0022; // FFFF WCCC (holds the Noise channel's frequency counter value, LSFR width mode, and divisor code)
     private static final int NR44_ADDR = 0x0023; // IC-- ---- (holds the Noise channel's Initialize and Continuous flags)
@@ -91,6 +90,10 @@ class IoModule extends RamModule implements Io {
 
     private final boolean[] buttonStates = new boolean[Button.values().length];
     private final java.util.List<SpriteChangeListener> spriteListeners = new ArrayList<>();
+    private final java.util.List<Square1RegisterListener> square1Listeners = new ArrayList<>();
+    private final java.util.List<Square2RegisterListener> square2Listeners = new ArrayList<>();
+    private final java.util.List<WaveRegisterListener> waveListeners = new ArrayList<>();
+    private final java.util.List<NoiseRegisterListener> noiseListeners = new ArrayList<>();
     private boolean areTallSpritesEnabled = false;
 
     // Used for OAM DMA copy and for setting interrupts
@@ -109,6 +112,10 @@ class IoModule extends RamModule implements Io {
         addFilter(JOYPAD_ADDR, Filter.readOnlyFilter(this, JOYPAD_ADDR, 0b00001111));
         addFilter(LCD_STATUS_ADDR, Filter.readOnlyFilter(this, LCD_STATUS_ADDR, 0b00000011));
         addTrigger(JOYPAD_ADDR, this::recalculateJoypadRegister);
+        addTrigger(NR11_ADDR, this::fireSquare1DutyAndLengthChange);
+        addTrigger(NR21_ADDR, this::fireSquare2DutyAndLengthChange);
+        addTrigger(NR31_ADDR, this::fireWaveLengthChange);
+        addTrigger(NR41_ADDR, this::fireNoiseLengthChange);
         addTrigger(LCD_LY_COMPARE_ADDR, this::updateCoincidenceFlag);
         addTrigger(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag);
         addTrigger(LCD_CONTROL_ADDR, this::maybeFireSpriteHeightChange);
@@ -408,6 +415,31 @@ class IoModule extends RamModule implements Io {
     }
 
     @Override
+    public void register(Square1RegisterListener listener) {
+        square1Listeners.add(listener);
+    }
+
+    @Override
+    public void register(Square2RegisterListener listener) {
+        square2Listeners.add(listener);
+    }
+
+    @Override
+    public void register(WaveRegisterListener listener) {
+        waveListeners.add(listener);
+    }
+
+    @Override
+    public void register(NoiseRegisterListener listener) {
+        noiseListeners.add(listener);
+    }
+
+    private void fireSquare1DutyAndLengthChange() {
+        square1Listeners.forEach(l -> l.onLengthCounterUpdated(getSquare1RemainingTime()));
+        // TODO duty
+    }
+
+    @Override
     public int getSquare1SweepPeriod() {
         return 0x07 & (readByte(NR10_ADDR) >> 4);
     }
@@ -429,8 +461,7 @@ class IoModule extends RamModule implements Io {
         return squareWaveDutyCycles[dutyIdx];
     }
 
-    @Override
-    public int getSquare1RemainingTime() {
+    private int getSquare1RemainingTime() {
         return 64 - (0x3f & readByte(NR11_ADDR));
     }
 
@@ -489,14 +520,18 @@ class IoModule extends RamModule implements Io {
         setByte(NR14_ADDR, newValue);
     }
 
+    private void fireSquare2DutyAndLengthChange() {
+        square2Listeners.forEach(l -> l.onLengthCounterUpdated(getSquare2RemainingTime()));
+        // TODO duty
+    }
+
     @Override
     public boolean[] getSquare2DutyCycle() {
         int dutyIdx = readByte(NR21_ADDR) >> 6;
         return squareWaveDutyCycles[dutyIdx];
     }
 
-    @Override
-    public int getSquare2RemainingTime() {
+    private int getSquare2RemainingTime() {
         return 64 - (0x3f & readByte(NR21_ADDR));
     }
 
@@ -555,13 +590,16 @@ class IoModule extends RamModule implements Io {
         setByte(NR24_ADDR, newValue);
     }
 
+    private void fireWaveLengthChange() {
+        waveListeners.forEach(l -> l.onLengthCounterUpdated(getWaveRemainingTime()));
+    }
+
     @Override
     public boolean isWaveDacEnabled() {
         return (readByte(NR30_ADDR) & 0x80) > 0;
     }
 
-    @Override
-    public int getWaveRemainingTime() {
+    private int getWaveRemainingTime() {
         return 256 - readByte(NR31_ADDR);
     }
 
@@ -619,8 +657,11 @@ class IoModule extends RamModule implements Io {
         setByte(NR34_ADDR, newValue);
     }
 
-    @Override
-    public int getNoiseRemainingTime() {
+    private void fireNoiseLengthChange() {
+        noiseListeners.forEach(l -> l.onLengthCounterUpdated(getNoiseRemainingTime()));
+    }
+
+    private int getNoiseRemainingTime() {
         return 64 - (0x3f & readByte(NR41_ADDR));
     }
 

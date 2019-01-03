@@ -1,6 +1,6 @@
 package com.kopieczek.gamble.hardware.memory;
 
-import com.kopieczek.gamble.hardware.audio.AudioOutputMode;
+import com.kopieczek.gamble.hardware.audio.*;
 
 import java.awt.*;
 
@@ -42,7 +42,6 @@ public interface Io extends TimerRegisters {
     int getSquare1SweepSign();
     int getSquare1SweepShift();
     boolean[] getSquare1DutyCycle();
-    int getSquare1RemainingTime();
     int getSquare1StartingVolume();
     int getSquare1EnvelopeSign();
     int getSquare1EnvelopeStepLength();
@@ -52,7 +51,6 @@ public interface Io extends TimerRegisters {
     boolean isSquare1Restarted();
     void clearSquare1RestartFlag();
     boolean[] getSquare2DutyCycle();
-    int getSquare2RemainingTime();
     int getSquare2StartingVolume();
     int getSquare2EnvelopeSign();
     int getSquare2EnvelopeStepLength();
@@ -62,14 +60,12 @@ public interface Io extends TimerRegisters {
     void clearSquare2RestartFlag();
     void setSquare2FrequencyCounter(int newValue);
     boolean isWaveDacEnabled();
-    int getWaveRemainingTime();
     int getWaveVolumePercent();
     int getWaveFrequencyCounter();
     boolean isWaveContinuousModeEnabled();
     boolean isWaveRestarted();
     void clearWaveRestartFlag();
     void setWaveFrequencyCounter(int newFreq);
-    int getNoiseRemainingTime();
     int getNoiseStartingVolume();
     int getNoiseEnvelopeSign();
     int getNoiseEnvelopeStepLength();
@@ -89,6 +85,10 @@ public interface Io extends TimerRegisters {
     void setWavePlayingFlag(boolean isPlaying);
     void setNoisePlayingFlag(boolean isPlaying);
     short[] getWaveData();
+    void register(Square1RegisterListener listener);
+    void register(Square2RegisterListener listener);
+    void register(WaveRegisterListener listener);
+    void register(NoiseRegisterListener listener);
 
     enum LcdControllerMode {
         HBLANK,

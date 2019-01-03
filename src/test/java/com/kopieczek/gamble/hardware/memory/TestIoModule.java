@@ -1461,55 +1461,97 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_square_1_remaining_time_is_0x40_when_0xff11_is_0x00() {
+    public void test_square_1_length_counter_set_to_0x40_when_0xff11_is_0x00() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff11, 0x00);
-        assertEquals(0x40, mmu.getIo().getSquare1RemainingTime());
+        assertEquals(0x40, seenLength.get());
     }
 
     @Test
-    public void test_square_1_remaining_time_is_0x3f_when_0xff11_is_0x01() {
+    public void test_square_1_length_counter_set_to_0x3f_when_0xff11_is_0x01() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff11, 0x01);
-        assertEquals(0x3f, mmu.getIo().getSquare1RemainingTime());
+        assertEquals(0x3f, seenLength.get());
     }
 
     @Test
-    public void test_square_1_remaining_time_is_0x3f_when_0xff11_is_0xc1() {
+    public void test_square_1_length_counter_set_to_0x3f_when_0xff11_is_0xc1() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff11, 0xc1);
-        assertEquals(0x3f, mmu.getIo().getSquare1RemainingTime());
+        assertEquals(0x3f, seenLength.get());
     }
 
     @Test
-    public void test_square_1_remaining_time_is_0x14_when_0xff11_is_0x2c() {
+    public void test_square_1_length_counter_set_to_0x14_when_0xff11_is_0x2c() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff11, 0x2c);
-        assertEquals(0x14, mmu.getIo().getSquare1RemainingTime());
+        assertEquals(0x14, seenLength.get());
     }
 
     @Test
-    public void test_square_1_remaining_time_is_0x14_when_0xff11_is_0xec() {
+    public void test_square_1_length_counter_set_to_0x14_when_0xff11_is_0xec() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff11, 0xec);
-        assertEquals(0x14, mmu.getIo().getSquare1RemainingTime());
+        assertEquals(0x14, seenLength.get());
     }
 
     @Test
-    public void test_square_1_remaining_time_is_0x01_when_0xff11_is_0x3f() {
+    public void test_square_1_length_counter_set_to_0x01_when_0xff11_is_0x3f() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff11, 0x3f);
-        assertEquals(0x01, mmu.getIo().getSquare1RemainingTime());
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
+        mmu.setByte(0xff11, 0xec);
+        assertEquals(0x14, seenLength.get());
     }
 
     @Test
-    public void test_square_1_remaining_time_is_0x40_when_0xff11_is_0x40() {
+    public void test_square_1_length_counter_set_to_0x40_when_0xff11_is_0x40() {
         // The period is contained in the lower 6 bits of NR11.
         // 0x40 is 0b0100_0000 so should be treated the same as 0x00
         // and so should have the same period as if 0xff11 were 0x00.
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff11, 0x40);
-        assertEquals(0x40, mmu.getIo().getSquare1RemainingTime());
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
+        mmu.setByte(0xff11, 0xec);
+        assertEquals(0x14, seenLength.get());
     }
 
     @Test
@@ -1722,55 +1764,97 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_square_2_remaining_time_is_0x40_when_0xff16_is_0x00() {
+    public void test_square_2_length_counter_set_to_0x40_when_0xff16_is_0x00() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff16, 0x00);
-        assertEquals(0x40, mmu.getIo().getSquare2RemainingTime());
+        assertEquals(0x40, seenLength.get());
     }
 
     @Test
-    public void test_square_2_remaining_time_is_0x3f_when_0xff16_is_0x01() {
+    public void test_square_2_length_counter_set_to_0x3f_when_0xff16_is_0x01() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff16, 0x01);
-        assertEquals(0x3f, mmu.getIo().getSquare2RemainingTime());
+        assertEquals(0x3f, seenLength.get());
     }
 
     @Test
-    public void test_square_2_remaining_time_is_0x3f_when_0xff16_is_0xc1() {
+    public void test_square_2_length_counter_set_to_0x3f_when_0xff16_is_0xc1() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff16, 0xc1);
-        assertEquals(0x3f, mmu.getIo().getSquare2RemainingTime());
+        assertEquals(0x3f, seenLength.get());
     }
 
     @Test
-    public void test_square_2_remaining_time_is_0x14_when_0xff16_is_0x2c() {
+    public void test_square_2_length_counter_set_to_0x14_when_0xff16_is_0x2c() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff16, 0x2c);
-        assertEquals(0x14, mmu.getIo().getSquare2RemainingTime());
+        assertEquals(0x14, seenLength.get());
     }
 
     @Test
-    public void test_square_2_remaining_time_is_0x14_when_0xff16_is_0xec() {
+    public void test_square_2_length_counter_set_to_0x14_when_0xff16_is_0xec() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff16, 0xec);
-        assertEquals(0x14, mmu.getIo().getSquare2RemainingTime());
+        assertEquals(0x14, seenLength.get());
     }
 
     @Test
-    public void test_square_2_remaining_time_is_0x01_when_0xff16_is_0x3f() {
+    public void test_square_2_length_counter_set_to_0x01_when_0xff16_is_0x3f() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff16, 0x3f);
-        assertEquals(0x01, mmu.getIo().getSquare2RemainingTime());
+        assertEquals(0x01, seenLength.get());
     }
 
     @Test
-    public void test_square_2_remaining_time_is_0x40_when_0xff16_is_0x40() {
+    public void test_square_2_length_counter_set_to_0x40_when_0xff16_is_0x40() {
         // The period is contained in the lower 6 bits of NR21.
         // 0x40 is 0b0100_0000 so should be treated the same as 0x00
         // and so should have the same period as if 0xff16 were 0x00.
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff16, 0x40);
-        assertEquals(0x40, mmu.getIo().getSquare2RemainingTime());
+        assertEquals(0x40, seenLength.get());
     }
 
     @Test
@@ -1993,31 +2077,55 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_get_wave_remaining_time_returns_0x100_when_0xff1b_is_0x00() {
+    public void test_wave_length_counter_set_to_0x100_when_0xff1b_is_0x00() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff1b, 0x00);
-        assertEquals(0x100, mmu.getIo().getWaveRemainingTime());
+        assertEquals(0x100, seenLength.get());
     }
 
     @Test
-    public void test_get_wave_remaining_time_returns_0xff_when_0xff1b_is_0x01() {
+    public void test_wave_length_counter_set_to_0xff_when_0xff1b_is_0x01() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff1b, 0x01);
-        assertEquals(0xff, mmu.getIo().getWaveRemainingTime());
+        assertEquals(0xff, seenLength.get());
     }
 
     @Test
-    public void test_get_wave_remaining_time_returns_0x4c_when_0xff1b_is_0xb4() {
+    public void test_wave_length_counter_set_to_0x4c_when_0xff1b_is_0xb4() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff1b, 0xb4);
-        assertEquals(0x4c, mmu.getIo().getWaveRemainingTime());
+        assertEquals(0x4c, seenLength.get());
     }
 
     @Test
-    public void test_get_wave_remaining_time_returns_0x01_when_0xff1b_is_0xff() {
+    public void test_wave_length_counter_set_to_0x01_when_0xff1b_is_0xff() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff1b, 0xff);
-        assertEquals(0x01, mmu.getIo().getWaveRemainingTime());
+        assertEquals(0x01, seenLength.get());
     }
 
     @Test
@@ -2183,55 +2291,97 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_noise_remaining_time_is_0x40_when_0xff20_is_0x00() {
+    public void test_noise_length_counter_set_to_0x40_when_0xff20_is_0x00() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff20, 0x00);
-        assertEquals(0x40, mmu.getIo().getNoiseRemainingTime());
+        assertEquals(0x40, seenLength.get());
     }
 
     @Test
-    public void test_noise_remaining_time_is_0x3f_when_0xff20_is_0x01() {
+    public void test_noise_length_counter_set_to_0x3f_when_0xff20_is_0x01() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff20, 0x01);
-        assertEquals(0x3f, mmu.getIo().getNoiseRemainingTime());
+        assertEquals(0x3f, seenLength.get());
     }
 
     @Test
-    public void test_noise_remaining_time_is_0x3f_when_0xff20_is_0xc1() {
+    public void test_noise_length_counter_set_to_0x3f_when_0xff20_is_0xc1() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff20, 0xc1);
-        assertEquals(0x3f, mmu.getIo().getNoiseRemainingTime());
+        assertEquals(0x3f, seenLength.get());
     }
 
     @Test
-    public void test_noise_remaining_time_is_0x14_when_0xff20_is_0x2c() {
+    public void test_noise_length_counter_set_to_0x14_when_0xff20_is_0x2c() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff20, 0x2c);
-        assertEquals(0x14, mmu.getIo().getNoiseRemainingTime());
+        assertEquals(0x14, seenLength.get());
     }
 
     @Test
-    public void test_noise_remaining_time_is_0x14_when_0xff20_is_0xec() {
+    public void test_noise_length_counter_set_to_0x14_when_0xff20_is_0xec() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff20, 0xec);
-        assertEquals(0x14, mmu.getIo().getNoiseRemainingTime());
+        assertEquals(0x14, seenLength.get());
     }
 
     @Test
-    public void test_noise_remaining_time_is_0x01_when_0xff20_is_0x3f() {
+    public void test_noise_length_counter_set_to_0x01_when_0xff20_is_0x3f() {
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff20, 0x3f);
-        assertEquals(0x01, mmu.getIo().getNoiseRemainingTime());
+        assertEquals(0x01, seenLength.get());
     }
 
     @Test
-    public void test_noise_remaining_time_is_0x40_when_0xff20_is_0x40() {
+    public void test_noise_length_counter_set_to_0x40_when_0xff20_is_0x40() {
         // The period is contained in the lower 6 bits of NR41.
         // 0x40 is 0b0100_0000 so should be treated the same as 0x00
         // and so should have the same period as if 0xff20 were 0x00.
+        final AtomicInteger seenLength = new AtomicInteger(-1);
         Mmu mmu = getTestMmu();
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            public void onLengthCounterUpdated(int newValue) {
+                seenLength.set(newValue);
+            }
+        });
         mmu.setByte(0xff20, 0x40);
-        assertEquals(0x40, mmu.getIo().getNoiseRemainingTime());
+        assertEquals(0x40, seenLength.get());
     }
 
     @Test
