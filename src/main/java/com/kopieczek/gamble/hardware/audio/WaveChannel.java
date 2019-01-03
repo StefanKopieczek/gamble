@@ -2,9 +2,12 @@ package com.kopieczek.gamble.hardware.audio;
 
 import com.kopieczek.gamble.hardware.memory.Io;
 
-public class WaveChannel extends AbstractChannel {
+public class WaveChannel extends AbstractChannel implements WaveRegisterListener {
+    private static final int APU_TICKS_PER_COUNTER_TICK = Apu.MASTER_FREQUENCY_HZ / 256;
+
     private final Io io;
     private int tickCtr = 0;
+    private int lengthCounter;
 
     WaveChannel(Io io) {
         super(io);
@@ -13,12 +16,22 @@ public class WaveChannel extends AbstractChannel {
 
     @Override
     public short getSample() {
-        int stepLengthInTicks = getStepLengthInTicks();
-        short samples[] = io.getWaveData();
-        int waveformLength = stepLengthInTicks * samples.length;
-        int waveformOffset = (tickCtr % waveformLength) / stepLengthInTicks;
-        short sample = (short)(samples[waveformOffset] * getVolume());
+        short sample;
+        if (lengthCounter == 0 || io.isWaveContinuousModeEnabled()) {
+            int stepLengthInTicks = getStepLengthInTicks();
+            short samples[] = io.getWaveData();
+            int waveformLength = stepLengthInTicks * samples.length;
+            int waveformOffset = (tickCtr % waveformLength) / stepLengthInTicks;
+            sample = (short) (samples[waveformOffset] * getVolume());
+        } else {
+            sample = 0;
+        }
+
         tickCtr = (tickCtr + 1) % 32768;
+
+        if (lengthCounter > 0 && tickCtr % APU_TICKS_PER_COUNTER_TICK == 0) {
+            lengthCounter--;
+        }
         return sample;
     }
 
@@ -41,5 +54,10 @@ public class WaveChannel extends AbstractChannel {
 
     private short getVolume() {
         return (short)(((float)io.getWaveVolumePercent() / 1000) * Short.MAX_VALUE);
+    }
+
+    @Override
+    public void onLengthCounterUpdated(int newValue) {
+        lengthCounter = newValue;
     }
 }

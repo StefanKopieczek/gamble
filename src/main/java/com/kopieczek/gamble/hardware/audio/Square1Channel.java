@@ -2,12 +2,13 @@ package com.kopieczek.gamble.hardware.audio;
 
 import com.kopieczek.gamble.hardware.memory.Io;
 
-public class Square1Channel extends SquareWaveChannel {
+public class Square1Channel extends SquareWaveChannel implements Square1RegisterListener {
     private final Io io;
 
     public Square1Channel(Io io) {
         super(io);
         this.io = io;
+        io.register(this);
     }
 
     @Override
@@ -29,5 +30,15 @@ public class Square1Channel extends SquareWaveChannel {
     @Override
     protected boolean[] getDutyCycle() {
         return io.getSquare1DutyCycle();
+    }
+
+    @Override
+    protected boolean isContinuousModeEnabled() {
+        return io.isSquare1ContinuousModeEnabled();
+    }
+
+    @Override
+    public void onLengthCounterUpdated(int newValue) {
+        updateLengthCounter(newValue);
     }
 }

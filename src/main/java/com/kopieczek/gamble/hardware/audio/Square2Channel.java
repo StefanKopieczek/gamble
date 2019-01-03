@@ -30,4 +30,9 @@ public class Square2Channel extends SquareWaveChannel {
     protected boolean[] getDutyCycle() {
         return io.getSquare2DutyCycle();
     }
+
+    @Override
+    protected boolean isContinuousModeEnabled() {
+        return io.isSquare2ContinuousModeEnabled();
+    }
 }
