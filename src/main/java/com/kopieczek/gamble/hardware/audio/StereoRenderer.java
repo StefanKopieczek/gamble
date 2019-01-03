@@ -19,8 +19,8 @@ public class StereoRenderer implements Renderer {
     private static final int NUM_CHANNELS = 2;
     private static final int SAMPLE_WIDTH_BYTES = 2;
     private static final int FRAME_WIDTH_BYTES = NUM_CHANNELS * SAMPLE_WIDTH_BYTES;
-    private static final int SAMPLE_RATE = 16000;
-    private static final int BUFFER_SIZE = 2200;
+    private static final int SAMPLE_RATE = 44000;
+    private static final int BUFFER_SIZE = SAMPLE_RATE / 5;
     private static final float EXPECTED_BUFFERS_PER_SEC = SAMPLE_RATE / ((float)BUFFER_SIZE / FRAME_WIDTH_BYTES);
 
     private final Downsampler downsampler;
@@ -32,7 +32,7 @@ public class StereoRenderer implements Renderer {
 
 
     private static final AudioFormat FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-        16000,
+        SAMPLE_RATE,
         SAMPLE_WIDTH_BYTES * 8,
          NUM_CHANNELS,
         4,
