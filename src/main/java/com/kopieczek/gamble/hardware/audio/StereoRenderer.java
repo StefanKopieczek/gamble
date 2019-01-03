@@ -20,7 +20,7 @@ public class StereoRenderer implements Renderer {
     private static final int FRAME_WIDTH_BYTES = NUM_CHANNELS * SAMPLE_WIDTH_BYTES;
     private static final int SAMPLE_RATE = 16000;
     private static final int DOWNSAMPLE_RATIO = Apu.MASTER_FREQUENCY_HZ / SAMPLE_RATE;
-    private static final int BUFFER_SIZE = 22000;
+    private static final int BUFFER_SIZE = 2200;
     private static final float EXPECTED_BUFFERS_PER_SEC = SAMPLE_RATE / ((float)BUFFER_SIZE / FRAME_WIDTH_BYTES);
 
     int downsamplerClock = 0;
@@ -99,7 +99,7 @@ public class StereoRenderer implements Renderer {
                 if (performanceRatio < 1f) {
                     log.warn("Audio buffer latency detected; avg wait is {}ms, max permissible is {}ms. Performance ratio: {}", avgWait, maxPermittedWait, performanceRatio);
                 } else {
-                    log.warn("Current audio buffer performance ratio: {}", performanceRatio);
+                    log.debug("Current audio buffer performance ratio: {}", performanceRatio);
                 }
             }
         }

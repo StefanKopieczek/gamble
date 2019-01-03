@@ -12,9 +12,6 @@ public abstract class SquareWaveChannel extends Channel {
         boolean isHigh = duty[dutyOffset];
         short amplitude = isHigh ? volume : 0;
         tickCtr = (tickCtr + 1) % 32768;
-//        if (tickCtr == 0) {
-//            System.out.println(volume + " " + getFrequency());
-//        }
         return new short[] {amplitude, amplitude};
     }
 

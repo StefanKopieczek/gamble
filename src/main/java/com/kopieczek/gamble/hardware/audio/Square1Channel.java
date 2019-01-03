@@ -8,7 +8,6 @@ public class Square1Channel extends SquareWaveChannel {
     public Square1Channel(Io io) {
         this.io = io;
     }
-    private boolean[] duty = {false, false, false, false, true, true, true, true};
 
     @Override
     protected int getFrequency() {
