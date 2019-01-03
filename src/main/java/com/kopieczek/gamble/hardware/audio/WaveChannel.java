@@ -15,9 +15,9 @@ public class WaveChannel extends AbstractChannel {
     public short getSample() {
         int stepLengthInTicks = getStepLengthInTicks();
         short samples[] = io.getWaveData();
-        int sampleOffset = stepLengthInTicks * samples.length;
-        int dutyOffset = (tickCtr % sampleOffset) / stepLengthInTicks;
-        short sample = (short)(samples[dutyOffset] * getVolume());
+        int waveformLength = stepLengthInTicks * samples.length;
+        int waveformOffset = (tickCtr % waveformLength) / stepLengthInTicks;
+        short sample = (short)(samples[waveformOffset] * getVolume());
         tickCtr = (tickCtr + 1) % 32768;
         return sample;
     }
@@ -40,6 +40,6 @@ public class WaveChannel extends AbstractChannel {
     }
 
     private short getVolume() {
-        return (short)(((float)io.getWaveVolumePercent() / 100) * Short.MAX_VALUE);
+        return (short)(((float)io.getWaveVolumePercent() / 1000) * Short.MAX_VALUE);
     }
 }
