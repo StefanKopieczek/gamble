@@ -37,7 +37,8 @@ public class Apu {
     private static List<Channel> buildStandardChannels(Io io) {
         return ImmutableList.of(
                 new Square1Channel(io),
-                new Square2Channel(io)
+                new Square2Channel(io),
+                new WaveChannel(io)
         );
     }
 }

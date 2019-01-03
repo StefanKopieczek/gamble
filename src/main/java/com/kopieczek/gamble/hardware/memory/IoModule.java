@@ -40,6 +40,8 @@ class IoModule extends RamModule implements Io {
     private static final int NR44_ADDR = 0x0023; // IC-- ---- (holds the Noise channel's Initialize and Continuous flags)
     private static final int NR51_ADDR = 0x0025; // dcba DCBA (channel L/R enable; lowercase=left, uppercase=right, a = channel_1, b = channel_2, ...)
     private static final int NR52_ADDR = 0x0026; // M--- 4321 (sound master enable, plus R/O flags indicating whether sound is currently playing on each channel)
+    private static final int WAVE_DATA_ADDR = 0x0030;
+    private static final int WAVE_DATA_SIZE_BYTES = 16;
     private static final int LCD_CONTROL_ADDR = 0x0040;
     private static final int LCD_STATUS_ADDR = 0x0041;
     private static final int SCROLL_Y_ADDR = 0x0042;
@@ -736,6 +738,18 @@ class IoModule extends RamModule implements Io {
     @Override
     public void setWavePlayingFlag(boolean isPlaying) {
         setIsPlayingFlag(3, isPlaying);
+    }
+
+    @Override
+    public short[] getWaveData() {
+        short[] data = new short[WAVE_DATA_SIZE_BYTES * 2];
+        for (int idx = 0; idx < WAVE_DATA_SIZE_BYTES; idx++) {
+            int samplePair = readByte(WAVE_DATA_ADDR + idx);
+            data[idx * 2] = (short)(samplePair >> 4);
+            data[idx * 2 + 1] = (short)(samplePair & 0x0f);
+        }
+
+        return data;
     }
 
     @Override

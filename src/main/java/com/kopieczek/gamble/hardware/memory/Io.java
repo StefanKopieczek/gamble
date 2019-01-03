@@ -88,6 +88,7 @@ public interface Io extends TimerRegisters {
     void setSquare2PlayingFlag(boolean isPlaying);
     void setWavePlayingFlag(boolean isPlaying);
     void setNoisePlayingFlag(boolean isPlaying);
+    short[] getWaveData();
 
     enum LcdControllerMode {
         HBLANK,
