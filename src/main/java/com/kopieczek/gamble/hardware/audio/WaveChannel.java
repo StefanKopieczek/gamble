@@ -17,7 +17,7 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
     @Override
     public short getSample() {
         short sample;
-        if (lengthCounter == 0 || io.isWaveContinuousModeEnabled()) {
+        if (io.isWaveDacEnabled() && (lengthCounter == 0 || io.isWaveContinuousModeEnabled())) {
             int stepLengthInTicks = getStepLengthInTicks();
             short samples[] = io.getWaveData();
             int waveformLength = stepLengthInTicks * samples.length;
