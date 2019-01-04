@@ -22,7 +22,6 @@ public class ScreenBuffer {
                 passive[rowIdx][colIdx] = Color.BLACK;
             }
         }
-        screen = scratch;
     }
 
     public Color[][] getScratch() {
