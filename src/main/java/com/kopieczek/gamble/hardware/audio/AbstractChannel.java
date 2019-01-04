@@ -5,7 +5,6 @@ import com.kopieczek.gamble.hardware.memory.Io;
 public abstract class AbstractChannel implements Channel {
     private final Io io;
 
-
     public AbstractChannel(Io io) {
         this.io = io;
     }

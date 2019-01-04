@@ -16,9 +16,9 @@ public class Square2Channel extends SquareWaveChannel {
     }
 
     @Override
-    protected int getFrequency() {
+    protected int getStepLengthInTicks() {
         int frequencyCounter = io.getSquare2FrequencyCounter();
-        return (int)((float)131072 / (2048 - frequencyCounter));
+        return 4 * (2048 - frequencyCounter);
     }
 
     @Override

@@ -37,18 +37,12 @@ abstract class SquareWaveChannel extends AbstractChannel{
         return sample;
     }
 
-    private int getStepLengthInTicks() {
-        int frequencyHz = getFrequency();
-        float frequencyInTicks = (float)frequencyHz / Apu.MASTER_FREQUENCY_HZ;
-        float stepFrequencyInTicks = frequencyInTicks * 8;
-        return (int)(1 / stepFrequencyInTicks);
-    }
 
     protected void updateLengthCounter(int newValue) {
         lengthCounter = newValue;
     }
 
-    protected abstract int getFrequency();
+    protected abstract int getStepLengthInTicks();
     protected abstract short getVolume();
     protected abstract boolean[] getDutyCycle();
     protected abstract boolean isContinuousModeEnabled();

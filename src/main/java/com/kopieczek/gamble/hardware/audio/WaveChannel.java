@@ -41,15 +41,8 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
     }
 
     private int getStepLengthInTicks() {
-        int frequencyHz = getFrequency();
-        float frequencyInTicks = (float)frequencyHz / Apu.MASTER_FREQUENCY_HZ;
-        float stepFrequencyInTicks = frequencyInTicks * 32;
-        return (int)(1 / stepFrequencyInTicks);
-    }
-
-    private int getFrequency() {
         int frequencyCounter = io.getWaveFrequencyCounter();
-        return 4194304 / (64 * (2048 - frequencyCounter));
+        return 2 * (2048 - frequencyCounter);
     }
 
     private short getVolume() {
