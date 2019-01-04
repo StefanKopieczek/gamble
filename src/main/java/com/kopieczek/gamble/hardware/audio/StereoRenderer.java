@@ -41,8 +41,9 @@ public class StereoRenderer implements Renderer {
 
     public StereoRenderer() {
         final float fudgeFactor = 0.85f; // Haven't worked out why I need this yet >_>
-        downsampler = new SimpleDecimator();
+        downsampler = new FilteringDecimator(ButterworthFilter.class);
         downsampler.setInputFrequency(Apu.MASTER_FREQUENCY_HZ);
+
         downsampler.setOutputFrequency((int)(SAMPLE_RATE * fudgeFactor));
     }
 
