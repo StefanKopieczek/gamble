@@ -1,5 +1,6 @@
 package com.kopieczek.gamble.hardware.audio;
 
+import com.kopieczek.gamble.hardware.governor.Governor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,8 +42,7 @@ public class StereoRenderer implements Renderer {
 
     public StereoRenderer() {
         downsampler = new FilteringDecimator(ButterworthFilter.class);
-        downsampler.setInputFrequency(Apu.MASTER_FREQUENCY_HZ);
-
+        downsampler.setInputFrequency(Governor.FREQUENCY_HZ);
         downsampler.setOutputFrequency(SAMPLE_RATE);
     }
 

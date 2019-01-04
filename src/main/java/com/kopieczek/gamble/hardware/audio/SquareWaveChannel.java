@@ -1,9 +1,10 @@
 package com.kopieczek.gamble.hardware.audio;
 
+import com.kopieczek.gamble.hardware.governor.Governor;
 import com.kopieczek.gamble.hardware.memory.Io;
 
 abstract class SquareWaveChannel extends AbstractChannel {
-    private static final int APU_TICKS_PER_COUNTER_TICK = Apu.MASTER_FREQUENCY_HZ / 256;
+    private static final int APU_TICKS_PER_COUNTER_TICK = Governor.FREQUENCY_HZ / 256;
     static final int VOLUME_MULTIPLIER = Short.MAX_VALUE / 15;
 
     private int lengthCounter;

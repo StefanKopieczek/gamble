@@ -6,13 +6,9 @@ import com.kopieczek.gamble.hardware.memory.Io;
 import java.util.List;
 
 public class Apu {
-    static final int MASTER_FREQUENCY_HZ = 2097152;
-    private static final int CPU_TICKS_PER_APU_TICK = 2;
-
     private final Io io;
     private final Renderer renderer;
     private final Mixer mixer;
-    private int leftoverTicks = 0;
 
     public Apu(Io io, Renderer renderer, List<Channel> channels) {
         this.io = io;
@@ -25,10 +21,7 @@ public class Apu {
     }
 
     public void stepAhead(int cycleDelta) {
-        cycleDelta += leftoverTicks;
-        int apuTicks = cycleDelta / CPU_TICKS_PER_APU_TICK;
-        leftoverTicks = cycleDelta % CPU_TICKS_PER_APU_TICK;
-        for (int tick = 0; tick < apuTicks; tick++) {
+        for (int tick = 0; tick < cycleDelta; tick++) {
             short[] sample = mixer.tick();
             renderer.render(sample);
         }

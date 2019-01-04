@@ -1,37 +1,49 @@
 package com.kopieczek.gamble.hardware.audio;
 
+import com.kopieczek.gamble.hardware.governor.Governor;
 import com.kopieczek.gamble.hardware.memory.Io;
 
 public class WaveChannel extends AbstractChannel implements WaveRegisterListener {
-    private static final int APU_TICKS_PER_COUNTER_TICK = Apu.MASTER_FREQUENCY_HZ / 256;
+    private static final int APU_TICKS_PER_COUNTER_TICK = Governor.FREQUENCY_HZ / 256;
 
     private final Io io;
-    private int tickCtr = 0;
     private int lengthCounter;
+    private int frequencyCounter;
+    private int frequencyDivider;
+    private int lengthDivider = APU_TICKS_PER_COUNTER_TICK;
+    private short lastValue;
+    private int sampleOffset = 0;
+    private short[] samples = new short[32];
 
     WaveChannel(Io io) {
         super(io);
         this.io = io;
+        io.register(this);
     }
 
     @Override
     public short getSample() {
-        short sample;
-        if (io.isWaveDacEnabled() && (lengthCounter == 0 || io.isWaveContinuousModeEnabled())) {
-            int stepLengthInTicks = getStepLengthInTicks();
-            short samples[] = io.getWaveData();
-            int waveformLength = stepLengthInTicks * samples.length;
-            int waveformOffset = (tickCtr % waveformLength) / stepLengthInTicks;
-            sample = (short) (samples[waveformOffset] * getVolume());
-        } else {
-            sample = 0;
+        boolean expired = (lengthCounter == 0 && !io.isWaveContinuousModeEnabled());
+        if (expired || !io.isWaveDacEnabled()) {
+            // Disabled - return zero energy
+            return 0;
         }
 
-        tickCtr = (tickCtr + 1) % 32768;
+        lengthDivider = (lengthDivider == 0) ? APU_TICKS_PER_COUNTER_TICK : lengthDivider - 1;
+        lengthCounter = (lengthDivider == 0) ? lengthCounter - 1 : lengthCounter;
+        frequencyDivider = (frequencyDivider == 0) ? frequencyCounter : frequencyDivider - 1;
 
-        if (lengthCounter > 0 && tickCtr % APU_TICKS_PER_COUNTER_TICK == 0) {
-            lengthCounter--;
+        if (frequencyDivider > 0) {
+            // Haven't moved on from previous sample yet - re-emit it
+            return lastValue;
         }
+
+        short volume = getVolume();
+        short datum = samples[sampleOffset];
+        short sample = (short)(datum * volume);
+
+        sampleOffset = (sampleOffset + 1) % 32;
+        lastValue = sample;
         return sample;
     }
 
@@ -46,7 +58,7 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
     }
 
     private short getVolume() {
-        return (short)(((float)io.getWaveVolumePercent() / 1000) * Short.MAX_VALUE);
+        return (short)(((float)io.getWaveVolumePercent() / 100) * Short.MAX_VALUE);
     }
 
     @Override
@@ -56,6 +68,8 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
 
     @Override
     public void onTrigger() {
-        // TODO
+        samples = io.getWaveData();
+        frequencyCounter = getStepLengthInTicks();
+        frequencyDivider = getStepLengthInTicks();
     }
 }

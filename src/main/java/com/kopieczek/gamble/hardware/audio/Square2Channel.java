@@ -39,7 +39,7 @@ public class Square2Channel extends SquareWaveChannel implements Square2Register
     @Override
     public void onTrigger() {
         int frequencyCounter = io.getSquare2FrequencyCounter();
-        int period = 2 * (2048 - frequencyCounter);
+        int period = 4 * (2048 - frequencyCounter);
         updateFrequencyCounter(period);
     }
 }

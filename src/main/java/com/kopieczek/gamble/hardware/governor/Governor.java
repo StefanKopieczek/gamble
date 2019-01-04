@@ -4,8 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class Governor {
+    public static final int FREQUENCY_HZ = 4194304;
     private static final Logger log = LogManager.getLogger(Governor.log);
-    private static final double FREQUENCY_KHZ = 4194.304;
     private static final int MAXIMUM_SKEW_PERMITTED_MS = 10;
     private static final float SPEED_MULTIPLIER = 1f;
     private long lastSnapshotTime = -1;
@@ -20,7 +20,7 @@ public class Governor {
         }
 
         cyclesSinceLastSnapshot += cycleDelta;
-        long timePeriodImpliedByCyclesMs = (long)(((double)cyclesSinceLastSnapshot) / (FREQUENCY_KHZ * SPEED_MULTIPLIER));
+        long timePeriodImpliedByCyclesMs = 1000 * (long)(((double)cyclesSinceLastSnapshot) / (FREQUENCY_HZ * SPEED_MULTIPLIER));
         long actualElapsedTimeMs = currentTime - lastSnapshotTime;
         long clockSkewMs = timePeriodImpliedByCyclesMs - actualElapsedTimeMs;
 

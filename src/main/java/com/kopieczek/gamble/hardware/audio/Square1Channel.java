@@ -39,6 +39,6 @@ public class Square1Channel extends SquareWaveChannel implements Square1Register
     @Override
     public void onTrigger() {
         int frequencyCounter = io.getSquare1FrequencyCounter();
-        updateFrequencyCounter(2 * (2048 - frequencyCounter));
+        updateFrequencyCounter(4 * (2048 - frequencyCounter));
     }
 }

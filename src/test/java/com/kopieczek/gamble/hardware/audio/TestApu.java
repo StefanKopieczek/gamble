@@ -1,7 +1,6 @@
 package com.kopieczek.gamble.hardware.audio;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.primitives.Shorts;
 import com.kopieczek.gamble.hardware.memory.Io;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +25,6 @@ public class TestApu {
         channels = makeDummyChannels();
     }
 
-
     @Test
     public void test_constructing_apu_does_not_tick_channels() {
         Apu apu = new Apu(io, renderer, channels);
@@ -44,54 +42,47 @@ public class TestApu {
     }
 
     @Test
-    public void test_two_apu_ticks_together_tick_channels_once() {
+    public void test_apu_tick_ticks_channels() {
+        Apu apu = new Apu(io, renderer, channels);
+        apu.stepAhead(1);
+        assertTotalTicks(1, channels);
+    }
+
+    @Test
+    public void test_two_apu_ticks_together_tick_channels_twice() {
         Apu apu = new Apu(io, renderer, channels);
         apu.stepAhead(2);
-        assertTotalTicks(1, channels);
+        assertTotalTicks(2, channels);
     }
 
     @Test
-    public void test_one_apu_tick_alone_does_not_tick_channels() {
-        Apu apu = new Apu(io, renderer, channels);
-        apu.stepAhead(1);
-        assertTotalTicks(0, channels);
-    }
-
-    @Test
-    public void test_two_successive_apu_ticks_tick_channels_once() {
+    public void test_two_successive_apu_ticks_tick_channels_twice() {
         Apu apu = new Apu(io, renderer, channels);
         apu.stepAhead(1);
         apu.stepAhead(1);
-        assertTotalTicks(1, channels);
+        assertTotalTicks(2, channels);
     }
 
     @Test
-    public void test_100_apu_ticks_together_tick_channels_50_times() {
+    public void test_100_apu_ticks_together_tick_channels_100_times() {
         Apu apu = new Apu(io, renderer, channels);
         apu.stepAhead(100);
-        assertTotalTicks(50, channels);
+        assertTotalTicks(100, channels);
     }
 
     @Test
-    public void test_101_apu_ticks_together_tick_channels_50_times() {
-        Apu apu = new Apu(io, renderer, channels);
-        apu.stepAhead(101);
-        assertTotalTicks(50, channels);
-    }
-
-    @Test
-    public void test_101_apu_ticks_followed_by_single_tick_ticks_channels_51_times() {
+    public void test_101_apu_ticks_followed_by_single_tick_ticks_channels_102_times() {
         Apu apu = new Apu(io, renderer, channels);
         apu.stepAhead(101);
         apu.stepAhead(1);
-        assertTotalTicks(51, channels);
+        assertTotalTicks(102, channels);
     }
 
     @Test
-    public void test_100_successive_apu_ticks_tick_channels_50_times() {
+    public void test_100_successive_apu_ticks_tick_channels_100_times() {
         Apu apu = new Apu(io, renderer, channels);
         IntStream.range(0, 100).forEach(idx -> apu.stepAhead(1));
-        assertTotalTicks(50, channels);
+        assertTotalTicks(100, channels);
     }
 
     @Test
