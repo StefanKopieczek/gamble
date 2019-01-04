@@ -7,4 +7,9 @@ public class Square1RegisterAdapter implements Square1RegisterListener {
     public void onLengthCounterUpdated(int newValue) {
         // Override me
     }
+
+    @Override
+    public void onTrigger() {
+        // Override me
+    }
 }

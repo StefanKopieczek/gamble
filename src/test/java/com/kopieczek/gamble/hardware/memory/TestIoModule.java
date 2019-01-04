@@ -1702,10 +1702,18 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_is_square_1_restarted() {
-        doRangedBitCheckTest(0xff14, 7, (mmu, bitIsHigh) -> {
-            assertEquals(bitIsHigh, mmu.getIo().isSquare1Restarted());
-        });
+    public void test_square_1_trigger() {
+        for (int val = 0; val <= 0xff; val++) {
+            AtomicBoolean triggered = new AtomicBoolean(false);
+            Mmu mmu = getTestMmu();
+            mmu.getIo().register(new Square1RegisterAdapter() {
+                public void onTrigger() {
+                    triggered.set(true);
+                }
+            });
+            mmu.setByte(0xff14, val);
+            assertEquals((val & 0x80) > 0, triggered.get());
+        }
     }
 
     @Test
@@ -2005,10 +2013,18 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_is_square_2_restarted() {
-        doRangedBitCheckTest(0xff19, 7, (mmu, bitIsHigh) -> {
-            assertEquals(bitIsHigh, mmu.getIo().isSquare2Restarted());
-        });
+    public void test_square_2_trigger() {
+        for (int val = 0; val <= 0xff; val++) {
+            AtomicBoolean triggered = new AtomicBoolean(false);
+            Mmu mmu = getTestMmu();
+            mmu.getIo().register(new Square2RegisterAdapter() {
+                public void onTrigger() {
+                    triggered.set(true);
+                }
+            });
+            mmu.setByte(0xff19, val);
+            assertEquals((val & 0x80) > 0, triggered.get());
+        }
     }
 
     @Test
@@ -2247,10 +2263,18 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_is_wave_restarted() {
-        doRangedBitCheckTest(0xff1e, 7, (mmu, bitIsHigh) -> {
-            assertEquals(bitIsHigh, mmu.getIo().isWaveRestarted());
-        });
+    public void test_wave_trigger() {
+        for (int val = 0; val <= 0xff; val++) {
+            AtomicBoolean triggered = new AtomicBoolean(false);
+            Mmu mmu = getTestMmu();
+            mmu.getIo().register(new WaveRegisterAdapter() {
+                public void onTrigger() {
+                    triggered.set(true);
+                }
+            });
+            mmu.setByte(0xff1e, val);
+            assertEquals((val & 0x80) > 0, triggered.get());
+        }
     }
 
     @Test
@@ -2575,10 +2599,18 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_is_noise_restarted() {
-        doRangedBitCheckTest(0xff23, 7, (mmu, bitIsHigh) -> {
-            assertEquals(bitIsHigh, mmu.getIo().isNoiseRestarted());
-        });
+    public void test_noise_trigger() {
+        for (int val = 0; val <= 0xff; val++) {
+            AtomicBoolean triggered = new AtomicBoolean(false);
+            Mmu mmu = getTestMmu();
+            mmu.getIo().register(new NoiseRegisterAdapter() {
+                public void onTrigger() {
+                    triggered.set(true);
+                }
+            });
+            mmu.setByte(0xff23, val);
+            assertEquals((val & 0x80) > 0, triggered.get());
+        }
     }
 
     @Test

@@ -113,9 +113,13 @@ class IoModule extends RamModule implements Io {
         addFilter(LCD_STATUS_ADDR, Filter.readOnlyFilter(this, LCD_STATUS_ADDR, 0b00000011));
         addTrigger(JOYPAD_ADDR, this::recalculateJoypadRegister);
         addTrigger(NR11_ADDR, this::fireSquare1DutyAndLengthChange);
+        addTrigger(NR14_ADDR, this::maybeFireSquare1Trigger);
         addTrigger(NR21_ADDR, this::fireSquare2DutyAndLengthChange);
+        addTrigger(NR24_ADDR, this::maybeFireSquare2Trigger);
         addTrigger(NR31_ADDR, this::fireWaveLengthChange);
+        addTrigger(NR34_ADDR, this::maybeFireWaveTrigger);
         addTrigger(NR41_ADDR, this::fireNoiseLengthChange);
+        addTrigger(NR44_ADDR, this::maybeFireNoiseTrigger);
         addTrigger(LCD_LY_COMPARE_ADDR, this::updateCoincidenceFlag);
         addTrigger(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag);
         addTrigger(LCD_CONTROL_ADDR, this::maybeFireSpriteHeightChange);
@@ -508,9 +512,14 @@ class IoModule extends RamModule implements Io {
         return (readByte(NR14_ADDR) & 0x40) == 0;
     }
 
-    @Override
-    public boolean isSquare1Restarted() {
+    private boolean isSquare1Restarted() {
         return (readByte(NR14_ADDR) & 0x80) > 0;
+    }
+
+    private void maybeFireSquare1Trigger() {
+        if (isSquare1Restarted()) {
+            square1Listeners.forEach(Square1RegisterListener::onTrigger);
+        }
     }
 
     @Override
@@ -578,9 +587,14 @@ class IoModule extends RamModule implements Io {
         return (readByte(NR24_ADDR) & 0x40) == 0;
     }
 
-    @Override
-    public boolean isSquare2Restarted() {
+    private boolean isSquare2Restarted() {
         return (readByte(NR24_ADDR) & 0x80) > 0;
+    }
+
+    private void maybeFireSquare2Trigger() {
+        if (isSquare2Restarted()) {
+            square2Listeners.forEach(Square2RegisterListener::onTrigger);
+        }
     }
 
     @Override
@@ -645,9 +659,14 @@ class IoModule extends RamModule implements Io {
         return (readByte(NR34_ADDR) & 0x40) == 0;
     }
 
-    @Override
-    public boolean isWaveRestarted() {
+    private boolean isWaveRestarted() {
         return (readByte(NR34_ADDR) & 0x80) > 0;
+    }
+
+    private void maybeFireWaveTrigger() {
+        if (isWaveRestarted()) {
+            waveListeners.forEach(WaveRegisterListener::onTrigger);
+        }
     }
 
     @Override
@@ -706,9 +725,14 @@ class IoModule extends RamModule implements Io {
         return (readByte(NR44_ADDR) & 0x40) == 0;
     }
 
-    @Override
     public boolean isNoiseRestarted() {
         return (readByte(NR44_ADDR) & 0x80) > 0;
+    }
+
+    private void maybeFireNoiseTrigger() {
+        if (isNoiseRestarted()) {
+            noiseListeners.forEach(NoiseRegisterListener::onTrigger);
+        }
     }
 
     @Override

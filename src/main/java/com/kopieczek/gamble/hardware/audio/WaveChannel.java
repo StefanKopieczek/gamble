@@ -53,4 +53,9 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
     public void onLengthCounterUpdated(int newValue) {
         lengthCounter = newValue;
     }
+
+    @Override
+    public void onTrigger() {
+        // TODO
+    }
 }

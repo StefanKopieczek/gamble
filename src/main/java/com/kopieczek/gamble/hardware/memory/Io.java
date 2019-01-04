@@ -48,7 +48,6 @@ public interface Io extends TimerRegisters {
     int getSquare1FrequencyCounter();
     void setSquare1FrequencyCounter(int newValue);
     boolean isSquare1ContinuousModeEnabled();
-    boolean isSquare1Restarted();
     void clearSquare1RestartFlag();
     boolean[] getSquare2DutyCycle();
     int getSquare2StartingVolume();
@@ -56,14 +55,12 @@ public interface Io extends TimerRegisters {
     int getSquare2EnvelopeStepLength();
     int getSquare2FrequencyCounter();
     boolean isSquare2ContinuousModeEnabled();
-    boolean isSquare2Restarted();
     void clearSquare2RestartFlag();
     void setSquare2FrequencyCounter(int newValue);
     boolean isWaveDacEnabled();
     int getWaveVolumePercent();
     int getWaveFrequencyCounter();
     boolean isWaveContinuousModeEnabled();
-    boolean isWaveRestarted();
     void clearWaveRestartFlag();
     void setWaveFrequencyCounter(int newFreq);
     int getNoiseStartingVolume();
@@ -73,7 +70,6 @@ public interface Io extends TimerRegisters {
     boolean isNoiseWideModeEnabled();
     float getNoiseFrequencyDivisor();
     boolean isNoiseContinuousModeEnabled();
-    boolean isNoiseRestarted();
     void clearNoiseRestartFlag();
     AudioOutputMode getSquare1OutputMode();
     AudioOutputMode getSquare2OutputMode();

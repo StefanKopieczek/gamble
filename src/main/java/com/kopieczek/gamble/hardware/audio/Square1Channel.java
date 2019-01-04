@@ -41,4 +41,9 @@ public class Square1Channel extends SquareWaveChannel implements Square1Register
     public void onLengthCounterUpdated(int newValue) {
         updateLengthCounter(newValue);
     }
+
+    @Override
+    public void onTrigger() {
+        // TODO
+    }
 }

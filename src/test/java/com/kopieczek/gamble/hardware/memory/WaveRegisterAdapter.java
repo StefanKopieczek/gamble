@@ -7,4 +7,9 @@ public class WaveRegisterAdapter implements WaveRegisterListener {
     public void onLengthCounterUpdated(int newValue) {
         // Override me
     }
+
+    @Override
+    public void onTrigger() {
+        // Override me
+    }
 }
