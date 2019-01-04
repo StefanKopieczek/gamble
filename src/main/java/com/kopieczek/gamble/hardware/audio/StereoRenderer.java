@@ -15,7 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class StereoRenderer implements Renderer {
     private static final Logger log = LogManager.getLogger(StereoRenderer.class);
-    private static final boolean DYNAMIC_FREQ_ADJUST_ENABLED = true;
+    private static final boolean DYNAMIC_FREQ_ADJUST_ENABLED = false;
     private static final int NUM_CHANNELS = 2;
     private static final int SAMPLE_WIDTH_BYTES = 2;
     private static final int FRAME_WIDTH_BYTES = NUM_CHANNELS * SAMPLE_WIDTH_BYTES;
@@ -40,11 +40,10 @@ public class StereoRenderer implements Renderer {
         false);
 
     public StereoRenderer() {
-        final float fudgeFactor = 0.85f; // Haven't worked out why I need this yet >_>
         downsampler = new FilteringDecimator(ButterworthFilter.class);
         downsampler.setInputFrequency(Apu.MASTER_FREQUENCY_HZ);
 
-        downsampler.setOutputFrequency((int)(SAMPLE_RATE * fudgeFactor));
+        downsampler.setOutputFrequency(SAMPLE_RATE);
     }
 
     public void init() throws LineUnavailableException {
