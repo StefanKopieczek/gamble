@@ -2,11 +2,16 @@ package com.kopieczek.gamble.hardware.audio;
 
 import com.kopieczek.gamble.hardware.memory.Io;
 
-abstract class SquareWaveChannel extends AbstractChannel{
+abstract class SquareWaveChannel extends AbstractChannel {
     private static final int APU_TICKS_PER_COUNTER_TICK = Apu.MASTER_FREQUENCY_HZ / 256;
+    static final int VOLUME_MULTIPLIER = Short.MAX_VALUE / 15;
 
-    private int tickCtr = 0;
     private int lengthCounter;
+    private int frequencyCounter;
+    private int frequencyDivider;
+    private int lengthDivider = APU_TICKS_PER_COUNTER_TICK;
+    private short lastValue;
+    private int dutyOffset = 0;
 
     SquareWaveChannel(Io io) {
         super(io);
@@ -14,26 +19,28 @@ abstract class SquareWaveChannel extends AbstractChannel{
 
     @Override
     public final short getSample() {
-        short sample;
-
-        if (lengthCounter > 0 || isContinuousModeEnabled()) {
-            int stepLengthInTicks = getStepLengthInTicks();
-            boolean duty[] = getDutyCycle();
-            short volume = getVolume();
-            int periodLength = stepLengthInTicks * duty.length;
-            int dutyOffset = (tickCtr % periodLength) / stepLengthInTicks;
-            boolean isHigh = duty[dutyOffset];
-            sample = isHigh ? volume : 0;
-        } else {
-            sample = 0;
+        boolean expired = (lengthCounter == 0 && !isContinuousModeEnabled());
+        if (expired) {
+            // Disabled - return zero energy
+            return 0;
         }
 
-        tickCtr = (tickCtr + 1) % 32768;
+        lengthDivider = (lengthDivider == 0) ? APU_TICKS_PER_COUNTER_TICK : lengthDivider - 1;
+        lengthCounter = (lengthDivider == 0) ? lengthCounter - 1 : lengthCounter;
+        frequencyDivider = (frequencyDivider == 0) ? frequencyCounter : frequencyDivider - 1;
 
-        if (lengthCounter > 0 && tickCtr % APU_TICKS_PER_COUNTER_TICK == 0) {
-            lengthCounter--;
+        if (frequencyDivider > 0) {
+            // Haven't moved on from previous sample yet - re-emit it
+            return lastValue;
         }
 
+        boolean duty[] = getDutyCycle();
+        short volume = getVolume();
+        boolean isHigh = duty[dutyOffset];
+        short sample = isHigh ? volume : 0;
+
+        dutyOffset = (dutyOffset + 1) % 8;
+        lastValue = sample;
         return sample;
     }
 
@@ -42,7 +49,11 @@ abstract class SquareWaveChannel extends AbstractChannel{
         lengthCounter = newValue;
     }
 
-    protected abstract int getStepLengthInTicks();
+    protected void updateFrequencyCounter(int frequencyCounter) {
+        this.frequencyCounter = frequencyCounter;
+        this.frequencyDivider = frequencyCounter;
+    }
+
     protected abstract short getVolume();
     protected abstract boolean[] getDutyCycle();
     protected abstract boolean isContinuousModeEnabled();

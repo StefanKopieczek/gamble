@@ -2,12 +2,13 @@ package com.kopieczek.gamble.hardware.audio;
 
 import com.kopieczek.gamble.hardware.memory.Io;
 
-public class Square2Channel extends SquareWaveChannel {
+public class Square2Channel extends SquareWaveChannel implements Square2RegisterListener {
     private final Io io;
 
     public Square2Channel(Io io) {
         super(io);
         this.io = io;
+        io.register(this);
     }
 
     @Override
@@ -16,14 +17,8 @@ public class Square2Channel extends SquareWaveChannel {
     }
 
     @Override
-    protected int getStepLengthInTicks() {
-        int frequencyCounter = io.getSquare2FrequencyCounter();
-        return 4 * (2048 - frequencyCounter);
-    }
-
-    @Override
     protected short getVolume() {
-        return (short)(io.getSquare2StartingVolume() << 12);
+        return (short)(io.getSquare2StartingVolume() * VOLUME_MULTIPLIER);
     }
 
     @Override
@@ -34,5 +29,17 @@ public class Square2Channel extends SquareWaveChannel {
     @Override
     protected boolean isContinuousModeEnabled() {
         return io.isSquare2ContinuousModeEnabled();
+    }
+
+    @Override
+    public void onLengthCounterUpdated(int newValue) {
+        updateLengthCounter(newValue);
+    }
+
+    @Override
+    public void onTrigger() {
+        int frequencyCounter = io.getSquare2FrequencyCounter();
+        int period = 2 * (2048 - frequencyCounter);
+        updateFrequencyCounter(period);
     }
 }

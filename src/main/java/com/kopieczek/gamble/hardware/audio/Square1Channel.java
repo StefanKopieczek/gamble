@@ -17,14 +17,8 @@ public class Square1Channel extends SquareWaveChannel implements Square1Register
     }
 
     @Override
-    protected int getStepLengthInTicks() {
-        int frequencyCounter = io.getSquare1FrequencyCounter();
-        return 4 * (2048 - frequencyCounter);
-    }
-
-    @Override
     protected short getVolume() {
-        return (short)(io.getSquare1StartingVolume() << 12);
+        return (short)(io.getSquare1StartingVolume() * VOLUME_MULTIPLIER);
     }
 
     @Override
@@ -44,6 +38,7 @@ public class Square1Channel extends SquareWaveChannel implements Square1Register
 
     @Override
     public void onTrigger() {
-        // TODO
+        int frequencyCounter = io.getSquare1FrequencyCounter();
+        updateFrequencyCounter(2 * (2048 - frequencyCounter));
     }
 }
