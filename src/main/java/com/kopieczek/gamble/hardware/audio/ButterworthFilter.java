@@ -24,6 +24,6 @@ public class ButterworthFilter implements Filter {
         yv[0] = yv[1];
         yv[1] = yv[2];
         yv[2] = (xv[0] + xv[2]) + 2 * xv[1] + (h0 * yv[0]) + (h1 * yv[1]);
-        return (short)(denormalize(yv[2]) * 1000);
+        return (short)(denormalize(yv[2]) * 100);
     }
 }
