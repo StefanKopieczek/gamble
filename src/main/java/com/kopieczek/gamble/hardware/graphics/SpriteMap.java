@@ -30,7 +30,9 @@ class SpriteMap implements SpriteChangeListener {
 
     // NB: The following fields are only guaranteed to be up to date when dirtyAttributes is empty.
     private final Multimap<Integer, Integer> patternToSpriteMap = ArrayListMultimap.create();
+    private final Multimap<Integer, Integer> spriteToPatternMap = ArrayListMultimap.create();
     private final Multimap<Integer, Integer> rowToSpriteMap = ArrayListMultimap.create();
+    private final Multimap<Integer, Integer> spriteToRowMap = ArrayListMultimap.create();
 
     private boolean useTallSprites = false;
     private Color[] palette0;
@@ -66,13 +68,14 @@ class SpriteMap implements SpriteChangeListener {
         allAttributes.clear();
         dirtyAttributes.clear();
         rowToSpriteMap.clear();
+        spriteToRowMap.clear();
         patternToSpriteMap.clear();
+        spriteToPatternMap.clear();
         IntStream.range(0, Oam.TOTAL_ATTRIBUTES).forEach(idx -> {
             int[] data = oam.getAttributeBytes(idx);
             SpriteAttributes attrs = SpriteAttributes.parse(idx, data);
             allAttributes.add(attrs);
-            getPatternsUsed(attrs).forEach(pattern -> patternToSpriteMap.put(pattern, idx));
-            getRowsUsed(attrs).forEach(row -> rowToSpriteMap.put(row, idx));
+            addMappingsForSprite(idx, attrs);
         });
     }
 
@@ -81,8 +84,7 @@ class SpriteMap implements SpriteChangeListener {
     }
 
     private void reloadAttributes(Set<Integer> attrsToReload) {
-        removeValues(rowToSpriteMap, attrsToReload);
-        removeValues(patternToSpriteMap, attrsToReload);
+        removeMappingsForSprites(attrsToReload);
 
         attrsToReload.forEach(spriteIndex -> {
             // Reload attributes
@@ -91,11 +93,36 @@ class SpriteMap implements SpriteChangeListener {
             allAttributes.set(spriteIndex, newAttrs);
 
             // Add new attribute-based mappings for the reloaded value.
-            getPatternsUsed(newAttrs).forEach(pattern -> patternToSpriteMap.put(pattern, spriteIndex));
-            getRowsUsed(newAttrs).forEach(row -> rowToSpriteMap.put(row, spriteIndex));
+            addMappingsForSprite(spriteIndex, newAttrs);
         });
         dirtyAttributes.removeAll(attrsToReload);
 
+    }
+
+    private void addMappingsForSprite(int spriteIdx, SpriteAttributes spriteAttrs) {
+        getPatternsUsed(spriteAttrs).forEach(pattern -> {
+            patternToSpriteMap.put(pattern, spriteIdx);
+            spriteToPatternMap.put(spriteIdx, pattern);
+        });
+        getRowsUsed(spriteAttrs).forEach(row -> {
+            rowToSpriteMap.put(row, spriteIdx);
+            spriteToRowMap.put(spriteIdx, row);
+        });
+    }
+
+    private void removeMappingsForSprites(Collection<Integer> sprites) {
+        sprites.forEach(spriteIdx -> {
+            Collection<Integer> patterns = spriteToPatternMap.get(spriteIdx);
+            Collection<Integer> rows = spriteToRowMap.get(spriteIdx);
+            patterns.forEach(pattern -> {
+                    patternToSpriteMap.remove(pattern, spriteIdx);
+            });
+            rows.forEach(row -> {
+                rowToSpriteMap.remove(row, spriteIdx);
+            });
+            spriteToPatternMap.removeAll(spriteIdx);
+            spriteToRowMap.removeAll(spriteIdx);
+        });
     }
 
     private void reloadAllPatterns() {
@@ -248,9 +275,5 @@ class SpriteMap implements SpriteChangeListener {
         palette0 = io.loadPalette0();
         palette1 = io.loadPalette1();
         IntStream.range(0, Vram.TOTAL_SPRITE_PATTERNS).forEach(dirtyPatterns::add);
-    }
-
-    private <K, V> void removeValues(Multimap<K, V> multimap, Set<V> toRemove) {
-        multimap.entries().removeIf(e -> toRemove.contains(e.getValue()));
     }
 }
