@@ -20,7 +20,7 @@ public class Governor {
         }
 
         cyclesSinceLastSnapshot += cycleDelta;
-        long timePeriodImpliedByCyclesMs = 1000 * (long)(((double)cyclesSinceLastSnapshot) / (FREQUENCY_HZ * SPEED_MULTIPLIER));
+        long timePeriodImpliedByCyclesMs = (long)(((double)cyclesSinceLastSnapshot * 1000) / (FREQUENCY_HZ * SPEED_MULTIPLIER));
         long actualElapsedTimeMs = currentTime - lastSnapshotTime;
         long clockSkewMs = timePeriodImpliedByCyclesMs - actualElapsedTimeMs;
 
