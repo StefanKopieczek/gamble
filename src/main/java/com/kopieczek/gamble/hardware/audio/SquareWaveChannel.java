@@ -13,6 +13,7 @@ abstract class SquareWaveChannel extends AbstractChannel {
     private int lengthDivider = APU_TICKS_PER_COUNTER_TICK;
     private short lastValue;
     private int dutyOffset = 0;
+    private boolean[] duty = new boolean[8];
 
     SquareWaveChannel(Io io) {
         super(io);
@@ -35,7 +36,6 @@ abstract class SquareWaveChannel extends AbstractChannel {
             return lastValue;
         }
 
-        boolean duty[] = getDutyCycle();
         short volume = getVolume();
         boolean isHigh = duty[dutyOffset];
         short sample = isHigh ? volume : 0;
@@ -55,7 +55,11 @@ abstract class SquareWaveChannel extends AbstractChannel {
         this.frequencyDivider = frequencyCounter;
     }
 
+    protected void updateDuty(boolean[] duty) {
+        this.duty = duty;
+        dutyOffset = 0;
+    }
+
     protected abstract short getVolume();
-    protected abstract boolean[] getDutyCycle();
     protected abstract boolean isContinuousModeEnabled();
 }

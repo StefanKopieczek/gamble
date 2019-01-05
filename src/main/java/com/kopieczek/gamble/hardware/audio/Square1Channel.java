@@ -22,11 +22,6 @@ public class Square1Channel extends SquareWaveChannel implements Square1Register
     }
 
     @Override
-    protected boolean[] getDutyCycle() {
-        return io.getSquare1DutyCycle();
-    }
-
-    @Override
     protected boolean isContinuousModeEnabled() {
         return io.isSquare1ContinuousModeEnabled();
     }
@@ -40,5 +35,6 @@ public class Square1Channel extends SquareWaveChannel implements Square1Register
     public void onTrigger() {
         int frequencyCounter = io.getSquare1FrequencyCounter();
         updateFrequencyCounter(4 * (2048 - frequencyCounter));
+        updateDuty(io.getSquare1DutyCycle());
     }
 }

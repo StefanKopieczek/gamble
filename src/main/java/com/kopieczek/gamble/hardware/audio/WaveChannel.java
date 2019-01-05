@@ -69,6 +69,7 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
     @Override
     public void onTrigger() {
         samples = io.getWaveData();
+        sampleOffset = 0;
         frequencyCounter = getStepLengthInTicks();
         frequencyDivider = getStepLengthInTicks();
     }
