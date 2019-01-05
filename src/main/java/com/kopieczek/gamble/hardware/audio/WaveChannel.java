@@ -58,7 +58,7 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
     }
 
     private short getVolume() {
-        return (short)(((float)io.getWaveVolumePercent() / 100) * Short.MAX_VALUE);
+        return (short)(Short.MAX_VALUE * ((double)io.getWaveVolumePercent() / 1500));
     }
 
     @Override
