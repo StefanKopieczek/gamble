@@ -16,13 +16,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class StereoRenderer implements Renderer {
     private static final Logger log = LogManager.getLogger(StereoRenderer.class);
-    private static final boolean DYNAMIC_FREQ_ADJUST_ENABLED = false;
     private static final int NUM_CHANNELS = 2;
     private static final int SAMPLE_WIDTH_BYTES = 2;
     private static final int FRAME_WIDTH_BYTES = NUM_CHANNELS * SAMPLE_WIDTH_BYTES;
     private static final int SAMPLE_RATE = 44000;
     private static final int BUFFER_SIZE = SAMPLE_RATE / 5;
     private static final float EXPECTED_BUFFERS_PER_SEC = SAMPLE_RATE / ((float)BUFFER_SIZE / FRAME_WIDTH_BYTES);
+    private static final int MAX_BUFFERS = (int)(EXPECTED_BUFFERS_PER_SEC * 1.5);
 
     private final Downsampler downsampler;
     private SourceDataLine lineOut;
@@ -88,6 +88,17 @@ public class StereoRenderer implements Renderer {
         public void run() {
             try {
                 while (true) {
+                    // Drop excess buffers if we have have a backlog
+                    int dropped = 0;
+                    while(buffers.size() > MAX_BUFFERS) {
+                        buffers.take();
+                        dropped += 1;
+                    }
+                    if (dropped > 0) {
+                        log.warn("Dropped {} buffers to reduce backlog", dropped);
+                    }
+
+                    // Take and render one buffer
                     byte[] buffer = buffers.take();
                     lineOut.write(buffer, 0, buffer.length);
                     processLatencyStats();
@@ -109,14 +120,6 @@ public class StereoRenderer implements Renderer {
                     log.warn("Audio buffer latency detected; avg wait is {}ms, max permissible is {}ms. Performance ratio: {}", avgWait, maxPermittedWait, performanceRatio);
                 } else {
                     log.debug("Current audio buffer performance ratio: {}", performanceRatio);
-                }
-
-                if (DYNAMIC_FREQ_ADJUST_ENABLED) {
-                    double nudge = (performanceRatio > 1) ? (0.02 * (1 - performanceRatio)) : (0.01 * (1 - performanceRatio));
-                    double freqRatio = 1 + nudge;
-                    int oldFreq = downsampler.getOutputFrequency();
-                    int newFreq = (int) (oldFreq * freqRatio);
-                    downsampler.setOutputFrequency(newFreq);
                 }
             }
 
