@@ -90,9 +90,11 @@ public class StereoRenderer implements Renderer {
                 while (true) {
                     // Drop excess buffers if we have have a backlog
                     int dropped = 0;
-                    while(buffers.size() > MAX_BUFFERS) {
-                        buffers.take();
-                        dropped += 1;
+                    if(buffers.size() > MAX_BUFFERS) {
+                        while(buffers.size() > MAX_BUFFERS / 2) {
+                            buffers.take();
+                            dropped += 1;
+                        }
                     }
                     if (dropped > 0) {
                         log.warn("Dropped {} buffers to reduce backlog", dropped);
