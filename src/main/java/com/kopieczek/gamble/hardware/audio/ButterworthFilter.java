@@ -6,6 +6,7 @@ public class ButterworthFilter implements Filter {
     private double[] yv = new double[3];
 
     // TODO derive these on the fly
+    // Currently using http://www-users.cs.york.ac.uk/~fisher/cgi-bin/mkfscript
     double gain = 1.161559968e+03;
     double h0 = -0.9187499897;
     double h1 = -0.9187499897;

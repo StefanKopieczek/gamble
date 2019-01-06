@@ -1,21 +1,19 @@
 package com.kopieczek.gamble.hardware.audio;
 
 public class SimpleDecimator implements Downsampler {
-    private int ctr;
+    private long ctr;
     private int inputHz = 1;
     private int outputHz = 1;
-    private int modulus;
+    private long lastRemainder = -1;
 
     @Override
     public void setInputFrequency(int inputHz) {
         this.inputHz = inputHz;
-        modulus = inputHz / outputHz;
     }
 
     @Override
     public void setOutputFrequency(int outputHz) {
         this.outputHz = outputHz;
-        modulus = inputHz / outputHz;
     }
 
     @Override
@@ -30,8 +28,14 @@ public class SimpleDecimator implements Downsampler {
 
     @Override
     public short[] accept(short[] sample) {
-        boolean shouldOutput = (ctr == 0);
-        ctr = (ctr + 1) % modulus;
-        return shouldOutput ? sample : null;
+        long remainder = (long)(ctr * ((double)outputHz / inputHz));
+        short[] output = null;
+        if (remainder != lastRemainder) {
+            output = sample;
+            lastRemainder = remainder;
+        }
+
+        ctr++;
+        return output;
     }
 }
