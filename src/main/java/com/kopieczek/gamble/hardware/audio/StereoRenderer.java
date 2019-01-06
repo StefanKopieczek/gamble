@@ -116,15 +116,11 @@ public class StereoRenderer implements Renderer {
                 float maxPermittedWait = 1000 / EXPECTED_BUFFERS_PER_SEC;
                 float performanceRatio = maxPermittedWait / avgWait;
 
-                if (performanceRatio < 0.95f) {
+                if (performanceRatio < 0.8f) {
                     log.warn("Audio buffer latency detected; avg wait is {}ms, max permissible is {}ms. Performance ratio: {}", avgWait, maxPermittedWait, performanceRatio);
                 } else {
                     log.debug("Current audio buffer performance ratio: {}", performanceRatio);
                 }
-            }
-
-            if (buffers.size() > 10) {
-                log.warn("Audio playback backlog of {} seconds ({} buffers)", buffers.size() / EXPECTED_BUFFERS_PER_SEC, buffers.size());
             }
         }
     }
