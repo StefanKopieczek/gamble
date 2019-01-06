@@ -13,7 +13,8 @@ abstract class SquareWaveChannel extends AbstractChannel {
     private int lengthDivider = APU_TICKS_PER_COUNTER_TICK;
     private short lastValue;
     private int dutyOffset = 0;
-    private boolean[] duty = new boolean[8];
+    private boolean[] duty;
+    private VolumeEnvelope volumeEnvelope;
 
     SquareWaveChannel(Io io) {
         super(io);
@@ -21,11 +22,16 @@ abstract class SquareWaveChannel extends AbstractChannel {
 
     @Override
     public final short getSample() {
+        boolean initialized = (duty != null);
         boolean expired = (lengthCounter == 0 && !isContinuousModeEnabled());
-        if (expired) {
+        if (!initialized || expired) {
             // Disabled - return zero energy
             return 0;
         }
+
+        int x = volumeEnvelope.tick();
+        short volume = (short)(VOLUME_MULTIPLIER * x);
+//        System.err.println(x + " " + volume);
 
         lengthDivider = (lengthDivider == 0) ? APU_TICKS_PER_COUNTER_TICK : lengthDivider - 1;
         lengthCounter = (lengthDivider == 0) ? lengthCounter - 1 : lengthCounter;
@@ -33,16 +39,15 @@ abstract class SquareWaveChannel extends AbstractChannel {
 
         if (frequencyDivider > 0) {
             // Haven't moved on from previous sample yet - re-emit it
-            return lastValue;
+            return (short)(lastValue * volume);
         }
 
-        short volume = getVolume();
         boolean isHigh = duty[dutyOffset];
-        short sample = isHigh ? volume : 0;
+        short sample = (short)(isHigh ? 1 : 0);
 
         dutyOffset = (dutyOffset + 1) % 8;
         lastValue = sample;
-        return sample;
+        return (short)(sample * volume);
     }
 
 
@@ -60,6 +65,9 @@ abstract class SquareWaveChannel extends AbstractChannel {
         dutyOffset = 0;
     }
 
-    protected abstract short getVolume();
+    protected void initVolumeEnvelope(int startingVolume, int period, int delta) {
+        volumeEnvelope = new VolumeEnvelope(period, startingVolume, delta);
+    }
+
     protected abstract boolean isContinuousModeEnabled();
 }

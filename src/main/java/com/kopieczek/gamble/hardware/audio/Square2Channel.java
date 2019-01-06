@@ -17,11 +17,6 @@ public class Square2Channel extends SquareWaveChannel implements Square2Register
     }
 
     @Override
-    protected short getVolume() {
-        return (short)(io.getSquare2StartingVolume() * VOLUME_MULTIPLIER);
-    }
-
-    @Override
     protected boolean isContinuousModeEnabled() {
         return io.isSquare2ContinuousModeEnabled();
     }
@@ -37,5 +32,6 @@ public class Square2Channel extends SquareWaveChannel implements Square2Register
         int period = 4 * (2048 - frequencyCounter);
         updateFrequencyCounter(period);
         updateDuty(io.getSquare2DutyCycle());
+        initVolumeEnvelope(io.getSquare2StartingVolume(), io.getSquare2EnvelopeStepLength(), io.getSquare2EnvelopeSign());
     }
 }
