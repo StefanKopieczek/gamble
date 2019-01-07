@@ -97,7 +97,7 @@ public class StereoRenderer implements Renderer {
                         }
                     }
                     if (dropped > 0) {
-                        log.warn("Dropped {} buffers to reduce backlog", dropped);
+                        log.debug("Dropped {} buffers to reduce backlog", dropped);
                     }
 
                     // Take and render one buffer
@@ -119,7 +119,7 @@ public class StereoRenderer implements Renderer {
                 float performanceRatio = maxPermittedWait / avgWait;
 
                 if (performanceRatio < 0.8f) {
-                    log.warn("Audio buffer latency detected; avg wait is {}ms, max permissible is {}ms. Performance ratio: {}", avgWait, maxPermittedWait, performanceRatio);
+                    log.debug("Audio buffer latency detected; avg wait is {}ms, max permissible is {}ms. Performance ratio: {}", avgWait, maxPermittedWait, performanceRatio);
                 } else {
                     log.debug("Current audio buffer performance ratio: {}", performanceRatio);
                 }
