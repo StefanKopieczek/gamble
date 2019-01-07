@@ -16,6 +16,12 @@ idea {
     }
 }
 
+task run (type: JavaExec) {
+    description = "Execute gamble"
+    main = "com.kopieczek.gamble.Gamble"
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '22.0'
     dependencies {
