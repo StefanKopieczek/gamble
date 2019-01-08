@@ -37,7 +37,7 @@ public class StereoRenderer implements Renderer {
         SAMPLE_WIDTH_BYTES * 8,
          NUM_CHANNELS,
         4,
-        16000,
+        SAMPLE_RATE,
         false);
 
     public StereoRenderer() {
