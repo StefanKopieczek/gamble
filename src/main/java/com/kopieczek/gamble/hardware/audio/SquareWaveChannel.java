@@ -8,7 +8,6 @@ abstract class SquareWaveChannel extends AbstractChannel {
     static final int VOLUME_MULTIPLIER = Short.MAX_VALUE / 15;
 
     private int lengthCounter;
-    private int frequencyCounter;
     private int frequencyDivider;
     private int lengthDivider = APU_TICKS_PER_COUNTER_TICK;
     private short lastValue;
@@ -31,11 +30,10 @@ abstract class SquareWaveChannel extends AbstractChannel {
 
         int x = volumeEnvelope.tick();
         short volume = (short)(VOLUME_MULTIPLIER * x);
-//        System.err.println(x + " " + volume);
 
         lengthDivider = (lengthDivider == 0) ? APU_TICKS_PER_COUNTER_TICK : lengthDivider - 1;
         lengthCounter = (lengthDivider == 0) ? lengthCounter - 1 : lengthCounter;
-        frequencyDivider = (frequencyDivider == 0) ? frequencyCounter : frequencyDivider - 1;
+        frequencyDivider = (frequencyDivider == 0) ? getTicksPerStep() : frequencyDivider - 1;
 
         if (frequencyDivider > 0) {
             // Haven't moved on from previous sample yet - re-emit it
@@ -55,11 +53,6 @@ abstract class SquareWaveChannel extends AbstractChannel {
         lengthCounter = newValue;
     }
 
-    protected void updateFrequencyCounter(int frequencyCounter) {
-        this.frequencyCounter = frequencyCounter;
-        this.frequencyDivider = frequencyCounter;
-    }
-
     protected void updateDuty(boolean[] duty) {
         this.duty = duty;
         dutyOffset = 0;
@@ -70,4 +63,6 @@ abstract class SquareWaveChannel extends AbstractChannel {
     }
 
     protected abstract boolean isContinuousModeEnabled();
+
+    protected abstract int getTicksPerStep();
 }

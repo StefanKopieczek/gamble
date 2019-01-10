@@ -23,8 +23,6 @@ public class Square1Channel extends SquareWaveChannel implements Square1Register
 
     @Override
     public void onTrigger() {
-        int frequencyCounter = io.getSquare1FrequencyCounter();
-        updateFrequencyCounter(4 * (2048 - frequencyCounter));
         updateDuty(io.getSquare1DutyCycle());
         initVolumeEnvelope(io.getSquare1StartingVolume(), io.getSquare1EnvelopeStepLength(), io.getSquare1EnvelopeSign());
     }
@@ -32,5 +30,10 @@ public class Square1Channel extends SquareWaveChannel implements Square1Register
     @Override
     public void onOutputModeChange(AudioOutputMode newOutputMode) {
         updateOutputMode(newOutputMode);
+    }
+
+    @Override
+    public int getTicksPerStep() {
+        return 4 * (2048 - io.getSquare1FrequencyCounter());
     }
 }

@@ -8,7 +8,6 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
 
     private final Io io;
     private int lengthCounter;
-    private int frequencyCounter;
     private int frequencyDivider;
     private int lengthDivider = APU_TICKS_PER_COUNTER_TICK;
     private short lastValue;
@@ -31,7 +30,7 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
 
         lengthDivider = (lengthDivider == 0) ? APU_TICKS_PER_COUNTER_TICK : lengthDivider - 1;
         lengthCounter = (lengthDivider == 0) ? lengthCounter - 1 : lengthCounter;
-        frequencyDivider = (frequencyDivider == 0) ? frequencyCounter : frequencyDivider - 1;
+        frequencyDivider = (frequencyDivider == 0) ? getStepLengthInTicks() : frequencyDivider - 1;
 
         if (frequencyDivider > 0) {
             // Haven't moved on from previous sample yet - re-emit it
@@ -65,8 +64,6 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
     public void onTrigger() {
         samples = io.getWaveData();
         sampleOffset = 0;
-        frequencyCounter = getStepLengthInTicks();
-        frequencyDivider = getStepLengthInTicks();
     }
 
     @Override
