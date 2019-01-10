@@ -8,12 +8,7 @@ public class Square1Channel extends SquareWaveChannel implements Square1Register
     public Square1Channel(Io io) {
         super(io);
         this.io = io;
-        io.register(this);
-    }
-
-    @Override
-    protected AudioOutputMode getOutputMode() {
-        return io.getSquare1OutputMode();
+        io.register((Square1RegisterListener)this);
     }
 
     @Override
@@ -32,5 +27,10 @@ public class Square1Channel extends SquareWaveChannel implements Square1Register
         updateFrequencyCounter(4 * (2048 - frequencyCounter));
         updateDuty(io.getSquare1DutyCycle());
         initVolumeEnvelope(io.getSquare1StartingVolume(), io.getSquare1EnvelopeStepLength(), io.getSquare1EnvelopeSign());
+    }
+
+    @Override
+    public void onOutputModeChange(AudioOutputMode newOutputMode) {
+        updateOutputMode(newOutputMode);
     }
 }

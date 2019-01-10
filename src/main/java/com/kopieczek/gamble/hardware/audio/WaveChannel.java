@@ -18,7 +18,7 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
     WaveChannel(Io io) {
         super(io);
         this.io = io;
-        io.register(this);
+        io.register((WaveRegisterListener)this);
     }
 
     @Override
@@ -47,11 +47,6 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
         return sample;
     }
 
-    @Override
-    protected AudioOutputMode getOutputMode() {
-        return io.getWaveOutputMode();
-    }
-
     private int getStepLengthInTicks() {
         int frequencyCounter = io.getWaveFrequencyCounter();
         return 2 * (2048 - frequencyCounter);
@@ -72,5 +67,10 @@ public class WaveChannel extends AbstractChannel implements WaveRegisterListener
         sampleOffset = 0;
         frequencyCounter = getStepLengthInTicks();
         frequencyDivider = getStepLengthInTicks();
+    }
+
+    @Override
+    public void onOutputModeChange(AudioOutputMode newOutputMode) {
+        updateOutputMode(newOutputMode);
     }
 }

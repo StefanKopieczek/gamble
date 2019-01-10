@@ -18,8 +18,8 @@ class Mixer implements Channel {
     public short[] tick() {
         int leftTotal = 0;
         int rightTotal = 0;
-        for (Channel channel : channels) {
-            short[] sample = channel.tick();
+        for (int chanIdx = 0; chanIdx < channels.size(); chanIdx++) {
+            short[] sample = channels.get(chanIdx).tick();
             leftTotal += sample[0];
             rightTotal += sample[1];
         }

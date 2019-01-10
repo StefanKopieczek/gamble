@@ -2,6 +2,7 @@ package com.kopieczek.gamble.hardware.memory;
 
 import com.google.common.collect.ImmutableMap;
 import com.kopieczek.gamble.hardware.audio.AudioOutputMode;
+import com.kopieczek.gamble.hardware.audio.MasterAudioListener;
 import com.kopieczek.gamble.hardware.cpu.Interrupt;
 import com.kopieczek.gamble.hardware.memory.cartridge.RamBackedTestCartridge;
 import org.junit.Test;
@@ -2619,262 +2620,548 @@ public class TestIoModule {
     }
 
     @Test
-    public void test_get_square_1_output_mode_returns_none_if_0xff25_is_0x00() {
+    public void test_square_1_output_mode_change_fires_with_none_if_0xff25_is_0x00() {
         Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x00);
-        assertEquals(AudioOutputMode.NONE, mmu.getIo().getSquare1OutputMode());
-    }
-
-    @Test
-    public void test_get_square_1_output_mode_returns_left_only_if_0xff25_is_0x10() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x10);
-        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getSquare1OutputMode());
-    }
-
-    @Test
-    public void test_get_square_1_output_mode_returns_right_only_if_0xff25_is_0x01() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x01);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getSquare1OutputMode());
-    }
-
-    @Test
-    public void test_get_square_1_output_mode_returns_right_only_if_0xff25_is_0xe1() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xe1);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getSquare1OutputMode());
-    }
-
-    @Test
-    public void test_get_square_1_output_mode_returns_right_only_if_0xff25_is_0x0f() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x0f);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getSquare1OutputMode());
-    }
-
-    @Test
-    public void test_get_square_1_output_mode_returns_right_only_if_0xff25_is_0xef() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xef);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getSquare1OutputMode());
-    }
-
-    @Test
-    public void test_get_square_1_output_mode_returns_left_only_if_0xff25_is_0xfe() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xfe);
-        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getSquare1OutputMode());
-    }
-
-    @Test
-    public void test_get_square_1_output_mode_returns_stereo_if_0xff25_is_0x11() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x11);
-        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getSquare1OutputMode());
-    }
-
-    @Test
-    public void test_get_square_1_output_mode_returns_stereo_if_0xff25_is_0xff() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xff);
-        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getSquare1OutputMode());
-    }
-
-    @Test
-    public void test_get_square_2_output_mode_returns_none_if_0xff25_is_0x00() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x00);
-        assertEquals(AudioOutputMode.NONE, mmu.getIo().getSquare2OutputMode());
-    }
-
-    @Test
-    public void test_get_square_2_output_mode_returns_left_only_if_0xff25_is_0x20() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x20);
-        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getSquare2OutputMode());
-    }
-
-    @Test
-    public void test_get_square_2_output_mode_returns_right_only_if_0xff25_is_0x02() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x02);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getSquare2OutputMode());
-    }
-
-    @Test
-    public void test_get_square_2_output_mode_returns_right_only_if_0xff25_is_0xd2() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xd2);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getSquare2OutputMode());
-    }
-
-    @Test
-    public void test_get_square_2_output_mode_returns_right_only_if_0xff25_is_0x0f() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x0f);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getSquare2OutputMode());
-    }
-
-    @Test
-    public void test_get_square_2_output_mode_returns_right_only_if_0xff25_is_0xdf() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xdf);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getSquare2OutputMode());
-    }
-
-    @Test
-    public void test_get_square_2_output_mode_returns_left_only_if_0xff25_is_0xfd() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xfd);
-        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getSquare2OutputMode());
-    }
-
-    @Test
-    public void test_get_square_2_output_mode_returns_stereo_if_0xff25_is_0x22() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x22);
-        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getSquare2OutputMode());
-    }
-
-    @Test
-    public void test_get_square_2_output_mode_returns_stereo_if_0xff25_is_0xff() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xff);
-        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getSquare2OutputMode());
-    }
-
-    @Test
-    public void test_get_wave_output_mode_returns_none_if_0xff25_is_0x00() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x00);
-        assertEquals(AudioOutputMode.NONE, mmu.getIo().getWaveOutputMode());
-    }
-
-    @Test
-    public void test_get_wave_output_mode_returns_left_only_if_0xff25_is_0x40() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x40);
-        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getWaveOutputMode());
-    }
-
-    @Test
-    public void test_get_wave_output_mode_returns_right_only_if_0xff25_is_0x04() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x04);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getWaveOutputMode());
-    }
-
-    @Test
-    public void test_get_wave_output_mode_returns_right_only_if_0xff25_is_0xb1() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xb4);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getWaveOutputMode());
-    }
-
-    @Test
-    public void test_get_wave_output_mode_returns_right_only_if_0xff25_is_0x0f() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x0f);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getWaveOutputMode());
-    }
-
-    @Test
-    public void test_get_wave_output_mode_returns_right_only_if_0xff25_is_0xbf() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xbf);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getWaveOutputMode());
-    }
-
-    @Test
-    public void test_get_wave_output_mode_returns_left_only_if_0xff25_is_0xfb() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xfb);
-        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getWaveOutputMode());
-    }
-
-    @Test
-    public void test_get_wave_output_mode_returns_stereo_if_0xff25_is_0x44() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x44);
-        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getWaveOutputMode());
-    }
-
-    @Test
-    public void test_get_wave_output_mode_returns_stereo_if_0xff25_is_0xff() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xff);
-        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getWaveOutputMode());
-    }
-
-    @Test
-    public void test_get_noise_output_mode_returns_none_if_0xff25_is_0x00() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x00);
-        assertEquals(AudioOutputMode.NONE, mmu.getIo().getNoiseOutputMode());
-    }
-
-    @Test
-    public void test_get_noise_output_mode_returns_left_only_if_0xff25_is_0x80() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x80);
-        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getNoiseOutputMode());
-    }
-
-    @Test
-    public void test_get_noise_output_mode_returns_right_only_if_0xff25_is_0x08() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x08);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getNoiseOutputMode());
-    }
-
-    @Test
-    public void test_get_noise_output_mode_returns_right_only_if_0xff25_is_0x71() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x78);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getNoiseOutputMode());
-    }
-
-    @Test
-    public void test_get_noise_output_mode_returns_right_only_if_0xff25_is_0x0f() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x0f);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getNoiseOutputMode());
-    }
-
-    @Test
-    public void test_get_noise_output_mode_returns_right_only_if_0xff25_is_0x7f() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x7f);
-        assertEquals(AudioOutputMode.RIGHT_ONLY, mmu.getIo().getNoiseOutputMode());
-    }
-
-    @Test
-    public void test_get_noise_output_mode_returns_left_only_if_0xff25_is_0xf7() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xf7);
-        assertEquals(AudioOutputMode.LEFT_ONLY, mmu.getIo().getNoiseOutputMode());
-    }
-
-    @Test
-    public void test_get_noise_output_mode_returns_stereo_if_0xff25_is_0x88() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0x88);
-        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getNoiseOutputMode());
-    }
-
-    @Test
-    public void test_get_noise_output_mode_returns_stereo_if_0xff25_is_0xff() {
-        Mmu mmu = getTestMmu();
-        mmu.setByte(0xff25, 0xff);
-        assertEquals(AudioOutputMode.STEREO, mmu.getIo().getNoiseOutputMode());
-    }
-
-    @Test
-    public void test_master_sound_enable() {
-        doRangedBitCheckTest(0xff26, 7, (mmu, isBitHigh) -> {
-            assertEquals(isBitHigh, mmu.getIo().isAudioOutputEnabled());
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.NONE, newMode);
+                listenerFired.set(true);
+            }
         });
+        mmu.setByte(0xff25, 0x00);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_1_output_mode_change_fires_with_left_only_if_0xff25_is_0x10() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.LEFT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x10);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_1_output_mode_change_fires_with_right_only_if_0xff25_is_0x01() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x01);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_1_output_mode_change_fires_with_right_only_if_0xff25_is_0xe1() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xe1);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_1_output_mode_change_fires_with_right_only_if_0xff25_is_0x0f() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x0f);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_1_output_mode_change_fires_with_right_only_if_0xff25_is_0xef() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xef);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_1_output_mode_change_fires_with_left_only_if_0xff25_is_0xfe() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.LEFT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xfe);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_1_output_mode_change_fires_with_stereo_if_0xff25_is_0x11() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.STEREO, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x11);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_1_output_mode_change_fires_with_stereo_if_0xff25_is_0xff() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square1RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.STEREO, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xff);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_2_output_mode_change_fires_with_none_if_0xff25_is_0x00() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.NONE, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x00);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_2_output_mode_change_fires_with_right_only_if_0xff25_is_0x02() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x02);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_2_output_mode_change_fires_with_right_only_if_0xff25_is_0xd2() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xd2);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_2_output_mode_change_fires_with_right_only_if_0xff25_is_0x0f() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x0f);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_2_output_mode_change_fires_with_right_only_if_0xff25_is_0xdf() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xdf);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_2_output_mode_change_fires_with_left_only_if_0xff25_is_0xfd() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.LEFT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xfd);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_2_output_mode_change_fires_with_stereo_if_0xff25_is_0x22() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.STEREO, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x22);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_square_2_output_mode_change_fires_with_stereo_if_0xff25_is_0xff() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new Square2RegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.STEREO, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xff);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_wave_output_mode_change_fires_with_none_if_0xff25_is_0x00() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.NONE, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x00);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_wave_output_mode_change_fires_with_left_only_if_0xff25_is_0x40() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.LEFT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x40);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_wave_output_mode_change_fires_with_right_only_if_0xff25_is_0x04() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x04);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_wave_output_mode_change_fires_with_right_only_if_0xff25_is_0xb4() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xb4);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_wave_output_mode_change_fires_with_right_only_if_0xff25_is_0x0f() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x0f);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_wave_output_mode_change_fires_with_right_only_if_0xff25_is_0xbf() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xbf);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_wave_output_mode_change_fires_with_left_only_if_0xff25_is_0xfb() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.LEFT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xfb);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_wave_output_mode_change_fires_with_stereo_only_if_0xff25_is_0x44() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.STEREO, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x44);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_wave_output_mode_change_fires_with_stereo_if_0xff25_is_0xfb() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new WaveRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.STEREO, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xff);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_noise_output_mode_change_fires_with_none_if_0xff25_is_0x00() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.NONE, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x00);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_noise_output_mode_change_fires_with_left_only_if_0xff25_is_0x80() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.LEFT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x80);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_noise_output_mode_change_fires_with_right_only_if_0xff25_is_0x08() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x08);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_noise_output_mode_change_fires_with_right_only_if_0xff25_is_0x78() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x78);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_noise_output_mode_change_fires_with_right_only_if_0xff25_is_0x0f() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x0f);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_noise_output_mode_change_fires_with_right_only_if_0xff25_is_0x7f() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.RIGHT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x7f);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_noise_output_mode_change_fires_with_left_only_if_0xff25_is_0xf7() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.LEFT_ONLY, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xf7);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_noise_output_mode_change_fires_with_stereo_if_0xff25_is_0x88() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.STEREO, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0x88);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_noise_output_mode_change_fires_with_stereo_if_0xff25_is_0xff() {
+        Mmu mmu = getTestMmu();
+        AtomicBoolean listenerFired = new AtomicBoolean(false);
+        mmu.getIo().register(new NoiseRegisterAdapter() {
+            @Override
+            public void onOutputModeChange(AudioOutputMode newMode) {
+                assertEquals(AudioOutputMode.STEREO, newMode);
+                listenerFired.set(true);
+            }
+        });
+        mmu.setByte(0xff25, 0xff);
+        assertTrue("Listener should have fired", listenerFired.get());
+    }
+
+    @Test
+    public void test_master_sound_enable_listener() {
+        for (int val = 0x00; val <= 0xff; val++) {
+            Mmu mmu = getTestMmu();
+            boolean expectedEnabled = (val & 0x80) > 0;
+            AtomicBoolean wasListenerFired = new AtomicBoolean(false);
+            MasterAudioListener listener = new MasterAudioListener() {
+                @Override
+                public void onAudioEnableChanged(boolean newValue) {
+                     wasListenerFired.set(true);
+                     assertEquals(expectedEnabled, newValue);
+                }
+            };
+
+            mmu.getIo().register(listener);
+            mmu.setByte(0xff26, val);
+            assertTrue("Listener should have fired", wasListenerFired.get());
+        }
     }
 
     @Test

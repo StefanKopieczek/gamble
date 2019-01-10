@@ -90,6 +90,7 @@ class IoModule extends RamModule implements Io {
 
     private final boolean[] buttonStates = new boolean[Button.values().length];
     private final java.util.List<SpriteChangeListener> spriteListeners = new ArrayList<>();
+    private final java.util.List<MasterAudioListener> masterAudioListeners = new ArrayList<>();
     private final java.util.List<Square1RegisterListener> square1Listeners = new ArrayList<>();
     private final java.util.List<Square2RegisterListener> square2Listeners = new ArrayList<>();
     private final java.util.List<WaveRegisterListener> waveListeners = new ArrayList<>();
@@ -120,6 +121,8 @@ class IoModule extends RamModule implements Io {
         addTrigger(NR34_ADDR, this::maybeFireWaveTrigger);
         addTrigger(NR41_ADDR, this::fireNoiseLengthChange);
         addTrigger(NR44_ADDR, this::maybeFireNoiseTrigger);
+        addTrigger(NR51_ADDR, this::fireOutputModeChanges);
+        addTrigger(NR52_ADDR, this::fireAudioEnableChanged);
         addTrigger(LCD_LY_COMPARE_ADDR, this::updateCoincidenceFlag);
         addTrigger(LCD_CURRENT_LINE_ADDR, this::updateCoincidenceFlag);
         addTrigger(LCD_CONTROL_ADDR, this::maybeFireSpriteHeightChange);
@@ -742,26 +745,6 @@ class IoModule extends RamModule implements Io {
         setByte(NR44_ADDR, newValue);
     }
 
-    @Override
-    public AudioOutputMode getSquare1OutputMode() {
-        return getAudioOutputMode(1);
-    }
-
-    @Override
-    public AudioOutputMode getSquare2OutputMode() {
-        return getAudioOutputMode(2);
-    }
-
-    @Override
-    public AudioOutputMode getWaveOutputMode() {
-        return getAudioOutputMode(3);
-    }
-
-    @Override
-    public AudioOutputMode getNoiseOutputMode() {
-        return getAudioOutputMode(4);
-    }
-
     private AudioOutputMode getAudioOutputMode(int channel) {
         int controlByte = readByte(NR51_ADDR);
 
@@ -786,8 +769,24 @@ class IoModule extends RamModule implements Io {
     }
 
     @Override
-    public boolean isAudioOutputEnabled() {
-        return (readByte(NR52_ADDR) & 0x80) > 0;
+    public void register(MasterAudioListener listener) {
+        masterAudioListeners.add(listener);
+    }
+
+    private void fireOutputModeChanges() {
+        final AudioOutputMode square1OutputMode = getAudioOutputMode(1);
+        final AudioOutputMode square2OutputMode = getAudioOutputMode(2);
+        final AudioOutputMode waveOutputMode = getAudioOutputMode(3);
+        final AudioOutputMode noiseOutputMode = getAudioOutputMode(4);
+        square1Listeners.forEach(listener -> listener.onOutputModeChange(square1OutputMode));
+        square2Listeners.forEach(listener -> listener.onOutputModeChange(square2OutputMode));
+        waveListeners.forEach(listener -> listener.onOutputModeChange(waveOutputMode));
+        noiseListeners.forEach(listener -> listener.onOutputModeChange(noiseOutputMode));
+    }
+
+    private void fireAudioEnableChanged() {
+        final boolean isAudioEnabled = (readByte(NR52_ADDR) & 0x80) > 0;
+        masterAudioListeners.forEach(listener -> listener.onAudioEnableChanged(isAudioEnabled));
     }
 
     @Override

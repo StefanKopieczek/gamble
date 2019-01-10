@@ -71,11 +71,7 @@ public interface Io extends TimerRegisters {
     float getNoiseFrequencyDivisor();
     boolean isNoiseContinuousModeEnabled();
     void clearNoiseRestartFlag();
-    AudioOutputMode getSquare1OutputMode();
-    AudioOutputMode getSquare2OutputMode();
-    AudioOutputMode getWaveOutputMode();
-    AudioOutputMode getNoiseOutputMode();
-    boolean isAudioOutputEnabled();
+    void register(MasterAudioListener listener);
     void setSquare1PlayingFlag(boolean isPlaying);
     void setSquare2PlayingFlag(boolean isPlaying);
     void setWavePlayingFlag(boolean isPlaying);
