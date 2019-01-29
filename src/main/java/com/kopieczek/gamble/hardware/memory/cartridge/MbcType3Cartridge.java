@@ -6,6 +6,7 @@ import com.kopieczek.gamble.hardware.memory.RamModule;
 
 public class MbcType3Cartridge extends GameCartridge {
     private BankedRom romBank;
+    private BankedRam ramBank;
 
     public MbcType3Cartridge(int[] data) {
         super(data);
@@ -21,7 +22,9 @@ public class MbcType3Cartridge extends GameCartridge {
 
             @Override
             protected void setByteDirect(int address, int value) {
-                if (address >= 0x2000) {
+                if (address == 0x0000) {
+                    ramBank.setEnabled(value > 0);
+                } else if (address >= 0x2000) {
                     value &= 0x7f;
                     value = (value == 0x00) ? 0x01 : value; // Requests for bank 0 must yield bank 1
                     romBank.switchBank(value);
@@ -38,7 +41,8 @@ public class MbcType3Cartridge extends GameCartridge {
 
     @Override
     protected MemoryModule buildRam(int[] data) {
-        return new RamModule(Mmu.RAM_SIZE);
+        ramBank = new BankedRam();
+        return ramBank;
     }
 
     private class BankedRom extends MemoryModule {
@@ -61,6 +65,34 @@ public class MbcType3Cartridge extends GameCartridge {
 
         private void switchBank(int bank) {
             this.bank = bank;
+        }
+    }
+
+    private class BankedRam extends RamModule {
+        private boolean isEnabled = true;
+
+        private BankedRam() {
+            super(Mmu.EXT_RAM_SIZE);
+        }
+
+        public void setEnabled(boolean isEnabled) {
+            this.isEnabled = isEnabled;
+        }
+
+        @Override
+        public void setByte(int address, int value) {
+            if (isEnabled) {
+                super.setByte(address, value);
+            }
+        }
+
+        @Override
+        public int readByte(int address) {
+            if (isEnabled) {
+                return super.readByte(address);
+            } else {
+                return 0xff;
+            }
         }
     }
 }

@@ -245,8 +245,63 @@ public class TestMbcType3Cartridge {
         assertEquals(datum, mmu.readByte(addr));
     }
 
+    @Test
+    public void test_ram_0_is_writeable_when_enabled() {
+        MbcType3Cartridge cartridge = buildTestCartridge(cartridge1);
+        Mmu mmu = getMmuForCartridge(cartridge);
+        mmu.setByte(0x0000, 0xa0); // Enable RAM
+        mmu.setByte(0x4000, 0x00); // Select RAM bank 0
+        for (int addr = 0xa000; addr < 0xc000; addr++) {
+            mmu.setByte(addr, addr % 256);
+        }
+        for (int addr = 0xa000; addr < 0xc000; addr++) {
+            int datum = mmu.readByte(addr);
+            int expected = addr % 256;
+            assertEquals("Unexpected byte at addr 0x" + Integer.toHexString(addr), expected, datum);
+        }
+    }
+
+    @Test
+    public void test_ram_0_can_be_overwritten() {
+        MbcType3Cartridge cartridge = buildTestCartridge(cartridge1);
+        Mmu mmu = getMmuForCartridge(cartridge);
+        mmu.setByte(0x0000, 0xa0); // Enable RAM
+        mmu.setByte(0x4000, 0x00); // Select RAM bank 0
+        randomize(cartridge.getRam());
+        long initialSig = getDigest(cartridge.getRam());
+        randomize(cartridge.getRam());
+        long newSig = getDigest(cartridge.getRam());
+        assertNotEquals("RAM contents should have been modified", initialSig, newSig);
+    }
+
+    @Test
+    public void test_ram_0_cannot_be_written_to_when_disabled() {
+        MbcType3Cartridge cartridge = buildTestCartridge(cartridge1);
+        Mmu mmu = getMmuForCartridge(cartridge);
+        mmu.setByte(0x0000, 0xa0); // Initially enable RAM
+        mmu.setByte(0x4000, 0x00); // Select RAM bank 0
+        randomize(cartridge.getRam());
+        long initialSig = getDigest(cartridge.getRam());
+        mmu.setByte(0x0000, 0x00); // Disable RAM
+        randomize(cartridge.getRam()); // This should have no effect
+        mmu.setByte(0x0000, 0xa0); // Re-enable RAM so it can be read
+        long newSig = getDigest(cartridge.getRam());
+        assertEquals("RAM contents should have been unchanged by second write", initialSig, newSig);
+    }
+
+    @Test
+    public void test_ram_reads_return_0xff_when_disabled() {
+        MbcType3Cartridge cartridge = buildTestCartridge(cartridge1);
+        Mmu mmu = getMmuForCartridge(cartridge);
+        mmu.setByte(0x0000, 0x00); // Disable RAM
+        mmu.setByte(0x4000, 0x00); // Select RAM bank 0 (though this doesn't really matter)
+        for (int addr = 0xa000; addr < 0xc000; addr++) {
+            assertEquals(0xff, mmu.readByte(addr));
+        }
+    }
+
     private static int[] buildTestData(Random random) {
-        return IntStream.range(0, CARTRIDGE_SIZE).map(idx -> random.nextInt()).toArray();
+        return IntStream.range(0, CARTRIDGE_SIZE).map(idx -> random.nextInt(256)).toArray();
     }
 
     private static MbcType3Cartridge buildTestCartridge(int[] data) {
@@ -269,5 +324,13 @@ public class TestMbcType3Cartridge {
             bytes[idx] = memory.readByte(idx);
         }
         return bytes;
+    }
+
+    private void randomize(MemoryModule module) {
+        // Note - this randomization uses the seeded randomizer at this.random,
+        // so results will be consistent between tests.
+        for (int addr = 0x0000; addr < module.getSizeInBytes(); addr++) {
+            module.setByte(addr, random.nextInt(256));
+        }
     }
 }
