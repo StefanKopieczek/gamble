@@ -15,8 +15,8 @@ public class MbcType3Cartridge extends GameCartridge {
     protected MemoryModule buildRom0(int[] data) {
         return new MemoryModule(Mmu.ROM_0_SIZE) {
             @Override
-            public int readByte(int address) {
-                return 0;
+            public int readByte(int address){
+                return data[address];
             }
 
             @Override

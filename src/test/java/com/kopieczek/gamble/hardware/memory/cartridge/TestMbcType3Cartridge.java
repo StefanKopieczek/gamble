@@ -203,6 +203,28 @@ public class TestMbcType3Cartridge {
         assertEquals("ROM bank should not have changed", currentRom, getDigest(cartridge.getRom1()));
     }
 
+    @Test
+    public void test_rom_0_is_the_first_0x4000_bytes_of_the_cartridge() {
+        MbcType3Cartridge cartridge = buildTestCartridge(cartridge1);
+        int[] expected = Arrays.copyOfRange(cartridge1, 0x0000, 0x4000);
+        assertArrayEquals(expected, getBytes(cartridge.getRom0()));
+    }
+
+    @Test
+    public void test_rom_0_never_banks() {
+        MbcType3Cartridge cartridge = buildTestCartridge(cartridge1);
+        Mmu mmu = getMmuForCartridge(cartridge);
+        int[] expected = Arrays.copyOfRange(cartridge1, 0x0000, 0x4000);
+        for (int addr = 0x0000; addr <= 0xffff; addr++) {
+            mmu.setByte(addr, 0x00);
+            assertArrayEquals(expected, getBytes(cartridge.getRom0()));
+            mmu.setByte(addr, 0x46);
+            assertArrayEquals(expected, getBytes(cartridge.getRom0()));
+            mmu.setByte(addr, 0xff);
+            assertArrayEquals(expected, getBytes(cartridge.getRom0()));
+        }
+    }
+
     private static int[] buildTestData(Random random) {
         return IntStream.range(0, CARTRIDGE_SIZE).map(idx -> random.nextInt()).toArray();
     }
