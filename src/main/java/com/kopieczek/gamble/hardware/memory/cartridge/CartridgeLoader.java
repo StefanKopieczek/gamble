@@ -49,7 +49,7 @@ public class CartridgeLoader {
             case 17: // MBC type 3
             case 18: // MBC type 3 + RAM
             case 19: // MBC type 3 + RAM + battery
-                unsupportedCartridge("MBC type 3");
+                return new MbcType3Cartridge(data);
             // ------- Types 20-24 do not exist
             case 25: // MBC type 5
             case 26: // + RAM
