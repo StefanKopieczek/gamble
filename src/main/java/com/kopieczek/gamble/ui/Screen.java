@@ -9,7 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Screen extends JPanel implements ActionListener {
-    private Timer repaintTimer = new Timer(17, this);
+    private static final float REDRAW_HZ = 20;
+    private static final int REDRAW_DELAY = (int)(1000 / REDRAW_HZ);
+    private Timer repaintTimer = new Timer(REDRAW_DELAY, this);
     private final float DEFAULT_SCREEN_SCALE = 2;
     private final ScreenBuffer screenBuffer;
 
