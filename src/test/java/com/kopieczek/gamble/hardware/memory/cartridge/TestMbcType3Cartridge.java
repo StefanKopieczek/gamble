@@ -225,6 +225,26 @@ public class TestMbcType3Cartridge {
         }
     }
 
+    @Test
+    public void test_rom_0_is_not_writeable() {
+        final int addr = 0x1234;
+        MbcType3Cartridge cartridge = buildTestCartridge(cartridge1);
+        Mmu mmu = getMmuForCartridge(cartridge);
+        int datum = mmu.readByte(addr);
+        mmu.setByte(addr, (datum + 1) % 256);
+        assertEquals(datum, mmu.readByte(addr));
+    }
+
+    @Test
+    public void test_rom_1_is_not_writeable() {
+        final int addr = 0x4567;
+        MbcType3Cartridge cartridge = buildTestCartridge(cartridge1);
+        Mmu mmu = getMmuForCartridge(cartridge);
+        int datum = mmu.readByte(addr);
+        mmu.setByte(addr, (datum + 1) % 256);
+        assertEquals(datum, mmu.readByte(addr));
+    }
+
     private static int[] buildTestData(Random random) {
         return IntStream.range(0, CARTRIDGE_SIZE).map(idx -> random.nextInt()).toArray();
     }
