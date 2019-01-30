@@ -22,7 +22,7 @@ public class StereoRenderer implements Renderer {
     private static final int SAMPLE_RATE = 44000;
     private static final int BUFFER_SIZE = SAMPLE_RATE / 5;
     private static final float EXPECTED_BUFFERS_PER_SEC = SAMPLE_RATE / ((float)BUFFER_SIZE / FRAME_WIDTH_BYTES);
-    private static final int MAX_BUFFERS = (int)(EXPECTED_BUFFERS_PER_SEC * 1.5);
+    private static final int MAX_BUFFERS = (int)(EXPECTED_BUFFERS_PER_SEC * 0.5);
 
     private final Downsampler downsampler;
     private SourceDataLine lineOut;
