@@ -68,7 +68,6 @@ public class Gamble {
             }
             apu.stepAhead(cycleDelta);
             timer.tick(cycleDelta);
-            governor.sleepIfNeeded(cycleDelta);
         }
     }
 

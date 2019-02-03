@@ -16,18 +16,19 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class StereoRenderer implements Renderer {
     private static final Logger log = LogManager.getLogger(StereoRenderer.class);
+    private static final boolean USE_BLOCKING_AUDIO = true;
     private static final int NUM_CHANNELS = 2;
     private static final int SAMPLE_WIDTH_BYTES = 2;
     private static final int FRAME_WIDTH_BYTES = NUM_CHANNELS * SAMPLE_WIDTH_BYTES;
     private static final int SAMPLE_RATE = 44000;
-    private static final int BUFFER_SIZE = SAMPLE_RATE / 5;
+    private static final int BUFFER_SIZE = SAMPLE_RATE / 20;
     private static final float EXPECTED_BUFFERS_PER_SEC = SAMPLE_RATE / ((float)BUFFER_SIZE / FRAME_WIDTH_BYTES);
-    private static final int MAX_BUFFERS = (int)(EXPECTED_BUFFERS_PER_SEC * 0.5);
+    private static final int MAX_BUFFERS = (int)(EXPECTED_BUFFERS_PER_SEC * 0.2);
 
     private final Downsampler downsampler;
     private SourceDataLine lineOut;
 
-    private final BlockingQueue<byte[]> buffers = new LinkedBlockingQueue<>();
+    private final BlockingQueue<byte[]> buffers = buildBufferQueue();
     private byte[] buffer = new byte[BUFFER_SIZE];
     private int bufPtr = 0;
 
@@ -48,7 +49,7 @@ public class StereoRenderer implements Renderer {
 
     public void init() throws LineUnavailableException {
         lineOut = AudioSystem.getSourceDataLine(FORMAT);
-        lineOut.open(FORMAT, BUFFER_SIZE * 2);
+        lineOut.open(FORMAT, BUFFER_SIZE);
         lineOut.start();
         new RenderThread().start();
     }
@@ -63,12 +64,17 @@ public class StereoRenderer implements Renderer {
     }
 
     private void buffer(byte[] bytes) {
-        System.arraycopy(bytes, 0, buffer, bufPtr, bytes.length);
-        bufPtr += bytes.length;
-        if (bufPtr == buffer.length) {
-            buffers.add(buffer);
-            buffer = new byte[BUFFER_SIZE];
-            bufPtr = 0;
+        try {
+            System.arraycopy(bytes, 0, buffer, bufPtr, bytes.length);
+            bufPtr += bytes.length;
+            if (bufPtr == buffer.length) {
+                buffers.put(buffer);
+                buffer = new byte[BUFFER_SIZE];
+                bufPtr = 0;
+            }
+        } catch (InterruptedException e) {
+            log.warn("Interrupted while blocking on audio buffer", e);
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -78,6 +84,14 @@ public class StereoRenderer implements Renderer {
         bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.asShortBuffer().put(sample);
         return result;
+    }
+
+    private static LinkedBlockingQueue<byte[]> buildBufferQueue() {
+        if (USE_BLOCKING_AUDIO) {
+            return new LinkedBlockingQueue<>(MAX_BUFFERS);
+        } else {
+            return new LinkedBlockingQueue<>();
+        }
     }
 
     private class RenderThread extends Thread {
