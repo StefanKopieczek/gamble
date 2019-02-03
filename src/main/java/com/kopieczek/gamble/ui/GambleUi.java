@@ -7,6 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -27,16 +29,24 @@ public class GambleUi extends JFrame {
         setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setDefaultLookAndFeelDecorated(true);
-        getContentPane().setLayout(new BorderLayout());
+        getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
+        getContentPane().setBackground(Color.BLACK);
 
         fixMacInput();
 
+        JPanel screenWithBorder = new JPanel();
+        screenWithBorder.setBackground(new Color(0x11, 0x11, 0x11));
+        screenWithBorder.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED,
+            new Color(0x18, 0x18, 0x18),
+            new Color(0x08, 0x08, 0x08)));
         Screen screen = new Screen(screenBuffer);
         screen.init();
-        getContentPane().add(screen, BorderLayout.CENTER);
+        screenWithBorder.add(screen);
+        add(screenWithBorder);
 
         Controls controls = new Controls(io);
-        getContentPane().add(controls, BorderLayout.SOUTH);
+        controls.setBorder(new EmptyBorder(10, 10, 10, 10));
+        add(controls);
         controls.init();
 
         pack();
@@ -66,7 +76,7 @@ public class GambleUi extends JFrame {
     }
 
     private boolean getMacPressAndHoldEnabled() throws Exception {
-        Process p = Runtime.getRuntime().exec(new String[] {
+        Process p = Runtime.getRuntime().exec(new String[]{
                 "defaults",
                 "read",
                 "NSGlobalDomain",
@@ -79,7 +89,7 @@ public class GambleUi extends JFrame {
     }
 
     private void setMacPressAndHold(boolean enabled) throws Exception {
-        Process p = Runtime.getRuntime().exec(new String[] {
+        Process p = Runtime.getRuntime().exec(new String[]{
                 "defaults",
                 "write",
                 "NSGlobalDomain",

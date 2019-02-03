@@ -4,6 +4,7 @@ import com.kopieczek.gamble.hardware.memory.Io;
 import com.kopieczek.gamble.ui.buttons.*;
 
 import javax.swing.*;
+import java.awt.*;
 
 class Controls extends JPanel {
     private final DPad dPad;
@@ -22,6 +23,7 @@ class Controls extends JPanel {
     }
 
     void init() {
+        setBackground(Color.BLACK);
         setFocusable(true);
         requestFocusInWindow();
         add(dPad);
