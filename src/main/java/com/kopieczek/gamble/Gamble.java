@@ -5,7 +5,6 @@ import com.kopieczek.gamble.hardware.audio.StereoRenderer;
 import com.kopieczek.gamble.hardware.cpu.Cpu;
 import com.kopieczek.gamble.hardware.cpu.Word;
 import com.kopieczek.gamble.hardware.cpu.timer.TimerChip;
-import com.kopieczek.gamble.hardware.governor.Governor;
 import com.kopieczek.gamble.hardware.graphics.Gpu;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 import com.kopieczek.gamble.hardware.memory.cartridge.Cartridge;
@@ -43,7 +42,6 @@ public class Gamble {
         log.info("Initializing UI");
         GambleUi gb = new GambleUi(gpu.getScreenBuffer(), mmu.getIo());
         SwingUtilities.invokeLater(gb::init);
-        Governor governor = new Governor();
 
         if (SHOULD_SKIP_BIOS) {
             mmu.setBiosEnabled(false);
