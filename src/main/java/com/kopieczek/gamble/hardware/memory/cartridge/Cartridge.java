@@ -6,4 +6,6 @@ public interface Cartridge {
     MemoryModule getRom0();
     MemoryModule getRom1();
     MemoryModule getRam();
+    byte[] exportRamData();
+    void importRamData(byte[] data);
 }

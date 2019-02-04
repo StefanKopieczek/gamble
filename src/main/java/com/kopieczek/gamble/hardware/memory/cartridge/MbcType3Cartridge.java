@@ -1,10 +1,15 @@
 package com.kopieczek.gamble.hardware.memory.cartridge;
 
+import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.google.common.base.Preconditions;
 import com.kopieczek.gamble.hardware.memory.MemoryModule;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 import com.kopieczek.gamble.hardware.memory.RamModule;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MbcType3Cartridge extends GameCartridge {
@@ -46,6 +51,16 @@ public class MbcType3Cartridge extends GameCartridge {
     protected MemoryModule buildRam(int[] data) {
         ramBank = new BankedRam();
         return ramBank;
+    }
+
+    @Override
+    public byte[] exportRamData() {
+        return ramBank.exportData();
+    }
+
+    @Override
+    public void importRamData(byte[] data) {
+        ramBank.importData(data);
     }
 
     private class BankedRom extends MemoryModule {
@@ -114,6 +129,27 @@ public class MbcType3Cartridge extends GameCartridge {
         public void setBank(int bankIdx) {
             if (bankIdx < NUM_BANKS) {
                 this.bankIdx = bankIdx;
+            }
+        }
+
+        byte[] exportData() {
+            int size = Mmu.EXT_RAM_SIZE * NUM_BANKS * 4;  // 4 bytes in an int
+            byte[] output = new byte[size];
+            ByteBuffer bb = ByteBuffer.wrap(output).order(ByteOrder.LITTLE_ENDIAN);
+            for (RamModule bank : ramBanks) {
+                byte[] bankData = bank.exportData();
+                Preconditions.checkArgument(bankData.length == Mmu.EXT_RAM_SIZE * 4);
+                bb.put(bankData);
+            }
+            return output;
+        }
+
+        void importData(byte[] data) {
+            Preconditions.checkArgument(data.length == Mmu.EXT_RAM_SIZE * NUM_BANKS * 4);
+            for (int idx = 0; idx < NUM_BANKS; idx++) {
+                int start = Mmu.EXT_RAM_SIZE * 4 * idx;
+                int end = start + Mmu.EXT_RAM_SIZE * 4;
+                ramBanks.get(idx).importData(Arrays.copyOfRange(data, start, end));
             }
         }
     }

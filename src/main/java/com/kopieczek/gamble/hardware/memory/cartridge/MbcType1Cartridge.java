@@ -146,6 +146,16 @@ class MbcType1Cartridge extends GameCartridge {
         romBankRegister = bankId;
     }
 
+    @Override
+    public byte[] exportRamData() {
+        throw new IllegalStateException("Not yet implemented");
+    }
+
+    @Override
+    public void importRamData(byte[] data) {
+        throw new IllegalStateException("Not yet implemented");
+    }
+
     private enum BankingMode {
         HIGH_ROM,
         RAM

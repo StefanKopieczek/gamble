@@ -23,4 +23,14 @@ public class RamBackedTestCartridge implements Cartridge {
     public MemoryModule getRam() {
         return ram;
     }
+
+    @Override
+    public byte[] exportRamData() {
+        throw new IllegalArgumentException("Not supported on this test class");
+    }
+
+    @Override
+    public void importRamData(byte[] data) {
+        throw new IllegalArgumentException("Not supported on this test class");
+    }
 }

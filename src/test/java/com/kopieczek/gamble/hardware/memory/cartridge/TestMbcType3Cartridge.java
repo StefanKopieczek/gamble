@@ -2,6 +2,7 @@ package com.kopieczek.gamble.hardware.memory.cartridge;
 
 import com.kopieczek.gamble.hardware.memory.*;
 import org.junit.Test;
+import sun.misc.IOUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -505,11 +506,37 @@ public class TestMbcType3Cartridge {
     public void test_ram_is_initially_at_bank_0() {
         MbcType3Cartridge cartridge = buildTestCartridge(cartridge1);
         Mmu mmu = getMmuForCartridge(cartridge);
-        mmu.setByte(0xa000, 0x0a); // Enable RAM
+        mmu.setByte(0x0000, 0x0a); // Enable RAM
         randomize(cartridge.getRam());
         long signature = getDigest(cartridge.getRam());
         mmu.setByte(0x4000, 0x00);
         assertEquals("RAM should be at bank 0", signature, getDigest(cartridge.getRam()));
+    }
+
+    @Test
+    public void test_export_and_import_ram_data_are_inverse() throws Exception {
+        MbcType3Cartridge cartridge = buildTestCartridge(cartridge1);
+        Mmu mmu = getMmuForCartridge(cartridge);
+        mmu.setByte(0x0000, 0x0a); // Enable RAM
+
+        // Seed RAM, randomly, and record checksums
+        long[] signatures = new long[8];
+        for (int bankIdx = 0; bankIdx < 8; bankIdx++) {
+            mmu.setByte(0x4000, bankIdx);
+            randomize(cartridge.getRam());
+            signatures[bankIdx] = getDigest(cartridge.getRam());
+        }
+
+        // Export save state and load into a new cartridge; assert checksums are unchanged
+        byte[] ramBytes = cartridge.exportRamData();
+        cartridge = buildTestCartridge(cartridge1);
+        cartridge.importRamData(ramBytes);
+        mmu = getMmuForCartridge(cartridge);
+        mmu.setByte(0x0000, 0x0a); // Enable RAM
+        for (int bankIdx = 0; bankIdx < 8; bankIdx++) {
+            mmu.setByte(0x4000, bankIdx);
+            assertEquals("Unexpected data at index " + bankIdx, signatures[bankIdx], getDigest(cartridge.getRam()));
+        }
     }
 
     private static int[] buildTestData(Random random) {

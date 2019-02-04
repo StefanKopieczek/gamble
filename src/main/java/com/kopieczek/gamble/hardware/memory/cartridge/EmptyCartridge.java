@@ -23,6 +23,16 @@ public class EmptyCartridge implements Cartridge {
         return ram;
     }
 
+    @Override
+    public byte[] exportRamData() {
+        throw new IllegalStateException("Not yet implemented");
+    }
+
+    @Override
+    public void importRamData(byte[] data) {
+        throw new IllegalStateException("Not yet implemented");
+    }
+
     private static class VoidMemory extends MemoryModule {
         VoidMemory(int size) {
             super(size);
