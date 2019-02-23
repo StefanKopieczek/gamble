@@ -698,7 +698,7 @@ public class TestMmu {
 
     private static class DummyIoModule extends IoModule {
         // IO has a lot of memory mapped weirdness.
-        // For the purpose of MMU testing, delegate to a more simple store
+        // For the purpose of MMU testing, delegate to a more simple put
         // so we can make sure the MMU triggers the right reads and writes
         // without dealing with IO complexities.
         private final RamModule delegate;
