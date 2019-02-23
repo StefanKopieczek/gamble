@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public class HashMapDb implements SaveFileDb<String> {
     private static final long serialVersionUID = 1L;
-    private HashMap<String, int[]> data = new HashMap<>();
+    private HashMap<String, byte[]> data = new HashMap<>();
     private File file;
 
     private HashMapDb(File dbFile) {
@@ -21,13 +21,13 @@ public class HashMapDb implements SaveFileDb<String> {
     }
 
     @Override
-    public void put(String key, int[] ramData) {
+    public void put(String key, byte[] ramData) {
         data.put(key, ramData);
         persistDb();
     }
 
     @Override
-    public Optional<int[]> get(String key) {
+    public Optional<byte[]> get(String key) {
         return Optional.ofNullable(data.get(key));
     }
 
@@ -46,8 +46,8 @@ public class HashMapDb implements SaveFileDb<String> {
     private void loadFromDb() {
         try {
             FileInputStream fin = new FileInputStream(file);
-            ObjectInputStream oin= new ObjectInputStream(fin);
-            data = (HashMap<String, int[]>) oin.readObject();
+            ObjectInputStream oin = new ObjectInputStream(fin);
+            data = (HashMap<String, byte[]>) oin.readObject();
             oin.close();
             fin.close();
         } catch (IOException | ClassNotFoundException e) {

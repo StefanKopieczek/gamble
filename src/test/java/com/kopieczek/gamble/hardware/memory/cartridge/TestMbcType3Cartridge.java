@@ -2,7 +2,6 @@ package com.kopieczek.gamble.hardware.memory.cartridge;
 
 import com.kopieczek.gamble.hardware.memory.*;
 import org.junit.Test;
-import sun.misc.IOUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -266,10 +265,10 @@ public class TestMbcType3Cartridge {
         Mmu mmu = getMmuForCartridge(cartridge);
         mmu.setByte(0x0000, 0x0a); // Enable RAM
         mmu.setByte(0x4000, 0x00); // Select RAM bank 0
-        randomize(cartridge.getRam());
-        long initialSig = getDigest(cartridge.getRam());
-        randomize(cartridge.getRam());
-        long newSig = getDigest(cartridge.getRam());
+        randomize(cartridge.getRamInternal());
+        long initialSig = getDigest(cartridge.getRamInternal());
+        randomize(cartridge.getRamInternal());
+        long newSig = getDigest(cartridge.getRamInternal());
         assertNotEquals("RAM contents should have been modified", initialSig, newSig);
     }
 
@@ -279,12 +278,12 @@ public class TestMbcType3Cartridge {
         Mmu mmu = getMmuForCartridge(cartridge);
         mmu.setByte(0x0000, 0x0a); // Initially enable RAM
         mmu.setByte(0x4000, 0x00); // Select RAM bank 0
-        randomize(cartridge.getRam());
-        long initialSig = getDigest(cartridge.getRam());
+        randomize(cartridge.getRamInternal());
+        long initialSig = getDigest(cartridge.getRamInternal());
         mmu.setByte(0x0000, 0x00); // Disable RAM
-        randomize(cartridge.getRam()); // This should have no effect
+        randomize(cartridge.getRamInternal()); // This should have no effect
         mmu.setByte(0x0000, 0x0a); // Re-enable RAM so it can be read
-        long newSig = getDigest(cartridge.getRam());
+        long newSig = getDigest(cartridge.getRamInternal());
         assertEquals("RAM contents should have been unchanged by second write", initialSig, newSig);
     }
 
@@ -305,10 +304,10 @@ public class TestMbcType3Cartridge {
         Mmu mmu = getMmuForCartridge(cartridge);
         mmu.setByte(0x0000, 0x0a); // Enable RAM
         mmu.setByte(0x4000, 0x00); // Initially select RAM bank 0
-        randomize(cartridge.getRam());
-        long ram0Sig = getDigest(cartridge.getRam());
+        randomize(cartridge.getRamInternal());
+        long ram0Sig = getDigest(cartridge.getRamInternal());
         mmu.setByte(0x4000, 0x01); // Select RAM bank 1
-        long initialRam1Sig = getDigest(cartridge.getRam());
+        long initialRam1Sig = getDigest(cartridge.getRamInternal());
         assertNotEquals(ram0Sig, initialRam1Sig);
     }
 
@@ -318,11 +317,11 @@ public class TestMbcType3Cartridge {
         Mmu mmu = getMmuForCartridge(cartridge);
         mmu.setByte(0x0000, 0x0a); // Enable RAM
         mmu.setByte(0x4000, 0x00); // Initially select RAM bank 0
-        randomize(cartridge.getRam());
-        long ram0Sig = getDigest(cartridge.getRam());
+        randomize(cartridge.getRamInternal());
+        long ram0Sig = getDigest(cartridge.getRamInternal());
         mmu.setByte(0x4000, 0x01); // Select RAM bank 1
         mmu.setByte(0x4000, 0x00); // ...and immediately bank back to 0
-        assertEquals("Ram 0 should not have been modified", ram0Sig, getDigest(cartridge.getRam()));
+        assertEquals("Ram 0 should not have been modified", ram0Sig, getDigest(cartridge.getRamInternal()));
     }
 
     @Test
@@ -331,12 +330,12 @@ public class TestMbcType3Cartridge {
         Mmu mmu = getMmuForCartridge(cartridge);
         mmu.setByte(0x0000, 0x0a); // Enable RAM
         mmu.setByte(0x4000, 0x00); // Initially select RAM bank 0
-        randomize(cartridge.getRam());
-        long initialRam0Sig = getDigest(cartridge.getRam());
+        randomize(cartridge.getRamInternal());
+        long initialRam0Sig = getDigest(cartridge.getRamInternal());
         mmu.setByte(0x4000, 0x01); // Select RAM bank 1
-        randomize(cartridge.getRam());
+        randomize(cartridge.getRamInternal());
         mmu.setByte(0x4000, 0x00); // Re-select RAM bank 0
-        assertEquals("Ram 0 should not have been modified", initialRam0Sig, getDigest(cartridge.getRam()));
+        assertEquals("Ram 0 should not have been modified", initialRam0Sig, getDigest(cartridge.getRamInternal()));
     }
 
     @Test
@@ -345,12 +344,12 @@ public class TestMbcType3Cartridge {
         Mmu mmu = getMmuForCartridge(cartridge);
         mmu.setByte(0x0000, 0x0a); // Enable RAM
         mmu.setByte(0x4000, 0x01); // Initially select RAM bank 0
-        randomize(cartridge.getRam());
-        long initialRam1Sig = getDigest(cartridge.getRam());
+        randomize(cartridge.getRamInternal());
+        long initialRam1Sig = getDigest(cartridge.getRamInternal());
         mmu.setByte(0x4000, 0x00); // Select RAM bank 1
-        randomize(cartridge.getRam());
+        randomize(cartridge.getRamInternal());
         mmu.setByte(0x4000, 0x01); // Re-select RAM bank 0
-        assertEquals("Ram 1 should not have been modified", initialRam1Sig, getDigest(cartridge.getRam()));
+        assertEquals("Ram 1 should not have been modified", initialRam1Sig, getDigest(cartridge.getRamInternal()));
     }
 
     @Test
@@ -360,12 +359,12 @@ public class TestMbcType3Cartridge {
         mmu.setByte(0x0000, 0x0a); // Enable RAM
         for (int bankIdx = 0; bankIdx < 8; bankIdx++) {
             mmu.setByte(0x4000, bankIdx);
-            randomize(cartridge.getRam());
+            randomize(cartridge.getRamInternal());
         }
         Set<Long> seenBanks = new HashSet<>();
         for (int bankIdx = 0; bankIdx < 8; bankIdx++) {
             mmu.setByte(0x4000, bankIdx);
-            seenBanks.add(getDigest(cartridge.getRam()));
+            seenBanks.add(getDigest(cartridge.getRamInternal()));
         }
         assertTrue("Expected >=8 RAM banks; actually saw " + seenBanks.size(), seenBanks.size() >= 8);
     }
@@ -376,13 +375,13 @@ public class TestMbcType3Cartridge {
         Mmu mmu = getMmuForCartridge(cartridge);
         mmu.setByte(0x0000, 0x0a); // Initially activate RAM
         mmu.setByte(0x4000, 3); // Select RAM bank 3
-        randomize(cartridge.getRam());
-        long ram3Sig = getDigest(cartridge.getRam());
+        randomize(cartridge.getRamInternal());
+        long ram3Sig = getDigest(cartridge.getRamInternal());
         mmu.setByte(0x4000, 1); // Select RAM bank 1
         mmu.setByte(0x0000, 0x00); // Disable RAM
         mmu.setByte(0x4000, 3); // Bank back to RAM 3
         mmu.setByte(0x0000, 0x0a); // Re-enable RAM
-        assertEquals("Ram bank 3 should be selected", ram3Sig, getDigest(cartridge.getRam()));
+        assertEquals("Ram bank 3 should be selected", ram3Sig, getDigest(cartridge.getRamInternal()));
     }
 
     @Test
@@ -393,14 +392,14 @@ public class TestMbcType3Cartridge {
 
         // Init RAM bank 2 and record signature
         mmu.setByte(0x4000, 2);
-        randomize(cartridge.getRam());
-        long ram2Sig = getDigest(cartridge.getRam());
+        randomize(cartridge.getRamInternal());
+        long ram2Sig = getDigest(cartridge.getRamInternal());
         mmu.setByte(0x4000, 0);
 
         for (int addr = 0x4000; addr < 0x6000; addr++) {
             mmu.setByte(addr, 2);
             String msg = String.format("Write to %x failed to update ram bank", addr);
-            assertEquals(msg, ram2Sig, getDigest(cartridge.getRam()));
+            assertEquals(msg, ram2Sig, getDigest(cartridge.getRamInternal()));
         }
     }
 
@@ -412,14 +411,14 @@ public class TestMbcType3Cartridge {
 
         // Init RAM bank 2 and record signature
         mmu.setByte(0x4000, 6);
-        randomize(cartridge.getRam());
-        long ram2Sig = getDigest(cartridge.getRam());
+        randomize(cartridge.getRamInternal());
+        long ram2Sig = getDigest(cartridge.getRamInternal());
         mmu.setByte(0x4000, 0);
 
         for (int addr = 0x4000; addr < 0x6000; addr++) {
             mmu.setByte(addr, 6);
             String msg = String.format("Write to %x failed to update ram bank", addr);
-            assertEquals(msg, ram2Sig, getDigest(cartridge.getRam()));
+            assertEquals(msg, ram2Sig, getDigest(cartridge.getRamInternal()));
         }
     }
 
@@ -507,10 +506,10 @@ public class TestMbcType3Cartridge {
         MbcType3Cartridge cartridge = buildTestCartridge(cartridge1);
         Mmu mmu = getMmuForCartridge(cartridge);
         mmu.setByte(0x0000, 0x0a); // Enable RAM
-        randomize(cartridge.getRam());
-        long signature = getDigest(cartridge.getRam());
+        randomize(cartridge.getRamInternal());
+        long signature = getDigest(cartridge.getRamInternal());
         mmu.setByte(0x4000, 0x00);
-        assertEquals("RAM should be at bank 0", signature, getDigest(cartridge.getRam()));
+        assertEquals("RAM should be at bank 0", signature, getDigest(cartridge.getRamInternal()));
     }
 
     @Test
@@ -523,8 +522,8 @@ public class TestMbcType3Cartridge {
         long[] signatures = new long[8];
         for (int bankIdx = 0; bankIdx < 8; bankIdx++) {
             mmu.setByte(0x4000, bankIdx);
-            randomize(cartridge.getRam());
-            signatures[bankIdx] = getDigest(cartridge.getRam());
+            randomize(cartridge.getRamInternal());
+            signatures[bankIdx] = getDigest(cartridge.getRamInternal());
         }
 
         // Export save state and load into a new cartridge; assert checksums are unchanged
@@ -535,7 +534,7 @@ public class TestMbcType3Cartridge {
         mmu.setByte(0x0000, 0x0a); // Enable RAM
         for (int bankIdx = 0; bankIdx < 8; bankIdx++) {
             mmu.setByte(0x4000, bankIdx);
-            assertEquals("Unexpected data at index " + bankIdx, signatures[bankIdx], getDigest(cartridge.getRam()));
+            assertEquals("Unexpected data at index " + bankIdx, signatures[bankIdx], getDigest(cartridge.getRamInternal()));
         }
     }
 

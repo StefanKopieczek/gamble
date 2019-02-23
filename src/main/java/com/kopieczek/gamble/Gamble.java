@@ -9,6 +9,8 @@ import com.kopieczek.gamble.hardware.graphics.Gpu;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 import com.kopieczek.gamble.hardware.memory.cartridge.Cartridge;
 import com.kopieczek.gamble.hardware.memory.cartridge.CartridgeLoader;
+import com.kopieczek.gamble.savefiles.HashMapDb;
+import com.kopieczek.gamble.savefiles.SaveFileDb;
 import com.kopieczek.gamble.ui.GambleUi;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +39,8 @@ public class Gamble {
         Apu apu = new Apu(mmu.getIo(), getRenderer());
 
         log.info("Loading ROM");
-        loadRom(mmu, new File(args[0]));
+        SaveFileDb<String> saveFileDb = HashMapDb.initialize(new File(System.getProperty("user.home"), ".gambledb"));
+        loadRom(mmu, saveFileDb, new File(args[0]));
 
         log.info("Initializing UI");
         GambleUi gb = new GambleUi(gpu.getScreenBuffer(), mmu.getIo());
@@ -69,9 +72,13 @@ public class Gamble {
         }
     }
 
-    private static void loadRom(Mmu mmu, File file) {
+    private static void loadRom(Mmu mmu, SaveFileDb<String> saveFileDb, File file) {
         try {
             Cartridge cartridge = CartridgeLoader.loadFrom(file);
+            cartridge.setSaveFileDb(saveFileDb);
+            if (cartridge.hasSaveData()) {
+                cartridge.loadFromSave();
+            }
             mmu.loadCartridge(cartridge);
         } catch (IOException e) {
             log.error("Failed to load rom", e);

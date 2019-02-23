@@ -10,8 +10,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class TestHashMapDb {
-    private static int[] ARRAY_1 = new int[] {-10, 3, 255};
-    private static int[] ARRAY_2 = new int[] {100, 1, 2, 3, -255, 255, 19};
+    private static byte[] ARRAY_1 = new byte[] {-10, 3, 127};
+    private static byte[] ARRAY_2 = new byte[] {100, 1, 2, 3, -127, 127, 19};
 
     @Test
     public void test_open_empty_file_succeeds() throws Exception {
@@ -22,10 +22,9 @@ public class TestHashMapDb {
     @Test
     public void test_put_and_retrieve_one_array() throws Exception {
         HashMapDb db = getTempDb();
-        int[] expected = new int[] {-10, 3, 255};
-        db.put("foo", expected);
-        int[] actual = db.get("foo").get();
-        assertArrayEquals(expected, actual);
+        db.put("foo", ARRAY_1);
+        byte[] actual = db.get("foo").get();
+        assertArrayEquals(ARRAY_1, actual);
     }
 
     @Test
