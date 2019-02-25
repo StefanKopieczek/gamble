@@ -75,9 +75,15 @@ public class Gamble {
     private static void loadRom(Mmu mmu, SaveFileDb<String> saveFileDb, File file) {
         try {
             Cartridge cartridge = CartridgeLoader.loadFrom(file);
-            cartridge.setSaveFileDb(saveFileDb);
-            if (cartridge.hasSaveData()) {
-                cartridge.loadFromSave();
+            cartridge.addExtRamListener((addr, val) -> {
+                int[] save = saveFileDb.get(cartridge.getSignature()).get();
+                save[addr] = val;
+                saveFileDb.put(cartridge.getSignature(), save);
+            });
+            if (saveFileDb.get(cartridge.getSignature()).isPresent()) {
+                cartridge.importRamData(saveFileDb.get(cartridge.getSignature()).get());
+            } else {
+                saveFileDb.put(cartridge.getSignature(), new int[cartridge.getRamSize()]);
             }
             mmu.loadCartridge(cartridge);
         } catch (IOException e) {

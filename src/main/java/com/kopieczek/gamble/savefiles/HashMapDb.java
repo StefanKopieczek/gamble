@@ -3,17 +3,26 @@ package com.kopieczek.gamble.savefiles;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class HashMapDb implements SaveFileDb<String> {
-    private static final long serialVersionUID = 1L;
-    private HashMap<String, byte[]> data = new HashMap<>();
+    private HashMap<String, int[]> data = new HashMap<>();
     private File file;
+    private final Timer saveTimer = new Timer(true);
 
     private HashMapDb(File dbFile) {
         this.file = dbFile;
         if (dbFile.exists()) {
             loadFromDb();
         }
+
+        saveTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                persistDb();
+            }
+        }, 0, 2000);
     }
 
     public static HashMapDb initialize(File dbFile) {
@@ -21,13 +30,12 @@ public class HashMapDb implements SaveFileDb<String> {
     }
 
     @Override
-    public void put(String key, byte[] ramData) {
+    public void put(String key, int[] ramData) {
         data.put(key, ramData);
-        persistDb();
     }
 
     @Override
-    public Optional<byte[]> get(String key) {
+    public Optional<int[]> get(String key) {
         return Optional.ofNullable(data.get(key));
     }
 
@@ -47,7 +55,7 @@ public class HashMapDb implements SaveFileDb<String> {
         try {
             FileInputStream fin = new FileInputStream(file);
             ObjectInputStream oin = new ObjectInputStream(fin);
-            data = (HashMap<String, byte[]>) oin.readObject();
+            data = (HashMap<String, int[]>) oin.readObject();
             oin.close();
             fin.close();
         } catch (IOException | ClassNotFoundException e) {

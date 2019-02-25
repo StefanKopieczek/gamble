@@ -15,7 +15,6 @@ class MbcType1Cartridge extends GameCartridge {
     private final MemoryModule[] ramBanks = new RamModule[4];
     private int ramBankRegister = 0;
     private int romBankRegister = 1; // Don't set this directly; use setRomBankRegister.
-
     private boolean isRamEnabled = false;
     private BankingMode bankingMode = BankingMode.HIGH_ROM;
 
@@ -98,7 +97,7 @@ class MbcType1Cartridge extends GameCartridge {
             @Override
             public int readByte(int address) {
                 if (isRamEnabled) {
-                    return getRamBank().readByte(address);
+                    return ramBanks[getRamBank()].readByte(address);
                 } else {
                     log.warn("Program tried to read from extram while it was disabled");
                     return 0xff;
@@ -108,7 +107,12 @@ class MbcType1Cartridge extends GameCartridge {
             @Override
             protected void setByteDirect(int address, int value) {
                 if (isRamEnabled) {
-                    getRamBank().setByte(address, value);
+                    int bankIdx = getRamBank();
+                    ramBanks[bankIdx].setByte(address, value);
+                    int byteIndex = bankIdx * Mmu.EXT_RAM_SIZE + address;
+                    ramListeners.forEach(l -> {
+                        l.onRamChanged(byteIndex, value);
+                    });
                 } else {
                     log.warn("Program tried to write to extram while it was disabled");
                 }
@@ -124,11 +128,11 @@ class MbcType1Cartridge extends GameCartridge {
         }
     }
 
-    private MemoryModule getRamBank() {
+    private int getRamBank() {
         if (bankingMode == BankingMode.RAM) {
-            return ramBanks[ramBankRegister & 0x03];
+            return ramBankRegister & 0x03;
         } else {
-            return ramBanks[0];
+            return 0;
         }
     }
 
@@ -147,13 +151,18 @@ class MbcType1Cartridge extends GameCartridge {
     }
 
     @Override
-    public byte[] exportRamData() {
+    public int getRamSize() {
+        return ramBanks.length * Mmu.EXT_RAM_SIZE;
+    }
+
+    @Override
+    public void importRamData(int[] data) {
         throw new IllegalStateException("Not yet implemented");
     }
 
     @Override
-    public void importRamData(byte[] data) {
-        throw new IllegalStateException("Not yet implemented");
+    public void addExtRamListener(ExtRamListener listener) {
+
     }
 
     private enum BankingMode {

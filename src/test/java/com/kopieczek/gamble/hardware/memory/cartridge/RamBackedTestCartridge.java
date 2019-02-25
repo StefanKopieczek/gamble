@@ -4,7 +4,7 @@ import com.kopieczek.gamble.hardware.memory.MemoryModule;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 import com.kopieczek.gamble.hardware.memory.RamModule;
 
-public class RamBackedTestCartridge extends Cartridge {
+public class RamBackedTestCartridge implements Cartridge {
     private final MemoryModule rom0 = new RamModule(Mmu.ROM_0_SIZE);
     private final MemoryModule rom1 = new RamModule(Mmu.ROM_1_SIZE);
     private final MemoryModule ram  = new RamModule(Mmu.EXT_RAM_SIZE);
@@ -19,23 +19,27 @@ public class RamBackedTestCartridge extends Cartridge {
         return rom1;
     }
 
-    @Override
-    public MemoryModule getRamInternal() {
+    public MemoryModule getRam() {
         return ram;
     }
 
     @Override
-    public byte[] exportRamData() {
+    public int getRamSize() {
+        return Mmu.EXT_RAM_SIZE;
+    }
+
+    @Override
+    public void importRamData(int[] data) {
         throw new IllegalArgumentException("Not supported on this test class");
     }
 
     @Override
-    public void importRamData(byte[] data) {
-        throw new IllegalArgumentException("Not supported on this test class");
-    }
-
-    @Override
-    protected String getSignature() {
+    public String getSignature() {
         return "test";
+    }
+
+    @Override
+    public void addExtRamListener(ExtRamListener listener) {
+        throw new IllegalStateException("Not orchestrated for testing");
     }
 }

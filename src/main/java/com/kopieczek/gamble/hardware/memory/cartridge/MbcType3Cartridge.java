@@ -1,6 +1,5 @@
 package com.kopieczek.gamble.hardware.memory.cartridge;
 
-import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.google.common.base.Preconditions;
 import com.kopieczek.gamble.hardware.memory.MemoryModule;
 import com.kopieczek.gamble.hardware.memory.Mmu;
@@ -54,14 +53,15 @@ public class MbcType3Cartridge extends GameCartridge {
     }
 
     @Override
-    public byte[] exportRamData() {
-        return ramBank.exportData();
+    public int getRamSize() {
+        return BankedRam.NUM_BANKS * Mmu.EXT_RAM_SIZE;
     }
 
     @Override
-    public void importRamData(byte[] data) {
+    public void importRamData(int[] data) {
         ramBank.importData(data);
     }
+
 
     private class BankedRom extends MemoryModule {
         private int[] data;
@@ -123,6 +123,10 @@ public class MbcType3Cartridge extends GameCartridge {
         protected void setByteDirect(int address, int value) {
             if (isEnabled) {
                 ramBanks.get(bankIdx).setByte(address, value);
+                int byteIndex = bankIdx * Mmu.EXT_RAM_SIZE + address;
+                ramListeners.forEach(l -> {
+                    l.onRamChanged(byteIndex, value);
+                });
             }
         }
 
@@ -132,23 +136,11 @@ public class MbcType3Cartridge extends GameCartridge {
             }
         }
 
-        byte[] exportData() {
-            int size = Mmu.EXT_RAM_SIZE * NUM_BANKS * 4;  // 4 bytes in an int
-            byte[] output = new byte[size];
-            ByteBuffer bb = ByteBuffer.wrap(output).order(ByteOrder.LITTLE_ENDIAN);
-            for (RamModule bank : ramBanks) {
-                byte[] bankData = bank.exportData();
-                Preconditions.checkArgument(bankData.length == Mmu.EXT_RAM_SIZE * 4);
-                bb.put(bankData);
-            }
-            return output;
-        }
-
-        void importData(byte[] data) {
-            Preconditions.checkArgument(data.length == Mmu.EXT_RAM_SIZE * NUM_BANKS * 4);
+        void importData(int[] data) {
+            Preconditions.checkArgument(data.length == Mmu.EXT_RAM_SIZE * NUM_BANKS);
             for (int idx = 0; idx < NUM_BANKS; idx++) {
-                int start = Mmu.EXT_RAM_SIZE * 4 * idx;
-                int end = start + Mmu.EXT_RAM_SIZE * 4;
+                int start = Mmu.EXT_RAM_SIZE * idx;
+                int end = start + Mmu.EXT_RAM_SIZE;
                 ramBanks.get(idx).importData(Arrays.copyOfRange(data, start, end));
             }
         }

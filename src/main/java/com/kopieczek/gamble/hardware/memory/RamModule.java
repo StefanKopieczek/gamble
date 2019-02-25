@@ -51,10 +51,7 @@ public class RamModule extends MemoryModule {
         return output;
     }
 
-    public void importData(byte[] data) {
-        Preconditions.checkArgument(data.length == getSizeInBytes() * 4);
-        IntBuffer intBuf = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
-        memory = new int[intBuf.remaining()];
-        intBuf.get(memory);
+    public void importData(int[] data) {
+        memory = Arrays.copyOf(data, data.length);
     }
 }

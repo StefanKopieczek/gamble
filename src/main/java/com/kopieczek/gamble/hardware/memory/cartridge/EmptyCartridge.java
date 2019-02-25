@@ -3,7 +3,7 @@ package com.kopieczek.gamble.hardware.memory.cartridge;
 import com.kopieczek.gamble.hardware.memory.MemoryModule;
 import com.kopieczek.gamble.hardware.memory.Mmu;
 
-public class EmptyCartridge extends Cartridge {
+public class EmptyCartridge implements Cartridge {
     private final MemoryModule rom0 = new VoidMemory(Mmu.ROM_0_SIZE);
     private final MemoryModule rom1 = new VoidMemory(Mmu.ROM_1_SIZE);
     private final MemoryModule ram = new VoidMemory(Mmu.EXT_RAM_SIZE);
@@ -19,23 +19,28 @@ public class EmptyCartridge extends Cartridge {
     }
 
     @Override
-    public MemoryModule getRamInternal() {
+    public MemoryModule getRam() {
         return ram;
     }
 
     @Override
-    public byte[] exportRamData() {
+    public int getRamSize() {
+        return 0;
+    }
+
+    @Override
+    public void importRamData(int[] data) {
         throw new IllegalStateException("Not yet implemented");
     }
 
     @Override
-    public void importRamData(byte[] data) {
-        throw new IllegalStateException("Not yet implemented");
-    }
-
-    @Override
-    protected String getSignature() {
+    public String getSignature() {
         return this.getClass().getCanonicalName() + ":0";
+    }
+
+    @Override
+    public void addExtRamListener(ExtRamListener listener) {
+
     }
 
     private static class VoidMemory extends MemoryModule {

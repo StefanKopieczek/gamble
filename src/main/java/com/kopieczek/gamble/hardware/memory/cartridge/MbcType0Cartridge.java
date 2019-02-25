@@ -28,12 +28,12 @@ class MbcType0Cartridge extends GameCartridge {
     }
 
     @Override
-    public byte[] exportRamData() {
-        return new byte[0]; // No RAM to export
+    public int getRamSize() {
+        return Mmu.EXT_RAM_SIZE;
     }
 
     @Override
-    public void importRamData(byte[] data) {
+    public void importRamData(int[] data) {
         if (data.length > 0) {
             throw new IllegalArgumentException("Unable to import non-empty RAM; this cartridge type has no RAM");
         }

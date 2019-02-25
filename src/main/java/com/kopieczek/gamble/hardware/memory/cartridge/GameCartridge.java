@@ -2,10 +2,14 @@ package com.kopieczek.gamble.hardware.memory.cartridge;
 
 import com.kopieczek.gamble.hardware.memory.MemoryModule;
 
-abstract class GameCartridge extends Cartridge {
+import java.util.ArrayList;
+import java.util.List;
+
+abstract class GameCartridge implements Cartridge {
     private final MemoryModule rom0;
     private final MemoryModule rom1;
     private final MemoryModule ram;
+    protected List<ExtRamListener> ramListeners = new ArrayList<>();
     private final int[] data;
     private String signature = null;
 
@@ -33,8 +37,13 @@ abstract class GameCartridge extends Cartridge {
     }
 
     @Override
-    public final MemoryModule getRamInternal() {
+    public final MemoryModule getRam() {
         return ram;
+    }
+
+    @Override
+    public void addExtRamListener(ExtRamListener listener) {
+        ramListeners.add(listener);
     }
 
     @Override
